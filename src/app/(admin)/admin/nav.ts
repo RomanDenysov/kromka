@@ -36,7 +36,7 @@ export type NavSection = {
 
 export type AdminNavNode = NavItem | NavSection;
 
-const NAV: AdminNavNode[] = [
+export const NAV: AdminNavNode[] = [
   {
     type: "item",
     label: "Dashboard",

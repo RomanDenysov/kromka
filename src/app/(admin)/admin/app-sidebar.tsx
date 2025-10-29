@@ -16,15 +16,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useAdminNav } from "./nav";
+import type { AdminNavNode } from "./nav";
 
 type Props = ComponentProps<typeof Sidebar> & {
+  navigation: AdminNavNode[];
   badgeCounts: Record<string, number>;
 };
 
-export default function AppSidebar({ badgeCounts, ...props }: Props) {
+export default function AppSidebar({
+  navigation,
+  badgeCounts,
+  ...props
+}: Props) {
   const pathname = usePathname();
-  const navigation = useAdminNav({ role: "admin" });
   const getIsActive = useMemo(
     () => (href: string, exact?: boolean) =>
       exact ? pathname === href : pathname.startsWith(href),
@@ -77,7 +81,7 @@ export default function AppSidebar({ badgeCounts, ...props }: Props) {
                               <span>{item.label}</span>
                             </Link>
                           </SidebarMenuButton>
-                          {item.badgeKey && (
+                          {item.badgeKey && badgeCounts[item.badgeKey] > 0 && (
                             <SidebarMenuBadge>
                               {badgeCounts[item.badgeKey]}
                             </SidebarMenuBadge>
@@ -112,7 +116,7 @@ export default function AppSidebar({ badgeCounts, ...props }: Props) {
                         <span>{node.label}</span>
                       </Link>
                     </SidebarMenuButton>
-                    {node.badgeKey && (
+                    {node.badgeKey && badgeCounts[node.badgeKey] > 0 && (
                       <SidebarMenuBadge>
                         {badgeCounts[node.badgeKey]}
                       </SidebarMenuBadge>
