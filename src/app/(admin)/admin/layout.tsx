@@ -1,25 +1,26 @@
-import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { assertPerm } from "@/lib/auth/rbac";
-import { getSession } from "@/lib/get-session";
 import AppSidebar from "./app-sidebar";
-import { getAdminNav } from "./nav";
 
 type Props = {
   readonly children: ReactNode;
 };
 
-export default async function AdminLayout({ children }: Props) {
-  const session = await getSession();
-  if (!session?.user) {
-    notFound();
-  }
-  await assertPerm("admin.read");
-  const navigation = await getAdminNav();
+const counstBadges = {
+  "b2c.orders": 10,
+  "b2b.invoices": 20,
+  "blog.comments": 30,
+};
+
+export default function AdminLayout({ children }: Props) {
+  // const session = await getSession();
+  // if (!session?.user) {
+  //   notFound();
+  // }
+  // await assertPerm("admin.read");
   return (
     <SidebarProvider>
-      <AppSidebar navigation={navigation} />
+      <AppSidebar counstBadges={counstBadges} />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
   );

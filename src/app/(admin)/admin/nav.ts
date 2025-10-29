@@ -13,12 +13,12 @@ import {
   TagsIcon,
   Users2Icon,
 } from "lucide-react";
+import type { Route } from "next";
 import { type Permission, ROLE_PERMS } from "@/lib/auth/rbac";
-import { getSession } from "@/lib/get-session";
 
 export type NavItem = {
   label: string;
-  href: string;
+  href: Route;
   icon?: LucideIcon;
   perm?: Permission;
   items?: NavItem[];
@@ -69,6 +69,11 @@ const NAV: NavItem[] = [
         label: "Companies",
         href: "/admin/b2b/companies",
         icon: Building2Icon,
+      },
+      {
+        label: "Products",
+        href: "/admin/b2b/products",
+        icon: Package2Icon,
       },
       {
         label: "Invoices",
@@ -140,9 +145,8 @@ const NAV: NavItem[] = [
   },
 ];
 
-export async function getAdminNav(): Promise<NavItem[]> {
-  const session = await getSession();
-  const perms = new Set(ROLE_PERMS[session?.user?.role ?? ""] ?? []);
+export function useAdminNav({ role }: { role: string }): NavItem[] {
+  const perms = new Set(ROLE_PERMS[role] ?? []);
   const fit = (item: NavItem): boolean =>
     // biome-ignore lint/suspicious/noExplicitAny: TODO: Fix this later with better typing
     !item.perm || perms.has(item.perm as any);
