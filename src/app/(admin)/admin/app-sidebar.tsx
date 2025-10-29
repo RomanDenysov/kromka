@@ -19,14 +19,15 @@ import {
 import { useAdminNav } from "./nav";
 
 type Props = ComponentProps<typeof Sidebar> & {
-  counstBadges: Record<string, number>;
+  badgeCounts: Record<string, number>;
 };
 
-export default function AppSidebar({ counstBadges, ...props }: Props) {
+export default function AppSidebar({ badgeCounts, ...props }: Props) {
   const pathname = usePathname();
   const navigation = useAdminNav({ role: "admin" });
-  const isActive = useMemo(
-    () => (href: string) => pathname.startsWith(href),
+  const getIsActive = useMemo(
+    () => (href: string, exact?: boolean) =>
+      exact ? pathname === href : pathname.startsWith(href),
     [pathname]
   );
 
@@ -51,37 +52,77 @@ export default function AppSidebar({ counstBadges, ...props }: Props) {
       </SidebarHeader>
 
       <SidebarContent>
-        {navigation.map((nav) => (
-          <SidebarGroup key={nav.href}>
-            <SidebarGroupLabel>{nav.label}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {nav.items?.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive(item.href)}
-                        tooltip={item.label}
+        {navigation.map((node) => {
+          if (node.type === "section") {
+            return (
+              <SidebarGroup key={node.href}>
+                <SidebarGroupLabel>{node.label}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {node.items?.map((item) => {
+                      const Icon = item.icon;
+                      const active = getIsActive(item.href, item.exact);
+                      return (
+                        <SidebarMenuItem key={item.href}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={active}
+                            tooltip={item.label}
+                          >
+                            <Link
+                              aria-current={active ? "page" : undefined}
+                              href={item.href}
+                            >
+                              {Icon && <Icon />}
+                              <span>{item.label}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                          {item.badgeKey && (
+                            <SidebarMenuBadge>
+                              {badgeCounts[item.badgeKey]}
+                            </SidebarMenuBadge>
+                          )}
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          }
+
+          // single item at the root level
+          const Icon = node.icon;
+          const active = getIsActive(node.href, node.exact);
+          return (
+            <SidebarGroup key={node.href}>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={active}
+                      tooltip={node.label}
+                    >
+                      <Link
+                        aria-current={active ? "page" : undefined}
+                        href={node.href}
                       >
-                        <Link href={item.href}>
-                          {Icon && <Icon />}
-                          <span>{item.label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                      {item.badgeKey && (
-                        <SidebarMenuBadge>
-                          {counstBadges[item.badgeKey]}
-                        </SidebarMenuBadge>
-                      )}
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+                        {Icon && <Icon />}
+                        <span>{node.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                    {node.badgeKey && (
+                      <SidebarMenuBadge>
+                        {badgeCounts[node.badgeKey]}
+                      </SidebarMenuBadge>
+                    )}
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
     </Sidebar>
   );
