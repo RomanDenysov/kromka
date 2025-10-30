@@ -36,7 +36,7 @@ export function LoginView({
         a{" "}
         <Link
           className="text-primary underline"
-          href="/zasady-ochrany-osobnych-udajovzasady-ochrany-osobnych-udajov"
+          href="/zasady-ochrany-osobnych-udajov"
         >
           Zásadami ochrany súkromia
         </Link>

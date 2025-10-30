@@ -42,7 +42,7 @@ export function MagicLink(props: { url: string }) {
                 účtu.
               </Text>
               <Button
-                className="my-0 rounded-md bg-gray-800 px-[20px] py-[12px] text-center text-white transition-colors hover:bg-gray-600"
+                className="my-0 rounded-md bg-gray-800 px-[20px] py-[12px] text-center text-white"
                 href={url}
               >
                 Prihlásiť sa

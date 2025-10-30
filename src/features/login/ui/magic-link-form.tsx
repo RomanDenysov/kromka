@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/correctness/noChildrenProp: <explanation> */
 "use client";
 
 import { useForm } from "@tanstack/react-form";
@@ -37,8 +36,6 @@ export function MagicLinkForm() {
             toast.success("Email s odkazom na prihlásenie bol odoslaný");
           },
           onError: (error) => {
-            // biome-ignore lint/suspicious/noConsole: <explanation>
-            console.error(error.error.message);
             toast.error(error.error.message);
           },
         }
@@ -47,9 +44,15 @@ export function MagicLinkForm() {
   });
 
   return (
-    <form id="magic-link-form">
-      <form.Field
-        children={(field) => {
+    <form
+      id="magic-link-form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
+    >
+      <form.Field name="email">
+        {(field) => {
           const isInvalid =
             field.state.meta.isTouched && !field.state.meta.isValid;
 
@@ -71,8 +74,7 @@ export function MagicLinkForm() {
             </Field>
           );
         }}
-        name="email"
-      />
+      </form.Field>
       <Button
         className="mt-4 w-full"
         disabled={form.state.isSubmitting}

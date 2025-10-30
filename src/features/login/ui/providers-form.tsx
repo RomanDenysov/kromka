@@ -17,11 +17,11 @@ const providerItems = PROVIDERS.map((provider) => ({
 }));
 
 export function ProvidersForm({ callbackURL }: { callbackURL: string }) {
-  const [isPending, startTransitionn] = useTransition();
+  const [isPending, startTransition] = useTransition();
 
   const handleProviderLogin = useCallback(
     async (provider: Provider) =>
-      startTransitionn(async () => {
+      startTransition(async () => {
         await providerLogin(provider, callbackURL);
       }),
     [callbackURL]
