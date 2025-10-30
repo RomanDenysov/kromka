@@ -26,3 +26,5 @@ export const auth = betterAuth({
     nextCookies(),
   ],
 });
+
+export type Session = Awaited<ReturnType<typeof auth.api.getSession>>;

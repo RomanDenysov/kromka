@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { cache } from "react";
 import { auth } from "@/lib/auth/server";
+import { ERROR_CODES } from "../errors";
 
 // Cache session per request to avoid duplicate calls
 export const getSession = cache(
@@ -27,7 +28,7 @@ export const authRequired = async <T = unknown>(
 ): Promise<T | undefined> => {
   const session = await getSession();
   if (!session) {
-    throw new Error("UNAUTHORIZED");
+    throw new Error(ERROR_CODES.UNAUTHORIZED);
   }
   return await action();
 };

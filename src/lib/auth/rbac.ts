@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
+import { ERROR_CODES } from "../errors";
 import { getRole } from "../get-session";
+import { getSession } from "./auth-utils";
+import type { Session } from "./server";
 
 export type Permission =
   | "admin.read"
@@ -40,4 +43,25 @@ export async function assertPermission(...perms: Permission[]) {
     // TODO: Rewrite it latter with forbidden page
     redirect("/");
   }
+}
+
+export async function permissionGuard(
+  ...perms: Permission[]
+): Promise<Session> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error(ERROR_CODES.UNAUTHORIZED);
+  }
+
+  const role = session.user?.role;
+  if (!role) {
+    throw new Error(ERROR_CODES.UNAUTHORIZED);
+  }
+
+  const allowed = new Set(ROLE_PERMS[role] ?? []);
+  if (!perms.every((p) => allowed.has(p))) {
+    throw new Error(ERROR_CODES.FORBIDDEN);
+  }
+
+  return session;
 }
