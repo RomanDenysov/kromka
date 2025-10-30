@@ -24,26 +24,8 @@ export const ROLE_PERMS: Record<string, Permission[]> = {
     "config.read",
     "perms.read",
   ],
-  editor: [
-    "admin.read",
-    "b2c.read",
-    "b2b.read",
-    "blog.read",
-    "settings.read",
-    "users.read",
-    "roles.read",
-    "config.read",
-  ],
-  manager: [
-    "admin.read",
-    "b2c.read",
-    "b2b.read",
-    "blog.read",
-    "settings.read",
-    "users.read",
-    "roles.read",
-    "config.read",
-  ],
+  editor: ["admin.read", "blog.read"],
+  manager: ["admin.read", "b2c.read", "b2b.read"],
 };
 
 export async function assertPerm(...perms: Permission[]) {

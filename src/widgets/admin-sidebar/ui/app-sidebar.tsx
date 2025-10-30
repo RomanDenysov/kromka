@@ -1,5 +1,20 @@
 "use client";
 
+import {
+  BookAIcon,
+  Building2Icon,
+  FileTextIcon,
+  LayoutDashboardIcon,
+  type LucideIcon,
+  MessageCircleIcon,
+  Package2Icon,
+  Settings2Icon,
+  SettingsIcon,
+  ShieldUserIcon,
+  ShoppingBasketIcon,
+  TagsIcon,
+  Users2Icon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ComponentProps, useMemo } from "react";
@@ -16,10 +31,25 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import type { AdminNavNode } from "./nav";
+import type { NavNode } from "../model/get-nav";
+
+const iconMap: Record<string, LucideIcon> = {
+  LayoutDashboard: LayoutDashboardIcon,
+  Tags: TagsIcon,
+  Package2: Package2Icon,
+  ShoppingBasket: ShoppingBasketIcon,
+  Building2: Building2Icon,
+  FileText: FileTextIcon,
+  BookA: BookAIcon,
+  MessageCircle: MessageCircleIcon,
+  Settings: SettingsIcon,
+  Users2: Users2Icon,
+  ShieldUser: ShieldUserIcon,
+  Settings2: Settings2Icon,
+};
 
 type Props = ComponentProps<typeof Sidebar> & {
-  navigation: AdminNavNode[];
+  navigation: NavNode[];
   badgeCounts: Record<string, number>;
 };
 
@@ -57,14 +87,16 @@ export default function AppSidebar({
 
       <SidebarContent>
         {navigation.map((node) => {
-          if (node.type === "section") {
+          // Check if it's a section (has items) or a single item
+          if ("items" in node) {
+            // It's a section
             return (
               <SidebarGroup key={node.href}>
                 <SidebarGroupLabel>{node.label}</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {node.items?.map((item) => {
-                      const Icon = item.icon;
+                    {node.items.map((item) => {
+                      const Icon = item.icon ? iconMap[item.icon] : undefined;
                       const active = getIsActive(item.href, item.exact);
                       return (
                         <SidebarMenuItem key={item.href}>
@@ -95,8 +127,8 @@ export default function AppSidebar({
             );
           }
 
-          // single item at the root level
-          const Icon = node.icon;
+          // Single item at the root level
+          const Icon = node.icon ? iconMap[node.icon] : undefined;
           const active = getIsActive(node.href, node.exact);
           return (
             <SidebarGroup key={node.href}>
@@ -131,3 +163,4 @@ export default function AppSidebar({
     </Sidebar>
   );
 }
+
