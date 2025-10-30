@@ -4,7 +4,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { getSession } from "@/lib/get-session";
 import { getBadgeCounts, getNav } from "@/widgets/admin-sidebar/model/get-nav";
 import AppSidebar from "@/widgets/admin-sidebar/ui/app-sidebar";
 
@@ -13,15 +12,12 @@ type Props = {
 };
 
 export default async function AdminLayout({ children }: Props) {
-  const _session = await getSession();
-  // if (!session?.user) {
-  //   notFound();
-  // }
   // await assertPerm("admin.read");
 
-  // Fetch navigation and badge counts server-side
-  const navigation = await getNav();
-  const badgeCounts = await getBadgeCounts();
+  const [navigation, badgeCounts] = await Promise.all([
+    getNav(),
+    getBadgeCounts(),
+  ]);
 
   return (
     <SidebarProvider>
