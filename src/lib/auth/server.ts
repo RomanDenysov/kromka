@@ -6,6 +6,7 @@ import { admin, anonymous, magicLink, organization } from "better-auth/plugins";
 import { db } from "@/db";
 // biome-ignore lint/performance/noNamespaceImport: <explanation>
 import * as schema from "@/db/schema/auth";
+import { sendEmail } from "../email";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -19,8 +20,7 @@ export const auth = betterAuth({
     magicLink({
       // biome-ignore lint/suspicious/useAwait: <explanation>
       sendMagicLink: async ({ email, url }) => {
-        // biome-ignore lint/suspicious/noConsole: <explanation>
-        console.log(`Sending magic link to ${email} with url ${url}`);
+        await sendEmail.magicLink({ email, url });
       },
     }),
     nextCookies(),
