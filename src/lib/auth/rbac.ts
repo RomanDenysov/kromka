@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSession } from "../get-session";
+import { getRole } from "../get-session";
 
 export type Permission =
   | "admin.read"
@@ -28,14 +28,13 @@ export const ROLE_PERMS: Record<string, Permission[]> = {
   manager: ["admin.read", "b2c.read", "b2b.read"],
 };
 
-export async function assertPerm(...perms: Permission[]) {
-  const session = await getSession();
-  if (!session?.user) {
+export async function assertPermission(...perms: Permission[]) {
+  const role = await getRole();
+  if (!role) {
     // TODO: Rewrite it latter with forbidden page
     redirect("/");
   }
-  // biome-ignore lint/style/noNonNullAssertion: TODO: Fix this later with better typing
-  const allowed = new Set(ROLE_PERMS[session.user.role!] ?? []);
+  const allowed = new Set(ROLE_PERMS[role] ?? []);
   const ok = perms.every((p) => allowed.has(p));
   if (!ok) {
     // TODO: Rewrite it latter with forbidden page

@@ -1,0 +1,37 @@
+---
+description: General Rules - AI Agent Behavior and Output Formatting
+globs: "**/*.{ts,tsx,js,jsx,json,jsonc,html,vue,svelte,astro,css,yaml,yml,graphql,gql,md,mdx,grit}"
+alwaysApply: true
+---
+
+# AI Agent Rules
+
+## Core Behavior
+1. No apologies, summaries, or understanding feedback
+2. File-by-file changes - wait for confirmation between files
+3. Brief, to-the-point responses
+4. Ask for clarification when uncertain - provide options to choose from
+5. Verify information before presenting
+
+## Code Changes
+6. Only requested changes - no inventions or assumptions
+7. Preserve existing code and structure
+8. Single chunk edits per file
+9. Provide real file links, not context-generated
+10. No whitespace-only suggestions
+
+## Code Quality (apply when relevant)
+11. Descriptive variable names over abbreviations
+12. Security-first approach
+13. Handle edge cases and errors appropriately
+14. Use constants instead of magic numbers
+15. Keep solutions simple and readable
+
+## Documentation
+16. Only create documentation when explicitly requested
+17. No .md/.mdx files unless asked
+
+## Context Awareness
+18. Check context-generated files for current implementation
+19. Don't ask to verify visible implementations
+20. Don't suggest updates when no changes needed

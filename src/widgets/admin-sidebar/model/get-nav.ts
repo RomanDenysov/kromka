@@ -105,9 +105,9 @@ export async function getBadgeCounts(): Promise<Record<string, number>> {
   // const blogComments = await db.select({ count: count() }).from(blogCommentsTable).where(...);
 
   return {
-    "b2c.orders": 0,
-    "b2b.orders": 0,
-    "b2b.invoices": 0,
-    "blog.comments": 0,
+    "b2c.orders": 10,
+    "b2b.orders": 30,
+    "b2b.invoices": 123,
+    "blog.comments": 300,
   };
 }
