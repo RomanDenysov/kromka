@@ -1,7 +1,7 @@
 "use server";
 
+import { getRole } from "@/lib/auth/auth-utils";
 import { type Permission, ROLE_PERMS } from "@/lib/auth/rbac";
-import { getRole } from "@/lib/get-session";
 import { b2bSection } from "../config/sections/b2b-section";
 import { b2cSection } from "../config/sections/b2c-section";
 import { blogSection } from "../config/sections/blog-section";
