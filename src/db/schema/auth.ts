@@ -114,9 +114,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   invitationsSent: many(invitations, {
     relationName: "inviter",
   }),
-  storeMembers: many(storeMembers, {
-    relationName: "user",
-  }),
+  storeMembers: many(storeMembers),
   orders: many(orders),
 }));
 

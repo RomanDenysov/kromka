@@ -8,6 +8,7 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { createPrefixedId } from "@/lib/ids";
 import { organizations } from "./auth";
 import { invoiceStatusEnum } from "./enums";
 import { products } from "./products";
@@ -22,7 +23,9 @@ type Address = {
 export const invoices = pgTable(
   "invoices",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("inv")),
     companyId: text("company_id").references(() => organizations.id, {
       onDelete: "set null",
     }),

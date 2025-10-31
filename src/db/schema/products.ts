@@ -8,6 +8,7 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { createPrefixedId } from "@/lib/ids";
 import { productCategories } from "./categories";
 import { productStatusEnum } from "./enums";
 import { invoiceItems } from "./invoices";
@@ -17,7 +18,9 @@ import { prices } from "./prices";
 import { productChannels } from "./product-channels";
 
 export const products = pgTable("products", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createPrefixedId("prod")),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   sku: text("sku").notNull().unique(),

@@ -8,6 +8,7 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { createPrefixedId } from "@/lib/ids";
 import { organizations, users } from "./auth";
 import {
   channelEnum,
@@ -41,7 +42,9 @@ type ProductSnapshot = {
 export const orders = pgTable(
   "orders",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("ord")),
     orderNumber: text("order_number").notNull().unique(),
 
     userId: text("user_id").references(() => users.id, {

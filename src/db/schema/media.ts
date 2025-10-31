@@ -1,10 +1,13 @@
 import { relations } from "drizzle-orm";
 import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { createPrefixedId } from "@/lib/ids";
 import { productImages } from "./products";
 import { stores } from "./stores";
 
 export const media = pgTable("media", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createPrefixedId("med")),
   name: text("name").notNull(),
   path: text("path").notNull(),
   type: text("type").notNull(),
@@ -16,7 +19,7 @@ export const media = pgTable("media", {
     .notNull(),
 });
 
-export const mediaRelations = relations(media, ({ many, one }) => ({
+export const mediaRelations = relations(media, ({ many }) => ({
   productImages: many(productImages),
   stores: many(stores),
 }));

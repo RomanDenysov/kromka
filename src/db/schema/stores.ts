@@ -8,6 +8,7 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { createPrefixedId } from "@/lib/ids";
 import { users } from "./auth";
 import { media } from "./media";
 import { orders } from "./orders";
@@ -32,7 +33,9 @@ type OpeningHours = {
 };
 
 export const stores = pgTable("stores", {
-  id: text("id").primaryKey(),
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createPrefixedId("sto")),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   description: jsonb("description"),

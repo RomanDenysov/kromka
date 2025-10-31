@@ -8,12 +8,15 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { createPrefixedId } from "@/lib/ids";
 import { products } from "./products";
 
 export const categories = pgTable(
   "categories",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("cat")),
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
     description: text("description"),
@@ -35,7 +38,9 @@ export const categories = pgTable(
 export const categoryAvailabilityWindows = pgTable(
   "category_availability_windows",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("cat-avail")),
     categoryId: text("category_id")
       .notNull()
       .references(() => categories.id, { onDelete: "cascade" }),

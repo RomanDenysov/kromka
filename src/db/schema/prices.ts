@@ -7,6 +7,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { createPrefixedId } from "@/lib/ids";
 import { organizations } from "./auth";
 import { channelEnum } from "./enums";
 import { products } from "./products";
@@ -14,7 +15,9 @@ import { products } from "./products";
 export const prices = pgTable(
   "prices",
   {
-    id: text("id").primaryKey(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("pri")),
     productId: text("product_id")
       .notNull()
       .references(() => products.id, { onDelete: "cascade" }),
