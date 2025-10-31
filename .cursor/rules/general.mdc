@@ -4,34 +4,80 @@ globs: "**/*.{ts,tsx,js,jsx,json,jsonc,html,vue,svelte,astro,css,yaml,yml,graphq
 alwaysApply: true
 ---
 
-# AI Agent Rules
+0. Modes
 
-## Core Behavior
-1. No apologies, summaries, or understanding feedback
-2. File-by-file changes - wait for confirmation between files
-3. Brief, to-the-point responses
-4. Ask for clarification when uncertain - provide options to choose from
-5. Verify information before presenting
+Default mode: Full-Auto.
 
-## Code Changes
-6. Only requested changes - no inventions or assumptions
-7. Preserve existing code and structure
-8. Single chunk edits per file
-9. Provide real file links, not context-generated
-10. No whitespace-only suggestions
+Switchable on the fly by the user message:
+	•	mode: full-auto - deliver complete implementation in the minimum number of steps without pauses.
+	•	mode: step - pause after each meaningful milestone and ask which branch to proceed with.
+	•	mode: review-first - produce a short plan and proposed diff list, wait for one confirmation, then execute all.
 
-## Code Quality (apply when relevant)
-11. Descriptive variable names over abbreviations
-12. Security-first approach
-13. Handle edge cases and errors appropriately
-14. Use constants instead of magic numbers
-15. Keep solutions simple and readable
+If the user does not set a mode, use Full-Auto.
 
-## Documentation
-16. Only create documentation when explicitly requested
-17. No .md/.mdx files unless asked
+1. Interaction Contract
+	1.	Be brief and focused. No apologies, no meta summaries, no “do you want me to continue” unless in step mode or unsure.
+	2.	Ask a question only if blocking uncertainty is present. Offer 2-3 crisp options when you ask.
+	3.	Prefer one message per phase: plan once if needed, then deliver changes.
 
-## Context Awareness
-18. Check context-generated files for current implementation
-19. Don't ask to verify visible implementations
-20. Don't suggest updates when no changes needed
+2. Change Delivery
+	1.	Batch changes per file. One update per file that includes all needed edits.
+	2.	No whitespace-only diffs. Do not reformat unrelated code.
+	3.	Preserve existing structure and conventions unless the task is a refactor.
+	4.	Include only changed hunks with enough context to apply cleanly.
+	5.	Provide real file paths that exist in the repo. Do not invent files unless requested.
+
+3. Planning Heuristic
+	•	If the task is small or clear, skip the plan and implement.
+	•	If multi-file or cross-cutting, produce a 10-20 line plan then implement in the same response. Do not wait for confirmation unless in step or review-first mode.
+	•	Note risky assumptions inline as comments in the plan. If risk is high, ask once.
+
+4. Code Quality
+	1.	Clear naming. Avoid cryptic abbreviations except: err, req, res, props, ref.
+	2.	TypeScript-first for React, Next.js, RN.
+	3.	Handle errors and edge cases. No magic numbers. Use constants.
+	4.	Keep it simple. Prefer readable solutions over clever ones.
+	5.	Security-first: validate inputs, avoid leaking secrets, sanitize HTML, safe fetch.
+
+5. React and Next.js
+	•	Functional components with typed props interfaces.
+	•	Prefer Server Components by default in Next.js App Router. Add use client only for event listeners, browser APIs, client-only state, or client libraries.
+	•	Use next/image, next/link, next/script. Add metadata properly.
+	•	Use useCallback for event handlers passed to children, useMemo for heavy calculations, avoid inline lambdas in hot lists.
+	•	Proper list keys. No index keys for dynamic lists.
+	•	Code splitting with dynamic import where helpful.
+
+6. TypeScript Discipline
+	•	Define interfaces for props and state. Use type guards for nullable.
+	•	Use generics when needed. Use Partial, Pick, Omit wisely.
+	•	Prefer interface when you plan to extend. Use type for unions and functions.
+	•	Surface strict types at module boundaries, not buried inside components.
+
+7. UI and Styling (Web)
+	•	Use shadcn UI and Radix primitives. Compose, do not fork.
+	•	Tailwind for utility-first styling. Mobile-first and dark mode ready.
+	•	Respect a11y and color contrast.
+
+8. Documentation
+	•	Write inline JSDoc for exported functions, hooks, and components when non-trivial.
+	•	Do not create .md files unless the user requests.
+
+9. Commits
+	•	Conventional commits: type(scope): subject
+	•	No trailing period, imperative voice.
+	•	Squash related commits. Mention issues in footer if provided.
+
+10. Token Economy
+	•	Prefer full solution in one message when safe.
+	•	Avoid step-by-step chatter in full-auto mode.
+	•	Do not restate unchanged code. Show only the necessary diff chunks.
+	•	Consolidate questions into a single brief list if you must ask.
+
+11. When To Pause And Ask
+
+Ask one short question only if any of these are true:
+	•	Missing API contracts or env vars that block correct typing.
+	•	Conflicting requirements that change design direction.
+	•	Irreversible data migrations without a spec.
+    
+Otherwise continue in full-auto.
