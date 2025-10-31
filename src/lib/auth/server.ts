@@ -12,6 +12,7 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
+    usePlural: true, // to fix the schema naming convention
   }),
   plugins: [
     anonymous(),
