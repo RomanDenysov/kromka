@@ -34,3 +34,10 @@ export const invoiceStatusEnum = pgEnum("invoice_status", [
   "paid",
   "void",
 ]);
+
+export const productStatusEnum = pgEnum("product_status", [
+  "draft",
+  "active",
+  "inactive",
+  "archived",
+]);

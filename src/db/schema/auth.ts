@@ -1,4 +1,9 @@
+import { relations } from "drizzle-orm";
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { invoices } from "./invoices";
+import { orders } from "./orders";
+import { prices } from "./prices";
+import { storeMembers } from "./stores";
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -101,3 +106,55 @@ export const invitations = pgTable("invitations", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(sessions),
+  accounts: many(accounts),
+  members: many(members),
+  invitationsSent: many(invitations, {
+    relationName: "inviter",
+  }),
+  storeMembers: many(storeMembers, {
+    relationName: "user",
+  }),
+  orders: many(orders),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const organizationsRelations = relations(organizations, ({ many }) => ({
+  members: many(members),
+  invitations: many(invitations),
+  orders: many(orders),
+  invoices: many(invoices),
+  prices: many(prices),
+  activeSessions: many(sessions),
+}));
+
+export const membersRelations = relations(members, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [members.organizationId],
+    references: [organizations.id],
+  }),
+  user: one(users, {
+    fields: [members.userId],
+    references: [users.id],
+  }),
+}));
+
+export const invitationsRelations = relations(invitations, ({ one }) => ({
+  organization: one(organizations, {
+    fields: [invitations.organizationId],
+    references: [organizations.id],
+  }),
+  inviter: one(users, {
+    fields: [invitations.inviterId],
+    references: [users.id],
+    relationName: "inviter",
+  }),
+}));

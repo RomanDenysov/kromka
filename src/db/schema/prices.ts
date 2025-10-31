@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   boolean,
   integer,
@@ -35,6 +36,10 @@ export const prices = pgTable(
       .notNull(),
   },
   (table) => [
+    // Unique constraint: productId + channel + orgId (nullable) + minQty + startsAt + endsAt + priority
+    // PostgreSQL treats NULLs specially in unique indexes - multiple NULLs are allowed
+    // This means B2C prices (orgId=NULL) can have duplicates, but B2B prices (orgId set) are unique
+    // Note: For stricter B2C uniqueness, consider making orgId required and using a sentinel value
     uniqueIndex("uniq_prices_product_channel_org_qty_window_priority").on(
       table.productId,
       table.channel,
@@ -46,3 +51,14 @@ export const prices = pgTable(
     ),
   ]
 );
+
+export const pricesRelations = relations(prices, ({ one }) => ({
+  product: one(products, {
+    fields: [prices.productId],
+    references: [products.id],
+  }),
+  organization: one(organizations, {
+    fields: [prices.orgId],
+    references: [organizations.id],
+  }),
+}));

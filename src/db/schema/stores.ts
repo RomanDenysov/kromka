@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   boolean,
   integer,
@@ -9,6 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { users } from "./auth";
 import { media } from "./media";
+import { orders } from "./orders";
 
 type Address = {
   street: string;
@@ -74,3 +76,23 @@ export const storeMembers = pgTable(
   },
   (table) => [primaryKey({ columns: [table.storeId, table.userId] })]
 );
+
+export const storesRelations = relations(stores, ({ one, many }) => ({
+  image: one(media, {
+    fields: [stores.imageId],
+    references: [media.id],
+  }),
+  members: many(storeMembers),
+  orders: many(orders),
+}));
+
+export const storeMembersRelations = relations(storeMembers, ({ one }) => ({
+  store: one(stores, {
+    fields: [storeMembers.storeId],
+    references: [stores.id],
+  }),
+  user: one(users, {
+    fields: [storeMembers.userId],
+    references: [users.id],
+  }),
+}));

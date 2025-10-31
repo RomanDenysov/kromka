@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -34,11 +35,12 @@ export const categories = pgTable(
 export const categoryAvailabilityWindows = pgTable(
   "category_availability_windows",
   {
+    id: text("id").primaryKey(),
     categoryId: text("category_id")
       .notNull()
       .references(() => categories.id, { onDelete: "cascade" }),
-    startDate: timestamp("start_date"),
-    endDate: timestamp("end_date"),
+    startDate: timestamp("start_date").notNull(),
+    endDate: timestamp("end_date").notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -47,7 +49,6 @@ export const categoryAvailabilityWindows = pgTable(
       .notNull(),
   },
   (table) => [
-    primaryKey({ columns: [table.categoryId, table.startDate, table.endDate] }),
     index("category_availability_category_idx").on(table.categoryId),
     index("category_availability_window_idx").on(
       table.startDate,
@@ -76,4 +77,33 @@ export const productCategories = pgTable(
     primaryKey({ columns: [table.productId, table.categoryId] }),
     index("product_category_sort_idx").on(table.categoryId, table.sortOrder),
   ]
+);
+
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  availabilityWindows: many(categoryAvailabilityWindows),
+  products: many(productCategories),
+}));
+
+export const categoryAvailabilityWindowsRelations = relations(
+  categoryAvailabilityWindows,
+  ({ one }) => ({
+    category: one(categories, {
+      fields: [categoryAvailabilityWindows.categoryId],
+      references: [categories.id],
+    }),
+  })
+);
+
+export const productCategoriesRelations = relations(
+  productCategories,
+  ({ one }) => ({
+    product: one(products, {
+      fields: [productCategories.productId],
+      references: [products.id],
+    }),
+    category: one(categories, {
+      fields: [productCategories.categoryId],
+      references: [categories.id],
+    }),
+  })
 );
