@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { PageTracker } from "react-page-tracker";
 
 import { fonts } from "@/components/fonts";
 
@@ -17,7 +18,10 @@ type Props = {
 export default function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(fonts, "relative min-h-screen")}>{children}</body>
+      <body className={cn(fonts, "relative min-h-screen")}>
+        <PageTracker enableStrictModeHandler={false} />
+        {children}
+      </body>
     </html>
   );
 }

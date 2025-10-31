@@ -66,6 +66,7 @@
     "react": "19.2.0",
     "react-day-picker": "^9.11.1",
     "react-dom": "19.2.0",
+    "react-page-tracker": "^0.4.1",
     "react-resizable-panels": "^3.0.6",
     "recharts": "2.15.4",
     "server-only": "^0.0.1",
