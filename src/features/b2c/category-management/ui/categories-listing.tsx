@@ -18,7 +18,7 @@ export function CategoriesListing({
       className={cn("size-full h-full max-w-xs shrink-0 border-r", className)}
     >
       <ScrollArea className="h-full p-3">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           {categories.map((category) => (
             <CategoryItem
               category={category}

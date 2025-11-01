@@ -1,7 +1,7 @@
 import type { Route } from "next";
 import { notFound } from "next/navigation";
+import { getCategory } from "@/actions/categories/queries";
 import { AdminHeader } from "@/components/shared/admin-header";
-import { getCategory } from "../queries";
 
 type Props = {
   params: Promise<{
