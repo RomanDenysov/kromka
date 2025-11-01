@@ -36,7 +36,9 @@ export default async function AdminLayout({ children }: Props) {
         navigation={navigation}
       />
       <SidebarInset>
-        <div>{children}</div>
+        <div className="grid size-full h-svh grid-rows-[auto_1fr]">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -112,3 +112,5 @@ export const productCategoriesRelations = relations(
     }),
   })
 );
+
+export type Category = typeof categories.$inferSelect;

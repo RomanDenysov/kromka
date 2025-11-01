@@ -207,7 +207,7 @@ export const MiniCalendarDay = ({
   return (
     <Button
       className={cn(
-        "h-auto min-w-[3rem] flex-col gap-0 p-2 text-xs",
+        "h-auto min-w-12 flex-col gap-0 p-2 text-xs",
         isTodayDate && !isSelected && "bg-accent",
         className
       )}

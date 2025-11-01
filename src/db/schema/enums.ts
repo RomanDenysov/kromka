@@ -39,5 +39,6 @@ export const productStatusEnum = pgEnum("product_status", [
   "draft",
   "active",
   "inactive",
+  // "sold_out",
   "archived",
 ]);

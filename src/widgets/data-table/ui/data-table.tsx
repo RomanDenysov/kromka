@@ -13,18 +13,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+
+type Props<TData, TValue> = {
+  table: ReactTable<TData>;
+  columns: ColumnDef<TData, TValue>[];
+  footer?: ReactNode;
+  className?: string;
+};
 
 export function DataTable<TData, TValue>({
   table,
   columns,
   footer,
-}: {
-  table: ReactTable<TData>;
-  columns: ColumnDef<TData, TValue>[];
-  footer?: ReactNode;
-}) {
+  className,
+}: Props<TData, TValue>) {
   return (
-    <div className="overflow-hidden">
+    <div className={cn("overflow-hidden", className)}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
