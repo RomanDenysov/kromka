@@ -1,27 +1,19 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { parseAsString, useQueryState } from "nuqs";
 import type { Category } from "@/db/schema";
 import { cn } from "@/lib/utils";
 
-export function CategoryItem({
-  category,
-  isSelected,
-}: {
-  category: Category;
-  isSelected: boolean;
-}) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export function CategoryItem({ category }: { category: Category }) {
+  const [selectedCategoryId, setSelectedCategoryId] = useQueryState(
+    "categoryId",
+    parseAsString
+  );
+
+  const isSelected = selectedCategoryId === category.id;
 
   const handleClick = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (isSelected) {
-      params.delete("categoryId");
-    } else {
-      params.set("categoryId", category.id);
-    }
-    router.push(`/admin/b2c/categories?${params.toString()}`);
+    setSelectedCategoryId(isSelected ? null : category.id);
   };
 
   return (
