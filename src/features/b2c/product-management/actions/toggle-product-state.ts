@@ -1,7 +1,6 @@
 "use server";
 
 import { eq, not } from "drizzle-orm";
-import { updateTag } from "next/cache";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 
@@ -22,8 +21,6 @@ export async function toggleProductState(productId: string) {
           isActive: not(products.isActive),
         })
         .where(eq(products.id, productId));
-
-      updateTag("products");
     } finally {
       pendingToggles.delete(productId);
     }

@@ -1,8 +1,10 @@
+"use client";
+
 import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RowToggleButton } from "@/widgets/data-table/ui/row-toggle-button";
-import { toggleProductState } from "../actions/toggle-product-state";
+import { useUpdateProductState } from "../hooks/use-update-product-state";
 import type { Product } from "./products-table";
 
 const MAX_CATEGORIES = 3;
@@ -56,15 +58,16 @@ export const productsColumns: ColumnDef<Product>[] = [
   {
     header: "Aktívny",
     accessorKey: "isActive",
-    cell: ({ row }) => (
-      <RowToggleButton
-        isActive={row.original.isActive}
-        onToggle={async () => {
-          await toggleProductState(row.original.id);
-        }}
-        size="xs"
-      />
-    ),
+    cell: ({ row }) => {
+      const updateProductState = useUpdateProductState();
+      return (
+        <RowToggleButton
+          isActive={row.original.isActive}
+          onToggle={() => updateProductState.mutate(row.original.id)}
+          size="xs"
+        />
+      );
+    },
     size: 20,
     enableSorting: false,
     enableHiding: false,

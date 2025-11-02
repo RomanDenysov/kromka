@@ -1,14 +1,11 @@
 "use server";
 
 import { isNull as drizzleIsNull, eq } from "drizzle-orm";
-import { cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
 import { categories, productCategories } from "@/db/schema";
 
 export async function getProducts() {
-  "use cache";
-  cacheTag("products");
   const products = await db.query.products.findMany({
     where: (product, { isNull }) => isNull(product.deletedAt),
     with: {

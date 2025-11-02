@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { ERROR_CODES } from "../errors";
-import { getRole } from "../get-session";
-import { getSession } from "./auth-utils";
+import { getRole, getSession } from "./auth-utils";
 import type { Session } from "./server";
 
 export type Permission =

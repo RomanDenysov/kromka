@@ -16,7 +16,7 @@ export default async function B2CProductsPage() {
         breadcrumbs={[{ label: "Produkty", href: "/admin/b2c/products" }]}
       />
       <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-        <ProductsTable products={products} />
+        <ProductsTable initialData={products} />
       </Suspense>
     </>
   );
