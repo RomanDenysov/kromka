@@ -1,6 +1,17 @@
 "use client";
 
+import { format } from "date-fns";
+import { MoreHorizontalIcon } from "lucide-react";
+import type { Route } from "next";
+import Link from "next/link";
 import { parseAsString, useQueryState } from "nuqs";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { Category } from "@/db/schema";
 import { cn } from "@/lib/utils";
 
@@ -17,27 +28,55 @@ export function CategoryItem({ category }: { category: Category }) {
   };
 
   return (
-    <button
+    // biome-ignore lint/a11y/useSemanticElements: we want to use a div for the button
+    <div
+      aria-pressed={isSelected}
       className={cn(
-        "w-full min-w-30 cursor-pointer rounded-md border p-4 text-left transition-colors",
-        isSelected && "border-primary bg-primary/5"
+        "group/category-item w-full min-w-30 cursor-pointer rounded-md border border-transparent p-4 text-left",
+        isSelected && "border-border bg-muted shadow"
       )}
       onClick={handleClick}
-      type="button"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       <div className="flex items-center justify-between">
-        <div className="font-medium text-sm">{category.name}</div>
-        {/* <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            // TODO: Handle category actions
-          }}
-          size="icon"
-          variant="ghost"
-        >
-          <EllipsisIcon />
-        </Button> */}
+        <div className="flex flex-col gap-1">
+          <div className="font-medium text-sm">{category.name}</div>
+          <div className="text-muted-foreground text-xs">
+            {category.description}
+          </div>
+          <span className="text-muted-foreground text-xs">
+            {format(category.createdAt, "dd.MM.yyyy HH:mm")} -{" "}
+            {format(category.updatedAt, "dd.MM.yyyy HH:mm")}
+          </span>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              size="icon"
+              variant="ghost"
+            >
+              <MoreHorizontalIcon className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild onClick={(e) => e.stopPropagation()}>
+              <Link href={`/admin/b2c/categories/${category.id}` as Route}>
+                Upraviť
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>Vymazať</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-    </button>
+    </div>
   );
 }

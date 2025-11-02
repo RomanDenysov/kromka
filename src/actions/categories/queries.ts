@@ -4,8 +4,12 @@ import { db } from "@/db";
 export const getCategories = cache(async () => {
   const categories = await db.query.categories.findMany({
     where: (category, { isNull }) => isNull(category.deletedAt),
+    orderBy: (category, { asc, desc }) => [
+      asc(category.sortOrder),
+      desc(category.createdAt),
+    ],
   });
-  return categories.sort((a, b) => a.sortOrder - b.sortOrder);
+  return categories;
 });
 
 export const getCategory = cache(
