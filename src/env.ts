@@ -11,6 +11,9 @@ export const env = createEnv({
     EMAIL_USER: z.string().email(),
     EMAIL_PASSWORD: z.string().min(1),
   },
+  client: {
+    NEXT_PUBLIC_APP_URL: z.string().url(),
+  },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
@@ -19,5 +22,7 @@ export const env = createEnv({
     EMAIL_HOST: process.env.EMAIL_HOST,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
+
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
 });

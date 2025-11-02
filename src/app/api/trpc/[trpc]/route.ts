@@ -5,7 +5,7 @@ import { appRouter } from "@/trpc/routers";
 
 const createContext = async (req: NextRequest) =>
   createTRPCContext({
-    headers: new Headers(req.headers),
+    headers: req.headers,
   });
 
 const handler = (req: NextRequest) =>
@@ -17,11 +17,12 @@ const handler = (req: NextRequest) =>
     onError:
       process.env.NODE_ENV === "development"
         ? ({ path, error }) => {
-            // biome-ignore lint/suspicious/noConsole: <explanation>
+            // biome-ignore lint/suspicious/noConsole: We will use this in development only
             console.error(
               `❌ tRPC failed on ${path ?? "<no-path>"}: ${error.message}`
             );
           }
         : undefined,
   });
+
 export { handler as GET, handler as POST };

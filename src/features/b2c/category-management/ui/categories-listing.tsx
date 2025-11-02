@@ -2,20 +2,15 @@
 
 import { useMemo } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Category } from "@/db/schema";
 import { cn } from "@/lib/utils";
+import { useSuspenseCategoriesQuery } from "../hooks/use-categories-query";
 import { useCategorySearch } from "../hooks/use-category-search";
 import { AddCategoryButton } from "./add-category-button";
 import { CategoryItem } from "./category-item";
 
-export function CategoriesListing({
-  categories,
-  className,
-}: {
-  categories: Category[];
-  className?: string;
-}) {
+export function CategoriesListing({ className }: { className?: string }) {
   const [searchQuery] = useCategorySearch();
+  const { data: categories } = useSuspenseCategoriesQuery();
 
   const filteredCategories = useMemo(() => {
     const query = (searchQuery ?? "").trim();
@@ -27,7 +22,7 @@ export function CategoriesListing({
     return categories.filter((category) =>
       category.name.toLowerCase().includes(lowerQuery)
     );
-  }, [categories, searchQuery]);
+  }, [searchQuery, categories]);
 
   return (
     <section

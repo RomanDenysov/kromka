@@ -11,7 +11,7 @@ import { headers } from "next/headers";
 import { cache } from "react";
 import { createTRPCContext } from "./init";
 import { makeQueryClient } from "./query-client";
-import { appRouter } from "./routers";
+import { type AppRouter, appRouter } from "./routers";
 
 export const getQueryClient = cache(makeQueryClient);
 
@@ -19,16 +19,26 @@ const createContext = cache(async () => {
   const hdrs = new Headers(await headers());
   hdrs.set("x-trpc-source", "rsc");
 
-  return createTRPCContext({
+  // biome-ignore lint/suspicious/noConsole: <explanation>
+  console.log("server headers", hdrs);
+  return await createTRPCContext({
     headers: hdrs,
   });
 });
 
-export const trpc = createTRPCOptionsProxy({
+const createCaller = cache(async () => {
+  const context = await createContext();
+  return appRouter.createCaller(context);
+});
+
+export const trpc = createTRPCOptionsProxy<AppRouter>({
   ctx: createContext,
   router: appRouter,
   queryClient: getQueryClient,
 });
+
+// Direct server caller for prefetching (bypasses HTTP)
+export const api = createCaller;
 
 export function HydrateClient(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();

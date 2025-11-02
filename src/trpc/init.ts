@@ -10,25 +10,32 @@ export type CreateTRPCContextOptions = {
 };
 
 export const createTRPCContext = cache(
-  async ({
-    headers,
-  }: {
-    headers?: Headers;
-  }): Promise<CreateTRPCContextOptions> => {
-    let hdrs: Headers | undefined = headers;
+  async (opts: { headers?: Headers }): Promise<CreateTRPCContextOptions> => {
+    let hdrs: Headers | undefined = opts.headers;
+    // biome-ignore lint/suspicious/noConsole: <explanation>
+    console.log("hdrs", hdrs);
     if (!hdrs) {
       try {
-        const ro = await nextHeaders();
+        hdrs = await nextHeaders();
         const h = new Headers();
         // biome-ignore lint/suspicious/useIterableCallbackReturn: need to copy headers
-        ro.forEach((value, key) => h.append(key, value));
+        hdrs.forEach((value, key) => h.append(key, value));
         hdrs = h;
+
+        // biome-ignore lint/suspicious/noConsole: <explanation>
+        console.log("hdrs", hdrs);
         // biome-ignore lint/suspicious/noEmptyBlockStatements: headers may not be available in all contexts
-      } catch {}
+      } catch {
+        // biome-ignore lint/suspicious/noConsole: headers may not be available in all contexts
+        console.log("headers not available");
+      }
     }
     const session = await auth.api.getSession({
       headers: hdrs ?? new Headers(),
     });
+
+    // biome-ignore lint/suspicious/noConsole: <explanation>
+    console.log("session", session);
     return { session };
   }
 );
@@ -53,10 +60,15 @@ export const createCallerFactory = t.createCallerFactory;
 export const publicProcedure = t.procedure;
 
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session) {
+  // biome-ignore lint/suspicious/noConsole: <explanation>
+  console.log("ctx", ctx);
+  if (
+    !(ctx.session?.session && ctx.session.user && !ctx.session.user.isAnonymous)
+  ) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
       message: "You must be logged in to access this resource",
+      cause: ctx.session,
     });
   }
   return next({

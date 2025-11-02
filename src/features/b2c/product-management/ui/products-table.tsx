@@ -6,16 +6,16 @@ import { parseAsString, useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/widgets/data-table/ui/data-table";
-import { useGetTableProducts } from "../hooks/use-get-table-products";
+import { useGetSuspenseTableProducts } from "../hooks/use-get-table-products";
 import { productsColumns } from "./products-columns";
 
 export type Product = Awaited<
   ReturnType<typeof import("@/actions/products/queries").getProducts>
 >[number];
 
-export function ProductsTable({ initialData }: { initialData?: Product[] }) {
+export function ProductsTable() {
   const [selectedCategoryId] = useQueryState("categoryId", parseAsString);
-  const { data: products } = useGetTableProducts({ initialData });
+  const { data: products } = useGetSuspenseTableProducts();
   const filteredProducts = useMemo(() => {
     if (!selectedCategoryId) {
       return products;

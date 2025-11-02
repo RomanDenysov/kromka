@@ -1,28 +1,85 @@
 import "server-only";
 
+import { eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { productCategories } from "../schema";
+import { categories, productCategories } from "../schema";
 
 export const QUERIES = {
   ADMIN: {
-    GET_PRODUCTS: async () => await db.query.products.findMany(),
+    GET_PRODUCTS: async () =>
+      await db.query.products.findMany({
+        where: (product, { isNull: isNullFn }) => isNullFn(product.deletedAt),
+        with: {
+          categories: {
+            where: (productCategory, { inArray }) =>
+              inArray(
+                productCategory.categoryId,
+                db
+                  .select({ id: categories.id })
+                  .from(categories)
+                  .where(isNull(categories.deletedAt))
+              ),
+            with: {
+              category: true,
+            },
+          },
+          prices: true,
+          images: true,
+        },
+      }),
     GET_PRODUCT_BY_ID: async (id: string) =>
       await db.query.products.findFirst({
-        where: (product, { eq: eqFn }) => eqFn(product.id, id),
+        where: (product, { and: andFn, isNull: isNullFn, eq: eqFn }) =>
+          andFn(isNullFn(product.deletedAt), eqFn(product.id, id)),
+        with: {
+          categories: {
+            where: (productCategory, { inArray }) =>
+              inArray(
+                productCategory.categoryId,
+                db
+                  .select({ id: categories.id })
+                  .from(categories)
+                  .where(isNull(categories.deletedAt))
+              ),
+            with: {
+              category: true,
+            },
+          },
+        },
       }),
     GET_PRODUCTS_BY_CATEGORY: async (categoryId: string) =>
       await db.query.products.findMany({
-        where: (product, { inArray, eq: eqFn, isNull, and }) =>
-          and(
-            isNull(product.deletedAt),
-            inArray(
+        where: (
+          product,
+          { isNull: isNullFn, inArray: inArrayFn, and: andFn }
+        ) =>
+          andFn(
+            isNullFn(product.deletedAt),
+            inArrayFn(
               product.id,
               db
                 .select({ productId: productCategories.productId })
                 .from(productCategories)
-                .where(eqFn(productCategories.categoryId, categoryId))
+                .where(eq(productCategories.categoryId, categoryId))
             )
           ),
+        with: {
+          categories: {
+            where: (productCategory, { inArray }) =>
+              inArray(
+                productCategory.categoryId,
+                db
+                  .select({ id: categories.id })
+                  .from(categories)
+                  .where(isNull(categories.deletedAt))
+              ),
+            with: {
+              category: true,
+            },
+          },
+          prices: true,
+          images: true,
+        },
       }),
   },
 };

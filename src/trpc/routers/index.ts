@@ -1,11 +1,10 @@
-import { db } from "@/db";
-import { createTRPCRouter, publicProcedure } from "../init";
+import { createTRPCRouter } from "../init";
+import { adminCategoriesRouter } from "./categories";
+import { adminProductsRouter } from "./products";
 
 const adminRouter = createTRPCRouter({
-  getUsers: publicProcedure.query(async () => {
-    const users = await db.query.users.findMany();
-    return users;
-  }),
+  products: adminProductsRouter,
+  categories: adminCategoriesRouter,
 });
 
 export const appRouter = createTRPCRouter({

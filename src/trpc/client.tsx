@@ -14,29 +14,29 @@ export const { TRPCProvider, useTRPC } = createTRPCContext<AppRouter>();
 let browserQueryClient: QueryClient;
 
 function getQueryClient() {
-  if (typeof window === "undefined") {
-    // Server: always make a new query client
+  if (isServer) {
     return makeQueryClient();
   }
-  // Browser: make a new query client if we don't already have one
-  // This is very important, so we don't re-make a new client if React
-  // suspends during the initial render. This may not be needed if we
-  // have a suspense boundary BELOW the creation of the query client
   browserQueryClient ??= makeQueryClient();
   return browserQueryClient;
 }
+
 function getUrl() {
-  const base = (() => {
-    if (isServer) {
-      return "";
-    }
-    if (process.env.VERCEL_URL) {
-      return `https://${process.env.VERCEL_URL}`;
-    }
-    return "http://localhost:3000";
-  })();
-  return `${base}/api/trpc`;
+  let url: string;
+  if (typeof window !== "undefined") {
+    url = `${window.location.origin}/api/trpc`;
+  } else {
+    // Fallback for SSR edge case (shouldn't happen in client component)
+    const baseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.VERCEL_URL ||
+      "http://localhost:3000";
+    const base = baseUrl.startsWith("http") ? baseUrl : `https://${baseUrl}`;
+    url = `${base}/api/trpc`;
+  }
+  return url;
 }
+
 export function TRPCReactProvider(
   props: Readonly<{
     children: React.ReactNode;
@@ -54,6 +54,12 @@ export function TRPCReactProvider(
         httpBatchLink({
           transformer: superjson,
           url: getUrl(),
+          fetch(url, options) {
+            return fetch(url, {
+              ...options,
+              credentials: "include",
+            });
+          },
         }),
       ],
     })
