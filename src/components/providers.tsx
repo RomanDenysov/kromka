@@ -1,7 +1,7 @@
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import { PageTracker } from "react-page-tracker";
-import { QueryProvider } from "./query-provider";
+import { TRPCReactProvider } from "@/trpc/client";
 
 type Props = {
   readonly children: ReactNode;
@@ -9,11 +9,11 @@ type Props = {
 
 export function Providers({ children }: Props) {
   return (
-    <QueryProvider>
+    <TRPCReactProvider>
       <NuqsAdapter>
         <PageTracker enableStrictModeHandler={false} />
         {children}
       </NuqsAdapter>
-    </QueryProvider>
+    </TRPCReactProvider>
   );
 }
