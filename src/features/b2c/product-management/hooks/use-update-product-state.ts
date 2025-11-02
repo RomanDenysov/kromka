@@ -5,15 +5,18 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { toggleProductState } from "../actions/toggle-product-state";
 import type { Product } from "../ui/products-table";
 
 export function useUpdateProductState() {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
-  const productMutationOptions: UseMutationOptions<void, Error, string> = {
+  const productMutationOptions: UseMutationOptions<
+    void,
+    Error,
+    string,
+    { previousProducts?: Product[] }
+  > = {
     mutationFn: async (productId: string) => {
       await toggleProductState(productId);
     },
@@ -22,17 +25,20 @@ export function useUpdateProductState() {
       const previousProducts = queryClient.getQueryData<Product[]>([
         "products",
       ]);
-      queryClient.setQueryData(["products"], (old: Product[]) =>
-        old.map((product) =>
+      queryClient.setQueryData<Product[]>(["products"], (old) => {
+        const list = old ?? [];
+        return list.map((product) =>
           product.id === productId
             ? { ...product, isActive: !product.isActive }
             : product
-        )
-      );
+        );
+      });
       return { previousProducts };
     },
-    onSuccess: () => {
-      router.refresh();
+    onError: (_err, _productId, context) => {
+      if (context?.previousProducts) {
+        queryClient.setQueryData(["products"], context.previousProducts);
+      }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });

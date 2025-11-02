@@ -10,9 +10,9 @@ type Props = Omit<ButtonProps, "value"> & {
 };
 
 export function RowToggleButton({
+  className,
   isActive,
   onToggle,
-  className,
   ...props
 }: Props) {
   return (

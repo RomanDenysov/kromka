@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RowToggleButton } from "@/widgets/data-table/ui/row-toggle-button";
@@ -8,6 +9,27 @@ import { useUpdateProductState } from "../hooks/use-update-product-state";
 import type { Product } from "./products-table";
 
 const MAX_CATEGORIES = 3;
+
+function ProductActiveCell({ product }: { product: Product }) {
+  const updateProductState = useUpdateProductState();
+
+  const handleToggle = useCallback(() => {
+    updateProductState.mutate(product.id);
+  }, [updateProductState, product.id]);
+
+  const optimisticIsActive = updateProductState.isPending
+    ? !product.isActive
+    : product.isActive;
+
+  return (
+    <RowToggleButton
+      disabled={updateProductState.isPending}
+      isActive={optimisticIsActive}
+      onToggle={handleToggle}
+      size="xs"
+    />
+  );
+}
 
 export const productsColumns: ColumnDef<Product>[] = [
   {
@@ -58,16 +80,7 @@ export const productsColumns: ColumnDef<Product>[] = [
   {
     header: "Aktívny",
     accessorKey: "isActive",
-    cell: ({ row }) => {
-      const updateProductState = useUpdateProductState();
-      return (
-        <RowToggleButton
-          isActive={row.original.isActive}
-          onToggle={() => updateProductState.mutate(row.original.id)}
-          size="xs"
-        />
-      );
-    },
+    cell: ({ row }) => <ProductActiveCell product={row.original} />,
     size: 20,
     enableSorting: false,
     enableHiding: false,
