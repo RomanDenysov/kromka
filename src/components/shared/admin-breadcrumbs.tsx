@@ -11,7 +11,7 @@ import {
 
 export type AdminBreadcrumbItem = {
   label: string;
-  href: Route;
+  href?: Route;
 };
 
 type Props = {

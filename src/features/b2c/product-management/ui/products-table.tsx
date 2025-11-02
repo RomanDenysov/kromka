@@ -1,9 +1,14 @@
 "use client";
 
+import { getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { PackagePlusIcon } from "lucide-react";
 import { parseAsString, useQueryState } from "nuqs";
 import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { DataTable } from "@/widgets/data-table/ui/data-table";
+import { productsColumns } from "./products-columns";
 
-type Product = Awaited<
+export type Product = Awaited<
   ReturnType<typeof import("@/actions/products/queries").getProducts>
 >[number];
 
@@ -22,13 +27,24 @@ export function ProductsTable({ products }: { products: Product[] }) {
     );
   }, [products, selectedCategoryId]);
 
+  const table = useReactTable({
+    data: filteredProducts,
+    columns: productsColumns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   return (
-    <div className="flex-1 p-4">
-      <div className="text-muted-foreground text-sm">
-        {filteredProducts.length} product
-        {filteredProducts.length !== 1 ? "s" : ""}
-      </div>
-      {/* TODO: Implement products table */}
+    <div className="h-full flex-1">
+      <DataTable
+        columns={productsColumns}
+        footer={
+          <Button className="w-full rounded-none" size="xs" variant="ghost">
+            <PackagePlusIcon />
+            Pridať produkt
+          </Button>
+        }
+        table={table}
+      />
     </div>
   );
 }

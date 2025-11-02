@@ -3,23 +3,26 @@
 import { useCallback } from "react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 
-type Props = ButtonProps & {
-  value: boolean;
+type Props = Omit<ButtonProps, "value"> & {
+  isActive: boolean;
   onChange: (value: boolean) => void;
 };
 
 export function RowToggleButton({
-  value,
+  isActive,
   onChange,
   children,
   ...props
 }: Props) {
-  const handleClick = useCallback(() => onChange(!value), [value, onChange]);
+  const handleClick = useCallback(
+    () => onChange(!isActive),
+    [isActive, onChange]
+  );
 
   return (
     <Button
-      aria-pressed={value}
-      data-state={value ? "on" : "off"}
+      aria-pressed={isActive}
+      data-state={isActive ? "on" : "off"}
       onClick={handleClick}
       {...props}
     >

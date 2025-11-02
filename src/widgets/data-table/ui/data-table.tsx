@@ -1,3 +1,5 @@
+"use client";
+
 import {
   type ColumnDef,
   flexRender,
@@ -29,7 +31,7 @@ export function DataTable<TData, TValue>({
   className,
 }: Props<TData, TValue>) {
   return (
-    <div className={cn("overflow-hidden", className)}>
+    <div className={cn("h-full overflow-hidden", className)}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -64,7 +66,7 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell className="h-20 text-center" colSpan={columns.length}>
-                No results.
+                Žiadne výsledky.
               </TableCell>
             </TableRow>
           )}
