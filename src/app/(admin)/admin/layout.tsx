@@ -7,9 +7,10 @@ import AppSidebar from "@/widgets/admin-sidebar/ui/app-sidebar";
 
 type Props = {
   readonly children: ReactNode;
+  readonly header: ReactNode;
 };
 
-export default async function AdminLayout({ children }: Props) {
+export default async function AdminLayout({ children, header }: Props) {
   await assertPermission("admin.read");
 
   const cookieStore = await cookies();
@@ -37,6 +38,7 @@ export default async function AdminLayout({ children }: Props) {
       />
       <SidebarInset>
         <div className="grid size-full h-svh grid-rows-[auto_1fr]">
+          {header}
           {children}
         </div>
       </SidebarInset>

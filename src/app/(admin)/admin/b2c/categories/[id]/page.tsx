@@ -1,7 +1,5 @@
-import type { Route } from "next";
 import { notFound } from "next/navigation";
 import { getCategory } from "@/actions/categories/queries";
-import { AdminHeader } from "@/components/shared/admin-header";
 
 type Props = {
   params: Promise<{
@@ -15,12 +13,5 @@ export default async function CategoryPage({ params }: Props) {
   if (!category) {
     notFound();
   }
-  return (
-    <AdminHeader
-      breadcrumbs={[
-        { label: "Categories", href: "/admin/b2c/categories" },
-        { label: category.name, href: `/admin/b2c/categories/${id}` as Route },
-      ]}
-    />
-  );
+  return <div>{category.name}</div>;
 }

@@ -19,32 +19,27 @@ type Props = {
 };
 
 export const AdminBreadcrumbs = ({ breadcrumbs }: Props) => (
-  <nav aria-label="Breadcrumb">
-    <Breadcrumb>
-      <BreadcrumbList>
-        {breadcrumbs.map((item, idx) => {
-          const isLast = idx === breadcrumbs.length - 1;
-          return (
-            <Fragment key={item.label + idx.toString()}>
-              {idx > 0 && <BreadcrumbSeparator className="hidden md:block" />}
-              <BreadcrumbItem className={isLast ? "" : "hidden md:block"}>
-                {isLast ? (
-                  <BreadcrumbPage className="font-medium">
-                    {item.label}
-                  </BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink
-                    className="font-medium"
-                    href={item.href ?? "#"}
-                  >
-                    {item.label}
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </Fragment>
-          );
-        })}
-      </BreadcrumbList>
-    </Breadcrumb>
-  </nav>
+  <Breadcrumb>
+    <BreadcrumbList className="font-medium sm:gap-1.5">
+      {breadcrumbs.map((item, idx) => {
+        const isLast = idx === breadcrumbs.length - 1;
+        return (
+          <Fragment key={item.label + idx.toString()}>
+            {idx > 0 && <BreadcrumbSeparator className="hidden md:block" />}
+            <BreadcrumbItem className={isLast ? "" : "hidden md:block"}>
+              {isLast ? (
+                <BreadcrumbPage className="font-medium">
+                  {item.label}
+                </BreadcrumbPage>
+              ) : (
+                <BreadcrumbLink className="font-medium" href={item.href ?? "#"}>
+                  {item.label}
+                </BreadcrumbLink>
+              )}
+            </BreadcrumbItem>
+          </Fragment>
+        );
+      })}
+    </BreadcrumbList>
+  </Breadcrumb>
 );
