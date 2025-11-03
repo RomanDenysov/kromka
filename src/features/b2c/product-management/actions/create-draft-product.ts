@@ -13,7 +13,7 @@ export async function createDraftProduct() {
   const draftProduct: CreateProductSchema = {
     name: "New Product",
     slug: `${getSlug("new-product")}-${createShortId()}`,
-    sku: "New Product SKU",
+    sku: `SKU-${createShortId()}`,
     description: "New Product Description",
     stock: 0,
     prices: [],
