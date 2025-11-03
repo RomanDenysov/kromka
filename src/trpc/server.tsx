@@ -8,28 +8,24 @@ import {
   type TRPCQueryOptions,
 } from "@trpc/tanstack-react-query";
 import { headers } from "next/headers";
-import { cache } from "react";
-import { createTRPCContext } from "./init";
+import { cache, type ReactNode } from "react";
+import {
+  createCallerFactory as createCallerFactoryHelper,
+  createTRPCContext,
+} from "./init";
 import { makeQueryClient } from "./query-client";
 import { type AppRouter, appRouter } from "./routers";
-
-export const getQueryClient = cache(makeQueryClient);
 
 const createContext = cache(async () => {
   const hdrs = new Headers(await headers());
   hdrs.set("x-trpc-source", "rsc");
 
-  // biome-ignore lint/suspicious/noConsole: <explanation>
-  console.log("server headers", hdrs);
-  return await createTRPCContext({
+  return createTRPCContext({
     headers: hdrs,
   });
 });
 
-const createCaller = cache(async () => {
-  const context = await createContext();
-  return appRouter.createCaller(context);
-});
+export const getQueryClient = cache(makeQueryClient);
 
 export const trpc = createTRPCOptionsProxy<AppRouter>({
   ctx: createContext,
@@ -37,10 +33,7 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
   queryClient: getQueryClient,
 });
 
-// Direct server caller for prefetching (bypasses HTTP)
-export const api = createCaller;
-
-export function HydrateClient(props: { children: React.ReactNode }) {
+export function HydrateClient(props: { children: ReactNode }) {
   const queryClient = getQueryClient();
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -70,4 +63,14 @@ export function batchPrefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
       void queryClient.prefetchQuery(queryOptions);
     }
   }
+}
+
+/**
+ * Server-side caller for direct API calls in Server Components
+ * Always creates a fresh context with current request headers
+ */
+export async function createCaller() {
+  const callerFactory = createCallerFactoryHelper(appRouter);
+  const ctx = await createTRPCContext();
+  return callerFactory(ctx);
 }

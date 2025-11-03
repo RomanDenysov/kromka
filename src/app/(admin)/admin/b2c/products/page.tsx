@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/shared/admin-header";
 import { ProductsTable } from "@/features/b2c/product-management/ui/products-table";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
@@ -9,13 +10,19 @@ export default async function B2CProductsPage() {
   prefetch(trpc.admin.products.list.queryOptions());
 
   return (
-    <HydrateClient>
+    <>
       <AdminHeader
         breadcrumbs={[{ label: "Produkty", href: "/admin/b2c/products" }]}
       />
-      <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-        <ProductsTable />
-      </Suspense>
-    </HydrateClient>
+      <HydrateClient>
+        <ErrorBoundary fallback={<div>Error</div>}>
+          <Suspense
+            fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}
+          >
+            <ProductsTable />
+          </Suspense>
+        </ErrorBoundary>
+      </HydrateClient>
+    </>
   );
 }

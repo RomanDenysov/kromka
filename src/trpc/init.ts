@@ -1,3 +1,5 @@
+import "server-only";
+
 import { initTRPC, TRPCError } from "@trpc/server";
 import { headers as nextHeaders } from "next/headers";
 import { cache } from "react";
@@ -9,33 +11,28 @@ export type CreateTRPCContextOptions = {
   session: Session | null;
 };
 
+/**
+ * Server-side context creation for Server Components and server-side prefetch
+ */
 export const createTRPCContext = cache(
-  async (opts: { headers?: Headers }): Promise<CreateTRPCContextOptions> => {
-    let hdrs: Headers | undefined = opts.headers;
-    // biome-ignore lint/suspicious/noConsole: <explanation>
-    console.log("hdrs", hdrs);
+  async (opts?: { headers: Headers }): Promise<CreateTRPCContextOptions> => {
+    let hdrs: Headers | undefined = opts?.headers;
     if (!hdrs) {
       try {
-        hdrs = await nextHeaders();
+        const ro = await nextHeaders();
         const h = new Headers();
-        // biome-ignore lint/suspicious/useIterableCallbackReturn: need to copy headers
-        hdrs.forEach((value, key) => h.append(key, value));
+        ro.forEach((value, key) => {
+          h.append(key, value);
+        });
         hdrs = h;
-
-        // biome-ignore lint/suspicious/noConsole: <explanation>
-        console.log("hdrs", hdrs);
-        // biome-ignore lint/suspicious/noEmptyBlockStatements: headers may not be available in all contexts
-      } catch {
-        // biome-ignore lint/suspicious/noConsole: headers may not be available in all contexts
-        console.log("headers not available");
-      }
+        // biome-ignore lint/suspicious/noEmptyBlockStatements: Ignore empty block statements
+      } catch {}
     }
+
     const session = await auth.api.getSession({
       headers: hdrs ?? new Headers(),
     });
 
-    // biome-ignore lint/suspicious/noConsole: <explanation>
-    console.log("session", session);
     return { session };
   }
 );
@@ -60,10 +57,9 @@ export const createCallerFactory = t.createCallerFactory;
 export const publicProcedure = t.procedure;
 
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  // biome-ignore lint/suspicious/noConsole: <explanation>
-  console.log("ctx", ctx);
   if (
-    !(ctx.session?.session && ctx.session.user && !ctx.session.user.isAnonymous)
+    !(ctx.session?.session && ctx.session.user) ||
+    ctx.session.user.isAnonymous
   ) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
