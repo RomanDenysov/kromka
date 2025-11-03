@@ -1,35 +1,33 @@
 "use client";
 
 import { PackagePlusIcon, PlusIcon } from "lucide-react";
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { createDraftCategory } from "@/features/b2c/category-management/actions/create-draft-category";
-import { createDraftProduct } from "@/features/b2c/product-management/actions/create-draft-product";
+import { useCreateDraftProduct } from "@/features/b2c/product-management/hooks/use-product-mutations";
 
 export function CategoriesToolbar() {
+  const { mutateAsync: createDraftProduct, isPending: isCreatingDraftProduct } =
+    useCreateDraftProduct();
+
+  const handleCreateDraftProduct = useCallback(async () => {
+    await createDraftProduct();
+  }, [createDraftProduct]);
   return (
     <div className="flex items-center gap-2">
-      <form action={createDraftCategory} id="add-category-form">
-        <Button
-          form="add-category-form"
-          size="xs"
-          type="submit"
-          variant="outline"
-        >
-          <PlusIcon />
-          Pridať kategóriu
-        </Button>
-      </form>
-      <form action={createDraftProduct} id="add-product-form">
-        <Button
-          form="add-product-form"
-          size="xs"
-          type="submit"
-          variant="outline"
-        >
-          <PackagePlusIcon />
-          Pridať produkt
-        </Button>
-      </form>
+      <Button disabled={isCreatingDraftProduct} size="xs" variant="outline">
+        <PlusIcon />
+        Pridať kategóriu
+      </Button>
+
+      <Button
+        disabled={isCreatingDraftProduct}
+        onClick={handleCreateDraftProduct}
+        size="xs"
+        variant="outline"
+      >
+        <PackagePlusIcon />
+        Pridať produkt
+      </Button>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 import { useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -58,6 +59,11 @@ export const productsColumns: ColumnDef<Product>[] = [
   {
     header: "Názov",
     accessorKey: "name",
+    cell: ({ row }) => (
+      <Link href={`/admin/b2c/products/${row.original.id}`} prefetch>
+        {row.original.name}
+      </Link>
+    ),
   },
   {
     header: "Cena",
