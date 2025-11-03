@@ -7,6 +7,9 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 import { auth, type Session } from "@/lib/auth/server";
 
+const DEV_WAIT_MS = 100;
+const DEV_WAIT_MS_MAX = 400;
+
 export type CreateTRPCContextOptions = {
   session: Session | null;
 };
@@ -37,7 +40,7 @@ export const createTRPCContext = cache(
   }
 );
 
-const t = initTRPC.context<CreateTRPCContextOptions>().create({
+export const t = initTRPC.context<CreateTRPCContextOptions>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
     return {
@@ -54,17 +57,30 @@ const t = initTRPC.context<CreateTRPCContextOptions>().create({
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
 
-export const publicProcedure = t.procedure;
+const timingMiddleware = t.middleware(async ({ next, path }) => {
+  const start = Date.now();
 
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  if (t._config.isDev) {
+    const waitMs = Math.floor(Math.random() * DEV_WAIT_MS_MAX) + DEV_WAIT_MS;
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+  }
+
+  const result = await next();
+
+  const end = Date.now();
+  // biome-ignore lint/suspicious/noConsole: Development debugging
+  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+
+  return result;
+});
+
+export const protectedMiddleware = t.middleware(({ ctx, next }) => {
   if (
     !(ctx.session?.session && ctx.session.user) ||
     ctx.session.user.isAnonymous
   ) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "You must be logged in to access this resource",
-      cause: ctx.session,
     });
   }
   return next({
@@ -74,3 +90,19 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     },
   });
 });
+
+export const publicProcedure = t.procedure.use(timingMiddleware);
+
+export const protectedProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(protectedMiddleware);
+
+export const roleProcedure = (role: string) =>
+  protectedProcedure.use(({ ctx, next }) => {
+    if (ctx.session?.user?.role !== role) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+      });
+    }
+    return next();
+  });
