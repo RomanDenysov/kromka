@@ -15,9 +15,9 @@ export function ListingSearch({ className }: ListingSearchProps) {
   const [categorySearch, setCategorySearch] = useCategorySearch();
 
   return (
-    <div className={cn("w-full border-b p-3", className)}>
+    <div className={cn("h-10 w-full border-b p-2", className)}>
       <Input
-        className="h-8 w-full"
+        className="h-full w-full rounded-md text-xs placeholder:text-muted-foreground placeholder:text-xs"
         onChange={(e) => {
           const newValue = e.target.value;
           // Debounce URL updates when typing, but allow immediate updates for clearing

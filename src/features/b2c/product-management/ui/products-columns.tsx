@@ -60,7 +60,11 @@ export const productsColumns: ColumnDef<Product>[] = [
     header: "Názov",
     accessorKey: "name",
     cell: ({ row }) => (
-      <Link href={`/admin/b2c/products/${row.original.id}`} prefetch>
+      <Link
+        className="font-medium text-xs hover:underline"
+        href={`/admin/b2c/products/${row.original.id}`}
+        prefetch
+      >
         {row.original.name}
       </Link>
     ),
