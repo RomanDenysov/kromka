@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { boolean, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
+import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { channelEnum } from "./enums";
 import { products } from "./products";
 
@@ -24,3 +25,6 @@ export const productChannelsRelations = relations(
     }),
   })
 );
+
+export const insertProductChannelSchema = createInsertSchema(productChannels);
+export const updateProductChannelSchema = createUpdateSchema(productChannels);

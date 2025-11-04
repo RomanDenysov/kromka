@@ -18,12 +18,26 @@ type Props = {
   label?: string;
   placeholder?: string;
   className?: string;
+  onSubmit?: (value: string) => void;
 };
 
-export function EditableField({ label, placeholder, className }: Props) {
+export function EditableField({
+  label,
+  placeholder,
+  className,
+  onSubmit,
+}: Props) {
   const field = useFieldContext<string>();
 
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+  const handleSubmit = (value: string) => {
+    if (onSubmit) {
+      onSubmit(value);
+    } else {
+      field.handleChange(value);
+    }
+  };
 
   return (
     <Field className="w-full" data-invalid={isInvalid}>
@@ -31,7 +45,7 @@ export function EditableField({ label, placeholder, className }: Props) {
       <Editable
         className="group flex flex-1 flex-row items-center gap-2"
         editing={isInvalid}
-        onSubmit={(value) => field.handleChange(value)}
+        onSubmit={handleSubmit}
         placeholder={placeholder}
         value={field.state.value}
       >

@@ -45,6 +45,8 @@ export const QUERIES = {
               category: true,
             },
           },
+          channels: true,
+          prices: true,
         },
       }),
     GET_PRODUCTS_BY_CATEGORY: async (categoryId: string) =>

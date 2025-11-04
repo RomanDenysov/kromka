@@ -8,6 +8,7 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { createPrefixedId } from "@/lib/ids";
 import { organizations, users } from "./auth";
 import {
@@ -155,3 +156,9 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
     references: [products.id],
   }),
 }));
+
+export const insertOrderSchema = createInsertSchema(orders);
+export const updateOrderSchema = createUpdateSchema(orders);
+
+export const insertOrderItemSchema = createInsertSchema(orderItems);
+export const updateOrderItemSchema = createUpdateSchema(orderItems);
