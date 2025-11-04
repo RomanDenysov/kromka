@@ -13,5 +13,11 @@ export default async function B2CProductPage({ params }: Props) {
   if (!product) {
     notFound();
   }
-  return <div>{product.name}</div>;
+  return (
+    <div className="flex size-full">
+      <div className="size-full max-w-md shrink-0 border-r bg-muted md:max-w-lg">
+        {product.name}
+      </div>
+    </div>
+  );
 }
