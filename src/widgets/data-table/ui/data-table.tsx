@@ -71,16 +71,26 @@ export function DataTable<TData, TValue>({
             </TableRow>
           )}
         </TableBody>
-        {footer && (
-          <TableFooter className="p-0">
-            <TableRow className="p-0">
-              <TableCell className="p-0 text-center" colSpan={columns.length}>
-                {footer}
-              </TableCell>
-            </TableRow>
-          </TableFooter>
-        )}
+        {footer && <TableFooterContent columns={columns} footer={footer} />}
       </Table>
     </div>
+  );
+}
+
+function TableFooterContent<TData, TValue>({
+  columns,
+  footer,
+}: {
+  columns: ColumnDef<TData, TValue>[];
+  footer: ReactNode;
+}) {
+  return (
+    <TableFooter className="p-0">
+      <TableRow className="p-0">
+        <TableCell className="p-0 text-center" colSpan={columns.length}>
+          {footer}
+        </TableCell>
+      </TableRow>
+    </TableFooter>
   );
 }
