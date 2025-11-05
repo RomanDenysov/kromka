@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { createPrefixedId } from "@/lib/ids";
 import { productImages } from "./products";
 import { stores } from "./stores";
@@ -23,3 +24,6 @@ export const mediaRelations = relations(media, ({ many }) => ({
   productImages: many(productImages),
   stores: many(stores),
 }));
+
+export const insertMediaSchema = createInsertSchema(media);
+export const updateMediaSchema = createUpdateSchema(media);

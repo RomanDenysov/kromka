@@ -2,7 +2,7 @@ import "server-only";
 import { eq, not } from "drizzle-orm";
 import { db } from "@/db";
 import { products } from "@/db/schema";
-import type { CreateProductSchema } from "@/features/b2c/product-management/schema";
+import type { CreateProductWithRelations } from "@/db/schemas";
 import { getSlug } from "@/lib/get-slug";
 import { createShortId } from "@/lib/ids";
 
@@ -16,12 +16,13 @@ const DRAFT_DEFAULTS = Object.freeze({
 });
 
 function createDraftProductData(
-  overrides: Partial<CreateProductSchema> = {}
-): CreateProductSchema {
+  overrides: Partial<CreateProductWithRelations> = {}
+): CreateProductWithRelations {
   return {
     ...DRAFT_DEFAULTS,
     prices: [],
     categories: [],
+    channels: [],
     slug: `${getSlug("new-product")}-${createShortId()}`,
     sku: `SKU-${createShortId()}`,
     ...overrides,
@@ -42,7 +43,7 @@ export const MUTATIONS = {
     },
     UPDATE_PRODUCT: async (
       productId: string,
-      product: CreateProductSchema
+      product: CreateProductWithRelations
     ): Promise<{ id: string }> => {
       const [updatedProduct] = await db
         .update(products)
