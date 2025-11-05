@@ -5,6 +5,7 @@ import { MoreHorizontalIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { parseAsString, useQueryState } from "nuqs";
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,12 +15,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Category } from "@/db/schema";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "@/widgets/confirm-dialog/ui/confirm-provider";
 
 export function CategoryItem({ category }: { category: Category }) {
   const [selectedCategoryId, setSelectedCategoryId] = useQueryState(
     "categoryId",
     parseAsString
   );
+
+  const confirm = useConfirm();
+
+  const handleDelete = useCallback(async () => {
+    const confirmed = await confirm({
+      title: "Vymazať kategoriu",
+      description: "Naozaj chcete vymazať kategoriu? Táto akcia je nevratná.",
+      confirmText: "Vymazať",
+      variant: "destructive",
+    });
+    if (confirmed) {
+      // biome-ignore lint/suspicious/noConsole: <explanation>
+      console.log("vymazať kategoriu");
+    }
+  }, [confirm]);
 
   const isSelected = selectedCategoryId === category.id;
 
@@ -73,7 +90,7 @@ export function CategoryItem({ category }: { category: Category }) {
                 Upraviť
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>Vymazať</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleDelete}>Vymazať</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
