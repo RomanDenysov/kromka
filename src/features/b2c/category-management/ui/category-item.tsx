@@ -49,8 +49,8 @@ export function CategoryItem({ category }: { category: Category }) {
     <div
       aria-pressed={isSelected}
       className={cn(
-        "group/category-item w-full min-w-30 cursor-pointer rounded-md border border-transparent p-4 text-left",
-        isSelected && "border-border bg-muted shadow"
+        "group/category-item w-full min-w-30 cursor-pointer border-transparent border-y p-3 text-left",
+        isSelected && "border-border bg-muted"
       )}
       onClick={handleClick}
       onKeyDown={(e) => {

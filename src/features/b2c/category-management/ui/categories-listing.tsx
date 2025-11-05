@@ -31,7 +31,7 @@ export function CategoriesListing({ className }: { className?: string }) {
         className
       )}
     >
-      <ScrollArea className="flex-1 overflow-hidden p-3">
+      <ScrollArea className="flex-1 overflow-hidden">
         <div className="flex flex-col gap-2">
           {filteredCategories.length > 0 ? (
             filteredCategories.map((category) => (
