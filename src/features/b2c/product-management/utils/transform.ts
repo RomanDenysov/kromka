@@ -29,7 +29,6 @@ type DbProduct = {
     id: string;
     channel: "B2C" | "B2B";
     orgId: string | null;
-    currency: string;
     amountCents: number;
     minQty: number;
     priority: number;
@@ -69,7 +68,6 @@ export function dbProductToForm(product: DbProduct): ProductFormSchema {
       id: price.id,
       channel: price.channel,
       orgId: price.orgId ?? undefined,
-      currency: price.currency,
       amountCents: price.amountCents,
       minQty: price.minQty,
       priority: price.priority,

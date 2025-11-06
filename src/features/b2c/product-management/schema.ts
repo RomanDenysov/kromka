@@ -25,7 +25,6 @@ export const priceFormSchema = z.object({
   id: z.string().optional(), // For updates
   channel: channelEnumSchema,
   orgId: z.string().optional(), // Organization ID for B2B pricing
-  currency: z.string().min(1),
   amountCents: z.number().int().min(0),
   minQty: z.number().int().min(1).default(1),
   priority: z.number().int().min(0).default(0),

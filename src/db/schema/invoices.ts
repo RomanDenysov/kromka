@@ -32,7 +32,6 @@ export const invoices = pgTable(
     }),
     number: text("number").notNull().unique(),
     series: text("series").notNull().default("A"),
-    currency: text("currency").notNull(),
     status: invoiceStatusEnum("status").notNull().default("draft"),
 
     issueDate: timestamp("issue_date").defaultNow().notNull(),

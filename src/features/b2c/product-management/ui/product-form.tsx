@@ -362,7 +362,6 @@ export function ProductForm() {
                                   )}
                                 </TableCell>
                                 <TableCell>
-                                  {price.currency}{" "}
                                   {(price.amountCents / CENTS_PER_EURO).toFixed(
                                     2
                                   )}

@@ -26,7 +26,6 @@ export const prices = pgTable(
     orgId: text("org_id").references(() => organizations.id, {
       onDelete: "cascade",
     }),
-    currency: text("currency").notNull(),
     amountCents: integer("amount_cents").notNull(),
     minQty: integer("min_qty").default(1).notNull(),
     priority: integer("priority").default(0).notNull(),

@@ -150,7 +150,6 @@ Payment records for orders, supporting multiple payment methods and status track
 - `method`: Enum (`cash`, `card_dotypay`, `bank_transfer`, `other`)
 - `status`: Enum (`pending`, `paid`, `failed`, `refunded`)
 - `amountCents`: Payment amount in cents
-- `currency`: Currency code
 - `provider`: Payment provider name
 - `providerPaymentId`: External payment ID
 - Timestamps: `authorizedAt`, `capturedAt`, `failedAt`
@@ -169,7 +168,6 @@ B2B invoicing system with line items, status tracking, and billing addresses.
 - `companyId`: Reference to organization
 - `number`: Unique invoice number
 - `series`: Invoice series (default: "A")
-- `currency`: Currency code
 - `status`: Enum (`draft`, `issued`, `sent`, `partially_paid`, `paid`, `void`)
 - `issueDate`: Invoice issue date
 - `dueDate`: Payment due date
@@ -210,7 +208,6 @@ Flexible pricing system supporting channel-based pricing (B2C/B2B), organization
 - `productId`: Reference to product
 - `channel`: Enum (`B2C`, `B2B`)
 - `orgId`: Optional reference to organization (null for B2C, set for B2B)
-- `currency`: Currency code
 - `amountCents`: Price in cents
 - `minQty`: Minimum quantity for this price tier
 - `priority`: Integer priority (higher = more important)
@@ -555,8 +552,8 @@ const productData: CreateProductWithRelations = {
     { channel: "B2B", isListed: true }
   ],
   prices: [
-    { channel: "B2C", amountCents: 200, currency: "EUR", minQty: 1 },
-    { channel: "B2B", amountCents: 150, currency: "EUR", minQty: 10, orgId: "org_123" }
+    { channel: "B2C", amountCents: 200, minQty: 1 },
+    { channel: "B2B", amountCents: 150, minQty: 10, orgId: "org_123" }
   ]
 };
 ```

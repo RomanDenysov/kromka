@@ -122,7 +122,6 @@ export const orderPayments = pgTable(
     method: paymentMethodEnum("method").notNull(), // cash, card_dotypay, ...
     status: paymentStatusEnum("status").notNull().default("pending"),
     amountCents: integer("amount_cents").notNull(),
-    currency: text("currency").notNull(), // add DB CHECK = 'EUR'
     provider: text("provider"), // "dotypay", "bank_transfer", ...
     providerPaymentId: text("provider_payment_id"),
     authorizedAt: timestamp("authorized_at"),
