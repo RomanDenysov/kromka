@@ -44,7 +44,7 @@ export function CategoriesListing({ className }: { className?: string }) {
           )}
         </div>
       </ScrollArea>
-      <div className="sticky inset-x-0 bottom-0 border-t bg-background p-2">
+      <div className="sticky inset-x-0 bottom-0 border-t bg-background">
         <AddCategoryButton />
       </div>
     </section>

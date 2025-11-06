@@ -5,11 +5,11 @@ type Props = {
   readonly panel: ReactNode;
 };
 
-export default function B2CLayout({ children, panel }: Props) {
+export default function B2CLayout({ children }: Props) {
   return (
     <>
       {children}
-      {panel}
+      {/* {panel} */}
     </>
   );
 }

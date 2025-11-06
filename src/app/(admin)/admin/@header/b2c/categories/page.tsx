@@ -1,7 +1,7 @@
-import { AdminHeader } from "@/components/shared/admin-header";
-import { CategoriesToolbar } from "./categories-toolbar";
+import { AdminHeader } from "@/components/admin-header/admin-header";
+import { CategoriesToolbar } from "@/features/b2c/category-management/ui/categories-toolbar";
 
-export default function B2CCategoriesAdminHeaderPage() {
+export default function B2CCategoriesAdminHeader() {
   return (
     <AdminHeader
       breadcrumbs={[

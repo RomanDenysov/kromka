@@ -1,4 +1,4 @@
-import { AdminHeader } from "@/components/shared/admin-header";
+import { AdminHeader } from "@/components/admin-header/admin-header";
 
 export default function B2CProductsAdminHeaderPage() {
   return (

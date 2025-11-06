@@ -6,14 +6,14 @@ export function AddCategoryButton() {
   return (
     <form action={createDraftCategory} id="add-category-form">
       <Button
-        className="w-full"
+        className="w-full rounded-none"
         form="add-category-form"
         size="sm"
         type="submit"
         variant="ghost"
       >
         <PlusIcon />
-        Add Category
+        Pridať kategóriu
       </Button>
     </form>
   );

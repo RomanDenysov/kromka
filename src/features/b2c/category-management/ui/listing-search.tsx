@@ -15,9 +15,11 @@ export function ListingSearch({ className }: ListingSearchProps) {
   const [categorySearch, setCategorySearch] = useCategorySearch();
 
   return (
-    <div className={cn("h-10 w-full border-b p-2", className)}>
+    <div className={cn("h-10 w-full border-b", className)}>
       <Input
-        className="h-full w-full rounded-md text-xs placeholder:text-muted-foreground placeholder:text-xs"
+        aria-label="Search categories"
+        autoComplete="off"
+        className="size-full rounded-none ring-0 focus-visible:ring-0"
         onChange={(e) => {
           const newValue = e.target.value;
           // Debounce URL updates when typing, but allow immediate updates for clearing
@@ -25,7 +27,10 @@ export function ListingSearch({ className }: ListingSearchProps) {
             newValue || null,
             newValue === ""
               ? undefined // Immediate update when clearing
-              : { limitUrlUpdates: debounce(SEARCH_DEBOUNCE_DELAY) }
+              : {
+                  limitUrlUpdates: debounce(SEARCH_DEBOUNCE_DELAY),
+                  shallow: false,
+                }
           );
         }}
         onKeyDown={(e) => {

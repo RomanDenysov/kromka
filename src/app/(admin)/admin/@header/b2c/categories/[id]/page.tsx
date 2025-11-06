@@ -1,5 +1,5 @@
 import { getCategory } from "@/actions/categories/queries";
-import { AdminHeader } from "@/components/shared/admin-header";
+import { AdminHeader } from "@/components/admin-header/admin-header";
 
 type Props = {
   params: Promise<{

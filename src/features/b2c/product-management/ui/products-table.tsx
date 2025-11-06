@@ -42,7 +42,7 @@ export function ProductsTable() {
         footer={
           <AddProductTableButton
             loading={isCreatingDraftProduct}
-            onClick={createDraftProduct}
+            onClick={() => createDraftProduct()}
           />
         }
         key={data.length}
