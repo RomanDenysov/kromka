@@ -1,6 +1,7 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   index,
   integer,
   pgTable,
@@ -59,6 +60,10 @@ export const categoryAvailabilityWindows = pgTable(
     index("category_availability_window_idx").on(
       table.startDate,
       table.endDate
+    ),
+    check(
+      "category_availability_window_check",
+      sql`${table.startDate} < ${table.endDate}`
     ),
   ]
 );

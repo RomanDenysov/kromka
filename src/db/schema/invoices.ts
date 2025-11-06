@@ -71,7 +71,6 @@ export const invoiceItems = pgTable(
       onDelete: "set null",
     }),
     sku: text("sku"),
-    description: text("description").notNull(),
     quantity: integer("quantity").notNull().default(1),
     unitPriceCents: integer("unit_price_cents").notNull(),
     taxRatePct: integer("tax_rate_pct"),
