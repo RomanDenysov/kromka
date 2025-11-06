@@ -4,9 +4,9 @@ import { MinusIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
 import { useFieldContext } from "@/components/form";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "../ui/button-group";
-import { Field, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 type Props = {
   label?: string;

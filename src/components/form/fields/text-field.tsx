@@ -1,6 +1,6 @@
 import { useFieldContext } from "@/components/form";
-import { Field, FieldError, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 type Props = {
   label?: string;

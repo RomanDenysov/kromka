@@ -1,6 +1,6 @@
-import { useFieldContext } from "@/components/form";
-import { Checkbox } from "../ui/checkbox";
-import { Field, FieldError, FieldLabel } from "../ui/field";
+import { useFieldContext } from "@/components/form/index";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
 type Category = {
   id: string;

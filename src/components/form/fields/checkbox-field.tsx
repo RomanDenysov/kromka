@@ -1,6 +1,6 @@
 import { useFieldContext } from "@/components/form";
-import { Checkbox } from "../ui/checkbox";
-import { Field, FieldError, FieldLabel } from "../ui/field";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
 type Props = {
   label?: string;

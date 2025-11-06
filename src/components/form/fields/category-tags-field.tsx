@@ -13,7 +13,7 @@ import {
   TagsTrigger,
   TagsValue,
 } from "@/components/kibo-ui/tags";
-import { Field, FieldError, FieldLabel } from "../ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
 type Category = {
   id: string;

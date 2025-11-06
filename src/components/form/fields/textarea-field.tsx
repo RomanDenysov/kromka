@@ -1,6 +1,6 @@
 import { useFieldContext } from "@/components/form";
-import { Field, FieldError, FieldLabel } from "../ui/field";
-import { Textarea } from "../ui/textarea";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
   label?: string;

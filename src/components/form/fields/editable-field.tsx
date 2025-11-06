@@ -1,7 +1,6 @@
 import { CheckIcon, EditIcon, XIcon } from "lucide-react";
 import { useFieldContext } from "@/components/form";
-import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Editable,
   EditableArea,
@@ -11,8 +10,9 @@ import {
   EditableSubmit,
   EditableToolbar,
   EditableTrigger,
-} from "../ui/editable";
-import { Field, FieldError, FieldLabel } from "../ui/field";
+} from "@/components/ui/editable";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
 
 type Props = {
   label?: string;
