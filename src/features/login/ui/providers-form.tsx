@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useCallback, useTransition } from "react";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,9 @@ const providerItems = PROVIDERS.map((provider) => ({
   icon: Icons[provider],
 }));
 
-export function ProvidersForm({ callbackURL }: { callbackURL: string }) {
+export function ProvidersForm() {
+  const searchParams = useSearchParams();
+  const callbackURL = searchParams.get("origin") || "/";
   const [isPending, startTransition] = useTransition();
 
   const handleProviderLogin = useCallback(
