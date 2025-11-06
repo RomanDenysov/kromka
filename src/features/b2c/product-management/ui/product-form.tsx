@@ -51,7 +51,7 @@ export function ProductForm() {
       name: "",
       slug: "",
       sku: "",
-      description: null,
+      description: "",
       stock: 0,
       categories: [],
       channels: [],
@@ -61,12 +61,7 @@ export function ProductForm() {
       sortOrder: 0,
     },
     validators: {
-      onSubmit: ({ value }) => {
-        const result = productFormSchema.safeParse(value);
-        if (!result.success) {
-          return result.error.flatten().fieldErrors;
-        }
-      },
+      onSubmit: productFormSchema,
     },
     onSubmit: (values) => {
       // biome-ignore lint/suspicious/noConsole: TODO - implement mutation
@@ -144,14 +139,12 @@ export function ProductForm() {
 
           <div className="grid grid-cols-2 gap-4">
             <form.AppField name="stock">
-              {(field) => (
-                <field.NumberField label="Stock" min={0} placeholder="0" />
-              )}
+              {(field) => <field.QuantitySetterField label="Stock" min={0} />}
             </form.AppField>
 
             <form.AppField name="sortOrder">
               {(field) => (
-                <field.NumberField label="Sort Order" min={0} placeholder="0" />
+                <field.QuantitySetterField label="Sort Order" min={0} />
               )}
             </form.AppField>
           </div>
