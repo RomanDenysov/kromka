@@ -31,10 +31,7 @@ function getUrl() {
     url = `${window.location.origin}/api/trpc`;
   } else {
     // Fallback for SSR edge case (shouldn't happen in client component)
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.VERCEL_URL ||
-      "http://localhost:3000";
+    const baseUrl = process.env.VERCEL_URL || "http://localhost:3000";
     const base = baseUrl.startsWith("http") ? baseUrl : `https://${baseUrl}`;
     url = `${base}/api/trpc`;
   }
