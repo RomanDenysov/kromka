@@ -12,7 +12,6 @@ export default function LoginPage() {
           alt="Doors"
           className="absolute inset-0 size-full object-cover object-center grayscale-[10]"
           preload
-          priority
           src={doorsPhoto}
         />
       </div>
