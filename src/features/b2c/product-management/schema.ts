@@ -7,6 +7,12 @@ import { z } from "zod";
 import { channelEnumSchema, productStatusEnumSchema } from "@/db/schemas";
 
 // ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const MAX_STRING_LENGTH = 255;
+
+// ============================================================================
 // FORM SCHEMAS (for UI forms - description as string, dates as Date | undefined)
 // ============================================================================
 
@@ -15,7 +21,7 @@ import { channelEnumSchema, productStatusEnumSchema } from "@/db/schemas";
  */
 export const channelConfigFormSchema = z.object({
   channel: channelEnumSchema,
-  isListed: z.boolean().default(true),
+  isListed: z.boolean(),
 });
 
 /**
@@ -26,11 +32,11 @@ export const priceFormSchema = z.object({
   channel: channelEnumSchema,
   orgId: z.string().optional(), // Organization ID for B2B pricing
   amountCents: z.number().int().min(0),
-  minQty: z.number().int().min(1).default(1),
-  priority: z.number().int().min(0).default(0),
+  minQty: z.number().int().min(1),
+  priority: z.number().int().min(0),
   startsAt: z.date().optional(),
   endsAt: z.date().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 });
 
 /**
@@ -38,17 +44,17 @@ export const priceFormSchema = z.object({
  * Description is a string (not JSON), dates are Date | undefined
  */
 export const productFormSchema = z.object({
-  name: z.string().min(1).max(255),
-  slug: z.string().min(1).max(255),
-  sku: z.string().min(1).max(255),
+  name: z.string().min(1).max(MAX_STRING_LENGTH),
+  slug: z.string().min(1).max(MAX_STRING_LENGTH),
+  sku: z.string().min(1).max(MAX_STRING_LENGTH),
   description: z.string().nullable(),
-  stock: z.number().int().min(0).default(0),
-  categories: z.array(z.string()).default([]),
-  channels: z.array(channelConfigFormSchema).default([]),
-  prices: z.array(priceFormSchema).default([]),
+  stock: z.number().int().min(0),
+  categories: z.array(z.string()),
+  channels: z.array(channelConfigFormSchema),
+  prices: z.array(priceFormSchema),
   status: productStatusEnumSchema,
-  isActive: z.boolean().default(false),
-  sortOrder: z.number().int().min(0).default(0),
+  isActive: z.boolean(),
+  sortOrder: z.number().int().min(0),
 });
 
 // ============================================================================

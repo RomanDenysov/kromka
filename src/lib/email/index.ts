@@ -4,7 +4,7 @@ import { renderMagicLink } from "./templates/magic-link";
 
 const config = {
   host: env.EMAIL_HOST,
-  port: 587,
+  port: env.EMAIL_PORT,
   secure: false,
   auth: {
     user: env.EMAIL_USER,
