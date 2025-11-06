@@ -29,8 +29,8 @@ type WorkDay = {
 
 type OpeningHours = {
   weekdays: WorkDay;
-  saturday: WorkDay;
-  sunday: WorkDay;
+  saturday?: WorkDay;
+  sunday?: WorkDay;
 };
 
 export const stores = pgTable("stores", {
