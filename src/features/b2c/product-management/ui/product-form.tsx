@@ -3,14 +3,9 @@
 import { useParams } from "next/navigation";
 import { useRef } from "react";
 import { useAppForm } from "@/components/form";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  FieldGroup,
-  FieldLegend,
-  FieldSet,
-} from "@/components/ui/field";
+import { FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSuspenseCategoriesQuery } from "@/features/b2c/category-management/hooks/use-categories-query";
 import { getSlug } from "@/lib/get-slug";
@@ -56,7 +51,7 @@ export function ProductForm() {
     },
     onSubmit: (values) => {
       // biome-ignore lint/suspicious/noConsole: TODO - implement mutation
-      console.log("Form values:", values);
+      console.log("Form values:", values.value);
     },
   });
 

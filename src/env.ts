@@ -10,6 +10,7 @@ export const env = createEnv({
     EMAIL_HOST: z.string().min(1),
     EMAIL_USER: z.string().email(),
     EMAIL_PASSWORD: z.string().min(1),
+    EMAIL_PORT: z.coerce.number().min(1),
   },
 
   runtimeEnv: {
@@ -20,5 +21,6 @@ export const env = createEnv({
     EMAIL_HOST: process.env.EMAIL_HOST,
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
+    EMAIL_PORT: process.env.EMAIL_PORT ?? "587",
   },
 });
