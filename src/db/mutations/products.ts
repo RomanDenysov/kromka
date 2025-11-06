@@ -2,7 +2,7 @@ import "server-only";
 import { eq, not } from "drizzle-orm";
 import { db } from "@/db";
 import { products } from "@/db/schema";
-import type { CreateProductWithRelations } from "@/db/schemas";
+import type { CreateProductWithRelations, Product } from "@/db/schemas";
 import { getSlug } from "@/lib/get-slug";
 import { createShortId } from "@/lib/ids";
 
@@ -31,15 +31,15 @@ function createDraftProductData(
 
 export const MUTATIONS = {
   ADMIN: {
-    CREATE_DRAFT_PRODUCT: async (): Promise<{ id: string }> => {
+    CREATE_DRAFT_PRODUCT: async (): Promise<Product> => {
       const draft = createDraftProductData();
       // biome-ignore lint/suspicious/noConsole: <explanation>
       console.log("CREATE_DRAFT_PRODUCT", draft);
       const [newDraftProduct] = await db
         .insert(products)
         .values(draft)
-        .returning({ id: products.id });
-      return newDraftProduct;
+        .returning();
+      return newDraftProduct as Product;
     },
     UPDATE_PRODUCT: async (
       productId: string,

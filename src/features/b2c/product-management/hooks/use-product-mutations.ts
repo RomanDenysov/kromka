@@ -3,27 +3,34 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useTRPC } from "@/trpc/client";
+import { type RouterOutputs, useTRPC } from "@/trpc/client";
 
-export function useCreateDraftProduct() {
+type CreateDraftProductResult =
+  RouterOutputs["admin"]["products"]["createDraft"];
+
+type Options = {
+  onSuccess?: (result: CreateDraftProductResult) => void;
+  skipNavigation?: boolean;
+};
+
+export function useCreateDraftProduct({
+  onSuccess,
+  skipNavigation = false,
+}: Options = {}) {
   const trpc = useTRPC();
   const qc = useQueryClient();
   const router = useRouter();
 
-  const listKey = trpc.admin.products.list.queryKey();
-
-  // biome-ignore lint/suspicious/noConsole: <explanation>
-  console.log("Mutation listKey:", listKey);
   return useMutation(
     trpc.admin.products.createDraft.mutationOptions({
-      onSuccess: async ({ id }) => {
-        await qc.invalidateQueries({ queryKey: listKey });
-        await qc.refetchQueries({
-          queryKey: listKey,
-          type: "active",
-          exact: true,
+      onSuccess: async (data) => {
+        await qc.invalidateQueries({
+          queryKey: trpc.admin.products.list.queryKey(),
         });
-        router.push(`/admin/b2c/products/${id}`);
+        if (!skipNavigation) {
+          router.push(`/admin/b2c/products/${data.id}`);
+        }
+        onSuccess?.(data);
       },
       onError: (error) => {
         toast.error(error.message);
