@@ -45,7 +45,7 @@ export function ProductsTable() {
             onClick={() => createDraftProduct()}
           />
         }
-        key={data.length}
+        key={processedProducts.length}
         table={table}
       />
     </div>

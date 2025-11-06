@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { ProductForm } from "@/features/b2c/product-management/ui/product-form";
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { batchPrefetch, HydrateClient, trpc } from "@/trpc/server";
 
 type Props = {
   params: Promise<{
@@ -11,7 +11,10 @@ type Props = {
 
 export default async function B2CProductPage({ params }: Props) {
   const { id } = await params;
-  prefetch(trpc.admin.products.byId.queryOptions({ id }));
+  batchPrefetch([
+    trpc.admin.products.byId.queryOptions({ id }),
+    trpc.admin.categories.list.queryOptions(),
+  ]);
 
   return (
     <div className="flex size-full">

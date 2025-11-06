@@ -1,4 +1,5 @@
 import z from "zod";
+import { MUTATIONS } from "@/db/mutations/categories";
 import { QUERIES } from "@/db/queries/categories";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
@@ -17,4 +18,7 @@ export const adminCategoriesRouter = createTRPCRouter({
       async ({ input }) =>
         await QUERIES.ADMIN.GET_CATEGORIES_BY_PRODUCT(input.productId)
     ),
+  createDraft: protectedProcedure.mutation(
+    async () => await MUTATIONS.ADMIN.CREATE_DRAFT_CATEGORY()
+  ),
 });

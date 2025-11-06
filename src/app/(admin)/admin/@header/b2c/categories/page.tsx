@@ -1,5 +1,5 @@
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { CategoriesToolbar } from "@/features/b2c/category-management/ui/categories-toolbar";
+import { CategoriesToolbar } from "./categories-toolbar";
 
 export default function B2CCategoriesAdminHeader() {
   return (
