@@ -27,7 +27,9 @@ export const auth = betterAuth({
     nextCookies(),
   ],
   advanced: {
-    generateId: createId,
+    database: {
+      generateId: createId,
+    },
   },
 });
 
