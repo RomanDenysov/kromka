@@ -13,8 +13,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { RouterOutputs } from "@/trpc/client";
 import { cn } from "@/lib/utils";
+import type { RouterOutputs } from "@/trpc/routers";
 import { useConfirm } from "@/widgets/confirm-dialog/ui/confirm-provider";
 
 type Category = RouterOutputs["admin"]["categories"]["list"][number];

@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { type RouterOutputs, useTRPC } from "@/trpc/client";
+import { useTRPC } from "@/trpc/client";
+import type { RouterOutputs } from "@/trpc/routers";
 
 type CreateDraftCategoryResult =
   RouterOutputs["admin"]["categories"]["createDraft"];
