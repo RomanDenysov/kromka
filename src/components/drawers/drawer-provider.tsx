@@ -1,3 +1,4 @@
+"use client";
 import { CustomerEditDrawer } from "./customer-edit-drawer";
 
 export function DrawerProvider() {

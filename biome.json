@@ -12,7 +12,9 @@
       "!node_modules",
       "!.next",
       "!dist",
-      "!build"
+      "!build",
+      "!pnpm-lock.yaml",
+      "!src/components/ui/**/*.tsx"
     ]
   },
   "formatter": {
@@ -40,8 +42,5 @@
       }
     }
   },
-  "extends": [
-    "ultracite/core",
-    "ultracite/next"
-  ]
+  "extends": ["ultracite/core", "ultracite/next"]
 }

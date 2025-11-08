@@ -34,4 +34,3 @@ export const settingsSection: NavSectionConfig = {
     },
   ],
 };
-

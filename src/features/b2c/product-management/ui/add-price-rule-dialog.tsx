@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAppForm } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,18 +10,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAppForm } from "@/components/form";
 import type { PriceFormSchema } from "../schema";
 import { priceFormSchema } from "../schema";
 
 const CENTS_PER_EURO = 100;
 
-interface AddPriceRuleDialogProps {
+type AddPriceRuleDialogProps = {
   open: boolean;
   onClose: () => void;
   onSubmit: (price: PriceFormSchema) => void;
   editingPrice: PriceFormSchema | null;
-}
+};
 
 export function AddPriceRuleDialog({
   open,
@@ -64,7 +64,7 @@ export function AddPriceRuleDialog({
         form.reset();
       }
     }
-  }, [open, editingPrice]);
+  }, [open, editingPrice, form.setFieldValue, form.reset]);
 
   const handleClose = () => {
     form.reset();
@@ -107,7 +107,6 @@ export function AddPriceRuleDialog({
             <form.AppField name="orgId">
               {(field) => (
                 <field.TextField
-                  description="Leave empty for all customers, or specify organization ID for custom pricing"
                   label="Organization ID (Optional)"
                   placeholder="org-xxx"
                 />
@@ -121,11 +120,14 @@ export function AddPriceRuleDialog({
 
                 return (
                   <div className="space-y-1">
-                    <label className="text-sm font-medium" htmlFor="price-input">
+                    <label
+                      className="font-medium text-sm"
+                      htmlFor="price-input"
+                    >
                       Price (€)
                     </label>
                     <input
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                       id="price-input"
                       min={0}
                       onBlur={field.handleBlur}
@@ -152,10 +154,7 @@ export function AddPriceRuleDialog({
             {/* Minimum Quantity */}
             <form.AppField name="minQty">
               {(field) => (
-                <field.QuantitySetterField
-                  label="Minimum Quantity"
-                  min={1}
-                />
+                <field.QuantitySetterField label="Minimum Quantity" min={1} />
               )}
             </form.AppField>
 
@@ -163,11 +162,14 @@ export function AddPriceRuleDialog({
             <form.AppField name="priority">
               {(field) => (
                 <div className="space-y-1">
-                  <label className="text-sm font-medium" htmlFor="priority-input">
+                  <label
+                    className="font-medium text-sm"
+                    htmlFor="priority-input"
+                  >
                     Priority
                   </label>
                   <input
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     id="priority-input"
                     min={0}
                     onBlur={field.handleBlur}
@@ -217,4 +219,3 @@ export function AddPriceRuleDialog({
     </Dialog>
   );
 }
-

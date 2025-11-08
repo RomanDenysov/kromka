@@ -1,7 +1,7 @@
 "use client";
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { PageTracker } from "react-page-tracker";
 import { TRPCReactProvider } from "@/trpc/client";
 import { ConfirmDialogProvider } from "@/widgets/confirm-dialog/ui/confirm-provider";
@@ -19,7 +19,9 @@ export function Providers({ children }: Props) {
         <PageTracker enableStrictModeHandler={false} />
         <ConfirmDialogProvider>
           {children}
-          <DrawerProvider />
+          <Suspense>
+            <DrawerProvider />
+          </Suspense>
         </ConfirmDialogProvider>
         <Toaster richColors />
       </NuqsAdapter>

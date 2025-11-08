@@ -9,4 +9,3 @@ export const dashboardSection: NavItemConfig = {
   icon: "LayoutDashboard",
   exact: true,
 };
-

@@ -32,4 +32,3 @@ export const b2bSection: NavSectionConfig = {
     },
   ],
 };
-

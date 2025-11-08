@@ -46,4 +46,3 @@ export const productStatusEnumSchema = z.enum([
   "inactive",
   "archived",
 ]);
-

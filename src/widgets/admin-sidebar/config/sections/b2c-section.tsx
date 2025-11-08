@@ -26,4 +26,3 @@ export const b2cSection: NavSectionConfig = {
     },
   ],
 };
-

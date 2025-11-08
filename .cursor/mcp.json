@@ -2,27 +2,17 @@
   "mcpServers": {
     "context7": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp"
-      ],
+      "args": ["-y", "@upstash/context7-mcp"],
       "type": "stdio"
     },
     "shadcn": {
       "command": "npx",
-      "args": [
-        "shadcn@latest",
-        "mcp"
-      ],
+      "args": ["shadcn@latest", "mcp"],
       "type": "stdio"
     },
     "neon": {
       "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote@latest",
-        "https://mcp.neon.tech/mcp"
-      ],
+      "args": ["-y", "mcp-remote@latest", "https://mcp.neon.tech/mcp"],
       "type": "stdio"
     },
     "better-auth": {
