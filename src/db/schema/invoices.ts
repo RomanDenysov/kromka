@@ -8,7 +8,6 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { createPrefixedId } from "@/lib/ids";
 import { organizations } from "./auth";
 import { invoiceStatusEnum } from "./enums";
@@ -102,9 +101,3 @@ export const invoiceItemsRelations = relations(invoiceItems, ({ one }) => ({
     references: [products.id],
   }),
 }));
-
-export const insertInvoiceSchema = createInsertSchema(invoices);
-export const updateInvoiceSchema = createUpdateSchema(invoices);
-
-export const insertInvoiceItemSchema = createInsertSchema(invoiceItems);
-export const updateInvoiceItemSchema = createUpdateSchema(invoiceItems);

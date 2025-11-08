@@ -4,7 +4,10 @@
  */
 
 import { z } from "zod";
-import { channelEnumSchema, productStatusEnumSchema } from "@/db/schemas";
+import {
+  channelEnumSchema,
+  productStatusEnumSchema,
+} from "@/db/schema/enums-zod";
 
 // ============================================================================
 // CONSTANTS
@@ -64,13 +67,3 @@ export const productFormSchema = z.object({
 export type ChannelConfigFormSchema = z.infer<typeof channelConfigFormSchema>;
 export type PriceFormSchema = z.infer<typeof priceFormSchema>;
 export type ProductFormSchema = z.infer<typeof productFormSchema>;
-
-// Re-export database schemas for convenience
-export type {
-  CreateProduct,
-  CreateProductWithRelations,
-  Product,
-  ProductWithRelations,
-  UpdateProduct,
-  UpdateProductWithRelations,
-} from "@/db/schemas";

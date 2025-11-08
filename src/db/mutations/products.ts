@@ -2,9 +2,11 @@ import "server-only";
 import { eq, not } from "drizzle-orm";
 import { db } from "@/db";
 import { products } from "@/db/schema";
-import type { CreateProductWithRelations, Product } from "@/db/schemas";
 import { getSlug } from "@/lib/get-slug";
 import { createShortId } from "@/lib/ids";
+
+type ProductInsert = typeof products.$inferInsert;
+type Product = typeof products.$inferSelect;
 
 const DRAFT_DEFAULTS = Object.freeze({
   name: "New Product",
@@ -16,13 +18,10 @@ const DRAFT_DEFAULTS = Object.freeze({
 });
 
 function createDraftProductData(
-  overrides: Partial<CreateProductWithRelations> = {}
-): CreateProductWithRelations {
+  overrides: Partial<ProductInsert> = {}
+): ProductInsert {
   return {
     ...DRAFT_DEFAULTS,
-    prices: [],
-    categories: [],
-    channels: [],
     slug: `${getSlug("new-product")}-${createShortId()}`,
     sku: `SKU-${createShortId()}`,
     ...overrides,
@@ -39,11 +38,11 @@ export const MUTATIONS = {
         .insert(products)
         .values(draft)
         .returning();
-      return newDraftProduct as Product;
+      return newDraftProduct;
     },
     UPDATE_PRODUCT: async (
       productId: string,
-      product: CreateProductWithRelations
+      product: Partial<ProductInsert>
     ): Promise<{ id: string }> => {
       const [updatedProduct] = await db
         .update(products)

@@ -8,7 +8,6 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { createPrefixedId } from "@/lib/ids";
 import { users } from "./auth";
 import { media } from "./media";
@@ -100,9 +99,3 @@ export const storeMembersRelations = relations(storeMembers, ({ one }) => ({
     references: [users.id],
   }),
 }));
-
-export const insertStoreSchema = createInsertSchema(stores);
-export const updateStoreSchema = createUpdateSchema(stores);
-
-export const insertStoreMemberSchema = createInsertSchema(storeMembers);
-export const updateStoreMemberSchema = createUpdateSchema(storeMembers);

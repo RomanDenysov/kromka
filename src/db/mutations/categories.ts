@@ -4,7 +4,8 @@ import { db } from "@/db";
 import { getSlug } from "@/lib/get-slug";
 import { createShortId } from "@/lib/ids";
 import { categories } from "../schema";
-import type { CreateCategory } from "../schemas";
+
+type CategoryInsert = typeof categories.$inferInsert;
 
 const DRAFT_DEFAULTS = Object.freeze({
   name: "New Category",
@@ -14,8 +15,8 @@ const DRAFT_DEFAULTS = Object.freeze({
 });
 
 function createDraftCategoryData(
-  overrides: Partial<CreateCategory> = {}
-): CreateCategory {
+  overrides: Partial<CategoryInsert> = {}
+): CategoryInsert {
   return {
     ...DRAFT_DEFAULTS,
     ...overrides,
@@ -26,7 +27,7 @@ function createDraftCategoryData(
 export const MUTATIONS = {
   ADMIN: {
     CREATE_DRAFT_CATEGORY: async () => {
-      const draftCategoryData: CreateCategory = createDraftCategoryData();
+      const draftCategoryData: CategoryInsert = createDraftCategoryData();
 
       const [newDraftCategory] = await db
         .insert(categories)

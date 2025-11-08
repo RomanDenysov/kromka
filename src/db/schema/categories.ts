@@ -9,7 +9,6 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { createPrefixedId } from "@/lib/ids";
 import { products } from "./products";
 
@@ -118,21 +117,6 @@ export const productCategoriesRelations = relations(
     }),
   })
 );
-
-export const insertCategorySchema = createInsertSchema(categories);
-export const updateCategorySchema = createUpdateSchema(categories);
-
-export const insertCategoryAvailabilityWindowSchema = createInsertSchema(
-  categoryAvailabilityWindows
-);
-export const updateCategoryAvailabilityWindowSchema = createUpdateSchema(
-  categoryAvailabilityWindows
-);
-
-export const insertProductCategorySchema =
-  createInsertSchema(productCategories);
-export const updateProductCategorySchema =
-  createUpdateSchema(productCategories);
 
 export type Category = typeof categories.$inferSelect;
 export type CategoryAvailabilityWindow =

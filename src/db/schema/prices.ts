@@ -7,7 +7,6 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { createPrefixedId } from "@/lib/ids";
 import { organizations } from "./auth";
 import { channelEnum } from "./enums";
@@ -65,6 +64,3 @@ export const pricesRelations = relations(prices, ({ one }) => ({
     references: [organizations.id],
   }),
 }));
-
-export const insertPriceSchema = createInsertSchema(prices);
-export const updatePriceSchema = createUpdateSchema(prices);

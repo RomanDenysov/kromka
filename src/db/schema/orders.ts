@@ -8,7 +8,6 @@ import {
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { createInsertSchema, createUpdateSchema } from "drizzle-zod";
 import { createPrefixedId } from "@/lib/ids";
 import { organizations, users } from "./auth";
 import {
@@ -209,15 +208,3 @@ export const orderPaymentsRelations = relations(
     refunds: many(paymentRefunds),
   })
 );
-
-export const insertOrderSchema = createInsertSchema(orders);
-export const updateOrderSchema = createUpdateSchema(orders);
-
-export const insertOrderItemSchema = createInsertSchema(orderItems);
-export const updateOrderItemSchema = createUpdateSchema(orderItems);
-
-export const insertOrderPaymentSchema = createInsertSchema(orderPayments);
-export const updateOrderPaymentSchema = createUpdateSchema(orderPayments);
-
-export const insertPaymentRefundSchema = createInsertSchema(paymentRefunds);
-export const updatePaymentRefundSchema = createUpdateSchema(paymentRefunds);

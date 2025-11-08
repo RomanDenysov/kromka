@@ -13,9 +13,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Category } from "@/db/schema";
+import type { RouterOutputs } from "@/trpc/client";
 import { cn } from "@/lib/utils";
 import { useConfirm } from "@/widgets/confirm-dialog/ui/confirm-provider";
+
+type Category = RouterOutputs["admin"]["categories"]["list"][number];
 
 export function CategoryItem({ category }: { category: Category }) {
   const [selectedCategoryId, setSelectedCategoryId] = useQueryState(

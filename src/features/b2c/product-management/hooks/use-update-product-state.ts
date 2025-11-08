@@ -5,6 +5,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import type { RouterOutputs } from "@/trpc/client";
 import { toggleProductState } from "../actions/toggle-product-state";
 import type { Product } from "../ui/products-table";
 

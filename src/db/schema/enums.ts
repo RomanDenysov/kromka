@@ -1,5 +1,4 @@
 import { pgEnum } from "drizzle-orm/pg-core";
-import { createSelectSchema } from "drizzle-zod";
 
 export const channelEnum = pgEnum("channel", ["B2C", "B2B"]);
 
@@ -43,15 +42,3 @@ export const productStatusEnum = pgEnum("product_status", [
   // "sold_out",
   "archived",
 ]);
-
-export const createChannelEnumSchema = createSelectSchema(channelEnum);
-
-export const createOrderStatusEnumSchema = createSelectSchema(orderStatusEnum);
-export const createPaymentStatusEnumSchema =
-  createSelectSchema(paymentStatusEnum);
-export const createPaymentMethodEnumSchema =
-  createSelectSchema(paymentMethodEnum);
-export const createInvoiceStatusEnumSchema =
-  createSelectSchema(invoiceStatusEnum);
-export const createProductStatusEnumSchema =
-  createSelectSchema(productStatusEnum);

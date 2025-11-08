@@ -9,14 +9,13 @@ import {
 import { parseAsString, useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { useTRPC } from "@/trpc/client";
+import type { RouterOutputs } from "@/trpc/client";
 import { DataTable } from "@/widgets/data-table/ui/data-table";
 import { useCreateDraftProduct } from "../hooks/use-product-mutations";
 import { AddProductTableButton } from "./add-product-table-button";
 import { productsColumns } from "./products-columns";
 
-export type Product = Awaited<
-  ReturnType<typeof import("@/actions/products/queries").getProducts>
->[number];
+export type Product = RouterOutputs["admin"]["products"]["list"][number];
 
 export function ProductsTable() {
   const trpc = useTRPC();

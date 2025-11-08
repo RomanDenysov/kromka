@@ -3,7 +3,8 @@ import { db } from "@/db";
 import { getSlug } from "@/lib/get-slug";
 import { createShortId } from "@/lib/ids";
 import { stores } from "../schema";
-import type { CreateStore } from "../schemas";
+
+type StoreInsert = typeof stores.$inferInsert;
 
 const DRAFT_DEFAULTS = Object.freeze({
   name: "New Store",
@@ -24,8 +25,8 @@ const DRAFT_DEFAULTS = Object.freeze({
 });
 
 function createDraftStoreData(
-  overrides: Partial<CreateStore> = {}
-): CreateStore {
+  overrides: Partial<StoreInsert> = {}
+): StoreInsert {
   return {
     ...DRAFT_DEFAULTS,
     slug: `${getSlug("new-store")}-${createShortId()}`,
@@ -37,7 +38,7 @@ function createDraftStoreData(
 export const MUTATIONS = {
   ADMIN: {
     CREATE_DRAFT_STORE: async () => {
-      const draftStoreData: CreateStore = createDraftStoreData();
+      const draftStoreData: StoreInsert = createDraftStoreData();
 
       const [newDraftStore] = await db
         .insert(stores)
@@ -46,7 +47,7 @@ export const MUTATIONS = {
 
       return newDraftStore;
     },
-    UPDATE_STORE: async (storeId: string, store: CreateStore) => {
+    UPDATE_STORE: async (storeId: string, store: Partial<StoreInsert>) => {
       const [updatedStore] = await db
         .update(stores)
         .set(store)
