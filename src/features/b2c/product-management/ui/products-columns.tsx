@@ -6,7 +6,6 @@ import { useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RowToggleButton } from "@/widgets/data-table/ui/row-toggle-button";
-import type { RouterOutputs } from "@/trpc/client";
 import { useUpdateProductState } from "../hooks/use-update-product-state";
 import type { Product } from "./products-table";
 

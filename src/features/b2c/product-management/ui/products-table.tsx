@@ -9,7 +9,7 @@ import {
 import { parseAsString, useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { useTRPC } from "@/trpc/client";
-import type { RouterOutputs } from "@/trpc/client";
+import type { RouterOutputs } from "@/trpc/routers";
 import { DataTable } from "@/widgets/data-table/ui/data-table";
 import { useCreateDraftProduct } from "../hooks/use-product-mutations";
 import { AddProductTableButton } from "./add-product-table-button";

@@ -1,11 +1,10 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { inferRouterOutputs } from "@trpc/server";
 import { useCustomerParams } from "@/hooks/use-customer-params";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTRPC } from "@/trpc/client";
-import type { AppRouter } from "@/trpc/routers";
+import type { RouterOutputs } from "@/trpc/routers";
 import {
   Drawer,
   DrawerContent,
@@ -14,8 +13,8 @@ import {
   DrawerTitle,
 } from "../ui/drawer";
 
-type UserById = inferRouterOutputs<AppRouter>["admin"]["users"]["byId"];
-type UserList = inferRouterOutputs<AppRouter>["admin"]["users"]["list"];
+type UserById = RouterOutputs["admin"]["users"]["byId"];
+type UserList = RouterOutputs["admin"]["users"]["list"];
 
 export function CustomerEditDrawer() {
   const trpc = useTRPC();
