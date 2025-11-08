@@ -1,5 +1,4 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { User } from "better-auth";
 import { format } from "date-fns";
 import { CheckCircleIcon, MoreHorizontalIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,14 +17,17 @@ import {
 } from "@/components/ui/tooltip";
 import { useCustomerParams } from "@/hooks/use-customer-params";
 import { cn, getInitials } from "@/lib/utils";
+import type { RouterOutputs } from "@/trpc/routers";
 
-export const columns: ColumnDef<User & { role: string }>[] = [
+export type Users = RouterOutputs["admin"]["users"]["list"][number];
+
+export const columns: ColumnDef<Users>[] = [
   {
     id: "image",
     header: "",
     accessorKey: "image",
     cell: ({ row }) => (
-      <Avatar className="size-8 rounded-md">
+      <Avatar className="relative size-8 rounded-md">
         <AvatarImage
           className="rounded-md object-cover"
           src={row.original.image ?? ""}
