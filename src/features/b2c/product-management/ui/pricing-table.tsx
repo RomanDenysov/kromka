@@ -16,12 +16,12 @@ import { AddPriceRuleDialog } from "./add-price-rule-dialog";
 
 const CENTS_PER_EURO = 100;
 
-interface PricingTableProps {
+type PricingTableProps = {
   prices: PriceFormSchema[];
   onAddPrice: (price: PriceFormSchema) => void;
   onEditPrice: (index: number, price: PriceFormSchema) => void;
   onDeletePrice: (index: number) => void;
-}
+};
 
 export function PricingTable({
   prices,
@@ -59,7 +59,7 @@ export function PricingTable({
   };
 
   const handleDeletePrice = (index: number) => {
-    if (confirm("Are you sure you want to delete this price rule?")) {
+    if (window.confirm("Are you sure you want to delete this price rule?")) {
       onDeletePrice(index);
     }
   };

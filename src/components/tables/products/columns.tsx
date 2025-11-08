@@ -2,37 +2,15 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RowToggleButton } from "@/widgets/data-table/ui/row-toggle-button";
-import { useUpdateProductState } from "../hooks/use-update-product-state";
-import type { Product } from "./products-table";
+import type { RouterOutputs } from "@/trpc/routers";
 
 const MAX_CATEGORIES = 3;
 
-function ProductActiveCell({ product }: { product: Product }) {
-  const updateProductState = useUpdateProductState();
+export type Product = RouterOutputs["admin"]["products"]["list"][number];
 
-  const handleToggle = useCallback(() => {
-    updateProductState.mutate(product.id);
-  }, [updateProductState, product.id]);
-
-  const optimisticIsActive = updateProductState.isPending
-    ? !product.isActive
-    : product.isActive;
-
-  return (
-    <RowToggleButton
-      disabled={updateProductState.isPending}
-      isActive={optimisticIsActive}
-      onToggle={handleToggle}
-      size="xs"
-    />
-  );
-}
-
-export const productsColumns: ColumnDef<Product>[] = [
+export const columns: ColumnDef<Product>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -86,13 +64,5 @@ export const productsColumns: ColumnDef<Product>[] = [
           {category.category.name}
         </Badge>
       )),
-  },
-  {
-    header: "Aktívny",
-    accessorKey: "isActive",
-    cell: ({ row }) => <ProductActiveCell product={row.original} />,
-    size: 20,
-    enableSorting: false,
-    enableHiding: false,
   },
 ];

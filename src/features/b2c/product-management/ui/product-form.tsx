@@ -1,5 +1,6 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useRef } from "react";
 import { useAppForm } from "@/components/form";
@@ -9,7 +10,7 @@ import { FieldGroup, FieldLegend, FieldSet } from "@/components/ui/field";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSuspenseCategoriesQuery } from "@/features/b2c/category-management/hooks/use-categories-query";
 import { getSlug } from "@/lib/get-slug";
-import { useGetSuspenseProductById } from "../hooks/use-products-queries";
+import { useTRPC } from "@/trpc/client";
 import type { ChannelConfigFormSchema, PriceFormSchema } from "../schema";
 import { productFormSchema } from "../schema";
 import { dbProductToForm } from "../utils/transform";
@@ -25,11 +26,13 @@ const STATUS_OPTIONS = [
 export function ProductForm() {
   const params = useParams();
   const id = params.id as string;
-  const { data: product } = useGetSuspenseProductById(id);
+  const trpc = useTRPC();
+  const { data: product } = useSuspenseQuery(
+    trpc.admin.products.byId.queryOptions({ id })
+  );
   const { data: categories } = useSuspenseCategoriesQuery();
   const slugManuallyEditedRef = useRef(false);
 
-  // Transform product to form format
   const formData = product ? dbProductToForm(product) : null;
 
   const form = useAppForm({

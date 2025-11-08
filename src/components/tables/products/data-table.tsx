@@ -1,11 +1,14 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
-  type ColumnDef,
   flexRender,
-  type Table as ReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
-import type { ReactNode } from "react";
+import { useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -15,23 +18,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { useTRPC } from "@/trpc/client";
+import { TablePagination } from "@/widgets/data-table/ui/table-pagination";
+import { columns } from "./columns";
 
-type Props<TData, TValue> = {
-  table: ReactTable<TData>;
-  columns: ColumnDef<TData, TValue>[];
-  footer?: ReactNode;
-  className?: string;
-};
+export function DataTable() {
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(trpc.admin.products.list.queryOptions());
 
-export function DataTable<TData, TValue>({
-  table,
-  columns,
-  footer,
-  className,
-}: Props<TData, TValue>) {
+  const processedProducts = useMemo(() => data, [data]);
+
+  const table = useReactTable({
+    data: processedProducts,
+    getRowId: ({ id }) => id,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
   return (
-    <div className={cn("h-full overflow-hidden", className)}>
+    <div className="h-full overflow-hidden">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -71,26 +78,13 @@ export function DataTable<TData, TValue>({
             </TableRow>
           )}
         </TableBody>
-        {footer && <TableFooterContent columns={columns} footer={footer} />}
+        <TableFooter className="p-0">
+          <TableRow className="p-0">
+            <TableCell className="p-0 text-center" colSpan={columns.length} />
+          </TableRow>
+        </TableFooter>
       </Table>
+      <TablePagination table={table} />
     </div>
-  );
-}
-
-function TableFooterContent<TData, TValue>({
-  columns,
-  footer,
-}: {
-  columns: ColumnDef<TData, TValue>[];
-  footer: ReactNode;
-}) {
-  return (
-    <TableFooter className="p-0">
-      <TableRow className="p-0">
-        <TableCell className="p-0 text-center" colSpan={columns.length}>
-          {footer}
-        </TableCell>
-      </TableRow>
-    </TableFooter>
   );
 }

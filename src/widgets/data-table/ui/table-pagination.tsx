@@ -35,7 +35,7 @@ export function TablePagination<TData>({
           <Button
             disabled={!table.getCanPreviousPage()}
             onClick={() => table.firstPage()}
-            size="icon-sm"
+            size="icon-xs"
             variant="outline"
           >
             <ChevronsLeftIcon />
@@ -43,7 +43,7 @@ export function TablePagination<TData>({
           <Button
             disabled={!table.getCanPreviousPage()}
             onClick={() => table.previousPage()}
-            size="icon-sm"
+            size="icon-xs"
             variant="outline"
           >
             <ChevronLeftIcon />
@@ -51,7 +51,7 @@ export function TablePagination<TData>({
           <Button
             disabled={!table.getCanNextPage()}
             onClick={() => table.nextPage()}
-            size="icon-sm"
+            size="icon-xs"
             variant="outline"
           >
             <ChevronRightIcon />
@@ -59,7 +59,7 @@ export function TablePagination<TData>({
           <Button
             disabled={!table.getCanNextPage()}
             onClick={() => table.lastPage()}
-            size="icon-sm"
+            size="icon-xs"
             variant="outline"
           >
             <ChevronsRightIcon />

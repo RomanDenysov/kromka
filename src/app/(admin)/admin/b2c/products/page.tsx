@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { ProductsTable } from "@/features/b2c/product-management/ui/products-table";
+import { DataTable } from "@/components/tables/products/data-table";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { DataTableSkeleton } from "@/widgets/data-table/ui/data-table-skeleton";
 
@@ -12,7 +12,7 @@ export default async function B2CProductsPage() {
     <HydrateClient>
       <ErrorBoundary fallback={<div>Error</div>}>
         <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-          <ProductsTable />
+          <DataTable />
         </Suspense>
       </ErrorBoundary>
     </HydrateClient>
