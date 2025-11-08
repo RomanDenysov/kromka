@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { PageTracker } from "react-page-tracker";
 import { TRPCReactProvider } from "@/trpc/client";
 import { ConfirmDialogProvider } from "@/widgets/confirm-dialog/ui/confirm-provider";
+import { DrawerProvider } from "./drawers/drawer-provider";
 import { Toaster } from "./ui/sonner";
 
 type Props = {
@@ -16,7 +17,10 @@ export function Providers({ children }: Props) {
     <TRPCReactProvider>
       <NuqsAdapter>
         <PageTracker enableStrictModeHandler={false} />
-        <ConfirmDialogProvider>{children}</ConfirmDialogProvider>
+        <ConfirmDialogProvider>
+          {children}
+          <DrawerProvider />
+        </ConfirmDialogProvider>
         <Toaster richColors />
       </NuqsAdapter>
     </TRPCReactProvider>
