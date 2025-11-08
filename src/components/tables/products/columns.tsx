@@ -1,16 +1,30 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import Link from "next/link";
+import { ImageIcon, MoreHorizontalIcon } from "lucide-react";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { formatPrice } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/routers";
 
 const MAX_CATEGORIES = 3;
 
 export type Product = RouterOutputs["admin"]["products"]["list"][number];
 
-export const columns: ColumnDef<Product>[] = [
+type ProductTableMeta = {
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+};
+
+export const columns: ColumnDef<Product, ProductTableMeta>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -35,24 +49,37 @@ export const columns: ColumnDef<Product>[] = [
     enableHiding: false,
   },
   {
-    header: "Názov",
+    header: "Produkt",
     accessorKey: "name",
-    cell: ({ row }) => (
-      <Link
-        className="font-medium text-xs hover:underline"
-        href={`/admin/b2c/products/${row.original.id}`}
-        prefetch
-      >
-        {row.original.name}
-      </Link>
-    ),
+    cell: ({ row }) => {
+      const product = row.original;
+      const imagePath = product.images[0]?.media?.path;
+      return (
+        <div className="flex items-center gap-3">
+          {imagePath ? (
+            <Image
+              alt={product.name}
+              className="rounded-md object-cover"
+              height={64}
+              src={imagePath}
+              width={64}
+            />
+          ) : (
+            <div className="flex size-16 items-center justify-center rounded-md bg-muted">
+              <ImageIcon className="size-5" />
+            </div>
+          )}
+          <span className="font-medium text-sm">{product.name}</span>
+        </div>
+      );
+    },
   },
   {
     header: "Cena",
     accessorKey: "prices",
     cell: ({ row }) =>
       row.original.prices.map((price) => (
-        <div key={price.id}>{price.amountCents}</div>
+        <div key={price.id}>{formatPrice(price.amountCents)}</div>
       )),
   },
   {
@@ -64,5 +91,41 @@ export const columns: ColumnDef<Product>[] = [
           {category.category.name}
         </Badge>
       )),
+  },
+  {
+    header: "Stav",
+    accessorKey: "status",
+    cell: ({ row }) => (
+      <Badge className="capitalize" size="xs">
+        {row.original.status}
+      </Badge>
+    ),
+  },
+  {
+    id: "actions",
+    header: "",
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as ProductTableMeta;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon-xs" variant="ghost">
+              <MoreHorizontalIcon />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => meta?.onEdit?.(row.original.id)}>
+              Upraviť
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive hover:text-destructive/80"
+              onClick={() => meta?.onDelete?.(row.original.id)}
+            >
+              Vymazať
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];

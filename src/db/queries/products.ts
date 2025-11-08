@@ -24,7 +24,15 @@ export const QUERIES = {
             },
           },
           prices: true,
-          images: true,
+          images: {
+            where: (productImage, { eq: eqFn }) =>
+              eqFn(productImage.isPrimary, true),
+            with: {
+              media: {
+                with: {},
+              },
+            },
+          },
         },
       }),
     GET_PRODUCT_BY_ID: async (id: string) =>
@@ -47,6 +55,15 @@ export const QUERIES = {
           },
           channels: true,
           prices: true,
+          images: {
+            where: (productImage, { eq: eqFn }) =>
+              eqFn(productImage.isPrimary, true),
+            with: {
+              media: {
+                with: {},
+              },
+            },
+          },
         },
       }),
     GET_PRODUCTS_BY_CATEGORY: async (categoryId: string) =>

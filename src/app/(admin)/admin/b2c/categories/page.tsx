@@ -1,7 +1,7 @@
 import { Suspense } from "react";
+import { DataTable } from "@/components/tables/products/data-table";
 import { CategoriesListing } from "@/features/b2c/category-management/ui/categories-listing";
 import { ListingSearch } from "@/features/b2c/category-management/ui/listing-search";
-import { ProductsTable } from "@/features/b2c/product-management/ui/products-table";
 import { batchPrefetch, HydrateClient, trpc } from "@/trpc/server";
 
 export default function B2CCategoriesPage() {
@@ -20,7 +20,7 @@ export default function B2CCategoriesPage() {
           </Suspense>
         </div>
         <Suspense fallback={<div>Loading...</div>}>
-          <ProductsTable />
+          <DataTable />
         </Suspense>
       </div>
     </HydrateClient>
