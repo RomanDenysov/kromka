@@ -1,8 +1,10 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import type { JSONContent } from "@tiptap/react";
 import { useParams } from "next/navigation";
 import { useRef } from "react";
+import { Editor } from "@/components/editor";
 import { useAppForm } from "@/components/form";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -135,6 +137,14 @@ export function ProductForm() {
                   />
                 )}
               </form.AppField>
+
+              <Editor
+                content={
+                  form.getFieldValue("description") as unknown as
+                    | JSONContent
+                    | undefined
+                }
+              />
 
               <div className="grid grid-cols-2 gap-4">
                 <form.AppField name="stock">

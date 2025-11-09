@@ -4,6 +4,7 @@ import { CategoryTagsField } from "./fields/category-tags-field";
 import { CheckboxField } from "./fields/checkbox-field";
 import { EditableField } from "./fields/editable-field";
 import { QuantitySetterField } from "./fields/quantity-setter-field";
+import { RichTextField } from "./fields/rich-text-field";
 import { SelectField } from "./fields/select-field";
 import { SubmitButton } from "./fields/submit-button";
 import { TextField } from "./fields/text-field";
@@ -24,6 +25,7 @@ export const { useAppForm, withForm } = createFormHook({
     CategorySelectField,
     CategoryTagsField,
     QuantitySetterField,
+    RichTextField,
   },
   formComponents: {
     SubmitButton,
