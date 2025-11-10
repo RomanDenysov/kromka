@@ -1,12 +1,9 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: <explanation> */
-import "server-only";
+/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+"use server";
 
 import { put } from "@vercel/blob";
 import sharp from "sharp";
-import { createShortId } from "./ids";
-
-const RESIZE_SIZE = 2400;
-const ONE_HUNDRED = 100;
 
 export async function uploadFile(file: File, path: string) {
   const uploadPath = `${path}/${file.name}`;
@@ -18,62 +15,96 @@ export async function uploadFile(file: File, path: string) {
   return {
     url: blob.url,
     path: blob.pathname,
-    downloadUrl: blob.downloadUrl,
   };
 }
 
-export async function uploadImage(
-  file: File,
-  imagePath: string,
-  _contentType?: string
-) {
+async function optimizeProductImage(file: File) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  const optimized = await sharp(buffer)
-    .rotate() // Rotate the image to the correct orientation
-    .resize(RESIZE_SIZE, RESIZE_SIZE, {
-      fit: "inside",
-      withoutEnlargement: true,
-      kernel: sharp.kernel.lanczos3, // Better quality
-    })
-    .withMetadata({
-      // Add metadata to the image
-      exif: {
-        IFD0: {
-          Copyright: "Kromka",
-        },
-      },
-    })
-    .jpeg({
-      quality: 88,
-      mozjpeg: true,
-      chromaSubsampling: "4:2:0", // Standard chroma subsampling
-    })
-    .toBuffer();
+  const originalSize = buffer.length;
 
-  const uniqueName = `${file.name}-${createShortId()}`;
-  const uploadPath = `images/${imagePath}/${uniqueName}.jpg`;
+  const qualities = [85, 82, 78, 75];
+  let bestResult: { buffer: Buffer; quality: number; size: number } | null =
+    null;
 
-  const blob = await put(uploadPath, optimized, {
+  for (const quality of qualities) {
+    const processed = await sharp(buffer)
+      .rotate()
+      .resize(2400, 2400, {
+        fit: "inside",
+        kernel: sharp.kernel.lanczos3,
+      })
+      .jpeg({
+        quality,
+        mozjpeg: true,
+        chromaSubsampling: "4:2:0",
+        trellisQuantisation: true,
+        overshootDeringing: true,
+        optimizeScans: true,
+      })
+      .toBuffer();
+
+    const sizeKB = processed.length / 1024;
+
+    if (sizeKB <= 800) {
+      bestResult = { buffer: processed, quality, size: processed.length };
+      break;
+    }
+  }
+
+  if (!bestResult) {
+    const processed = await sharp(buffer)
+      .rotate()
+      .resize(2400, 2400, {
+        fit: "inside",
+        withoutEnlargement: true,
+        kernel: sharp.kernel.lanczos3,
+      })
+      .jpeg({
+        quality: 70,
+        mozjpeg: true,
+        chromaSubsampling: "4:2:0",
+      })
+      .toBuffer();
+
+    bestResult = { buffer: processed, quality: 70, size: processed.length };
+  }
+
+  const metadata = await sharp(bestResult.buffer).metadata();
+
+  return {
+    buffer: bestResult.buffer,
+    metadata: {
+      width: metadata.width!,
+      height: metadata.height!,
+      size: bestResult.size,
+      quality: bestResult.quality,
+      originalSize,
+      savings: (
+        ((originalSize - bestResult.size) / originalSize) *
+        100
+      ).toFixed(1),
+    },
+  };
+}
+
+export async function uploadImage(file: File, imagePath: string) {
+  const optimized = await optimizeProductImage(file);
+
+  const uploadPath = `images/${imagePath}/${file.name}`;
+
+  const blob = await put(uploadPath, optimized.buffer, {
     access: "public",
-    contentType: "image/jpeg",
+    addRandomSuffix: true,
   });
-
-  const metadata = await sharp(optimized).metadata();
 
   return {
     success: true,
     data: {
       url: blob.url,
       pathname: blob.pathname,
-      width: metadata.width!,
-      height: metadata.height!,
-      size: optimized.length,
-      originalSize: buffer.length,
-      compressionRatio: (
-        ((buffer.length - optimized.length) / buffer.length) *
-        ONE_HUNDRED
-      ).toFixed(1),
+      size: optimized.metadata.size,
+      type: blob.contentType,
     },
   };
 }

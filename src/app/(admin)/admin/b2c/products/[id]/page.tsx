@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { ProductImageUpload } from "@/components/forms/products/product-image-upload";
 import { ProductForm } from "@/features/b2c/product-management/ui/product-form";
 import { batchPrefetch, HydrateClient, trpc } from "@/trpc/server";
 
@@ -26,6 +27,7 @@ export default async function B2CProductPage({ params }: Props) {
             </Suspense>
           </ErrorBoundary>
         </HydrateClient>
+        <ProductImageUpload productId={id} />
       </div>
     </div>
   );

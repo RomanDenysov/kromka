@@ -16,6 +16,9 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@neondatabase/serverless": "^1.0.2",
     "@paralleldrive/cuid2": "^3.0.4",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -84,6 +87,7 @@
     "react-day-picker": "^9.11.1",
     "react-dom": "19.2.0",
     "react-error-boundary": "^6.0.0",
+    "react-image-crop": "^11.0.10",
     "react-page-tracker": "^0.4.1",
     "react-resizable-panels": "^3.0.6",
     "recharts": "2.15.4",

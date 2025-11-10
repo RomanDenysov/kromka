@@ -100,5 +100,17 @@ export const QUERIES = {
           images: true,
         },
       }),
+    GET_PRODUCT_IMAGES: async (productId: string) =>
+      await db.query.products.findFirst({
+        where: (product, { eq: eqFn }) => eqFn(product.id, productId),
+        with: {
+          images: {
+            orderBy: (productImages, { asc }) => [asc(productImages.sortOrder)],
+            with: {
+              media: true,
+            },
+          },
+        },
+      }),
   },
 };

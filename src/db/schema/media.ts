@@ -10,6 +10,7 @@ export const media = pgTable("media", {
     .$defaultFn(() => createPrefixedId("med")),
   name: text("name").notNull(),
   path: text("path").notNull(),
+  url: text("url").notNull().unique(),
   type: text("type").notNull(),
   size: integer("size").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
