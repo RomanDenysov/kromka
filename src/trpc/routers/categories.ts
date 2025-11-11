@@ -19,6 +19,7 @@ export const adminCategoriesRouter = createTRPCRouter({
         await QUERIES.ADMIN.GET_CATEGORIES_BY_PRODUCT(input.productId)
     ),
   createDraft: protectedProcedure.mutation(
-    async () => await MUTATIONS.ADMIN.CREATE_DRAFT_CATEGORY()
+    async ({ ctx }) =>
+      await MUTATIONS.ADMIN.CREATE_DRAFT_CATEGORY(ctx.session.user.id)
   ),
 });

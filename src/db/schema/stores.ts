@@ -39,7 +39,9 @@ export const stores = pgTable("stores", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   description: jsonb("description"),
-
+  createdBy: text("created_by").references(() => users.id, {
+    onDelete: "set null",
+  }),
   isActive: boolean("is_active").default(true).notNull(),
   sortOrder: integer("sort_order").default(0).notNull(),
 
@@ -87,6 +89,10 @@ export const storesRelations = relations(stores, ({ one, many }) => ({
   }),
   members: many(storeMembers),
   orders: many(orders),
+  createdBy: one(users, {
+    fields: [stores.createdBy],
+    references: [users.id],
+  }),
 }));
 
 export const storeMembersRelations = relations(storeMembers, ({ one }) => ({

@@ -1,10 +1,10 @@
-import { eq } from "drizzle-orm";
+import { eq, type InferInsertModel } from "drizzle-orm";
 import { db } from "@/db";
 import { getSlug } from "@/lib/get-slug";
 import { createShortId } from "@/lib/ids";
 import { stores } from "../schema";
 
-type StoreInsert = typeof stores.$inferInsert;
+type StoreInsert = InferInsertModel<typeof stores>;
 
 const DRAFT_DEFAULTS = Object.freeze({
   name: "New Store",
@@ -29,20 +29,19 @@ function createDraftStoreData(
 ): StoreInsert {
   return {
     ...DRAFT_DEFAULTS,
-    slug: `${getSlug("new-store")}-${createShortId()}`,
-
+    slug: `${getSlug(DRAFT_DEFAULTS.name)}-${createShortId()}`,
     ...overrides,
   };
 }
 
 export const MUTATIONS = {
   ADMIN: {
-    CREATE_DRAFT_STORE: async () => {
+    CREATE_DRAFT_STORE: async (userId: string) => {
       const draftStoreData: StoreInsert = createDraftStoreData();
 
       const [newDraftStore] = await db
         .insert(stores)
-        .values(draftStoreData)
+        .values({ createdBy: userId, ...draftStoreData })
         .returning();
 
       return newDraftStore;

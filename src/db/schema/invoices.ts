@@ -9,7 +9,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
-import { organizations } from "./auth";
+import { organizations, users } from "./auth";
 import { invoiceStatusEnum } from "./enums";
 import { products } from "./products";
 
@@ -32,7 +32,9 @@ export const invoices = pgTable(
     number: text("number").notNull().unique(),
     series: text("series").notNull().default("A"),
     status: invoiceStatusEnum("status").notNull().default("draft"),
-
+    createdBy: text("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
     issueDate: timestamp("issue_date").defaultNow().notNull(),
     dueDate: timestamp("due_date"),
     sentAt: timestamp("sent_at"),
@@ -87,6 +89,10 @@ export const invoicesRelations = relations(invoices, ({ one, many }) => ({
   company: one(organizations, {
     fields: [invoices.companyId],
     references: [organizations.id],
+  }),
+  createdBy: one(users, {
+    fields: [invoices.createdBy],
+    references: [users.id],
   }),
   items: many(invoiceItems),
 }));

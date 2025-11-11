@@ -9,6 +9,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
+import { users } from "./auth";
 import { productCategories } from "./categories";
 import { productStatusEnum } from "./enums";
 import { invoiceItems } from "./invoices";
@@ -29,7 +30,9 @@ export const products = pgTable("products", {
   isActive: boolean("is_active").default(true).notNull(),
   sortOrder: integer("sort_order").default(0).notNull(),
   status: productStatusEnum("status").notNull().default("draft"),
-  archivedAt: timestamp("archived_at"),
+  createdBy: text("created_by").references(() => users.id, {
+    onDelete: "set null",
+  }),
   deletedAt: timestamp("deleted_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
@@ -64,13 +67,17 @@ export const productImages = pgTable(
   ]
 );
 
-export const productsRelations = relations(products, ({ many }) => ({
+export const productsRelations = relations(products, ({ many, one }) => ({
   images: many(productImages),
   categories: many(productCategories),
   channels: many(productChannels),
   prices: many(prices),
   orderItems: many(orderItems),
   invoiceItems: many(invoiceItems),
+  createdBy: one(users, {
+    fields: [products.createdBy],
+    references: [users.id],
+  }),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({

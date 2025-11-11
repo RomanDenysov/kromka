@@ -22,5 +22,13 @@ export const QUERIES = {
           orders: true,
         },
       }),
+    GET_STORE_MEMBERS: async (storeId: string) =>
+      await db.query.storeMembers.findMany({
+        where: (storeMember, { eq: eqFn }) =>
+          eqFn(storeMember.storeId, storeId),
+        with: {
+          user: true,
+        },
+      }),
   },
 };

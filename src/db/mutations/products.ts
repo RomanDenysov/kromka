@@ -30,13 +30,13 @@ function createDraftProductData(
 
 export const MUTATIONS = {
   ADMIN: {
-    CREATE_DRAFT_PRODUCT: async (): Promise<Product> => {
+    CREATE_DRAFT_PRODUCT: async (userId: string): Promise<Product> => {
       const draft = createDraftProductData();
       // biome-ignore lint/suspicious/noConsole: Debug logging
       console.log("CREATE_DRAFT_PRODUCT", draft);
       const [newDraftProduct] = await db
         .insert(products)
-        .values(draft)
+        .values({ createdBy: userId, ...draft })
         .returning();
       return newDraftProduct;
     },
@@ -76,6 +76,7 @@ export const MUTATIONS = {
         .insert(media)
         .values({
           name: metadata.filename,
+          url: blobUrl,
           path: blobUrl, // Store full URL for easy access
           type: "image/jpeg",
           size: metadata.size,

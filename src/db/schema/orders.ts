@@ -33,7 +33,7 @@ export const orders = pgTable(
       .$defaultFn(() => createPrefixedId("ord")),
     orderNumber: text("order_number").notNull().unique(),
 
-    userId: text("user_id").references(() => users.id, {
+    createdBy: text("created_by").references(() => users.id, {
       onDelete: "set null",
     }),
     storeId: text("store_id").references(() => stores.id, {
@@ -58,7 +58,7 @@ export const orders = pgTable(
   },
   (table) => [
     index("idx_orders_order_number").on(table.orderNumber),
-    index("idx_user_store_id").on(table.userId, table.storeId),
+    index("idx_created_by_store_id").on(table.createdBy, table.storeId),
     index("idx_current_status").on(table.currentStatus),
     index("idx_channel").on(table.channel),
     index("idx_pickup_date").on(table.pickupDate),
@@ -156,8 +156,8 @@ export const paymentRefunds = pgTable(
 );
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
-  user: one(users, {
-    fields: [orders.userId],
+  createdBy: one(users, {
+    fields: [orders.createdBy],
     references: [users.id],
   }),
   store: one(stores, {

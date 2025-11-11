@@ -10,6 +10,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
+import { users } from "./auth";
 import { products } from "./products";
 
 export const categories = pgTable(
@@ -21,6 +22,9 @@ export const categories = pgTable(
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
     description: text("description"),
+    createdBy: text("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
     isActive: boolean("is_active").default(true).notNull(),
     sortOrder: integer("sort_order").default(0).notNull(),
     deletedAt: timestamp("deleted_at"),
@@ -48,6 +52,9 @@ export const categoryAvailabilityWindows = pgTable(
     startDate: timestamp("start_date").notNull(),
     endDate: timestamp("end_date").notNull(),
     isActive: boolean("is_active").default(true).notNull(),
+    createdBy: text("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -77,6 +84,9 @@ export const productCategories = pgTable(
       .notNull()
       .references(() => categories.id, { onDelete: "cascade" }),
     sortOrder: integer("sort_order").default(0).notNull(),
+    createdBy: text("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -100,6 +110,10 @@ export const categoryAvailabilityWindowsRelations = relations(
     category: one(categories, {
       fields: [categoryAvailabilityWindows.categoryId],
       references: [categories.id],
+    }),
+    createdBy: one(users, {
+      fields: [categoryAvailabilityWindows.createdBy],
+      references: [users.id],
     }),
   })
 );
