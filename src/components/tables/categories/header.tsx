@@ -3,6 +3,7 @@
 import type { Table } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import type { Category } from "@/types/categories";
+import { CategoriesToolbar } from "./categories-toolbar";
 
 export function Header({ table }: { table: Table<Category> }) {
   return (
@@ -16,6 +17,7 @@ export function Header({ table }: { table: Table<Category> }) {
         value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
         volume="sm"
       />
+      <CategoriesToolbar />
     </div>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { PackagePlusIcon, PlusIcon } from "lucide-react";
-import { Toolbar } from "@/components/admin-header/toolbar";
-import { ToolbarButton } from "@/components/admin-header/toolbar-button";
+import { Toolbar } from "@/components/shared/toolbar";
+import { ToolbarButton } from "@/components/shared/toolbar-button";
 import { useCreateDraftCategory } from "@/features/b2c/category-management/hooks/use-categories-mutations";
 import { useCreateDraftProduct } from "@/features/b2c/product-management/hooks/use-product-mutations";
 

@@ -2,8 +2,8 @@
 
 import { PlusIcon } from "lucide-react";
 import { useCallback } from "react";
-import { Toolbar } from "@/components/admin-header/toolbar";
-import { ToolbarButton } from "@/components/admin-header/toolbar-button";
+import { Toolbar } from "@/components/shared/toolbar";
+import { ToolbarButton } from "@/components/shared/toolbar-button";
 import { useCreateDraftProduct } from "@/features/b2c/product-management/hooks/use-product-mutations";
 
 export function ProductsToolbar() {

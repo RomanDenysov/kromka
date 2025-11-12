@@ -2,9 +2,9 @@
 
 import type { Table } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
-import type { Users } from "./columns";
+import type { User } from "@/types/users";
 
-export function Header({ table }: { table: Table<Users> }) {
+export function Header({ table }: { table: Table<User> }) {
   return (
     <div className="flex items-center justify-between p-4">
       <Input

@@ -3,6 +3,7 @@
 import type { Table } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
 import type { Product } from "@/types/products";
+import { ProductsToolbar } from "./products-toolbar";
 
 export function Header({ table }: { table: Table<Product> }) {
   return (
@@ -16,6 +17,7 @@ export function Header({ table }: { table: Table<Product> }) {
         value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
         volume="sm"
       />
+      <ProductsToolbar />
     </div>
   );
 }

@@ -1,9 +1,12 @@
+"use client";
+
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { CheckCircleIcon, MoreHorizontalIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,11 +20,32 @@ import {
 } from "@/components/ui/tooltip";
 import { useCustomerParams } from "@/hooks/use-customer-params";
 import { cn, getInitials } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/routers";
+import type { User } from "@/types/users";
 
-export type Users = RouterOutputs["admin"]["users"]["list"][number];
-
-export const columns: ColumnDef<Users>[] = [
+export const columns: ColumnDef<User>[] = [
+  {
+    id: "select",
+    enableSorting: false,
+    enableHiding: false,
+    header: ({ table }) => (
+      <Checkbox
+        aria-label="Select all"
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        aria-label="Select row"
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+      />
+    ),
+    size: 32,
+  },
   {
     id: "image",
     header: "",

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
+import type { User } from "@/types/users";
 import { columns } from "./columns";
 import { Header } from "./header";
 
@@ -27,7 +28,7 @@ export function UsersTable({ className }: { className?: string }) {
 
   const processedUsers = useMemo(() => data ?? [], [data]);
 
-  const table = useReactTable({
+  const table = useReactTable<User>({
     data: processedUsers,
     columns,
     getRowId: ({ id }) => id,
