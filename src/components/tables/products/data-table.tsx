@@ -53,61 +53,53 @@ export function DataTable() {
   });
 
   return (
-    <div className="scrollbar-hide size-full overflow-hidden">
+    <div className="size-full overflow-hidden">
       <Header table={table} />
-      <div className="scrollbar-hide border-t">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
+      <Table className="border-t">
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                data-state={row.getIsSelected() && "selected"}
+                key={row.id}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  data-state={row.getIsSelected() && "selected"}
-                  key={row.id}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  className="h-20 text-center"
-                  colSpan={columns.length}
-                >
-                  <EmptyState />
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-          <TableFooter className="p-0">
-            <TableRow className="p-0">
-              <TableCell className="p-0 text-center" colSpan={columns.length} />
+            ))
+          ) : (
+            <TableRow>
+              <TableCell className="h-20 text-center" colSpan={columns.length}>
+                <EmptyState />
+              </TableCell>
             </TableRow>
-          </TableFooter>
-        </Table>
-      </div>
+          )}
+        </TableBody>
+        <TableFooter className="p-0">
+          <TableRow className="p-0">
+            <TableCell className="p-0 text-center" colSpan={columns.length} />
+          </TableRow>
+        </TableFooter>
+      </Table>
       <TablePagination table={table} />
     </div>
   );

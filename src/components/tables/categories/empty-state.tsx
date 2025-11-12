@@ -1,6 +1,6 @@
 "use client";
 
-import { PackageOpenIcon, PlusIcon } from "lucide-react";
+import { FolderOpenIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -11,38 +11,38 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateDraftProduct } from "@/hooks/use-create-draft-product";
+import { useCreateDraftCategory } from "@/hooks/use-create-draft-category";
 
 export function EmptyState() {
-  const { mutate: createDraftProduct, isPending } = useCreateDraftProduct();
+  const { mutate: createDraftCategory, isPending } = useCreateDraftCategory();
 
   return (
     <Empty>
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <PackageOpenIcon />
+          <FolderOpenIcon />
         </EmptyMedia>
         <EmptyTitle>Žiadne výsledky.</EmptyTitle>
         <EmptyDescription>
-          Vytvorte nový produkt pre vašu predajňu.
+          Vytvorte novú kategóriu pre vašu predajňu.
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <Button
           disabled={isPending}
-          onClick={() => createDraftProduct()}
+          onClick={() => createDraftCategory()}
           size="sm"
           variant="outline"
         >
           {isPending ? (
             <>
               <Spinner />
-              Pridávame produkt...
+              Pridávame kategóriu...
             </>
           ) : (
             <>
               <PlusIcon />
-              Pridať nový produkt
+              Pridať novú kategóriu
             </>
           )}
         </Button>

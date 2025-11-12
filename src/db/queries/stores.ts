@@ -18,6 +18,7 @@ export const QUERIES = {
           },
           image: true,
           members: true,
+          orders: true,
         },
       }),
     GET_STORE_BY_ID: async (id: string) =>

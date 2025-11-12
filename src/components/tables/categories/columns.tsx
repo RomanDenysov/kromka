@@ -4,9 +4,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import type { RouterOutputs } from "@/trpc/routers";
-
-type Category = RouterOutputs["admin"]["categories"]["list"][number];
+import type { Category } from "@/types/categories";
 
 export const columns: ColumnDef<Category>[] = [
   {

@@ -12,13 +12,14 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { useTRPC } from "@/trpc/client";
 import { columns } from "./columns";
+import { EmptyState } from "./empty-state";
+import { Header } from "./header";
 
 export function CategoriesTable() {
   const trpc = useTRPC();
@@ -35,58 +36,48 @@ export function CategoriesTable() {
   });
 
   return (
-    <Table>
-      <TableHeader>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <TableHead key={header.id}>
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-              </TableHead>
-            ))}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows.map((row) => (
-          <TableRow key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <TableCell key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+    <div className="size-full overflow-hidden">
+      <Header table={table} />
+      <Table className="border-t">
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                data-state={row.getIsSelected() && "selected"}
+                key={row.id}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell className="h-20 text-center" colSpan={columns.length}>
+                <EmptyState />
               </TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
-      <TableFooter className="p-0">
-        <TableRow className="p-0">
-          <TableCell className="p-0" colSpan={table.getAllColumns().length}>
-            {/* <Button
-              className="w-full"
-              disabled={isPending}
-              onClick={() => createDraftStore()}
-              size="sm"
-              variant="ghost"
-            >
-              {isPending ? (
-                <>
-                  <Spinner /> Pridávam obchod...
-                </>
-              ) : (
-                <>
-                  <PlusIcon className="size-4" />
-                  Pridať obchod
-                </>
-              )}
-            </Button> */}
-          </TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
