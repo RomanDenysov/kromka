@@ -2,7 +2,7 @@
 
 import type { Table } from "@tanstack/react-table";
 import { Input } from "@/components/ui/input";
-import type { Product } from "./columns";
+import type { Product } from "@/types/products";
 
 export function Header({ table }: { table: Table<Product> }) {
   return (

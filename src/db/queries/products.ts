@@ -23,6 +23,7 @@ export const QUERIES = {
               category: true,
             },
           },
+          channels: true,
           prices: true,
           images: {
             where: (productImage, { eq: eqFn }) =>
@@ -31,6 +32,14 @@ export const QUERIES = {
               media: {
                 with: {},
               },
+            },
+          },
+          createdBy: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
             },
           },
         },
@@ -55,6 +64,14 @@ export const QUERIES = {
           },
           channels: true,
           prices: true,
+          createdBy: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
           images: {
             where: (productImage, { eq: eqFn }) =>
               eqFn(productImage.isPrimary, true),

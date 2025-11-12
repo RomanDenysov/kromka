@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { useProductParams } from "@/hooks/use-product-params";
 import { useTRPC } from "@/trpc/client";
+import type { Product } from "@/types/products";
 import { TablePagination } from "@/widgets/data-table/ui/table-pagination";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
@@ -33,7 +34,7 @@ export function DataTable() {
   const { setParams } = useProductParams();
   const processedProducts = useMemo(() => data, [data]);
 
-  const table = useReactTable({
+  const table = useReactTable<Product>({
     data: processedProducts,
     getRowId: ({ id }) => id,
     columns,

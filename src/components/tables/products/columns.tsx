@@ -13,11 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatPrice } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/routers";
+import type { Product } from "@/types/products";
 
 const MAX_CATEGORIES = 3;
-
-export type Product = RouterOutputs["admin"]["products"]["list"][number];
 
 type ProductTableMeta = {
   onEdit: (id: string) => void;
