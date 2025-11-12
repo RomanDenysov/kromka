@@ -1,5 +1,5 @@
 import { CheckIcon, EditIcon, XIcon } from "lucide-react";
-import { useFieldContext } from "@/components/form";
+import { useFieldContext } from "@/components/shared/form";
 import { Button } from "@/components/ui/button";
 import {
   Editable,
@@ -40,18 +40,18 @@ export function EditableField({
   };
 
   return (
-    <Field className="w-full" data-invalid={isInvalid}>
+    <Field data-invalid={isInvalid} orientation="horizontal">
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <Editable
-        className="group flex flex-1 flex-row items-center gap-2"
+        className="group flex w-full flex-row items-center justify-start gap-2"
         editing={isInvalid}
         onSubmit={handleSubmit}
         placeholder={placeholder}
         value={field.state.value}
       >
         <EditableArea className="flex-1 md:text-2xl">
-          <EditablePreview className={cn("w-full", className)} />
-          <EditableInput className={cn(className)} />
+          <EditablePreview className={cn("w-full py-0.5", className)} />
+          <EditableInput className={cn("w-full py-0.5", className)} />
         </EditableArea>
 
         <EditableTrigger asChild>

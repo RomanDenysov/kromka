@@ -3,7 +3,7 @@
 import type { JSONContent } from "@tiptap/react";
 import { useCallback } from "react";
 import { Editor } from "@/components/editor";
-import { useFieldContext } from "@/components/form";
+import { useFieldContext } from "@/components/shared/form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
 type Props = {

@@ -1,4 +1,4 @@
-import { useFieldContext } from "@/components/form";
+import { useFieldContext } from "@/components/shared/form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
@@ -13,7 +13,11 @@ export function TextField({ label, placeholder, className }: Props) {
 
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   return (
-    <Field className={className} data-invalid={isInvalid}>
+    <Field
+      className={className}
+      data-invalid={isInvalid}
+      orientation="horizontal"
+    >
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <Input
         id={field.name}

@@ -218,8 +218,8 @@ export function ProductImageUpload({
         // Create DB records
         await createImageRecordMutation.mutateAsync({
           productId,
-          path: blobPath,
-          url: blobUrl,
+          blobPath,
+          blobUrl,
           metadata: {
             width,
             height,

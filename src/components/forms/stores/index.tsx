@@ -4,7 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import type { JSONContent } from "@tiptap/react";
 import { useParams } from "next/navigation";
 import { Editor } from "@/components/editor";
-import { useAppForm } from "@/components/form";
+import { useAppForm } from "@/components/shared/form";
 import {
   Field,
   FieldGroup,
@@ -36,13 +36,13 @@ export function StoreForm() {
         form.handleSubmit();
       }}
     >
-      <FieldSet>
+      <FieldSet className="gap-3">
         <form.AppField name="name">
           {(field) => <field.EditableField label="Name" placeholder="Name" />}
         </form.AppField>
         <FieldSeparator />
         <form.AppField name="slug">
-          {(field) => <field.TextField label="Slug" placeholder="Slug" />}
+          {(field) => <field.EditableField label="Slug" placeholder="Slug" />}
         </form.AppField>
 
         <FieldGroup>
@@ -59,6 +59,23 @@ export function StoreForm() {
             )}
           </form.AppField>
         </FieldGroup>
+        <form.AppField name="phone">
+          {(field) => <field.EditableField label="Phone" placeholder="Phone" />}
+        </form.AppField>
+        <form.AppField name="email">
+          {(field) => <field.EditableField label="Email" placeholder="Email" />}
+        </form.AppField>
+        <form.AppField name="isActive">
+          {(field) => (
+            <field.ToggleField
+              description="Is the store active?"
+              label="Active"
+            />
+          )}
+        </form.AppField>
+        <form.AppField name="sortOrder">
+          {(field) => <field.QuantitySetterField label="Sort Order" min={0} />}
+        </form.AppField>
       </FieldSet>
     </form>
   );

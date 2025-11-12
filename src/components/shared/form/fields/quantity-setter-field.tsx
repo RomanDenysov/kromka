@@ -2,7 +2,7 @@
 
 import { MinusIcon, PlusIcon } from "lucide-react";
 import { useCallback } from "react";
-import { useFieldContext } from "@/components/form";
+import { useFieldContext } from "@/components/shared/form";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -37,7 +37,7 @@ export function QuantitySetterField({ label, max = 1000, min = 0 }: Props) {
   }, [field, min]);
 
   return (
-    <Field className="w-fit" data-invalid={isInvalid}>
+    <Field className="w-fit" data-invalid={isInvalid} orientation="horizontal">
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <ButtonGroup
         aria-label="Quantity setter"
@@ -45,15 +45,17 @@ export function QuantitySetterField({ label, max = 1000, min = 0 }: Props) {
         orientation="horizontal"
       >
         <Button
+          className="size-6"
+          disabled={field.state.value === min}
           onClick={handleDecrement}
           size="icon-xs"
           type="button"
           variant="outline"
         >
-          <MinusIcon />
+          <MinusIcon className="size-3" />
         </Button>
         <Input
-          className="w-full max-w-12 text-wrap bg-background text-center font-mono"
+          className="h-6 w-full max-w-8 text-wrap bg-background text-center font-mono"
           id={field.name}
           max={max}
           min={min}
@@ -67,12 +69,14 @@ export function QuantitySetterField({ label, max = 1000, min = 0 }: Props) {
         />
 
         <Button
+          className="size-6"
+          disabled={field.state.value === max}
           onClick={handleIncrement}
           size="icon-xs"
           type="button"
           variant="outline"
         >
-          <PlusIcon />
+          <PlusIcon className="size-3" />
         </Button>
       </ButtonGroup>
     </Field>

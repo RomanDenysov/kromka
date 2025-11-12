@@ -1,4 +1,4 @@
-import { useFieldContext } from "@/components/form";
+import { useFieldContext } from "@/components/shared/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 

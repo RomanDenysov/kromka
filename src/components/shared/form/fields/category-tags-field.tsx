@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useFieldContext } from "@/components/form";
 import {
   Tags,
   TagsContent,
@@ -13,6 +12,7 @@ import {
   TagsTrigger,
   TagsValue,
 } from "@/components/kibo-ui/tags";
+import { useFieldContext } from "@/components/shared/form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
 type Category = {

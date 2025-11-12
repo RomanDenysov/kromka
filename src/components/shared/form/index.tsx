@@ -9,6 +9,7 @@ import { SelectField } from "./fields/select-field";
 import { SubmitButton } from "./fields/submit-button";
 import { TextField } from "./fields/text-field";
 import { TextareaField } from "./fields/textarea-field";
+import { ToggleField } from "./fields/toggle-field";
 
 export const { fieldContext, useFieldContext, formContext, useFormContext } =
   createFormHookContexts();
@@ -26,6 +27,7 @@ export const { useAppForm, withForm } = createFormHook({
     CategoryTagsField,
     QuantitySetterField,
     RichTextField,
+    ToggleField,
   },
   formComponents: {
     SubmitButton,
