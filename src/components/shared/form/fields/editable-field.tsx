@@ -50,8 +50,8 @@ export function EditableField({
         value={field.state.value}
       >
         <EditableArea className="flex-1 md:text-2xl">
-          <EditablePreview className={cn("w-full py-0.5", className)} />
-          <EditableInput className={cn("w-full py-0.5", className)} />
+          <EditablePreview className={cn("w-full", className)} />
+          <EditableInput className={cn("w-full", className)} />
         </EditableArea>
 
         <EditableTrigger asChild>
