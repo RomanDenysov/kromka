@@ -1,28 +1,19 @@
 import { Suspense } from "react";
-import { DataTable } from "@/components/tables/products/data-table";
-import { CategoriesListing } from "@/features/b2c/category-management/ui/categories-listing";
-import { ListingSearch } from "@/features/b2c/category-management/ui/listing-search";
-import { batchPrefetch, HydrateClient, trpc } from "@/trpc/server";
+import { ErrorBoundary } from "react-error-boundary";
+import { CategoriesTable } from "@/components/tables/categories/table";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { DataTableSkeleton } from "@/widgets/data-table/ui/data-table-skeleton";
 
 export default function B2CCategoriesPage() {
-  batchPrefetch([
-    trpc.admin.categories.list.queryOptions(),
-    trpc.admin.products.list.queryOptions(),
-  ]);
+  prefetch(trpc.admin.categories.list.queryOptions());
 
   return (
     <HydrateClient>
-      <div className="relative flex size-full h-[calc(100vh-var(--header-height)-1px)]">
-        <div className="sticky top-(--header-height) right-0 left-0 flex w-full max-w-xs shrink-0 flex-col border-r">
-          <ListingSearch className="z-10 border-b bg-background" />
-          <Suspense fallback={<div>Loading...</div>}>
-            <CategoriesListing />
-          </Suspense>
-        </div>
-        <Suspense fallback={<div>Loading...</div>}>
-          <DataTable />
+      <ErrorBoundary fallback={<div>Error</div>}>
+        <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
+          <CategoriesTable />
         </Suspense>
-      </div>
+      </ErrorBoundary>
     </HydrateClient>
   );
 }

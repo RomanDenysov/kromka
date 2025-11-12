@@ -1,0 +1,43 @@
+import type { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns/format";
+import type { Route } from "next";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import type { RouterOutputs } from "@/trpc/routers";
+
+type Category = RouterOutputs["admin"]["categories"]["list"][number];
+
+export const columns: ColumnDef<Category>[] = [
+  {
+    header: "Názov",
+    accessorKey: "name",
+    cell: ({ row }) => (
+      <Link
+        className={buttonVariants({ variant: "link", size: "xs" })}
+        href={`categories?categoryId=${row.original.id}` as Route}
+        prefetch
+      >
+        {row.original.name}
+      </Link>
+    ),
+  },
+  {
+    header: "Stav",
+    accessorKey: "isActive",
+    cell: ({ row }) => (
+      <Badge size="xs" variant={row.original.isActive ? "default" : "outline"}>
+        {row.original.isActive ? "Aktívny" : "Neaktívny"}
+      </Badge>
+    ),
+  },
+  {
+    header: "Vytvorené",
+    accessorKey: "createdAt",
+    cell: ({ row }) => (
+      <span className="font-medium text-xs">
+        {format(row.original.createdAt, "dd.MM.yyyy")}
+      </span>
+    ),
+  },
+];
