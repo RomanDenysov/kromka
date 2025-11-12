@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { StoreForm } from "@/components/forms/stores";
+import { Spinner } from "@/components/ui/spinner";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 type Props = {
@@ -15,9 +16,13 @@ export default async function StorePage({ params }: Props) {
   return (
     <HydrateClient>
       <ErrorBoundary fallback={<div>Error</div>}>
-        <Suspense fallback={<div>Loading...</div>}>
-          <StoreForm />
-        </Suspense>
+        <section className="flex h-full">
+          <div className="w-full max-w-md shrink-0 border-r p-4">
+            <Suspense fallback={<Spinner className="size-10" />}>
+              <StoreForm />
+            </Suspense>
+          </div>
+        </section>
       </ErrorBoundary>
     </HydrateClient>
   );
