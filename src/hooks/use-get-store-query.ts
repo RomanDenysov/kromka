@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 import type { StoreById, StoreList } from "@/types/store";
 
-export function useStoreEditQuery(storeId: string | null) {
+export function useGetStoreQuery(storeId: string | null) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   return useQuery(

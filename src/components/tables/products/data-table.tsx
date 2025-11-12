@@ -9,6 +9,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
+
 import {
   Table,
   TableBody,
@@ -22,10 +23,12 @@ import { useProductParams } from "@/hooks/use-product-params";
 import { useTRPC } from "@/trpc/client";
 import { TablePagination } from "@/widgets/data-table/ui/table-pagination";
 import { columns } from "./columns";
+import { EmptyState } from "./empty-state";
 import { Header } from "./header";
 
 export function DataTable() {
   const trpc = useTRPC();
+
   const { data } = useSuspenseQuery(trpc.admin.products.list.queryOptions());
   const { setParams } = useProductParams();
   const processedProducts = useMemo(() => data, [data]);
@@ -93,7 +96,7 @@ export function DataTable() {
                   className="h-20 text-center"
                   colSpan={columns.length}
                 >
-                  Žiadne výsledky.
+                  <EmptyState />
                 </TableCell>
               </TableRow>
             )}

@@ -4,8 +4,8 @@ import { SquareArrowOutUpLeftIcon, Trash2Icon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useEffect } from "react";
+import { useGetStoreQuery } from "@/hooks/use-get-store-query";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useStoreEditQuery } from "@/hooks/use-store-edit-query";
 import { useStoreParams } from "@/hooks/use-store-params";
 import { StoreForm } from "../forms/stores";
 import {
@@ -37,7 +37,7 @@ export function StoreEditDrawer() {
   const { storeId, setParams } = useStoreParams();
   const isOpen = Boolean(storeId);
 
-  const { data: store, isLoading, error } = useStoreEditQuery(storeId);
+  const { data: store, isLoading, error } = useGetStoreQuery(storeId);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
