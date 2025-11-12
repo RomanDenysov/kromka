@@ -7,6 +7,7 @@ import { QuantitySetterField } from "./fields/quantity-setter-field";
 import { RichTextField } from "./fields/rich-text-field";
 import { SelectField } from "./fields/select-field";
 import { SubmitButton } from "./fields/submit-button";
+import { SwitchField } from "./fields/switch-field";
 import { TextField } from "./fields/text-field";
 import { TextareaField } from "./fields/textarea-field";
 import { ToggleField } from "./fields/toggle-field";
@@ -28,6 +29,7 @@ export const { useAppForm, withForm } = createFormHook({
     QuantitySetterField,
     RichTextField,
     ToggleField,
+    SwitchField,
   },
   formComponents: {
     SubmitButton,

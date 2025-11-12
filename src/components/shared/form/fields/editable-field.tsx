@@ -40,7 +40,7 @@ export function EditableField({
   };
 
   return (
-    <Field data-invalid={isInvalid} orientation="horizontal">
+    <Field data-invalid={isInvalid}>
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <Editable
         className="group flex w-full flex-row items-center justify-start gap-2"

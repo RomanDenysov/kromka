@@ -1,6 +1,7 @@
 import z from "zod";
 import { MUTATIONS } from "@/db/mutations/stores";
 import { QUERIES } from "@/db/queries/stores";
+import { storeSchema } from "@/validation/stores";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const adminStoresRouter = createTRPCRouter({
@@ -16,38 +17,7 @@ export const adminStoresRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string(),
-        store: z.object({
-          name: z.string(),
-          description: z.json(),
-          isActive: z.boolean(),
-          sortOrder: z.number(),
-          phone: z.string(),
-          email: z.string(),
-          address: z.object({
-            street: z.string(),
-            city: z.string(),
-            state: z.string(),
-            zip: z.string(),
-            country: z.string(),
-            googleId: z.string(),
-            postalCode: z.string(),
-          }),
-          imageId: z.string(),
-          openingHours: z.object({
-            weekdays: z.object({
-              open: z.string(),
-              close: z.string(),
-            }),
-            saturday: z.object({
-              open: z.string(),
-              close: z.string(),
-            }),
-            sunday: z.object({
-              open: z.string(),
-              close: z.string(),
-            }),
-          }),
-        }),
+        store: storeSchema,
       })
     )
     .mutation(

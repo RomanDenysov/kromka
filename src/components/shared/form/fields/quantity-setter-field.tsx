@@ -37,7 +37,7 @@ export function QuantitySetterField({ label, max = 1000, min = 0 }: Props) {
   }, [field, min]);
 
   return (
-    <Field className="w-fit" data-invalid={isInvalid} orientation="horizontal">
+    <Field className="w-fit" data-invalid={isInvalid}>
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <ButtonGroup
         aria-label="Quantity setter"

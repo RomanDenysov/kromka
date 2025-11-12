@@ -6,17 +6,14 @@ import { useMutation } from "@tanstack/react-query";
 import type { JSONContent } from "@tiptap/react";
 import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
+import type z from "zod";
 import { Editor } from "@/components/editor";
 import { useAppForm } from "@/components/shared/form";
-import {
-  Field,
-  FieldGroup,
-  FieldSeparator,
-  FieldSet,
-} from "@/components/ui/field";
+import { Field, FieldSet } from "@/components/ui/field";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useTRPC } from "@/trpc/client";
 import type { StoreById } from "@/types/store";
+import { storeSchema } from "@/validation/stores";
 
 const AUTOSAVE_DELAY_MS = 1000;
 
@@ -32,26 +29,29 @@ export function StoreForm({ store }: { store: NonNullable<StoreById> }) {
     })
   );
 
-  const handleSubmit = useCallback(async () => {
-    await updateStore({
-      id: store.id,
-      store: {},
-    });
-  }, [store.id, updateStore, store]);
+  const handleSubmit = useCallback(
+    async ({ value }: { value: z.infer<typeof storeSchema> }) => {
+      await updateStore({
+        id: store.id,
+        store: {
+          ...value,
+          description: value.description as unknown as JSONContent,
+          phone: value.phone ?? "",
+          email: value.email ?? "",
+        },
+      });
+    },
+    [store.id, updateStore, store]
+  );
 
   const form = useAppForm({
     defaultValues: {
-      name: store.name,
-      slug: store.slug,
-      description: store.description,
-      phone: store.phone,
-      email: store.email,
-      isActive: store.isActive,
-      sortOrder: store.sortOrder,
+      ...store,
+      description: store.description as JSONContent,
     },
-    // validators: {
-    //   onSubmit: storeSchema,
-    // },
+    validators: {
+      onSubmit: storeSchema,
+    },
     onSubmit: handleSubmit,
   });
   // Autosave logic
@@ -75,40 +75,42 @@ export function StoreForm({ store }: { store: NonNullable<StoreById> }) {
         form.handleSubmit();
       }}
     >
-      <FieldSet className="gap-3">
+      <FieldSet>
         <form.AppField name="name">
-          {(field) => <field.EditableField label="Name" placeholder="Name" />}
+          {(field) => (
+            <field.TextField
+              label="Názov obchodu"
+              placeholder="Názov obchodu"
+            />
+          )}
         </form.AppField>
-        <FieldSeparator />
         <form.AppField name="slug">
-          {(field) => <field.EditableField label="Slug" placeholder="Slug" />}
+          {(field) => <field.TextField label="Slug" placeholder="Slug" />}
         </form.AppField>
 
-        <FieldGroup>
-          <form.AppField name="description">
-            {(field) => (
-              <Field className="w-full">
-                <Editor
-                  content={field.state.value as JSONContent}
-                  onUpdate={(content) => field.handleChange(content)}
-                  placeholder="Description"
-                  variant="full"
-                />
-              </Field>
-            )}
-          </form.AppField>
-        </FieldGroup>
+        <form.AppField name="description">
+          {(field) => (
+            <Field className="w-full">
+              <Editor
+                content={field.state.value as JSONContent}
+                onUpdate={(content) => field.handleChange(content)}
+                placeholder="Description"
+                variant="full"
+              />
+            </Field>
+          )}
+        </form.AppField>
         <form.AppField name="phone">
-          {(field) => <field.EditableField label="Phone" placeholder="Phone" />}
+          {(field) => <field.TextField label="Phone" placeholder="Phone" />}
         </form.AppField>
         <form.AppField name="email">
-          {(field) => <field.EditableField label="Email" placeholder="Email" />}
+          {(field) => <field.TextField label="Email" placeholder="Email" />}
         </form.AppField>
         <form.AppField name="isActive">
           {(field) => (
-            <field.ToggleField
-              description="Is the store active?"
-              label="Active"
+            <field.SwitchField
+              description="Je obchod aktívny?"
+              label="Aktívny"
             />
           )}
         </form.AppField>

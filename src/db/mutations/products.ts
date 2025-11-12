@@ -9,8 +9,16 @@ type ProductInsert = typeof products.$inferInsert;
 type Product = typeof products.$inferSelect;
 
 const DRAFT_DEFAULTS = Object.freeze({
-  name: "New Product",
-  description: "New Product Description",
+  name: "Nový produkt",
+  description: {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "Popis nového produktu..." }],
+      },
+    ],
+  },
   stock: 0,
   status: "draft" as const,
   isActive: false,
@@ -22,7 +30,7 @@ function createDraftProductData(
 ): ProductInsert {
   return {
     ...DRAFT_DEFAULTS,
-    slug: `${getSlug("new-product")}-${createShortId()}`,
+    slug: `${getSlug(DRAFT_DEFAULTS.name)}-${createShortId()}`,
     sku: `SKU-${createShortId()}`,
     ...overrides,
   };

@@ -8,6 +8,14 @@ export const QUERIES = {
       await db.query.stores.findMany({
         where: (store, { isNull: isNullFn }) => isNullFn(store.deletedAt),
         with: {
+          createdBy: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
           image: true,
           members: true,
         },
@@ -17,6 +25,14 @@ export const QUERIES = {
         where: (store, { and: andFn, isNull: isNullFn, eq: eqFn }) =>
           andFn(isNullFn(store.deletedAt), eqFn(store.id, id)),
         with: {
+          createdBy: {
+            columns: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
+          },
           image: true,
           members: true,
           orders: true,

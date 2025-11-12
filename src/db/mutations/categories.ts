@@ -8,8 +8,8 @@ import { categories } from "../schema";
 type CategoryInsert = typeof categories.$inferInsert;
 
 const DRAFT_DEFAULTS = Object.freeze({
-  name: "New Category",
-  description: "New Category Description",
+  name: "Nová kategória",
+  description: "Popis novej kategórie...",
   isActive: false,
   sortOrder: 0,
 });
@@ -20,7 +20,7 @@ function createDraftCategoryData(
   return {
     ...DRAFT_DEFAULTS,
     ...overrides,
-    slug: `${getSlug("new-category")}-${createShortId()}`,
+    slug: `${getSlug(DRAFT_DEFAULTS.name)}-${createShortId()}`,
   };
 }
 

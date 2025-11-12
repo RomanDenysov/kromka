@@ -7,20 +7,30 @@ import { stores } from "../schema";
 type StoreInsert = InferInsertModel<typeof stores>;
 
 const DRAFT_DEFAULTS = Object.freeze({
-  name: "New Store",
-  description: "New Store Description",
+  name: "Nova predajňa",
+  description: {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "Popis novej predajne..." }],
+      },
+    ],
+  },
   isActive: false,
   sortOrder: 0,
+  phone: "+421908589550",
+  email: "kromka@kavejo.sk",
   address: {
-    street: "",
-    postalCode: "",
-    city: "Berlin",
-    country: "DE",
-    googleId: "",
+    street: "17. novembra 104",
+    postalCode: "080 01",
+    city: "Prešov",
+    country: "Slovakia",
+    googleId: "8vEL5DjJF84PASjx7",
   },
   openingHours: {
-    weekdays: { open: "07:00", close: "17:00" },
-    saturday: { open: "09:00", close: "17:00" },
+    weekdays: { open: "07:00", close: "18:00" },
+    saturday: { open: "08:00", close: "12:00" },
   },
 });
 
