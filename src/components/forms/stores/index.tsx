@@ -1,8 +1,11 @@
+/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useStore } from "@tanstack/react-form";
+import { useMutation } from "@tanstack/react-query";
 import type { JSONContent } from "@tiptap/react";
-import { useParams } from "next/navigation";
+import { useCallback, useEffect } from "react";
+import { toast } from "sonner";
 import { Editor } from "@/components/editor";
 import { useAppForm } from "@/components/shared/form";
 import {
@@ -11,24 +14,60 @@ import {
   FieldSeparator,
   FieldSet,
 } from "@/components/ui/field";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useTRPC } from "@/trpc/client";
+import type { StoreById } from "@/types/store";
 
-export function StoreForm() {
-  const params = useParams();
+const AUTOSAVE_DELAY_MS = 1000;
+
+export function StoreForm({ store }: { store: NonNullable<StoreById> }) {
   const trpc = useTRPC();
-  const { data: store } = useSuspenseQuery(
-    trpc.admin.stores.byId.queryOptions({ id: params.id as string })
+  const { mutateAsync: updateStore, isPending } = useMutation(
+    trpc.admin.stores.update.mutationOptions({
+      onSuccess: () => {
+        toast.success("Store updated successfully");
+        // Reset dirty state after successful save
+        form.reset(form.state.values);
+      },
+    })
   );
+
+  const handleSubmit = useCallback(async () => {
+    await updateStore({
+      id: store.id,
+      store: {},
+    });
+  }, [store.id, updateStore, store]);
+
   const form = useAppForm({
-    defaultValues: { ...store },
-    validators: {
-      // onSubmit: storeFormSchema,
+    defaultValues: {
+      name: store.name,
+      slug: store.slug,
+      description: store.description,
+      phone: store.phone,
+      email: store.email,
+      isActive: store.isActive,
+      sortOrder: store.sortOrder,
     },
-    onSubmit: (values) => {
-      // biome-ignore lint/suspicious/noConsole: TODO - implement mutation
-      console.log("Form values:", values.value);
-    },
+    // validators: {
+    //   onSubmit: storeSchema,
+    // },
+    onSubmit: handleSubmit,
   });
+  // Autosave logic
+  const canSubmit = useStore(form.store, (state) => state.canSubmit);
+  const isDirty = useStore(form.store, (state) => state.isDirty);
+  const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
+  const debouncedDirty = useDebounce(isDirty, AUTOSAVE_DELAY_MS);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (!(canSubmit && debouncedDirty) || isSubmitting || isPending) {
+      return;
+    }
+    form.handleSubmit();
+  }, [debouncedDirty, canSubmit, isSubmitting, isPending]);
+
   return (
     <form
       onSubmit={(e) => {

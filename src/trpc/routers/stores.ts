@@ -20,6 +20,33 @@ export const adminStoresRouter = createTRPCRouter({
           name: z.string(),
           description: z.json(),
           isActive: z.boolean(),
+          sortOrder: z.number(),
+          phone: z.string(),
+          email: z.string(),
+          address: z.object({
+            street: z.string(),
+            city: z.string(),
+            state: z.string(),
+            zip: z.string(),
+            country: z.string(),
+            googleId: z.string(),
+            postalCode: z.string(),
+          }),
+          imageId: z.string(),
+          openingHours: z.object({
+            weekdays: z.object({
+              open: z.string(),
+              close: z.string(),
+            }),
+            saturday: z.object({
+              open: z.string(),
+              close: z.string(),
+            }),
+            sunday: z.object({
+              open: z.string(),
+              close: z.string(),
+            }),
+          }),
         }),
       })
     )
