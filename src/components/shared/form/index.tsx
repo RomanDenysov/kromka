@@ -10,6 +10,7 @@ import { SubmitButton } from "./fields/submit-button";
 import { SwitchField } from "./fields/switch-field";
 import { TextField } from "./fields/text-field";
 import { TextareaField } from "./fields/textarea-field";
+import { TimeField } from "./fields/time-field";
 import { ToggleField } from "./fields/toggle-field";
 
 export const { fieldContext, useFieldContext, formContext, useFormContext } =
@@ -30,6 +31,7 @@ export const { useAppForm, withForm } = createFormHook({
     RichTextField,
     ToggleField,
     SwitchField,
+    TimeField,
   },
   formComponents: {
     SubmitButton,

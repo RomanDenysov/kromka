@@ -22,15 +22,15 @@ type Address = {
   googleId: string;
 };
 
-type WorkDay = {
+export type WorkDay = {
   open: string;
   close: string;
 };
 
-type OpeningHours = {
+export type OpeningHours = {
   weekdays: WorkDay;
-  saturday?: WorkDay;
-  sunday?: WorkDay;
+  saturday: WorkDay | null;
+  sunday: WorkDay | null;
 };
 
 export const stores = pgTable("stores", {

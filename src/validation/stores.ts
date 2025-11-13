@@ -10,8 +10,8 @@ const workDaySchema = z.object({
 
 const openingHoursSchema = z.object({
   weekdays: workDaySchema,
-  saturday: workDaySchema.optional(),
-  sunday: workDaySchema.optional(),
+  saturday: workDaySchema.nullable(),
+  sunday: workDaySchema.nullable(),
 });
 
 const addressSchema = z.object({

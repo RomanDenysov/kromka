@@ -31,6 +31,7 @@ const DRAFT_DEFAULTS = Object.freeze({
   openingHours: {
     weekdays: { open: "07:00", close: "18:00" },
     saturday: { open: "08:00", close: "12:00" },
+    sunday: null,
   },
 });
 
