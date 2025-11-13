@@ -20,7 +20,7 @@ export function SwitchField({ label, description }: Props) {
 
   return (
     <>
-      <div className="w-full max-w-md rounded-md border p-3">
+      <div className="w-full max-w-md rounded-md border bg-card p-3">
         <Field data-invalid={isInvalid} orientation="horizontal">
           <FieldContent>
             {label && (

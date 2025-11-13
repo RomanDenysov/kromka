@@ -29,9 +29,9 @@ const DRAFT_DEFAULTS = Object.freeze({
     googleId: "8vEL5DjJF84PASjx7",
   },
   openingHours: {
-    weekdays: { open: "07:00", close: "18:00" },
-    saturday: { open: "08:00", close: "12:00" },
-    sunday: null,
+    weekdays: { period: { open: "07:00", close: "18:00" }, isClosed: false },
+    saturday: { period: { open: "08:00", close: "12:00" }, isClosed: false },
+    sunday: { period: null, isClosed: false },
   },
 });
 

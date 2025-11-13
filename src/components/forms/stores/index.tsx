@@ -116,7 +116,7 @@ export function StoreForm({ store }: { store: NonNullable<Store> }) {
             )}
           </form.AppField>
 
-          <OpeningHoursForm field="openingHours" form={form} />
+          <OpeningHoursForm fields="openingHours" form={form} />
         </FieldSet>
       </form>
     </form.AppForm>

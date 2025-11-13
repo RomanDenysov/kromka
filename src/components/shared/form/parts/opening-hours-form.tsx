@@ -1,25 +1,64 @@
-import { withForm } from "@/components/shared/form";
+import { withFieldGroup } from "@/components/shared/form";
 import { FieldGroup } from "@/components/ui/field";
+import { cn } from "@/lib/utils";
 
-export const OpeningHoursForm = withForm({
-  defaultValues: {
-    openingHours: {
-      weekdays: { open: "08:00", close: "18:00" },
-      saturday: { open: "08:00", close: "18:00" },
-      sunday: { open: "08:00", close: "18:00" },
-    },
+type TimeSlot = {
+  open: string;
+  close: string;
+};
+
+type DaySchedule = {
+  period: TimeSlot | null;
+  isClosed: boolean;
+};
+
+type OpeningHoursSection = "weekdays" | "saturday" | "sunday";
+
+const DEFAULT_OPEN_TIME = "08:00";
+const DEFAULT_CLOSE_TIME = "18:00";
+
+const createDefaultDaySchedule = (): DaySchedule => ({
+  period: { open: DEFAULT_OPEN_TIME, close: DEFAULT_CLOSE_TIME },
+  isClosed: false,
+});
+
+const defaultValues: Record<OpeningHoursSection, DaySchedule> = {
+  weekdays: createDefaultDaySchedule(),
+  saturday: createDefaultDaySchedule(),
+  sunday: createDefaultDaySchedule(),
+};
+
+type OpeningHoursFormProps = {
+  className?: string;
+  labels?: Partial<Record<OpeningHoursSection, string>>;
+};
+
+export const OpeningHoursForm = withFieldGroup({
+  defaultValues,
+  props: {} as OpeningHoursFormProps,
+  render: ({ group, ...rest }) => {
+    const { className, labels } = rest as OpeningHoursFormProps;
+    const labelOverrides = (labels ?? {}) as Partial<
+      Record<OpeningHoursSection, string>
+    >;
+    const labelMap: Record<OpeningHoursSection, string> = {
+      weekdays: labelOverrides.weekdays ?? "Cez týždeň",
+      saturday: labelOverrides.saturday ?? "Sobota",
+      sunday: labelOverrides.sunday ?? "Nedeľa",
+    };
+
+    return (
+      <FieldGroup className={cn("gap-2", className)}>
+        <group.AppField name="weekdays">
+          {(field) => <field.TimeField label={labelMap.weekdays} />}
+        </group.AppField>
+        <group.AppField name="saturday">
+          {(field) => <field.TimeField label={labelMap.saturday} />}
+        </group.AppField>
+        <group.AppField name="sunday">
+          {(field) => <field.TimeField label={labelMap.sunday} />}
+        </group.AppField>
+      </FieldGroup>
+    );
   },
-  render: ({ form }) => (
-    <FieldGroup className="gap-2">
-      <form.AppField name="openingHours.weekdays">
-        {(field) => <field.TimeField label="Cez týždeň" />}
-      </form.AppField>
-      <form.AppField name="openingHours.saturday">
-        {(field) => <field.TimeField label="Sobota" />}
-      </form.AppField>
-      <form.AppField name="openingHours.sunday">
-        {(field) => <field.TimeField label="Nedeľa" />}
-      </form.AppField>
-    </FieldGroup>
-  ),
 });

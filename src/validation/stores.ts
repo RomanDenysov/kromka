@@ -4,14 +4,19 @@ import z from "zod";
 const MAX_STRING_LENGTH = 255;
 
 const workDaySchema = z.object({
-  open: z.string(),
-  close: z.string(),
+  period: z
+    .object({
+      open: z.string(),
+      close: z.string(),
+    })
+    .nullable(),
+  isClosed: z.boolean(),
 });
 
 const openingHoursSchema = z.object({
   weekdays: workDaySchema,
-  saturday: workDaySchema.nullable(),
-  sunday: workDaySchema.nullable(),
+  saturday: workDaySchema,
+  sunday: workDaySchema,
 });
 
 const addressSchema = z.object({

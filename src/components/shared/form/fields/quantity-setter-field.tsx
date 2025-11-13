@@ -37,7 +37,7 @@ export function QuantitySetterField({ label, max = 1000, min = 0 }: Props) {
   }, [field, min]);
 
   return (
-    <div className="max-w-md rounded-md border p-3">
+    <div className="max-w-md rounded-md border bg-card p-3">
       <Field data-invalid={isInvalid} orientation="horizontal">
         {label && (
           <FieldLabel className="text-muted-foreground" htmlFor={field.name}>
