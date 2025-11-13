@@ -23,14 +23,15 @@ const addressSchema = z.object({
 });
 
 export const storeSchema = z.object({
+  id: z.string(),
   name: z.string().min(1).max(MAX_STRING_LENGTH),
   slug: z.string().min(1).max(MAX_STRING_LENGTH),
-  description: z.custom<JSONContent>(),
+  description: z.custom<JSONContent>().nullable(),
   phone: z.string(),
   email: z.email(),
   isActive: z.boolean(),
   sortOrder: z.number(),
-  openingHours: openingHoursSchema.nullable(),
+  openingHours: openingHoursSchema,
   address: addressSchema,
   imageId: z.string().nullable(),
 });

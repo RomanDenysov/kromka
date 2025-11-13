@@ -5,8 +5,11 @@ import { storeSchema } from "@/validation/stores";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const adminStoresRouter = createTRPCRouter({
-  list: protectedProcedure.query(async () => await QUERIES.ADMIN.GET_STORES()),
+  list: protectedProcedure
+    .output(z.array(storeSchema))
+    .query(async () => await QUERIES.ADMIN.GET_STORES()),
   byId: protectedProcedure
+    .output(storeSchema.optional())
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => await QUERIES.ADMIN.GET_STORE_BY_ID(input.id)),
   createDraft: protectedProcedure.mutation(

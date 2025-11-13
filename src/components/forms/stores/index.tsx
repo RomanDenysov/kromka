@@ -2,7 +2,6 @@
 "use client";
 
 import { useStore } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
 import type { JSONContent } from "@tiptap/react";
 import { useCallback, useEffect } from "react";
 import { toast } from "sonner";
@@ -10,24 +9,20 @@ import type z from "zod";
 import { Editor } from "@/components/editor";
 import { useAppForm } from "@/components/shared/form";
 import { Field, FieldSet } from "@/components/ui/field";
+import { useUpdateStore } from "@/hooks/mutations/use-update-store";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useTRPC } from "@/trpc/client";
-import type { StoreById } from "@/types/store";
+import type { Store } from "@/types/store";
 import { storeSchema } from "@/validation/stores";
 
 const AUTOSAVE_DELAY_MS = 1000;
 
-export function StoreForm({ store }: { store: NonNullable<StoreById> }) {
-  const trpc = useTRPC();
-  const { mutateAsync: updateStore, isPending } = useMutation(
-    trpc.admin.stores.update.mutationOptions({
-      onSuccess: () => {
-        toast.success("Store updated successfully");
-        // Reset dirty state after successful save
-        form.reset(form.state.values);
-      },
-    })
-  );
+export function StoreForm({ store }: { store: NonNullable<Store> }) {
+  const { mutateAsync: updateStore, isPending } = useUpdateStore({
+    onSuccess: () => {
+      toast.success("Obchod aktualizovaný");
+      form.reset(form.state.values);
+    },
+  });
 
   const handleSubmit = useCallback(
     async ({ value }: { value: z.infer<typeof storeSchema> }) => {
@@ -36,8 +31,8 @@ export function StoreForm({ store }: { store: NonNullable<StoreById> }) {
         store: {
           ...value,
           description: value.description as unknown as JSONContent,
-          phone: value.phone ?? "",
-          email: value.email ?? "",
+          phone: value.phone,
+          email: value.email,
         },
       });
     },
@@ -47,7 +42,6 @@ export function StoreForm({ store }: { store: NonNullable<StoreById> }) {
   const form = useAppForm({
     defaultValues: {
       ...store,
-      description: store.description as JSONContent,
     },
     validators: {
       onSubmit: storeSchema,

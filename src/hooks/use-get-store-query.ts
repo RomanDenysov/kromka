@@ -2,7 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
-import type { StoreById, StoreList } from "@/types/store";
+import type { Store, StoreList } from "@/types/store";
 
 export function useGetStoreQuery(storeId: string | null) {
   const trpc = useTRPC();
@@ -14,13 +14,13 @@ export function useGetStoreQuery(storeId: string | null) {
       {
         enabled: Boolean(storeId),
         staleTime: 0,
-        initialData: (): StoreById | undefined => {
+        initialData: (): Store | undefined => {
           const stores = queryClient
             .getQueriesData({
               queryKey: trpc.admin.stores.list.queryOptions().queryKey,
             })
             .flatMap(([_, data]) => (data as StoreList) ?? []);
-          return stores.find((s) => s?.id === storeId) as StoreById | undefined;
+          return stores.find((s) => s?.id === storeId) as Store | undefined;
         },
       }
     )

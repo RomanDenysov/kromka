@@ -1,3 +1,4 @@
+import type { JSONContent } from "@tiptap/react";
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -38,21 +39,21 @@ export const stores = pgTable("stores", {
     .$defaultFn(() => createPrefixedId("sto")),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
-  description: jsonb("description"),
+  description: jsonb("description").$type<JSONContent>(),
   createdBy: text("created_by").references(() => users.id, {
     onDelete: "set null",
   }),
-  isActive: boolean("is_active").default(true).notNull(),
+  isActive: boolean("is_active").default(false).notNull(),
   sortOrder: integer("sort_order").default(0).notNull(),
 
-  phone: text("phone"),
-  email: text("email"),
-  address: jsonb("address").$type<Address>(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  address: jsonb("address").$type<Address>().notNull(),
 
   imageId: text("image_id").references(() => media.id, {
     onDelete: "set null",
   }),
-  openingHours: jsonb("opening_hours").$type<OpeningHours>(),
+  openingHours: jsonb("opening_hours").$type<OpeningHours>().notNull(),
 
   deletedAt: timestamp("deleted_at"),
 
