@@ -39,4 +39,6 @@ export const storeSchema = z.object({
   openingHours: openingHoursSchema,
   address: addressSchema,
   imageId: z.string().nullable(),
+  updatedAt: z.date(),
+  createdAt: z.date(),
 });

@@ -3,7 +3,8 @@
 
 import { useStore } from "@tanstack/react-form";
 import type { JSONContent } from "@tiptap/react";
-import { useCallback, useEffect } from "react";
+import { format } from "date-fns/format";
+import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type z from "zod";
 import { Editor } from "@/components/editor";
@@ -11,7 +12,6 @@ import { useAppForm } from "@/components/shared/form";
 import { OpeningHoursForm } from "@/components/shared/form/parts/opening-hours-form";
 import { Field, FieldSet } from "@/components/ui/field";
 import { useUpdateStore } from "@/hooks/mutations/use-update-store";
-import { useDebounce } from "@/hooks/use-debounce";
 import type { Store } from "@/types/store";
 import { storeSchema } from "@/validation/stores";
 
@@ -23,21 +23,19 @@ export function StoreForm({ store }: { store: NonNullable<Store> }) {
       toast.success("Obchod aktualizovaný");
       form.reset(form.state.values);
     },
+    onError: () => {
+      toast.error("Nastala chyba pri aktualizácii obchodu");
+    },
   });
 
   const handleSubmit = useCallback(
     async ({ value }: { value: z.infer<typeof storeSchema> }) => {
       await updateStore({
         id: store.id,
-        store: {
-          ...value,
-          description: value.description as unknown as JSONContent,
-          phone: value.phone,
-          email: value.email,
-        },
+        store: value,
       });
     },
-    [store.id, updateStore, store]
+    [store.id, updateStore]
   );
 
   const form = useAppForm({
@@ -53,18 +51,47 @@ export function StoreForm({ store }: { store: NonNullable<Store> }) {
   const canSubmit = useStore(form.store, (state) => state.canSubmit);
   const isDirty = useStore(form.store, (state) => state.isDirty);
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
-  const debouncedDirty = useDebounce(isDirty, AUTOSAVE_DELAY_MS);
+
+  const submitTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  useEffect(() => {
+    // Очищаем предыдущий таймер
+    if (submitTimeoutRef.current) {
+      clearTimeout(submitTimeoutRef.current);
+    }
+
+    // Если форма грязная, валидная и не сабмитится сейчас
+    if (isDirty && canSubmit && !isSubmitting && !isPending) {
+      submitTimeoutRef.current = setTimeout(() => {
+        form.handleSubmit();
+      }, AUTOSAVE_DELAY_MS);
+    }
+
+    return () => {
+      if (submitTimeoutRef.current) {
+        clearTimeout(submitTimeoutRef.current);
+      }
+    };
+  }, [isDirty, canSubmit, isSubmitting, isPending, form]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Ignore exhaustive dependencies
   useEffect(() => {
-    if (!(canSubmit && debouncedDirty) || isSubmitting || isPending) {
-      return;
-    }
-    form.handleSubmit();
-  }, [debouncedDirty, canSubmit, isSubmitting, isPending]);
+    return () => {
+      if (form.state.isDirty && form.state.canSubmit) {
+        // Используем beacon API для надёжной отправки при закрытии страницы
+        form.handleSubmit();
+      }
+    };
+  }, []);
 
   return (
     <form.AppForm>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="text-muted-foreground text-sm">
+          {isPending
+            ? "Ukladá sa..."
+            : `Naposledy uložené ${format(store.updatedAt, "dd.MM.yyyy HH:mm")}`}
+        </div>
+      </div>
       <form
         onSubmit={(e) => {
           e.preventDefault();

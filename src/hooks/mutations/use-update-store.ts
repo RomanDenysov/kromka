@@ -6,6 +6,7 @@ import type { Store } from "@/types/store";
 
 type Options = {
   onSuccess?: (updatedStore: Store) => void;
+  onError?: (error?: Error) => void;
 };
 
 export function useUpdateStore(options: Options) {
@@ -19,6 +20,11 @@ export function useUpdateStore(options: Options) {
             .queryKey,
         });
         options.onSuccess?.(updatedStore);
+      },
+      onError: (error) => {
+        // biome-ignore lint/suspicious/noConsole: TODO: Implement error handling
+        console.error(error);
+        options.onError?.();
       },
     })
   );
