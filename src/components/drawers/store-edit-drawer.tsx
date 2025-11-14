@@ -3,11 +3,10 @@
 import { SquareArrowOutUpLeftIcon, Trash2Icon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { useEffect } from "react";
+import { StoreForm } from "@/components/forms/store-form";
 import { useGetStoreQuery } from "@/hooks/use-get-store-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useStoreParams } from "@/hooks/use-store-params";
-import { StoreForm } from "../forms/stores";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,14 +37,6 @@ export function StoreEditDrawer() {
   const isOpen = Boolean(storeId);
 
   const { data: store, isLoading, error } = useGetStoreQuery(storeId);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    // biome-ignore lint/suspicious/noConsole: <explanation>
-    console.log(store);
-    // biome-ignore lint/suspicious/noConsole: <explanation>
-    console.log(store?.createdBy);
-  }, [store]);
 
   if (!store) {
     return null;

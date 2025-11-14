@@ -1,7 +1,7 @@
 "use client";
 
 import { notFound } from "next/navigation";
-import { StoreForm } from "@/components/forms/stores";
+import { StoreForm } from "@/components/forms/store-form";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { useGetStoreQuery } from "@/hooks/use-get-store-query";
 
