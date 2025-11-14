@@ -12,6 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
 import { users } from "./auth";
+import { media } from "./media";
 import { products } from "./products";
 
 export const categories = pgTable(
@@ -27,6 +28,9 @@ export const categories = pgTable(
       onDelete: "set null",
     }),
     createdBy: text("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    imageId: text("image_id").references(() => media.id, {
       onDelete: "set null",
     }),
     isVisible: boolean("is_visible").default(false).notNull(),
@@ -104,9 +108,22 @@ export const productCategories = pgTable(
   ]
 );
 
-export const categoriesRelations = relations(categories, ({ many }) => ({
+export const categoriesRelations = relations(categories, ({ many, one }) => ({
   availabilityWindows: many(categoryAvailabilityWindows),
   products: many(productCategories),
+  image: one(media, {
+    fields: [categories.imageId],
+    references: [media.id],
+  }),
+  createdBy: one(users, {
+    fields: [categories.createdBy],
+    references: [users.id],
+  }),
+  parent: one(categories, {
+    fields: [categories.parentId],
+    references: [categories.id],
+  }),
+  children: many(categories),
 }));
 
 export const categoryAvailabilityWindowsRelations = relations(

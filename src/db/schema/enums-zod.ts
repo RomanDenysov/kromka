@@ -46,3 +46,11 @@ export const productStatusEnumSchema = z.enum([
   "inactive",
   "archived",
 ]);
+
+export const deliveryStatusEnumSchema = z.enum([
+  "scheduled",
+  "out_for_delivery",
+  "delivered",
+  "failed",
+  "cancelled",
+]);
