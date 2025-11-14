@@ -31,6 +31,14 @@ export const orderStatusEventSchema = z.object({
   createdAt: z.date(),
 });
 
+export const paymentRefundSchema = z.object({
+  id: z.string(),
+  paymentId: z.string(),
+  amountCents: z.number().int().min(0),
+  reason: z.string().nullable(),
+  createdAt: z.date(),
+});
+
 export const orderPaymentSchema = z.object({
   id: z.string(),
   orderId: z.string(),
@@ -47,12 +55,8 @@ export const orderPaymentSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const paymentRefundSchema = z.object({
-  id: z.string(),
-  paymentId: z.string(),
-  amountCents: z.number().int().min(0),
-  reason: z.string().nullable(),
-  createdAt: z.date(),
+export const orderPaymentWithRefundsSchema = orderPaymentSchema.extend({
+  refunds: z.array(paymentRefundSchema),
 });
 
 export const orderSchema = z.object({
@@ -97,7 +101,7 @@ export const orderWithRelationsSchema = outputOrderSchema.extend({
     .nullable(),
   items: z.array(orderItemSchema),
   statusEvents: z.array(orderStatusEventSchema),
-  payments: z.array(orderPaymentSchema),
+  payments: z.array(orderPaymentWithRefundsSchema),
 });
 
 export type OrderSchema = z.infer<typeof orderSchema>;
@@ -106,5 +110,8 @@ export type OrderWithRelationsSchema = z.infer<typeof orderWithRelationsSchema>;
 export type OrderItemSchema = z.infer<typeof orderItemSchema>;
 export type OrderStatusEventSchema = z.infer<typeof orderStatusEventSchema>;
 export type OrderPaymentSchema = z.infer<typeof orderPaymentSchema>;
+export type OrderPaymentWithRefundsSchema = z.infer<
+  typeof orderPaymentWithRefundsSchema
+>;
 export type PaymentRefundSchema = z.infer<typeof paymentRefundSchema>;
 export type ProductSnapshotSchema = z.infer<typeof productSnapshotSchema>;

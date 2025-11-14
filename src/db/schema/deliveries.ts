@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   index,
   jsonb,
@@ -49,3 +50,10 @@ export const deliveries = pgTable(
   },
   (t) => [index("idx_del_status").on(t.status)]
 );
+
+export const deliveriesRelations = relations(deliveries, ({ one }) => ({
+  order: one(orders, {
+    fields: [deliveries.orderId],
+    references: [orders.id],
+  }),
+}));

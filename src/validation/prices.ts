@@ -36,6 +36,13 @@ export const priceWithRelationsSchema = outputPriceSchema.extend({
       slug: z.string().max(MAX_STRING_LENGTH),
     })
     .nullable(),
+  product: z.object({
+    id: z.string(),
+    name: z.string().max(MAX_STRING_LENGTH),
+    slug: z.string().max(MAX_STRING_LENGTH),
+    sku: z.string().max(MAX_STRING_LENGTH),
+    isActive: z.boolean(),
+  }),
 });
 
 export type PriceSchema = z.infer<typeof priceSchema>;

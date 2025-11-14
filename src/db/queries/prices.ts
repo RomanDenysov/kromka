@@ -67,6 +67,7 @@ export const QUERIES = {
       await db.query.prices.findMany({
         where: (price, { eq }) => eq(price.productId, productId),
         with: {
+          product: true,
           organization: true,
           createdBy: {
             columns: {
