@@ -1,11 +1,11 @@
 import type { Route } from "next";
 import Link from "next/link";
+import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
-import { Container } from "../shared/container";
-import { buttonVariants } from "../ui/button";
-import { CartButton } from "./cart-button";
-import { UserButton } from "./user-button";
+import { UserButton } from "../../../components/landing/user-button";
+import { Container } from "../../../components/shared/container";
+import { buttonVariants } from "../../../components/ui/button";
 
 const navigation = [
   { name: "Eshop", href: "/eshop" as Route },
@@ -40,7 +40,7 @@ export function Header() {
           {/* Actions */}
           <div className="flex items-center gap-3">
             <UserButton />
-            <CartButton />
+            <CartDrawer />
           </div>
         </div>
       </Container>

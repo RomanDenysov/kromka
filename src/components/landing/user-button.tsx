@@ -1,5 +1,3 @@
-"use client";
-
 import { LogInIcon, LogOut, Settings, Store, User } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -8,22 +6,21 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getUser } from "@/lib/auth/auth-utils";
 import { cn } from "@/lib/utils";
+import { Icons } from "../icons";
 
-export function UserButton() {
-  // TODO: Implement real auth check and user session
-  const user: null = null; // Mock: replace with useSession or similar
-  const selectedStore: string | null = null; // Mock: fetch from storeMembers relation
-  const href = "/prihlasenie" as Route;
+export async function UserButton() {
+  const selectedStore: string | null = null;
+  const user = await getUser();
   if (!user) {
     return (
       <Link
         className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
-        href={href}
+        href={"/prihlasenie" as Route}
       >
         <LogInIcon className="size-4" />
         <span className="sr-only">Prihlásiť sa</span>
@@ -39,9 +36,7 @@ export function UserButton() {
           <span className="sr-only">Účet</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Môj účet</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent align="end" className="w-48">
         {selectedStore && (
           <>
             <DropdownMenuItem disabled>
@@ -59,6 +54,12 @@ export function UserButton() {
         <DropdownMenuItem>
           <Settings className="mr-2 size-4" />
           Nastavenia
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link className="flex items-center gap-2" href="/admin">
+            <Icons.logo className="mr-2 size-4" />
+            Admin panel
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>

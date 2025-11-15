@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
+import { Header } from "@/app/(public)/_components/header";
 import { Footer } from "@/components/landing/footer";
-import { Header } from "@/components/landing/header";
 
 type Props = {
   readonly children: ReactNode;

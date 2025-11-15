@@ -1,8 +1,6 @@
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { createTRPCRouter } from "../init";
 import { adminCategoriesRouter } from "./categories";
-import { adminDeliveriesRouter } from "./deliveries";
-import { adminInvoicesRouter } from "./invoices";
 import { adminMediaRouter } from "./media";
 import { adminOrdersRouter } from "./orders";
 import { adminOrganizationsRouter } from "./organizations";
@@ -21,10 +19,8 @@ const adminRouter = createTRPCRouter({
   media: adminMediaRouter,
   stores: adminStoresRouter,
   orders: adminOrdersRouter,
-  invoices: adminInvoicesRouter,
   prices: adminPricesRouter,
   organizations: adminOrganizationsRouter,
-  deliveries: adminDeliveriesRouter,
   productChannels: adminProductChannelsRouter,
 });
 
