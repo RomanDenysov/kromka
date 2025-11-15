@@ -1,6 +1,5 @@
-"use client";
-
 import { FolderOpenIcon, PlusIcon } from "lucide-react";
+import { createDraftCategory } from "@/app/(admin)/admin/b2c/categories/actions";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -10,12 +9,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Spinner } from "@/components/ui/spinner";
-import { useCreateDraftCategory } from "@/hooks/use-create-draft-category";
 
 export function EmptyState() {
-  const { mutate: createDraftCategory, isPending } = useCreateDraftCategory();
-
   return (
     <Empty>
       <EmptyHeader>
@@ -28,24 +23,16 @@ export function EmptyState() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button
-          disabled={isPending}
-          onClick={() => createDraftCategory()}
-          size="sm"
-          variant="outline"
+        <form
+          action={async () => {
+            await createDraftCategory();
+          }}
         >
-          {isPending ? (
-            <>
-              <Spinner />
-              Pridávame kategóriu...
-            </>
-          ) : (
-            <>
-              <PlusIcon />
-              Pridať novú kategóriu
-            </>
-          )}
-        </Button>
+          <Button size="sm" type="submit" variant="outline">
+            <PlusIcon />
+            Pridať novú kategóriu
+          </Button>
+        </form>
       </EmptyContent>
     </Empty>
   );

@@ -6,7 +6,11 @@ import {
   getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { PlusIcon } from "lucide-react";
 import { useMemo } from "react";
+import { createDraftCategory } from "@/app/(admin)/admin/b2c/categories/actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -15,10 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
-import { Header } from "./header";
 
 export function CategoriesTable({ categories }: { categories: any }) {
   const processedCategories = useMemo(
@@ -36,7 +38,27 @@ export function CategoriesTable({ categories }: { categories: any }) {
 
   return (
     <div className="size-full overflow-hidden">
-      <Header table={table} />
+      <div className="flex items-center justify-between p-4">
+        <Input
+          className="max-w-xs"
+          onChange={(event) =>
+            table?.getColumn("name")?.setFilterValue(event.target.value)
+          }
+          placeholder="Hľadať kategóriu..."
+          value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
+          volume="sm"
+        />
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => createDraftCategory()}
+            size="xs"
+            variant="outline"
+          >
+            <PlusIcon />
+            Pridať kategóriu
+          </Button>
+        </div>
+      </div>
       <Table className="border-t">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

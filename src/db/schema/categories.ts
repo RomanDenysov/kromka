@@ -10,6 +10,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
+import { draftSlug } from "../utils";
 import { products } from "./products";
 
 export const categories = pgTable(
@@ -18,9 +19,14 @@ export const categories = pgTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => createPrefixedId("cat")),
-    name: text("name").notNull(),
-    slug: text("slug").notNull().unique(),
-    description: text("description"),
+    name: text("name").notNull().default("Nová kategória"),
+    slug: text("slug")
+      .notNull()
+      .unique()
+      .$defaultFn(() => draftSlug("Nová kategória")),
+    description: text("description")
+      .notNull()
+      .default("Popis vašej kategórie..."),
     isVisible: boolean("is_visible").default(false).notNull(),
     isActive: boolean("is_active").default(false).notNull(),
     sortOrder: integer("sort_order").default(0).notNull(),

@@ -28,12 +28,12 @@ function createDraftCategoryData(
 
 export const MUTATIONS = {
   ADMIN: {
-    CREATE_DRAFT_CATEGORY: async (userId: string) => {
+    CREATE_DRAFT_CATEGORY: async (_userId: string) => {
       const draftCategoryData: CategoryInsert = createDraftCategoryData();
 
       const [newDraftCategory] = await db
         .insert(categories)
-        .values({ createdBy: userId, ...draftCategoryData })
+        .values(draftCategoryData)
         .returning();
 
       return newDraftCategory;

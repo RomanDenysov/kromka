@@ -1,9 +1,8 @@
 import z from "zod";
-import { channelEnumSchema } from "@/db/schema/enums-zod";
 
 export const productChannelSchema = z.object({
   productId: z.string(),
-  channel: channelEnumSchema,
+  channel: z.enum(["B2C", "B2B"]),
   isListed: z.boolean(),
 });
 

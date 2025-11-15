@@ -1,5 +1,3 @@
-"use client";
-
 import { PackagePlusIcon, PlusIcon } from "lucide-react";
 import { Toolbar } from "@/components/shared/toolbar";
 import { ToolbarButton } from "@/components/shared/toolbar-button";

@@ -3,7 +3,6 @@ import z from "zod";
 import { outputCategorySchema } from "./categories";
 import { MAX_STRING_LENGTH } from "./constants";
 import { mediaSchema } from "./media";
-import { priceSchema } from "./prices";
 import { productChannelSchema } from "./product-channels";
 
 export const productSchema = z.object({
@@ -34,7 +33,6 @@ export const outputProductSchema = productSchema.extend({
 export const productWithRelationsSchema = outputProductSchema.extend({
   categories: z.array(outputCategorySchema),
   channels: z.array(productChannelSchema),
-  prices: z.array(priceSchema),
   images: z.array(mediaSchema),
 });
 
