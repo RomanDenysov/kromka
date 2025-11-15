@@ -44,7 +44,7 @@ export const stores = pgTable("stores", {
     .$defaultFn(() => createPrefixedId("sto")),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
-  description: jsonb("description").$type<JSONContent>(),
+  description: jsonb("description").$type<JSONContent>().notNull(),
   createdBy: text("created_by").references(() => users.id, {
     onDelete: "set null",
   }),

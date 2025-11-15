@@ -1,8 +1,16 @@
 "use client";
 
-import { SquareArrowOutUpLeftIcon, Trash2Icon } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  MoreHorizontalIcon,
+  SquareArrowOutUpLeftIcon,
+  StoreIcon,
+  Trash2Icon,
+} from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { StoreForm } from "@/components/forms/store-form";
 import { useGetStoreQuery } from "@/hooks/use-get-store-query";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -16,9 +24,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { Button, buttonVariants } from "../ui/button";
+import { Button } from "../ui/button";
 import {
   Drawer,
   DrawerClose,
@@ -27,60 +34,76 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "../ui/drawer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Separator } from "../ui/separator";
-import { Spinner } from "../ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 export function StoreEditDrawer() {
   const isMobile = useIsMobile();
   const { storeId, setParams } = useStoreParams();
   const isOpen = Boolean(storeId);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-  const { data: store, isLoading, error } = useGetStoreQuery(storeId);
+  const { data: store, isLoading } = useGetStoreQuery(storeId);
 
   if (!store) {
     return null;
   }
 
   return (
-    <Drawer
-      direction={isMobile ? "bottom" : "right"}
-      onOpenChange={(open) => !open && setParams(null)}
-      open={isOpen}
-    >
-      <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-lg">
-        <DrawerHeader>
-          <div className="flex flex-row items-center justify-between">
-            <DrawerTitle>Upraviť obchod</DrawerTitle>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button size="icon-xs" variant="destructive">
-                  <Trash2Icon />
+    <>
+      <Drawer
+        direction={isMobile ? "bottom" : "right"}
+        dismissible={false}
+        onOpenChange={(open) => !open && setParams(null)}
+        open={isOpen}
+      >
+        <DrawerContent className="data-[vaul-drawer-direction=right]:sm:max-w-lg">
+          <DrawerHeader>
+            <div className="flex flex-row items-center justify-between">
+              <div className="flex flex-row items-center gap-2">
+                <Button
+                  onClick={() => setParams(null)}
+                  size="icon-xs"
+                  variant="outline"
+                >
+                  <ChevronLeftIcon />
                 </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Odstrániť obchod</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Opravdu chcete odstrániť obchod? Táto akcia je nevratná.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel size="sm">Zrušiť</AlertDialogCancel>
-                  <AlertDialogAction size="sm" variant="destructive">
-                    Odstrániť
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        </DrawerHeader>
-        <Separator />
-        <div className="size-full flex-1">
-          {isLoading || !store ? (
-            <Spinner className="size-10 text-muted-foreground" />
-          ) : (
-            <Tabs defaultValue="form">
+                <DrawerTitle className="flex flex-row items-center gap-1 rounded-sm border px-2 py-0.5">
+                  <span className="font-medium text-sm">Predajňa</span>
+                  <StoreIcon className="size-4" />
+                </DrawerTitle>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon-xs" variant="outline">
+                    <MoreHorizontalIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href={`/admin/stores/${storeId}` as Route} prefetch>
+                      <SquareArrowOutUpLeftIcon />
+                      Otvoriť
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem onClick={() => setOpenDeleteDialog(true)}>
+                    <Trash2Icon />
+                    Vymazať
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </DrawerHeader>
+          <Separator />
+          <div className="size-full flex-1">
+            <Tabs className="size-full" defaultValue="form">
               <TabsList className="w-full justify-start rounded-none">
                 <TabsTrigger
                   className="w-fit flex-0 rounded-sm px-1 py-0"
@@ -96,7 +119,7 @@ export function StoreEditDrawer() {
                 </TabsTrigger>
               </TabsList>
 
-              <div className="size-full flex-1 px-4 py-2">
+              <div className="flex size-full flex-1 flex-col px-4 py-2">
                 <TabsContent value="form">
                   <StoreForm store={store} />
                 </TabsContent>
@@ -105,26 +128,49 @@ export function StoreEditDrawer() {
                 </TabsContent>
               </div>
             </Tabs>
-          )}
-          {error && <div className="p-4 text-destructive">{error.message}</div>}
-        </div>
-        <Separator />
-        <DrawerFooter className="gap-2 sm:flex-row sm:justify-end">
-          <DrawerClose asChild>
-            <Button size="sm" variant="outline">
-              Zavrieť
-            </Button>
-          </DrawerClose>
-          <Link
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-            href={`/admin/stores/${storeId}` as Route}
-            prefetch
-          >
-            <SquareArrowOutUpLeftIcon />
-            Otvoriť
-          </Link>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+          </div>
+          <Separator />
+          <DrawerFooter className="gap-2 sm:flex-row sm:justify-end">
+            <DrawerClose asChild>
+              <Button size="sm" variant="outline">
+                Zavrieť
+              </Button>
+            </DrawerClose>
+            <SubmitButton isLoading={isLoading} />
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+      <AlertDialog onOpenChange={setOpenDeleteDialog} open={openDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Odstrániť obchod</AlertDialogTitle>
+            <AlertDialogDescription>
+              Opravdu chcete odstrániť obchod? Táto akcia je nevratná.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel size="sm">Zrušiť</AlertDialogCancel>
+            <AlertDialogAction size="sm" variant="destructive">
+              Odstrániť
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+function SubmitButton({ isLoading }: { isLoading: boolean }) {
+  const status = useFormStatus();
+
+  return (
+    <Button
+      disabled={status.pending || isLoading}
+      form="store-form"
+      size="sm"
+      type="submit"
+    >
+      {status.pending ? "Ukladám..." : "Uložiť"}
+    </Button>
   );
 }

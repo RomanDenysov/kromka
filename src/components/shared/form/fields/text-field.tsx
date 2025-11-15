@@ -24,7 +24,11 @@ export function TextField({
 
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
   return (
-    <Field className={className} data-invalid={isInvalid}>
+    <Field
+      className={className}
+      data-invalid={isInvalid}
+      orientation="responsive"
+    >
       {label && (
         <FieldLabel className="text-muted-foreground" htmlFor={field.name}>
           {label}

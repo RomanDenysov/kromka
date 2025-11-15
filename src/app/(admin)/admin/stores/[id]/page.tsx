@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { HydrateClient } from "@/trpc/server";
-import { StoreClientPage } from "./client-page";
+import { StoreClientPage } from "./client";
 
 type Props = {
   params: Promise<{
@@ -16,12 +16,10 @@ export default async function StorePage({ params }: Props) {
   return (
     <HydrateClient>
       <ErrorBoundary fallback={<div>Error</div>}>
-        <section className="flex h-full">
-          <div className="w-full max-w-md shrink-0 border-r p-4">
-            <Suspense fallback={<FormSkeleton />}>
-              <StoreClientPage storeId={id} />
-            </Suspense>
-          </div>
+        <section className="h-full flex-1">
+          <Suspense fallback={<FormSkeleton />}>
+            <StoreClientPage storeId={id} />
+          </Suspense>
         </section>
       </ErrorBoundary>
     </HydrateClient>

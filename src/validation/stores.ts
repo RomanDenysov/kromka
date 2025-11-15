@@ -27,11 +27,18 @@ const addressSchema = z.object({
   postalCode: z.string().min(1).max(MAX_STRING_LENGTH),
 });
 
+const storeMemberSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  image: z.string().nullable(),
+});
+
 export const storeSchema = z.object({
   id: z.string(),
   name: z.string().min(1).max(MAX_STRING_LENGTH),
   slug: z.string().min(1).max(MAX_STRING_LENGTH),
-  description: z.custom<JSONContent>().nullable(),
+  description: z.custom<JSONContent>(),
   phone: z.string(),
   email: z.email(),
   isActive: z.boolean(),
@@ -41,4 +48,8 @@ export const storeSchema = z.object({
   imageId: z.string().nullable(),
   updatedAt: z.date(),
   createdAt: z.date(),
+});
+
+export const storeWithRelationsSchema = storeSchema.extend({
+  members: z.array(storeMemberSchema),
 });

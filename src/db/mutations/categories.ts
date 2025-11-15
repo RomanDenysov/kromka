@@ -1,8 +1,10 @@
 import "server-only";
 
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { getSlug } from "@/lib/get-slug";
 import { createShortId } from "@/lib/ids";
+import type { UpdateCategorySchema } from "@/validation/categories";
 import { categories } from "../schema";
 
 type CategoryInsert = typeof categories.$inferInsert;
@@ -35,6 +37,14 @@ export const MUTATIONS = {
         .returning();
 
       return newDraftCategory;
+    },
+    UPDATE_CATEGORY: async (id: string, category: UpdateCategorySchema) => {
+      const [updatedCategory] = await db
+        .update(categories)
+        .set(category)
+        .where(eq(categories.id, id))
+        .returning();
+      return updatedCategory;
     },
   },
 };

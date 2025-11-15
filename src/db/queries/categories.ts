@@ -9,6 +9,13 @@ export const QUERIES = {
     GET_CATEGORY_BY_ID: async (id: string) =>
       await db.query.categories.findFirst({
         where: (category, { eq: eqFn }) => eqFn(category.id, id),
+        with: {
+          parent: true,
+          children: true,
+          image: true,
+          products: true,
+        },
+        orderBy: (category, { desc }) => desc(category.sortOrder),
       }),
     GET_CATEGORIES_BY_PRODUCT: async (productId: string) =>
       await db.query.categories.findMany({
@@ -23,6 +30,13 @@ export const QUERIES = {
                 .where(eqFn(productCategories.productId, productId))
             )
           ),
+        with: {
+          parent: true,
+          children: true,
+          image: true,
+          products: true,
+        },
+        orderBy: (category, { desc }) => desc(category.sortOrder),
       }),
   },
 };
