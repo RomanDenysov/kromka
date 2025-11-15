@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getCategory } from "@/actions/categories/queries";
+import { db } from "@/db";
 
 type Props = {
   params: Promise<{
@@ -9,7 +9,10 @@ type Props = {
 
 export default async function CategoryPage({ params }: Props) {
   const { id } = await params;
-  const category = await getCategory(id);
+  const category = await db.query.categories.findFirst({
+    where: (c, { eq }) => eq(c.id, id),
+  });
+
   if (!category) {
     notFound();
   }

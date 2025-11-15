@@ -2,10 +2,10 @@
 
 import { useSearchParams } from "next/navigation";
 import { useCallback, useTransition } from "react";
+import { providerLogin } from "@/app/prihlasenie/actions";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { providerLogin } from "../actions/provider-login";
 
 const PROVIDERS = ["google", "apple", "facebook"] as const;
 

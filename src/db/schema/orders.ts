@@ -77,15 +77,9 @@ export const orderStatusEvents = pgTable(
       .references(() => orders.id, { onDelete: "cascade" }),
     status: orderStatusEnum("status").notNull(),
     note: text("note"),
-    createdBy: text("created_by").references(() => users.id, {
-      onDelete: "set null",
-    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (t) => [
-    index("idx_order_status_event_order_id").on(t.orderId),
-    index("idx_order_status_event_created_by").on(t.createdBy),
-  ]
+  (t) => [index("idx_order_status_event_order_id").on(t.orderId)]
 );
 
 export const orderItems = pgTable(
@@ -179,10 +173,6 @@ export const orderStatusEventsRelations = relations(
     order: one(orders, {
       fields: [orderStatusEvents.orderId],
       references: [orders.id],
-    }),
-    author: one(users, {
-      fields: [orderStatusEvents.createdBy],
-      references: [users.id],
     }),
   })
 );

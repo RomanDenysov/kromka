@@ -1,6 +1,5 @@
 import { relations } from "drizzle-orm";
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { invoices } from "./invoices";
 import { orders } from "./orders";
 import { prices } from "./prices";
 import { storeMembers } from "./stores";
@@ -130,7 +129,6 @@ export const organizationsRelations = relations(organizations, ({ many }) => ({
   members: many(members),
   invitations: many(invitations),
   orders: many(orders),
-  invoices: many(invoices),
   prices: many(prices),
   activeSessions: many(sessions),
 }));

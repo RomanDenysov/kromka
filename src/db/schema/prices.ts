@@ -8,7 +8,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
-import { organizations, users } from "./auth";
+import { organizations } from "./auth";
 import { channelEnum } from "./enums";
 import { products } from "./products";
 
@@ -31,9 +31,6 @@ export const prices = pgTable(
     isActive: boolean("is_active").default(true).notNull(),
     startsAt: timestamp("starts_at"),
     endsAt: timestamp("ends_at"),
-    createdBy: text("created_by").references(() => users.id, {
-      onDelete: "set null",
-    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -65,9 +62,5 @@ export const pricesRelations = relations(prices, ({ one }) => ({
   organization: one(organizations, {
     fields: [prices.orgId],
     references: [organizations.id],
-  }),
-  createdBy: one(users, {
-    fields: [prices.createdBy],
-    references: [users.id],
   }),
 }));

@@ -1,3 +1,5 @@
+"use client";
+
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns/format";
 import type { Route } from "next";
@@ -37,7 +39,7 @@ export const columns: ColumnDef<Category>[] = [
     cell: ({ row }) => (
       <Link
         className={buttonVariants({ variant: "link", size: "xs" })}
-        href={`categories?categoryId=${row.original.id}` as Route}
+        href={`categories/${row.original.id}` as Route}
         prefetch
       >
         {row.original.name}

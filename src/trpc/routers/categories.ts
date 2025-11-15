@@ -1,7 +1,6 @@
 import z from "zod";
 import { MUTATIONS } from "@/db/mutations/categories";
 import { QUERIES } from "@/db/queries/categories";
-import { updateCategorySchema } from "@/validation/categories";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const adminCategoriesRouter = createTRPCRouter({
@@ -24,10 +23,9 @@ export const adminCategoriesRouter = createTRPCRouter({
       await MUTATIONS.ADMIN.CREATE_DRAFT_CATEGORY(ctx.session.user.id)
   ),
   update: protectedProcedure
-    .input(z.object({ id: z.string(), category: updateCategorySchema }))
-    .mutation(async ({ input }) => {
-      await MUTATIONS.ADMIN.UPDATE_CATEGORY(input.id, input.category);
-      const updatedCategory = await QUERIES.ADMIN.GET_CATEGORY_BY_ID(input.id);
-      return updatedCategory;
-    }),
+    .input(z.object({ id: z.string() }))
+    .mutation(
+      async ({ input }) =>
+        await MUTATIONS.ADMIN.UPDATE_CATEGORY(input.id, input.category)
+    ),
 });

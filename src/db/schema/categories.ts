@@ -1,6 +1,5 @@
 import { relations, sql } from "drizzle-orm";
 import {
-  type AnyPgColumn,
   boolean,
   check,
   index,
@@ -11,8 +10,6 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
-import { users } from "./auth";
-import { media } from "./media";
 import { products } from "./products";
 
 export const categories = pgTable(
@@ -24,19 +21,9 @@ export const categories = pgTable(
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
     description: text("description"),
-    parentId: text("parent_id").references((): AnyPgColumn => categories.id, {
-      onDelete: "set null",
-    }),
-    createdBy: text("created_by").references(() => users.id, {
-      onDelete: "set null",
-    }),
-    imageId: text("image_id").references(() => media.id, {
-      onDelete: "set null",
-    }),
     isVisible: boolean("is_visible").default(false).notNull(),
     isActive: boolean("is_active").default(false).notNull(),
     sortOrder: integer("sort_order").default(0).notNull(),
-    deletedAt: timestamp("deleted_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -61,9 +48,6 @@ export const categoryAvailabilityWindows = pgTable(
     startDate: timestamp("start_date").notNull(),
     endDate: timestamp("end_date").notNull(),
     isActive: boolean("is_active").default(true).notNull(),
-    createdBy: text("created_by").references(() => users.id, {
-      onDelete: "set null",
-    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -93,9 +77,6 @@ export const productCategories = pgTable(
       .notNull()
       .references(() => categories.id, { onDelete: "cascade" }),
     sortOrder: integer("sort_order").default(0).notNull(),
-    createdBy: text("created_by").references(() => users.id, {
-      onDelete: "set null",
-    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -108,22 +89,9 @@ export const productCategories = pgTable(
   ]
 );
 
-export const categoriesRelations = relations(categories, ({ many, one }) => ({
+export const categoriesRelations = relations(categories, ({ many }) => ({
   availabilityWindows: many(categoryAvailabilityWindows),
   products: many(productCategories),
-  image: one(media, {
-    fields: [categories.imageId],
-    references: [media.id],
-  }),
-  createdBy: one(users, {
-    fields: [categories.createdBy],
-    references: [users.id],
-  }),
-  parent: one(categories, {
-    fields: [categories.parentId],
-    references: [categories.id],
-  }),
-  children: many(categories),
 }));
 
 export const categoryAvailabilityWindowsRelations = relations(
@@ -132,10 +100,6 @@ export const categoryAvailabilityWindowsRelations = relations(
     category: one(categories, {
       fields: [categoryAvailabilityWindows.categoryId],
       references: [categories.id],
-    }),
-    createdBy: one(users, {
-      fields: [categoryAvailabilityWindows.createdBy],
-      references: [users.id],
     }),
   })
 );
@@ -153,8 +117,3 @@ export const productCategoriesRelations = relations(
     }),
   })
 );
-
-export type Category = typeof categories.$inferSelect;
-export type CategoryAvailabilityWindow =
-  typeof categoryAvailabilityWindows.$inferSelect;
-export type ProductCategory = typeof productCategories.$inferSelect;

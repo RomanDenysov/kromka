@@ -1,6 +1,5 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   flexRender,
   getCoreRowModel,
@@ -16,16 +15,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useTRPC } from "@/trpc/client";
+
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 import { Header } from "./header";
 
-export function CategoriesTable() {
-  const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.admin.categories.list.queryOptions());
-
-  const processedCategories = useMemo(() => data ?? [], [data]);
+export function CategoriesTable({ categories }: { categories: any }) {
+  const processedCategories = useMemo(
+    () => categories.map((category: any) => category),
+    [categories]
+  );
 
   const table = useReactTable({
     data: processedCategories,
