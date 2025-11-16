@@ -1,7 +1,7 @@
 "use server";
 
-import { getRole } from "@/lib/auth/auth-utils";
 import { type Permission, ROLE_PERMS } from "@/lib/auth/rbac";
+import { auth } from "@/lib/auth/server";
 import { b2bSection } from "../config/sections/b2b-section";
 import { b2cSection } from "../config/sections/b2c-section";
 import { blogSection } from "../config/sections/blog-section";
@@ -52,8 +52,12 @@ function filterSection(
 /**
  * Get filtered navigation based on user role and permissions
  */
-export async function getNav(): Promise<NavNode[]> {
-  const role = await getRole();
+export async function getNav(cookies: string): Promise<NavNode[]> {
+  const session = await auth.api.getSession({
+    headers: { Cookie: cookies },
+  });
+
+  const role = session?.user?.role;
 
   if (!role) {
     return [];

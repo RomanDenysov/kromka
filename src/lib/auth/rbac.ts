@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { ERROR_CODES } from "../errors";
-import { getRole, getSession } from "./auth-utils";
-import type { Session } from "./server";
+import { auth, type Session } from "./server";
 
 export type Permission =
   | "admin.read"
@@ -30,24 +29,34 @@ export const ROLE_PERMS: Record<string, Permission[]> = {
   manager: ["admin.read", "b2c.read", "b2b.read"],
 };
 
-export async function assertPermission(...perms: Permission[]) {
-  const role = await getRole();
+export async function assertPermission(
+  cookies: string,
+  ...perms: Permission[]
+) {
+  const session = await auth.api.getSession({
+    headers: { Cookie: cookies },
+  });
+
+  const role = session?.user?.role;
+
   if (!role) {
     // TODO: Rewrite it latter with forbidden page
     redirect("/");
   }
   const allowed = new Set(ROLE_PERMS[role] ?? []);
-  const ok = perms.every((p) => allowed.has(p));
-  if (!ok) {
+  if (!perms.every((p) => allowed.has(p))) {
     // TODO: Rewrite it latter with forbidden page
     redirect("/");
   }
 }
 
 export async function permissionGuard(
+  cookies: string,
   ...perms: Permission[]
 ): Promise<Session> {
-  const session = await getSession();
+  const session = await auth.api.getSession({
+    headers: { Cookie: cookies },
+  });
   if (!session) {
     throw new Error(ERROR_CODES.UNAUTHORIZED);
   }

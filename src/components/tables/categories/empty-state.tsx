@@ -1,5 +1,5 @@
 import { FolderOpenIcon, PlusIcon } from "lucide-react";
-import { createDraftCategory } from "@/app/(admin)/admin/b2c/categories/actions";
+import { createDraftCategory } from "@/app/(admin)/admin/categories/actions";
 import { Button } from "@/components/ui/button";
 import {
   Empty,

@@ -1,3 +1,5 @@
+import { AdminHeader } from "@/components/admin-header/admin-header";
+
 export default function AdminPage() {
-  return <div>AdminPage</div>;
+  return <AdminHeader breadcrumbs={[{ label: "Dashboard", href: "/admin" }]} />;
 }

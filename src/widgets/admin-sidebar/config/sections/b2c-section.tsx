@@ -5,22 +5,22 @@ import type { NavSectionConfig } from "../../model/types";
  */
 export const b2cSection: NavSectionConfig = {
   label: "B2C",
-  href: "/admin/b2c",
+  href: "/admin",
   perm: "b2c.read",
   items: [
     {
       label: "Categories",
-      href: "/admin/b2c/categories",
+      href: "/admin/categories",
       icon: "Tags",
     },
     {
       label: "Products",
-      href: "/admin/b2c/products",
+      href: "/admin/products",
       icon: "Package2",
     },
     {
       label: "Orders",
-      href: "/admin/b2c/orders",
+      href: "/admin/orders",
       icon: "ShoppingBasket",
       badgeKey: "b2c.orders",
     },

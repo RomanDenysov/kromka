@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { AdminHeader } from "@/components/admin-header/admin-header";
 import { CategoryForm } from "@/components/forms/category-form";
 import { db } from "@/db";
 
@@ -19,8 +20,17 @@ export default async function CategoryPage({ params }: Props) {
     notFound();
   }
   return (
-    <section className="">
-      <CategoryForm category={category} />
-    </section>
+    <>
+      <AdminHeader
+        breadcrumbs={[
+          { label: "Dashboard", href: "/admin" },
+          { label: "Kategórie", href: "/admin/categories" },
+          { label: category.name },
+        ]}
+      />
+      <section className="">
+        <CategoryForm category={category} />
+      </section>
+    </>
   );
 }

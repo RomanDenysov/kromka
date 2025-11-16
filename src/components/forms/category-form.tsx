@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import type z from "zod";
-import { updateCategory } from "@/app/(admin)/admin/b2c/categories/[id]/actions";
+import { updateCategory } from "@/app/(admin)/admin/categories/[id]/actions";
 import type { Category } from "@/types/categories";
 import { Button } from "../ui/button";
 import {

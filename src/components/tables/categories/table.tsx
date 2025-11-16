@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { PlusIcon } from "lucide-react";
 import { useMemo } from "react";
-import { createDraftCategory } from "@/app/(admin)/admin/b2c/categories/actions";
+import { createDraftCategory } from "@/app/(admin)/admin/categories/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {

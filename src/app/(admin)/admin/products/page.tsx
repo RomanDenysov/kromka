@@ -1,18 +1,20 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { StoresTable } from "@/components/tables/stores/table";
+import { DataTable } from "@/components/tables/products/data-table";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { DataTableSkeleton } from "@/widgets/data-table/ui/data-table-skeleton";
 
-export default function StoresPage() {
-  prefetch(trpc.admin.stores.list.queryOptions());
+// biome-ignore lint/suspicious/useAwait: <explanation>
+export default async function B2CProductsPage() {
+  prefetch(trpc.admin.products.list.queryOptions());
+
   return (
     <>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Obchody" },
+          { label: "Produkty", href: "/admin/b2c/products" },
         ]}
       />
       <HydrateClient>
@@ -20,7 +22,7 @@ export default function StoresPage() {
           <Suspense
             fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}
           >
-            <StoresTable />
+            <DataTable />
           </Suspense>
         </ErrorBoundary>
       </HydrateClient>
