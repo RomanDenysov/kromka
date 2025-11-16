@@ -22,9 +22,9 @@ import {
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
-export function CategoriesTable({ categories }: { categories: any }) {
+export function CategoriesTable({ categories }: { categories: Category[] }) {
   const processedCategories = useMemo(
-    () => categories.map((category: any) => category),
+    () => categories.map((category: Category) => category),
     [categories]
   );
 

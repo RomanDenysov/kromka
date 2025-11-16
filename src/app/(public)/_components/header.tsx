@@ -1,5 +1,6 @@
 import type { Route } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { cn } from "@/lib/utils";
@@ -39,7 +40,9 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <UserButton />
+            <Suspense>
+              <UserButton />
+            </Suspense>
             <CartDrawer />
           </div>
         </div>

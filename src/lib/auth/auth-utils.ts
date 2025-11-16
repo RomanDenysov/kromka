@@ -5,7 +5,6 @@ import { cache } from "react";
 import { auth } from "@/lib/auth/server";
 import { ERROR_CODES } from "../errors";
 
-// Cache session per request to avoid duplicate calls
 export const getSession = cache(
   async () =>
     await auth.api.getSession({

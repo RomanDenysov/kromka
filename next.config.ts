@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true,
   },
+  cacheComponents: true,
   images: {
     remotePatterns: [BLOB_STORE_URL],
   },

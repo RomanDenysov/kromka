@@ -38,13 +38,13 @@ function createDraftProductData(
 
 export const MUTATIONS = {
   ADMIN: {
-    CREATE_DRAFT_PRODUCT: async (userId: string): Promise<Product> => {
+    CREATE_DRAFT_PRODUCT: async (): Promise<Product> => {
       const draft = createDraftProductData();
       // biome-ignore lint/suspicious/noConsole: Debug logging
       console.log("CREATE_DRAFT_PRODUCT", draft);
       const [newDraftProduct] = await db
         .insert(products)
-        .values({ createdBy: userId, ...draft })
+        .values({ ...draft })
         .returning();
       return newDraftProduct;
     },

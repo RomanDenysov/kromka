@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { CategoryForm } from "@/components/forms/category-form";
 import { db } from "@/db";
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export default async function CategoryPage({ params }: Props) {
+  "use cache";
   const { id } = await params;
   const category = await db.query.categories.findFirst({
     where: (c, { eq }) => eq(c.id, id),
@@ -16,5 +18,9 @@ export default async function CategoryPage({ params }: Props) {
   if (!category) {
     notFound();
   }
-  return <div>{category.name}</div>;
+  return (
+    <section className="">
+      <CategoryForm category={category} />
+    </section>
+  );
 }

@@ -1,6 +1,3 @@
-import { assertPermission } from "@/lib/auth/rbac";
-
-export default async function B2BPage() {
-  await assertPermission("b2b.read");
+export default function B2BPage() {
   return <div>B2B</div>;
 }

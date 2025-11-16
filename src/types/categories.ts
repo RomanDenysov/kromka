@@ -1,6 +1,4 @@
-import type { RouterOutputs } from "@/trpc/routers";
+import type { InferSelectModel } from "drizzle-orm";
+import type { categories } from "@/db/schema/categories";
 
-export type Category = NonNullable<
-  RouterOutputs["admin"]["categories"]["byId"]
->;
-export type CategoryList = RouterOutputs["admin"]["categories"]["list"];
+export type Category = InferSelectModel<typeof categories>;
