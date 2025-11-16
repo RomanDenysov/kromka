@@ -1,6 +1,5 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   flexRender,
   getCoreRowModel,
@@ -8,8 +7,8 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
-
+import { TablePagination } from "@/components/data-table/ui/table-pagination";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -20,22 +19,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useProductParams } from "@/hooks/use-product-params";
-import { useTRPC } from "@/trpc/client";
 import type { Product } from "@/types/products";
-import { TablePagination } from "@/widgets/data-table/ui/table-pagination";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
-import { Header } from "./header";
+import { ProductsToolbar } from "./products-toolbar";
 
-export function DataTable() {
-  const trpc = useTRPC();
-
-  const { data } = useSuspenseQuery(trpc.admin.products.list.queryOptions());
+export function DataTable({ products }: { products: Product[] }) {
   const { setParams } = useProductParams();
-  const processedProducts = useMemo(() => data, [data]);
-
   const table = useReactTable<Product>({
-    data: processedProducts,
+    data: products,
     getRowId: ({ id }) => id,
     columns,
     getCoreRowModel: getCoreRowModel(),
@@ -55,7 +47,18 @@ export function DataTable() {
 
   return (
     <div className="size-full overflow-hidden">
-      <Header table={table} />
+      <div className="flex items-center justify-between p-4">
+        <Input
+          className="max-w-xs"
+          onChange={(event) =>
+            table?.getColumn("name")?.setFilterValue(event.target.value)
+          }
+          placeholder="Hľadať produkt..."
+          value={(table?.getColumn("name")?.getFilterValue() as string) ?? ""}
+          volume="sm"
+        />
+        <ProductsToolbar />
+      </div>
       <Table className="border-t">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
