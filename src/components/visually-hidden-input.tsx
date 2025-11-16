@@ -163,6 +163,7 @@ function VisuallyHiddenInput<T = InputValue>(
       aria-hidden={isCheckInput}
       defaultChecked={isCheckInput ? checked : undefined}
       ref={inputRef}
+      // @ts-expect-error: Ignore this for now
       style={composedStyle}
       tabIndex={-1}
     />

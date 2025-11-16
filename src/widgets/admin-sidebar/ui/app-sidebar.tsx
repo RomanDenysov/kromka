@@ -91,7 +91,7 @@ export default function AppSidebar({
           if ("items" in node) {
             // It's a section
             return (
-              <SidebarGroup key={node.href}>
+              <SidebarGroup key={node.href + node.label}>
                 <SidebarGroupLabel>{node.label}</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
@@ -99,7 +99,7 @@ export default function AppSidebar({
                       const Icon = item.icon ? iconMap[item.icon] : undefined;
                       const active = getIsActive(item.href, item.exact);
                       return (
-                        <SidebarMenuItem key={item.href}>
+                        <SidebarMenuItem key={item.href + item.label}>
                           <SidebarMenuButton
                             asChild
                             isActive={active}
@@ -131,7 +131,7 @@ export default function AppSidebar({
           const Icon = node.icon ? iconMap[node.icon] : undefined;
           const active = getIsActive(node.href, node.exact);
           return (
-            <SidebarGroup key={node.href}>
+            <SidebarGroup key={node.href + node.label}>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
