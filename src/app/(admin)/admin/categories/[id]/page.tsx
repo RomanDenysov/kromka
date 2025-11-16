@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
+import { CategoryForm } from "@/app/(admin)/admin/categories/[id]/category-form";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { CategoryForm } from "@/components/forms/category-form";
 import { db } from "@/db";
 
 type Props = {
@@ -28,7 +28,7 @@ export default async function CategoryPage({ params }: Props) {
           { label: category.name },
         ]}
       />
-      <section className="">
+      <section className="p-4">
         <CategoryForm category={category} />
       </section>
     </>

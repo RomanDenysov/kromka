@@ -6,19 +6,22 @@ import { useForm } from "react-hook-form";
 import type z from "zod";
 import { updateCategory } from "@/app/(admin)/admin/categories/[id]/actions";
 import type { Category } from "@/types/categories";
-import { Button } from "../ui/button";
+import { categorySchema } from "../../../../../components/forms/schemas";
+import { Button } from "../../../../../components/ui/button";
 import {
   Field,
+  FieldContent,
+  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
   FieldLegend,
   FieldSet,
-} from "../ui/field";
-import { Input } from "../ui/input";
-import { Switch } from "../ui/switch";
-import { Textarea } from "../ui/textarea";
-import { categorySchema } from "./schemas";
+} from "../../../../../components/ui/field";
+import { Input } from "../../../../../components/ui/input";
+import { NumberInput } from "../../../../../components/ui/number-input";
+import { Switch } from "../../../../../components/ui/switch";
+import { Textarea } from "../../../../../components/ui/textarea";
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
@@ -47,14 +50,14 @@ export function CategoryForm({ category }: { category: Category }) {
 
   return (
     <form
-      className="max-w-md p-2"
+      className="flex size-full max-w-md flex-col"
       id="category-form"
       onSubmit={form.handleSubmit(onSubmit)}
     >
       <FieldSet>
-        <FieldLegend>Kategória</FieldLegend>
+        <FieldLegend>Upraviť kategóriu</FieldLegend>
         <FieldGroup>
-          <Field id="name">
+          <Field>
             <FieldLabel htmlFor="name">Názov</FieldLabel>
             <Input
               defaultValue={category.name}
@@ -69,7 +72,7 @@ export function CategoryForm({ category }: { category: Category }) {
               />
             )}
           </Field>
-          <Field id="slug">
+          <Field>
             <FieldLabel htmlFor="slug">Slug</FieldLabel>
             <Input
               defaultValue={category.slug}
@@ -83,7 +86,7 @@ export function CategoryForm({ category }: { category: Category }) {
               />
             )}
           </Field>
-          <Field id="description">
+          <Field>
             <FieldLabel htmlFor="description">Popis</FieldLabel>
             <Textarea
               defaultValue={category.description}
@@ -99,11 +102,15 @@ export function CategoryForm({ category }: { category: Category }) {
               />
             )}
           </Field>
-          <Field id="isVisible" orientation="horizontal">
-            <FieldLabel htmlFor="isVisible">Viditeľná</FieldLabel>
+          <Field className="rounded-md border p-3" orientation="horizontal">
+            <FieldContent>
+              <FieldLabel htmlFor="isVisible">Viditeľná</FieldLabel>
+              <FieldDescription>Je kategória viditeľná?</FieldDescription>
+            </FieldContent>
             <Switch
               defaultChecked={form.formState.defaultValues?.isVisible}
               disabled={form.formState.isSubmitting}
+              id="isVisible"
               name="isVisible"
             />
             {form.formState.errors.isVisible && (
@@ -112,12 +119,16 @@ export function CategoryForm({ category }: { category: Category }) {
               />
             )}
           </Field>
-          <Field id="isActive" orientation="horizontal">
-            <FieldLabel htmlFor="isActive">Aktívna</FieldLabel>
+          <Field className="rounded-md border p-3" orientation="horizontal">
+            <FieldContent>
+              <FieldLabel htmlFor="isActive">Aktívna</FieldLabel>
+              <FieldDescription>Je kategória aktívna?</FieldDescription>
+            </FieldContent>
 
             <Switch
               defaultChecked={form.formState.defaultValues?.isActive}
               disabled={form.formState.isSubmitting}
+              id="isActive"
               name="isActive"
             />
             {form.formState.errors.isActive && (
@@ -126,14 +137,18 @@ export function CategoryForm({ category }: { category: Category }) {
               />
             )}
           </Field>
-          <Field id="sortOrder" orientation="horizontal">
-            <FieldLabel htmlFor="sortOrder">Poradie</FieldLabel>
-            <Input
-              defaultValue={form.formState.defaultValues?.sortOrder}
-              disabled={form.formState.isSubmitting}
-              name="sortOrder"
-              placeholder="Poradie kategórie"
-              type="number"
+          <Field className="rounded-md border p-3" orientation="horizontal">
+            <FieldContent>
+              <FieldLabel htmlFor="sortOrder">Poradie</FieldLabel>
+              <FieldDescription>Poradie kategórie v menu</FieldDescription>
+            </FieldContent>
+            <NumberInput
+              defaultValue={category.sortOrder}
+              id="sortOrder"
+              max={10}
+              min={0}
+              size="xs"
+              step={1}
             />
             {form.formState.errors.sortOrder && (
               <FieldError
@@ -143,9 +158,15 @@ export function CategoryForm({ category }: { category: Category }) {
           </Field>
         </FieldGroup>
       </FieldSet>
-      <Button disabled={form.formState.isSubmitting} type="submit">
-        {form.formState.isSubmitting ? "Aktualizovanie..." : "Aktualizovať"}
-      </Button>
+      <div className="mt-6 flex justify-end">
+        <Button
+          disabled={form.formState.isSubmitting}
+          form="category-form"
+          type="submit"
+        >
+          {form.formState.isSubmitting ? "Aktualizovanie..." : "Aktualizovať"}
+        </Button>
+      </div>
     </form>
   );
 }
