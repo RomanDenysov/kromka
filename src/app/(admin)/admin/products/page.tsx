@@ -13,7 +13,7 @@ export default async function B2CProductsPage() {
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Produkty", href: "/admin/b2c/products" },
+          { label: "Produkty", href: "/admin/products" },
         ]}
       />
 

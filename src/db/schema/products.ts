@@ -1,3 +1,4 @@
+import type { JSONContent } from "@tiptap/react";
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -9,6 +10,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
+import { draftSlug } from "../utils";
 import { productCategories } from "./categories";
 import { productStatusEnum } from "./enums";
 import { media } from "./media";
@@ -20,12 +22,24 @@ export const products = pgTable("products", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => createPrefixedId("prod")),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  sku: text("sku").notNull().unique(),
-  description: jsonb("description"),
+  name: text("name").notNull().default("Nový produkt"),
+  slug: text("slug")
+    .notNull()
+    .unique()
+    .$defaultFn(() => draftSlug("Nový produkt")),
+  description: jsonb("description")
+    .$type<JSONContent>()
+    .default({
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Popis nového produktu..." }],
+        },
+      ],
+    }),
   stock: integer("stock").default(0).notNull(),
-  isActive: boolean("is_active").default(true).notNull(),
+  isActive: boolean("is_active").default(false).notNull(),
   sortOrder: integer("sort_order").default(0).notNull(),
   status: productStatusEnum("status").notNull().default("draft"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

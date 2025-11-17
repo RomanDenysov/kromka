@@ -2,50 +2,16 @@ import "server-only";
 import { and, eq, not } from "drizzle-orm";
 import { db } from "@/db";
 import { media, productImages, products } from "@/db/schema";
-import { getSlug } from "@/lib/get-slug";
-import { createShortId } from "@/lib/ids";
 
 type ProductInsert = typeof products.$inferInsert;
-type Product = typeof products.$inferSelect;
-
-const DRAFT_DEFAULTS = Object.freeze({
-  name: "Nový produkt",
-  description: {
-    type: "doc",
-    content: [
-      {
-        type: "paragraph",
-        content: [{ type: "text", text: "Popis nového produktu..." }],
-      },
-    ],
-  },
-  stock: 0,
-  status: "draft" as const,
-  isActive: false,
-  sortOrder: 0,
-});
-
-function createDraftProductData(
-  overrides: Partial<ProductInsert> = {}
-): ProductInsert {
-  return {
-    ...DRAFT_DEFAULTS,
-    slug: `${getSlug(DRAFT_DEFAULTS.name)}-${createShortId()}`,
-    sku: `SKU-${createShortId()}`,
-    ...overrides,
-  };
-}
 
 export const MUTATIONS = {
   ADMIN: {
-    CREATE_DRAFT_PRODUCT: async (): Promise<Product> => {
-      const draft = createDraftProductData();
-      // biome-ignore lint/suspicious/noConsole: Debug logging
-      console.log("CREATE_DRAFT_PRODUCT", draft);
+    CREATE_DRAFT_PRODUCT: async (): Promise<{ id: string }> => {
       const [newDraftProduct] = await db
         .insert(products)
-        .values({ ...draft })
-        .returning();
+        .values({})
+        .returning({ id: products.id });
       return newDraftProduct;
     },
     UPDATE_PRODUCT: async (
