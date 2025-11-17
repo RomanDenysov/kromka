@@ -27,6 +27,7 @@ export function DataTableSearch({
         onChange={(e) => controlledOnChange(e.target.value)}
         placeholder={placeholder}
         value={controlledValue}
+        volume="sm"
       />
     );
   }
@@ -40,6 +41,7 @@ export function DataTableSearch({
         onChange={(e) => column?.setFilterValue(e.target.value)}
         placeholder={placeholder}
         value={(column?.getFilterValue() as string) ?? ""}
+        volume="sm"
       />
     );
   }
@@ -51,6 +53,7 @@ export function DataTableSearch({
       onChange={(e) => table.setGlobalFilter(e.target.value)}
       placeholder={placeholder}
       value={table.getState().globalFilter ?? ""}
+      volume="sm"
     />
   );
 }

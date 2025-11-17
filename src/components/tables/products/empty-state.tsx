@@ -11,7 +11,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateDraftProduct } from "@/hooks/use-create-draft-product";
+import { useCreateDraftProduct } from "@/hooks/mutations/use-create-draft-product";
 
 export function EmptyState() {
   const { mutate: createDraftProduct, isPending } = useCreateDraftProduct();

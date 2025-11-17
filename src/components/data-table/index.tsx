@@ -74,7 +74,7 @@ type DataTableRootProps<TData> = {
   className?: string;
 };
 
-function _DataTableRoot<TData>({
+function DataTableRoot<TData>({
   table,
   children,
   className,
@@ -95,7 +95,7 @@ type DataTableFilterProps<TValue = any> = {
   }) => React.ReactNode;
 };
 
-function _DataTableFilter<TValue = any>({
+function DataTableFilter<TValue = any>({
   columnId,
   children,
 }: DataTableFilterProps<TValue>) {
@@ -123,9 +123,26 @@ export function DataTableToolbar(props: ComponentProps<"div">) {
   return (
     <div
       {...props}
-      className={cn("flex items-center gap-2", props.className)}
+      className={cn("flex items-center gap-2 p-3", props.className)}
+      data-slot="toolbar"
       role="toolbar"
     />
+  );
+}
+
+function DataTableActions({
+  children,
+  className,
+  ...props
+}: ComponentProps<"div">) {
+  return (
+    <div
+      className={cn("flex grow items-center justify-end gap-2", className)}
+      data-slot="actions"
+      {...props}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -136,7 +153,7 @@ type DataTableContentProps<TData = any> = {
   renderSubComponent?: (props: { row: any }) => ReactElement;
 };
 
-function _DataTableContent<TData = any>({
+function DataTableContent<TData = any>({
   emptyState,
   className,
   onRowClick,
@@ -220,7 +237,7 @@ function _DataTableContent<TData = any>({
   );
 }
 
-function _DataTableInfo({ className }: { className?: string }) {
+function DataTableInfo({ className }: { className?: string }) {
   const table = useDataTableContext();
   const filtered =
     table.getState().columnFilters.length > 0 || table.getState().globalFilter;
@@ -235,12 +252,13 @@ function _DataTableInfo({ className }: { className?: string }) {
 }
 
 export const DataTable = {
-  Root: _DataTableRoot,
+  Root: DataTableRoot,
   Toolbar: DataTableToolbar,
   Search: DataTableSearch,
-  Filter: _DataTableFilter,
-  Content: _DataTableContent,
+  Filter: DataTableFilter,
+  Content: DataTableContent,
   Pagination: DataTablePagination,
-  Info: _DataTableInfo,
+  Info: DataTableInfo,
+  Actions: DataTableActions,
   useDataTable,
 };

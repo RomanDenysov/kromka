@@ -36,12 +36,13 @@ export function ProductsTable({ products }: { products: Product[] }) {
   return (
     <DataTable.Root table={table}>
       <DataTable.Toolbar>
-        <DataTable.Search columnId="name" placeholder="Hľadať kategóriu..." />
-
-        <Button size="sm" variant="outline">
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Pridať kategóriu
-        </Button>
+        <DataTable.Search columnId="name" placeholder="Hľadať produkt..." />
+        <DataTable.Actions>
+          <Button size="sm" variant="outline">
+            <PlusIcon className="mr-2 h-4 w-4" />
+            Pridať produkt
+          </Button>
+        </DataTable.Actions>
       </DataTable.Toolbar>
       <DataTable.Content />
       <DataTable.Pagination />
