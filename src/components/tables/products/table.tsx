@@ -4,15 +4,25 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { PackagePlusIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  FileIcon,
+  PackagePlusIcon,
+  Table2Icon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
 import { useCreateDraftProduct } from "@/hooks/mutations/use-create-draft-product";
 import { useProductParams } from "@/hooks/use-product-params";
@@ -40,17 +50,18 @@ export function ProductsTable() {
       },
     })
   );
+  const { setParams } = useProductParams();
 
   const processedProducts = useMemo(() => data ?? [], [data]);
 
-  const { setParams } = useProductParams();
   const table = useReactTable<TableProduct>({
     data: processedProducts,
     getRowId: ({ id }) => id,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    enableRowSelection: true,
+    enableMultiSort: true,
     meta: {
       onEdit: (id: string) => {
         setParams({ productId: id });
@@ -65,11 +76,48 @@ export function ProductsTable() {
     },
   });
 
+  const handleExport = (format: "csv" | "xlsx") => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    const exportData = selectedRows.length
+      ? selectedRows.map((r) => r.original)
+      : table.getFilteredRowModel().rows.map((r) => r.original);
+
+    // TODO: Implement export via XLSX or CSV based on the format
+    // biome-ignore lint/suspicious/noConsole: <explanation>
+    console.log("Exporting:", exportData);
+    // biome-ignore lint/suspicious/noConsole: <explanation>
+    console.log("Format:", format);
+  };
+
   return (
     <DataTable.Root table={table}>
       <DataTable.Toolbar>
         <DataTable.Search columnId="name" placeholder="Hľadať produkt..." />
         <DataTable.Actions>
+          <DataTable.Filter columnId="status">
+            {({ value, onChange }) => (
+              <div className="flex gap-1">
+                <Button
+                  onClick={() =>
+                    onChange(value === "active" ? undefined : "active")
+                  }
+                  size="sm"
+                  variant={value === "active" ? "default" : "outline"}
+                >
+                  Active
+                </Button>
+                <Button
+                  onClick={() =>
+                    onChange(value === "draft" ? undefined : "draft")
+                  }
+                  size="sm"
+                  variant={value === "draft" ? "default" : "outline"}
+                >
+                  Draft
+                </Button>
+              </div>
+            )}
+          </DataTable.Filter>
           <Button
             disabled={isCreatingDraftProduct}
             onClick={() => createDraftProduct()}
@@ -86,6 +134,21 @@ export function ProductsTable() {
               </>
             )}
           </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline">
+                <ArrowDownIcon /> Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
+                <FileIcon /> CSV format
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
+                <Table2Icon /> XLSX format
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </DataTable.Actions>
       </DataTable.Toolbar>
       <DataTable.Content />

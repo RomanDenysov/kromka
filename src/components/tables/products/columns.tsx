@@ -21,6 +21,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { formatPrice } from "@/lib/utils";
 import type { TableProduct } from "./table";
 
@@ -99,6 +104,7 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
       );
     },
     enableHiding: false,
+    enableGlobalFilter: true,
   },
   {
     header: "Stav",
@@ -109,6 +115,7 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
         {row.original.status}
       </Badge>
     ),
+    enableGlobalFilter: true,
   },
   {
     header: "Cena",
@@ -132,7 +139,7 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     accessorKey: "categories",
     cell: ({ row }) => {
       const categories = row.original.categories;
-      return (
+      return categories.length > 0 ? (
         <div className="flex flex-wrap items-center gap-1">
           {categories.slice(0, MAX_CATEGORIES_DISPLAY).map((category) => (
             <Badge
@@ -145,11 +152,25 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
             </Badge>
           ))}
           {categories.length > MAX_CATEGORIES_DISPLAY && (
-            <Badge size="xs" variant="outline">
-              +{categories.length - MAX_CATEGORIES_DISPLAY}
-            </Badge>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge size="xs" variant="outline">
+                  +{categories.length - MAX_CATEGORIES_DISPLAY}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                {categories
+                  .slice(MAX_CATEGORIES_DISPLAY)
+                  .map((category) => category.name)
+                  .join(", ")}
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
+      ) : (
+        <Badge size="xs" variant="secondary">
+          Žiadne
+        </Badge>
       );
     },
   },
