@@ -2,7 +2,14 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { CircleIcon, ImageIcon, MoreHorizontalIcon } from "lucide-react";
+import {
+  CircleIcon,
+  CopyIcon,
+  ImageIcon,
+  MoreHorizontalIcon,
+  PencilIcon,
+  Trash2Icon,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -17,12 +24,12 @@ import {
 import { formatPrice } from "@/lib/utils";
 import type { TableProduct } from "./table";
 
-const _MAX_CATEGORIES_DISPLAY = 3;
-const _MAX_CATEGORIES_DISPLAY_TEXT = "a viac";
+const MAX_CATEGORIES_DISPLAY = 3;
 
 type ProductTableMeta = {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onCopy: (id: string) => void;
 };
 
 export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
@@ -127,7 +134,7 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
       const categories = row.original.categories;
       return (
         <div className="flex flex-wrap items-center gap-1">
-          {categories.map((category) => (
+          {categories.slice(0, MAX_CATEGORIES_DISPLAY).map((category) => (
             <Badge
               className="truncate capitalize"
               key={category.id}
@@ -137,6 +144,11 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
               {category.name}
             </Badge>
           ))}
+          {categories.length > MAX_CATEGORIES_DISPLAY && (
+            <Badge size="xs" variant="outline">
+              +{categories.length - MAX_CATEGORIES_DISPLAY}
+            </Badge>
+          )}
         </div>
       );
     },
@@ -176,12 +188,20 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/products/${row.original.id}`}>Upraviť</Link>
+              <Link href={`/admin/products/${row.original.id}`}>
+                <PencilIcon />
+                Upraviť
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => meta?.onCopy?.(row.original.id)}>
+              <CopyIcon />
+              Kopírovať
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="text-destructive hover:text-destructive/80"
               onClick={() => meta?.onDelete?.(row.original.id)}
+              variant="destructive"
             >
+              <Trash2Icon />
               Vymazať
             </DropdownMenuItem>
           </DropdownMenuContent>

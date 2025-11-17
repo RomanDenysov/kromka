@@ -23,6 +23,12 @@ export const adminProductsRouter = createTRPCRouter({
   createDraft: protectedProcedure.mutation(
     async () => await MUTATIONS.ADMIN.CREATE_DRAFT_PRODUCT()
   ),
+  copyProduct: protectedProcedure
+    .input(z.object({ productId: z.string() }))
+    .output(z.object({ id: z.string() }))
+    .mutation(
+      async ({ input }) => await MUTATIONS.ADMIN.COPY_PRODUCT(input.productId)
+    ),
   // update: protectedProcedure.input(z.object({ id: z.string(), product: createProductSchema })).mutation(
   //   async ({ input }) => await MUTATIONS.ADMIN.UPDATE_PRODUCT(input.id, input.product)
   // ),

@@ -4,10 +4,12 @@ import { db } from "@/db";
 import {
   media,
   prices,
+  productCategories,
   productChannels,
   productImages,
   products,
 } from "@/db/schema";
+import { draftSlug } from "../utils";
 
 type ProductInsert = typeof products.$inferInsert;
 
@@ -41,6 +43,16 @@ export const MUTATIONS = {
     COPY_PRODUCT: async (productId: string): Promise<{ id: string }> => {
       const referenceProduct = await db.query.products.findFirst({
         where: (product, { eq: eqFn }) => eqFn(product.id, productId),
+        with: {
+          categories: {
+            with: {
+              category: true,
+            },
+          },
+          channels: true,
+          images: true,
+          prices: true,
+        },
       });
 
       if (!referenceProduct) {
@@ -48,16 +60,81 @@ export const MUTATIONS = {
       }
 
       const newProductData = {
-        ...referenceProduct,
-        id: undefined,
-        createdAt: undefined,
-        updatedAt: undefined,
+        name: referenceProduct.name,
+        slug: draftSlug(referenceProduct.name),
+        description: referenceProduct.description,
+        stock: referenceProduct.stock,
+        isActive: false,
+        sortOrder: referenceProduct.sortOrder,
+        status: referenceProduct.status,
       };
 
       const [newProduct] = await db
         .insert(products)
-        .values(newProductData)
+        .values({ ...newProductData })
         .returning({ id: products.id });
+
+      // Batch insert channels
+      if (referenceProduct.channels.length > 0) {
+        await db.insert(productChannels).values(
+          referenceProduct.channels.map(({ channel, isListed }) => ({
+            productId: newProduct.id,
+            channel,
+            isListed,
+          }))
+        );
+      }
+
+      // Batch insert prices
+      if (referenceProduct.prices.length > 0) {
+        await db.insert(prices).values(
+          referenceProduct.prices.map(
+            ({
+              channel,
+              amountCents,
+              minQty,
+              priority,
+              isActive,
+              orgId,
+              startsAt,
+              endsAt,
+            }) => ({
+              productId: newProduct.id,
+              channel,
+              amountCents,
+              minQty,
+              priority,
+              isActive,
+              orgId,
+              startsAt,
+              endsAt,
+            })
+          )
+        );
+      }
+
+      // Batch insert images
+      if (referenceProduct.images.length > 0) {
+        await db.insert(productImages).values(
+          referenceProduct.images.map(({ mediaId, sortOrder, isPrimary }) => ({
+            productId: newProduct.id,
+            mediaId,
+            sortOrder,
+            isPrimary,
+          }))
+        );
+      }
+
+      // Batch insert categories
+      if (referenceProduct.categories.length > 0) {
+        await db.insert(productCategories).values(
+          referenceProduct.categories.map(({ categoryId, sortOrder }) => ({
+            productId: newProduct.id,
+            categoryId,
+            sortOrder: sortOrder ?? 0,
+          }))
+        );
+      }
 
       return { id: newProduct.id };
     },
@@ -77,8 +154,7 @@ export const MUTATIONS = {
       await db
         .update(products)
         .set({ isActive: not(products.isActive) })
-        .where(eq(products.id, productId))
-        .returning({ id: products.id }),
+        .where(eq(products.id, productId)),
 
     UPLOAD_PRODUCT_IMAGE: async (
       productId: string,
