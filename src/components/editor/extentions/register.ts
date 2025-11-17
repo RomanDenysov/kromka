@@ -34,6 +34,7 @@ export function registerExtensions(options?: {
       levels:
         variant === "simple" ? SIMPLE_HEADING_LEVELS : FULL_HEADING_LEVELS,
     },
+    link: false, // Disable Link in StarterKit to avoid duplicate with our custom Link config
     ...(variant !== "full" && {
       strike: false,
       codeBlock: false,

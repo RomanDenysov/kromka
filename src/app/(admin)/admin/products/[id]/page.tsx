@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import NotFound from "@/app/not-found";
 import { AdminHeader } from "@/components/admin-header/admin-header";
+import { ProductForm } from "@/components/forms/products";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { db } from "@/db";
-import { ProductForm } from "@/features/b2c/product-management/ui/product-form";
 import { HydrateClient } from "@/trpc/server";
 
 type Props = {
@@ -34,9 +33,9 @@ export default async function B2CProductPage({ params }: Props) {
         ]}
       />
 
-      <ErrorBoundary fallback={<NotFound />}>
+      <ErrorBoundary fallback={<div>Error</div>}>
         <Suspense fallback={<FormSkeleton />}>
-          <ProductForm />
+          <ProductForm initialData={product} />
         </Suspense>
       </ErrorBoundary>
     </HydrateClient>
