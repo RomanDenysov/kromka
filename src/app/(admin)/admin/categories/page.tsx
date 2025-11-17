@@ -2,13 +2,12 @@ import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { DataTableSkeleton } from "@/components/data-table/ui/data-table-skeleton";
 import { CategoriesTable } from "@/components/tables/categories/table";
-import { db } from "@/db";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
-export default async function B2CCategoriesPage() {
-  const categories = await db.query.categories.findMany();
-
+export default function B2CCategoriesPage() {
+  prefetch(trpc.admin.categories.list.queryOptions());
   return (
-    <>
+    <HydrateClient>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
@@ -16,8 +15,8 @@ export default async function B2CCategoriesPage() {
         ]}
       />
       <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-        <CategoriesTable categories={categories} />
+        <CategoriesTable />
       </Suspense>
-    </>
+    </HydrateClient>
   );
 }

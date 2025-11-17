@@ -1,12 +1,11 @@
 import "server-only";
-
 import { db } from "@/db";
 import { productCategories } from "../schema";
 
 export const QUERIES = {
   ADMIN: {
-    GET_CATEGORIES: async () =>
-      await db.query.categories.findMany({
+    GET_CATEGORIES: async () => {
+      const categories = await db.query.categories.findMany({
         with: {
           products: {
             with: {
@@ -14,7 +13,18 @@ export const QUERIES = {
             },
           },
         },
-      }),
+        orderBy: (category, { asc, desc }) => [
+          asc(category.sortOrder),
+          desc(category.createdAt),
+        ],
+      });
+
+      return categories.map((category) => ({
+        ...category,
+        products: category.products.map((product) => product.product),
+        productsCount: category.products.length,
+      }));
+    },
     GET_CATEGORY_BY_ID: async (id: string) =>
       await db.query.categories.findFirst({
         where: (category, { eq: eqFn }) => eqFn(category.id, id),

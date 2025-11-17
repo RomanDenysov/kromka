@@ -3,7 +3,6 @@
 
 import {
   type ColumnDef,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -12,42 +11,39 @@ import {
   type Table as TanstackTable,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDownIcon } from "lucide-react";
 import {
   type ComponentProps,
   createContext,
-  Fragment,
   type ReactElement,
   type ReactNode,
   useContext,
 } from "react";
 import { cn } from "@/lib/utils";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
 import { DataTablePagination } from "./ui/data-table-pagination";
-import { DataTableSearch } from "./ui/data-table-search";
+import { DataTableSearch, fuzzyFilter } from "./ui/data-table-search";
 
 export interface UseDataTableProps<TData>
-  extends Omit<TableOptions<TData>, "getCoreRowModel"> {
+  extends Omit<TableOptions<TData>, "getCoreRowModel" | "filterFns"> {
   // Делаем columns и data обязательными
   columns: ColumnDef<TData>[];
   data: TData[];
+  // filterFns опциональный, по умолчанию добавляем fuzzy
+  filterFns?: TableOptions<TData>["filterFns"];
 }
 
 export function useDataTable<TData>({
   columns,
   data,
+  filterFns,
   ...options
 }: UseDataTableProps<TData>) {
   const table = useReactTable({
     data,
     columns,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+      ...filterFns,
+    },
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -154,87 +150,11 @@ type DataTableContentProps<TData = any> = {
 };
 
 function DataTableContent<TData = any>({
-  emptyState,
   className,
-  onRowClick,
-  renderSubComponent,
 }: DataTableContentProps<TData>) {
-  const table = useDataTableContext<TData>();
-  const columns = table.getAllColumns();
+  useDataTableContext<TData>();
 
-  return (
-    <div className={cn("flex-1 overflow-auto", className)}>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  className={cn(
-                    header.column.getCanSort() && "cursor-pointer select-none"
-                  )}
-                  key={header.id}
-                  onClick={header.column.getToggleSortingHandler()}
-                  style={{ width: header.getSize() }}
-                >
-                  <div className="flex items-center">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    {header.column.getCanSort() && (
-                      <span className="ml-2 cursor-pointer">
-                        <ArrowUpDownIcon className="size-4" />
-                      </span>
-                    )}
-                  </div>
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <Fragment key={row.id}>
-                <TableRow
-                  className={cn(
-                    onRowClick && "cursor-pointer hover:bg-muted/50"
-                  )}
-                  data-state={row.getIsSelected() && "selected"}
-                  onClick={() => onRowClick?.(row.original)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-                {row.getIsExpanded() && renderSubComponent && (
-                  <TableRow>
-                    <TableCell colSpan={columns.length}>
-                      {renderSubComponent({ row })}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </Fragment>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell className="h-24 text-center" colSpan={columns.length}>
-                {emptyState || "No results."}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  );
+  return <div className={cn("flex-1 overflow-auto", className)} />;
 }
 
 function DataTableInfo({ className }: { className?: string }) {

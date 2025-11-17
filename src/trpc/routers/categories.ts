@@ -22,10 +22,21 @@ export const adminCategoriesRouter = createTRPCRouter({
     async ({ ctx }) =>
       await MUTATIONS.ADMIN.CREATE_DRAFT_CATEGORY(ctx.session.user.id)
   ),
-  update: protectedProcedure
+  copyCategory: protectedProcedure
+    .input(z.object({ categoryId: z.string() }))
+    .output(z.object({ id: z.string() }))
+    .mutation(
+      async ({ input }) => await MUTATIONS.ADMIN.COPY_CATEGORY(input.categoryId)
+    ),
+  // update: protectedProcedure
+  //   .input(z.object({ id: z.string() }))
+  //   .mutation(
+  //     async ({ input }) =>
+  //       await MUTATIONS.ADMIN.UPDATE_CATEGORY(input.id, input.category)
+  //   ),
+  toggleActive: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(
-      async ({ input }) =>
-        await MUTATIONS.ADMIN.UPDATE_CATEGORY(input.id, input.category)
+      async ({ input }) => await MUTATIONS.ADMIN.TOGGLE_IS_ACTIVE(input.id)
     ),
 });

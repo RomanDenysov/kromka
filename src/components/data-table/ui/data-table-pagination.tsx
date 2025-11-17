@@ -11,7 +11,7 @@ import { useDataTableContext } from "..";
 export function DataTablePagination({
   className,
   showSelectedRows = true,
-  showPageCount = true,
+  // showPageCount = true,
 }: {
   className?: string;
   showSelectedRows?: boolean;
@@ -33,12 +33,12 @@ export function DataTablePagination({
         </div>
       )}
       <div className="flex items-center gap-x-3">
-        {showPageCount && (
+        {
           <div className="flex w-[100px] items-center justify-center font-medium text-sm">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            Stránka {table.getState().pagination.pageIndex + 1} z{" "}
             {table.getPageCount()}
           </div>
-        )}
+        }
         <div
           className={cn(
             "flex items-center justify-end space-x-1 py-2",

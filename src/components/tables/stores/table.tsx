@@ -1,13 +1,9 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { flexRender, getFilteredRowModel } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { DataTable } from "@/components/data-table";
 import {
   Table,
   TableBody,
@@ -28,11 +24,10 @@ export function StoresTable() {
 
   const processedStores = useMemo(() => data ?? [], [data]);
 
-  const table = useReactTable<Store>({
+  const table = DataTable.useDataTable<Store>({
     data: processedStores,
     columns,
     getRowId: ({ id }) => id,
-    getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
   return (
