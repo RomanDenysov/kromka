@@ -18,9 +18,9 @@ const inputVariants = cva(
   }
 );
 
-type Props = ComponentProps<"input"> & VariantProps<typeof inputVariants>;
+export type InputProps = ComponentProps<"input"> & VariantProps<typeof inputVariants>;
 
-function Input({ className, type, volume, ...props }: Props) {
+function Input({ className, type, volume, ...props }: InputProps) {
   return (
     <input
       className={cn(inputVariants({ volume, className }))}

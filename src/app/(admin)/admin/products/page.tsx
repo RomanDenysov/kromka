@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { DataTableSkeleton } from "@/components/data-table/ui/data-table-skeleton";
-import { DataTable } from "@/components/tables/products/data-table";
+import { ProductsTable } from "@/components/tables/products/data-table";
 import { db } from "@/db";
 
 // biome-ignore lint/suspicious/useAwait: <explanation>
@@ -18,7 +18,7 @@ export default async function B2CProductsPage() {
       />
 
       <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-        <DataTable products={products} />
+        <ProductsTable products={products} />
       </Suspense>
     </>
   );
