@@ -1,7 +1,13 @@
 import "server-only";
 import { and, eq, not } from "drizzle-orm";
 import { db } from "@/db";
-import { media, productImages, products } from "@/db/schema";
+import {
+  media,
+  prices,
+  productChannels,
+  productImages,
+  products,
+} from "@/db/schema";
 
 type ProductInsert = typeof products.$inferInsert;
 
@@ -12,7 +18,48 @@ export const MUTATIONS = {
         .insert(products)
         .values({})
         .returning({ id: products.id });
-      return newDraftProduct;
+
+      await db.insert(productChannels).values({
+        productId: newDraftProduct.id,
+        channel: "B2C",
+        isListed: false,
+      });
+
+      await db.insert(prices).values({
+        productId: newDraftProduct.id,
+        channel: "B2C",
+        amountCents: 0,
+        minQty: 1,
+        priority: 0,
+        isActive: true,
+        startsAt: null,
+        endsAt: null,
+      });
+
+      return { id: newDraftProduct.id };
+    },
+    COPY_PRODUCT: async (productId: string): Promise<{ id: string }> => {
+      const referenceProduct = await db.query.products.findFirst({
+        where: (product, { eq: eqFn }) => eqFn(product.id, productId),
+      });
+
+      if (!referenceProduct) {
+        throw new Error("Product not found");
+      }
+
+      const newProductData = {
+        ...referenceProduct,
+        id: undefined,
+        createdAt: undefined,
+        updatedAt: undefined,
+      };
+
+      const [newProduct] = await db
+        .insert(products)
+        .values(newProductData)
+        .returning({ id: products.id });
+
+      return { id: newProduct.id };
     },
     UPDATE_PRODUCT: async (
       productId: string,

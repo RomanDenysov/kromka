@@ -1,11 +1,12 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { ImageIcon, MoreHorizontalIcon } from "lucide-react";
+import { format } from "date-fns";
+import { CircleIcon, ImageIcon, MoreHorizontalIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
@@ -13,16 +14,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Product } from "@/types/products";
+import { formatPrice } from "@/lib/utils";
+import type { TableProduct } from "./table";
 
-const _MAX_CATEGORIES = 3;
+const _MAX_CATEGORIES_DISPLAY = 3;
+const _MAX_CATEGORIES_DISPLAY_TEXT = "a viac";
 
 type ProductTableMeta = {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 };
 
-export const columns: ColumnDef<Product, ProductTableMeta>[] = [
+export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -47,19 +50,20 @@ export const columns: ColumnDef<Product, ProductTableMeta>[] = [
     enableHiding: false,
   },
   {
-    header: "Produkt",
-    accessorKey: "name",
+    id: "image",
+    header: "",
+    accessorKey: "images",
     cell: ({ row }) => {
       const product = row.original;
-      const imagePath = null;
+      const imgPath = product.images[0] ?? null;
       return (
-        <div className="flex items-center gap-3">
-          {imagePath ? (
+        <div className="flex items-center gap-2">
+          {imgPath ? (
             <Image
               alt={product.name}
               className="rounded-md object-cover"
               height={64}
-              src={imagePath}
+              src={imgPath}
               width={64}
             />
           ) : (
@@ -67,27 +71,95 @@ export const columns: ColumnDef<Product, ProductTableMeta>[] = [
               <ImageIcon className="size-5" />
             </div>
           )}
-          <span className="font-medium text-sm">{product.name}</span>
         </div>
       );
     },
+    enableSorting: false,
   },
   {
-    header: "Cena",
-    accessorKey: "prices",
-  },
-  {
-    header: "Kategórie",
-    accessorKey: "categories",
-    cell: ({ row }) => null,
+    header: "Produkt",
+    accessorKey: "name",
+    cell: ({ row }) => {
+      const product = row.original;
+      return (
+        <Link
+          className={buttonVariants({ variant: "link", size: "xs" })}
+          href={`/admin/products/${product.id}`}
+          prefetch
+        >
+          {product.name}
+        </Link>
+      );
+    },
+    enableHiding: false,
   },
   {
     header: "Stav",
     accessorKey: "status",
     cell: ({ row }) => (
       <Badge className="capitalize" size="xs">
+        <CircleIcon className="size-3" />
         {row.original.status}
       </Badge>
+    ),
+  },
+  {
+    header: "Cena",
+    accessorKey: "prices",
+    cell: ({ row }) => {
+      const prices = row.original.prices;
+      return (
+        <div className="flex flex-wrap items-center gap-1">
+          {prices.map((price) => (
+            <span className="font-medium text-xs" key={price.id}>
+              {/** biome-ignore lint/style/noMagicNumbers: <explanation> */}
+              {formatPrice(price.amountCents / 100)}
+            </span>
+          ))}
+        </div>
+      );
+    },
+  },
+  {
+    header: "Kategórie",
+    accessorKey: "categories",
+    cell: ({ row }) => {
+      const categories = row.original.categories;
+      return (
+        <div className="flex flex-wrap items-center gap-1">
+          {categories.map((category) => (
+            <Badge
+              className="truncate capitalize"
+              key={category.id}
+              size="xs"
+              variant={"outline"}
+            >
+              {category.name}
+            </Badge>
+          ))}
+        </div>
+      );
+    },
+  },
+  {
+    header: "Katalog",
+    accessorKey: "channels",
+    cell: ({ row }) => {
+      const channels = row.original.channels;
+      return (
+        <span className="font-medium font-mono text-xs">
+          {channels.map((channel) => channel.toUpperCase()).join(", ")}
+        </span>
+      );
+    },
+  },
+  {
+    header: "Vytvorené",
+    accessorKey: "createdAt",
+    cell: ({ row }) => (
+      <span className="font-medium font-mono text-xs">
+        {format(row.original.createdAt, "dd.MM.yyyy")}
+      </span>
     ),
   },
   {

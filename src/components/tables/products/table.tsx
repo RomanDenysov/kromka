@@ -1,22 +1,37 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlusIcon } from "lucide-react";
+import { PackagePlusIcon } from "lucide-react";
+import { useMemo } from "react";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { useCreateDraftProduct } from "@/hooks/mutations/use-create-draft-product";
 import { useProductParams } from "@/hooks/use-product-params";
-import type { Product } from "@/types/products";
+import { useTRPC } from "@/trpc/client";
+import type { RouterOutputs } from "@/trpc/routers";
 import { columns } from "./columns";
 
-export function ProductsTable({ products }: { products: Product[] }) {
+export type TableProduct = RouterOutputs["admin"]["products"]["list"][number];
+
+export function ProductsTable() {
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(trpc.admin.products.list.queryOptions());
+
+  const { mutate: createDraftProduct, isPending: isCreatingDraftProduct } =
+    useCreateDraftProduct();
+
+  const processedProducts = useMemo(() => data ?? [], [data]);
+
   const { setParams } = useProductParams();
-  const table = useReactTable<Product>({
-    data: products,
+  const table = useReactTable<TableProduct>({
+    data: processedProducts,
     getRowId: ({ id }) => id,
     columns,
     getCoreRowModel: getCoreRowModel(),
@@ -38,9 +53,21 @@ export function ProductsTable({ products }: { products: Product[] }) {
       <DataTable.Toolbar>
         <DataTable.Search columnId="name" placeholder="Hľadať produkt..." />
         <DataTable.Actions>
-          <Button size="sm" variant="outline">
-            <PlusIcon className="mr-2 h-4 w-4" />
-            Pridať produkt
+          <Button
+            disabled={isCreatingDraftProduct}
+            onClick={() => createDraftProduct()}
+            size="sm"
+            variant="outline"
+          >
+            {isCreatingDraftProduct ? (
+              <>
+                <Spinner /> Pridávame produkt...
+              </>
+            ) : (
+              <>
+                <PackagePlusIcon /> Pridať produkt
+              </>
+            )}
           </Button>
         </DataTable.Actions>
       </DataTable.Toolbar>
