@@ -11,7 +11,7 @@ export async function createDraftCategory() {
     .values({})
     .returning({ id: categories.id });
 
-  revalidatePath("/admin/b2c/categories");
+  revalidatePath("/admin/categories");
 
-  redirect(`/admin/b2c/categories/${result.id}`);
+  redirect(`/admin/categories/${result.id}`);
 }

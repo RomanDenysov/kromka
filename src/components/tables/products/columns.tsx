@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ImageIcon, MoreHorizontalIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,10 +13,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatPrice } from "@/lib/utils";
 import type { Product } from "@/types/products";
 
-const MAX_CATEGORIES = 3;
+const _MAX_CATEGORIES = 3;
 
 type ProductTableMeta = {
   onEdit: (id: string) => void;
@@ -51,7 +51,7 @@ export const columns: ColumnDef<Product, ProductTableMeta>[] = [
     accessorKey: "name",
     cell: ({ row }) => {
       const product = row.original;
-      const imagePath = product.images[0]?.media?.path;
+      const imagePath = null;
       return (
         <div className="flex items-center gap-3">
           {imagePath ? (
@@ -75,20 +75,11 @@ export const columns: ColumnDef<Product, ProductTableMeta>[] = [
   {
     header: "Cena",
     accessorKey: "prices",
-    cell: ({ row }) =>
-      row.original.prices.map((price) => (
-        <div key={price.id}>{formatPrice(price.amountCents)}</div>
-      )),
   },
   {
     header: "Kategórie",
     accessorKey: "categories",
-    cell: ({ row }) =>
-      row.original.categories.slice(0, MAX_CATEGORIES).map((category) => (
-        <Badge className="mr-0.5" key={category.category.id} size="xs">
-          {category.category.name}
-        </Badge>
-      )),
+    cell: ({ row }) => null,
   },
   {
     header: "Stav",
@@ -112,8 +103,8 @@ export const columns: ColumnDef<Product, ProductTableMeta>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => meta?.onEdit?.(row.original.id)}>
-              Upraviť
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/products/${row.original.id}`}>Upraviť</Link>
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive hover:text-destructive/80"

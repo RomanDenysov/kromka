@@ -1,5 +1,6 @@
 import { LogInIcon, LogOut, Settings, Store, User } from "lucide-react";
 import type { Route } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -9,13 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getUser } from "@/lib/auth/auth-utils";
+import { auth } from "@/lib/auth/server";
 import { cn } from "@/lib/utils";
 import { Icons } from "../icons";
 
 export async function UserButton() {
   const selectedStore: string | null = null;
-  const user = await getUser();
+  const user = await auth.api.getSession({ headers: await headers() });
   if (!user) {
     return (
       <Link

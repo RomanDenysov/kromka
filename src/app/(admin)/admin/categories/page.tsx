@@ -12,7 +12,7 @@ export default async function B2CCategoriesPage() {
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Kategórie", href: "/admin/b2c/categories" },
+          { label: "Kategórie", href: "/admin/categories" },
         ]}
       />
       <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
