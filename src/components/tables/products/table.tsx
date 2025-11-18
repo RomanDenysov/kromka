@@ -1,44 +1,92 @@
 "use client";
 
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import {
+  type ColumnFiltersState,
+  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
+  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowDownIcon,
-  FileIcon,
-  PackagePlusIcon,
-  Table2Icon,
-} from "lucide-react";
+import { ArrowDown01Icon, PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { DataTable } from "@/components/data-table";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  DataTableSearch,
+  fuzzyFilter,
+} from "@/components/data-table/ui/data-table-search";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useCreateDraftProduct } from "@/hooks/mutations/use-create-draft-product";
 import { useProductParams } from "@/hooks/use-product-params";
+import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import type { RouterOutputs } from "@/trpc/routers";
 import { columns } from "./columns";
+import { EmptyState } from "./empty-state";
 
 export type TableProduct = RouterOutputs["admin"]["products"]["list"][number];
 
 export function ProductsTable() {
   const router = useRouter();
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(trpc.admin.products.list.queryOptions());
+
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const { mutate: createDraftProduct, isPending: isCreatingDraftProduct } =
     useCreateDraftProduct();
+
+  const toggleActive = useMutation(
+    trpc.admin.products.toggleIsActive.mutationOptions({
+      onMutate: ({ id }) => {
+        queryClient.cancelQueries({
+          queryKey: trpc.admin.products.list.queryKey(),
+        });
+        const previousProducts = queryClient.getQueryData(
+          trpc.admin.products.list.queryKey()
+        );
+        if (previousProducts) {
+          queryClient.setQueryData<TableProduct[]>(
+            trpc.admin.products.list.queryKey(),
+            (old) =>
+              old?.map((product) =>
+                product.id === id
+                  ? { ...product, isActive: !product.isActive }
+                  : product
+              )
+          );
+        }
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.admin.products.list.queryKey(),
+        });
+      },
+    })
+  );
 
   const copyProduct = useMutation(
     trpc.admin.products.copyProduct.mutationOptions({
@@ -55,6 +103,19 @@ export function ProductsTable() {
   const processedProducts = useMemo(() => data ?? [], [data]);
 
   const table = useReactTable<TableProduct>({
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: "fuzzy",
+    state: {
+      columnFilters,
+      globalFilter,
+      sorting,
+    },
     data: processedProducts,
     getRowId: ({ id }) => id,
     columns,
@@ -66,6 +127,9 @@ export function ProductsTable() {
       onEdit: (id: string) => {
         setParams({ productId: id });
       },
+      onToggleActive: (id: string) => {
+        toggleActive.mutate({ id });
+      },
       onCopy: (id: string) => {
         copyProduct.mutate({ productId: id });
       },
@@ -76,7 +140,7 @@ export function ProductsTable() {
     },
   });
 
-  const handleExport = (format: "csv" | "xlsx") => {
+  const _handleExport = (format: "csv" | "xlsx") => {
     const selectedRows = table.getSelectedRowModel().rows;
     const exportData = selectedRows.length
       ? selectedRows.map((r) => r.original)
@@ -90,69 +154,90 @@ export function ProductsTable() {
   };
 
   return (
-    <DataTable.Root table={table}>
-      <DataTable.Toolbar>
-        <DataTable.Search columnId="name" placeholder="Hľadať produkt..." />
-        <DataTable.Actions>
-          <DataTable.Filter columnId="status">
-            {({ value, onChange }) => (
-              <div className="flex gap-1">
-                <Button
-                  onClick={() =>
-                    onChange(value === "active" ? undefined : "active")
-                  }
-                  size="sm"
-                  variant={value === "active" ? "default" : "outline"}
-                >
-                  Active
-                </Button>
-                <Button
-                  onClick={() =>
-                    onChange(value === "draft" ? undefined : "draft")
-                  }
-                  size="sm"
-                  variant={value === "draft" ? "default" : "outline"}
-                >
-                  Draft
-                </Button>
-              </div>
-            )}
-          </DataTable.Filter>
-          <Button
-            disabled={isCreatingDraftProduct}
-            onClick={() => createDraftProduct()}
-            size="sm"
-            variant="outline"
-          >
-            {isCreatingDraftProduct ? (
-              <>
-                <Spinner /> Pridávame produkt...
-              </>
-            ) : (
-              <>
-                <PackagePlusIcon /> Pridať produkt
-              </>
-            )}
+    <div className="size-full overflow-hidden">
+      <div className="flex items-center justify-between p-3">
+        <DataTableSearch
+          onChange={(value) => setGlobalFilter(String(value))}
+          placeholder="Hľadať kategóriu..."
+          value={globalFilter ?? ""}
+        />
+        <div className="flex items-center justify-end gap-2">
+          <Button size="xs" variant="outline">
+            <ArrowDown01Icon />
+            Export
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline">
-                <ArrowDownIcon /> Export
+        </div>
+      </div>
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} style={{ width: header.getSize() }}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <Fragment key={row.id}>
+                <TableRow
+                  className={cn("transition-colors hover:bg-muted/50")}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </Fragment>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell className="h-24 text-center" colSpan={columns.length}>
+                <EmptyState />
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+        <TableFooter>
+          <TableRow className="p-0">
+            <TableCell className="p-0" colSpan={columns.length}>
+              <Button
+                className="w-full rounded-none"
+                disabled={isCreatingDraftProduct}
+                onClick={() => createDraftProduct()}
+                size="sm"
+                variant="ghost"
+              >
+                {isCreatingDraftProduct ? (
+                  <>
+                    <Spinner />
+                    Pridávame produkt...
+                  </>
+                ) : (
+                  <>
+                    <PlusIcon />
+                    Pridať produkt
+                  </>
+                )}
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleExport("csv")}>
-                <FileIcon /> CSV format
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
-                <Table2Icon /> XLSX format
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </DataTable.Actions>
-      </DataTable.Toolbar>
-      <DataTable.Content />
-      <DataTable.Pagination />
-    </DataTable.Root>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </div>
   );
 }

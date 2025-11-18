@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { FeaturedCarousel } from "@/components/featured-carousel";
 import { Container } from "@/components/shared/container";
 
 export default function EshopPage() {
   return (
     <Container className="flex h-full flex-col gap-6 border py-6 md:py-12">
       <div className="min-h-60 border-border border-b bg-muted">
-        FEATURED PRODUCTS
+        <FeaturedCarousel />
       </div>
       <div className="flex flex-col gap-2 border">
         <h2>CATEGORIES</h2>

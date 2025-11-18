@@ -1,7 +1,7 @@
 import z from "zod";
 import { MUTATIONS } from "@/db/mutations/products";
 import { QUERIES } from "@/db/queries/products";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const adminProductsRouter = createTRPCRouter({
   // QUERIES
@@ -88,4 +88,8 @@ export const adminProductsRouter = createTRPCRouter({
           input.mediaId
         )
     ),
+});
+
+export const publicProductsRouter = createTRPCRouter({
+  list: publicProcedure.query(async () => await QUERIES.PUBLIC.GET_PRODUCTS()),
 });

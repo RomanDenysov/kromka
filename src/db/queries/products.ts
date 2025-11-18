@@ -50,4 +50,49 @@ export const QUERIES = {
         where: (product, { eq: eqFn }) => eqFn(product.id, productId),
       }),
   },
+  PUBLIC: {
+    GET_PRODUCTS: async () => {
+      const products = await db.query.products.findMany({
+        where: (product, { eq: eqFn, and: andFn }) =>
+          andFn(eqFn(product.isActive, true), eqFn(product.status, "active")),
+        with: {
+          images: {
+            with: {
+              media: true,
+            },
+          },
+          categories: {
+            with: {
+              category: true,
+            },
+          },
+          prices: true,
+          channels: {
+            where: (channel, { eq: eqFn, and: andFn }) =>
+              andFn(eqFn(channel.isListed, true), eqFn(channel.channel, "B2C")),
+          },
+        },
+        orderBy: (product, { desc }) => desc(product.createdAt),
+      });
+
+      for (const product of products) {
+        product.images = product.images.sort(
+          (a, b) => a.sortOrder - b.sortOrder
+        );
+        product.categories = product.categories.sort(
+          (a, b) => a.sortOrder - b.sortOrder
+        );
+        product.prices = product.prices.sort((a, b) => a.priority - b.priority);
+      }
+
+      const result = products.map((product) => ({
+        ...product,
+        categories: product.categories.map((c) => c.category),
+        images: product.images.map((img) => img.media.url),
+        channels: product.channels,
+      }));
+
+      return result;
+    },
+  },
 };

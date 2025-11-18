@@ -150,11 +150,14 @@ export const MUTATIONS = {
       return updatedProduct;
     },
 
-    TOGGLE_IS_ACTIVE: async (productId: string) =>
-      await db
+    TOGGLE_IS_ACTIVE: async (productId: string): Promise<{ id: string }> => {
+      const [updatedProduct] = await db
         .update(products)
         .set({ isActive: not(products.isActive) })
-        .where(eq(products.id, productId)),
+        .where(eq(products.id, productId))
+        .returning({ id: products.id });
+      return { id: updatedProduct.id };
+    },
 
     UPLOAD_PRODUCT_IMAGE: async (
       productId: string,

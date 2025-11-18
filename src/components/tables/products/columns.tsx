@@ -3,15 +3,18 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
+  CheckIcon,
   CircleIcon,
   CopyIcon,
   ImageIcon,
   MoreHorizontalIcon,
   PencilIcon,
   Trash2Icon,
+  XIcon,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { TableColumnHeader } from "@/components/data-table/ui/table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,6 +38,7 @@ type ProductTableMeta = {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onCopy: (id: string) => void;
+  onToggleActive: (id: string) => void;
 };
 
 export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
@@ -89,8 +93,16 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     enableSorting: false,
   },
   {
-    header: "Produkt",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Produkt"
+      />
+    ),
     accessorKey: "name",
+    filterFn: "fuzzy",
+    enableSorting: true,
     cell: ({ row }) => {
       const product = row.original;
       return (
@@ -107,8 +119,9 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     enableGlobalFilter: true,
   },
   {
-    header: "Stav",
+    header: "Status",
     accessorKey: "status",
+    enableSorting: true,
     cell: ({ row }) => (
       <Badge className="capitalize" size="xs">
         <CircleIcon className="size-3" />
@@ -116,6 +129,34 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
       </Badge>
     ),
     enableGlobalFilter: true,
+  },
+  {
+    header: "Stav",
+    accessorKey: "isActive",
+    enableSorting: true,
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as ProductTableMeta;
+      return (
+        <Button
+          className="cursor-pointer"
+          onClick={() => meta?.onToggleActive(row.original.id)}
+          size="xs"
+          variant="secondary"
+        >
+          {row.original.isActive ? (
+            <>
+              <CheckIcon className="size-3" />
+              Aktívny
+            </>
+          ) : (
+            <>
+              <XIcon className="size-3" />
+              Neaktívny
+            </>
+          )}
+        </Button>
+      );
+    },
   },
   {
     header: "Cena",
