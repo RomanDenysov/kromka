@@ -1,8 +1,8 @@
-import { LogInIcon, LogOut, Settings, Store, User } from "lucide-react";
+import { LogInIcon, LogOut, Settings, Store } from "lucide-react";
 import type { Route } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { auth } from "@/lib/auth/server";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Icons } from "../icons";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export async function UserButton() {
   const selectedStore: string | null = null;
@@ -31,11 +32,16 @@ export async function UserButton() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button className="gap-2" size="icon-sm" variant="outline">
-          <User className="size-4" />
-          <span className="sr-only">Účet</span>
-        </Button>
+      <DropdownMenuTrigger aria-label="Účet" asChild>
+        <Avatar className="relative size-8 rounded-md">
+          <AvatarImage
+            className="rounded-md object-cover"
+            src={user.user.image ?? undefined}
+          />
+          <AvatarFallback className="rounded-md" delayMs={300}>
+            {getInitials(user.user.name || user.user.email)}
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         {selectedStore && (

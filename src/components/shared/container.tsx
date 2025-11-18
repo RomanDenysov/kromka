@@ -6,7 +6,10 @@ type Props = PropsWithChildren<ComponentProps<"div">>;
 export function Container({ className, ...props }: Props) {
   return (
     <div
-      className={cn("container mx-auto px-4 sm:px-6 lg:px-8", className)}
+      className={cn(
+        "container mx-auto size-full px-4 sm:px-6 lg:px-8",
+        className
+      )}
       {...props}
     />
   );
