@@ -10,6 +10,8 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
+  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { PlusIcon } from "lucide-react";
@@ -48,6 +50,7 @@ export function CategoriesTable() {
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const { mutate: createDraft, isPending: isCreatingDraft } =
     useCreateDraftCategory();
@@ -102,9 +105,12 @@ export function CategoriesTable() {
     globalFilterFn: "fuzzy",
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     state: {
       columnFilters,
       globalFilter,
+      sorting,
     },
     getRowId: ({ id }) => id,
     getCoreRowModel: getCoreRowModel(),

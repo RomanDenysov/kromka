@@ -15,25 +15,26 @@ export function TableColumnHeader<TData, TValue>({
   className?: string;
 }) {
   if (!column.getCanSort()) {
-    return (
-      <div className={cn("truncate text-muted-foreground text-sm", className)}>
-        {title}
-      </div>
-    );
+    return <div className={cn("truncate text-xs", className)}>{title}</div>;
   }
+
+  // Read sorting state directly - component will re-render when table sorting state changes
+  const sortedState = column.getIsSorted();
+
   return (
     <Button
-      className={cn("truncate text-muted-foreground", className)}
-      onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      size="sm"
+      className={cn("truncate", className)}
+      onClick={() => {
+        // Read current state at click time to avoid stale closures
+        const currentSort = column.getIsSorted();
+        column.toggleSorting(currentSort === "asc");
+      }}
+      size="xs"
       variant="ghost"
     >
       {title}
-      {column.getIsSorted() === "asc" ? (
-        <ArrowUpIcon />
-      ) : (
-        column.getIsSorted() === "desc" && <ArrowDownIcon />
-      )}
+      {sortedState === "asc" && <ArrowUpIcon className="size-3" />}
+      {sortedState === "desc" && <ArrowDownIcon className="size-3" />}
     </Button>
   );
 }

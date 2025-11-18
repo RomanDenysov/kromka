@@ -11,7 +11,7 @@ import {
   XIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { fuzzySort } from "@/components/data-table/ui/data-table-search";
+import { TableColumnHeader } from "@/components/data-table/ui/table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -55,11 +55,17 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
   },
   {
     id: "name",
-    header: "Názov",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Názov"
+      />
+    ),
     enableGlobalFilter: true,
     accessorKey: "name",
     filterFn: "fuzzy",
-    sortingFn: fuzzySort,
+    enableSorting: true,
     cell: ({ row }) => (
       <Link
         className={buttonVariants({ variant: "link", size: "xs" })}
@@ -98,7 +104,14 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
     },
   },
   {
-    header: "Viditeľná",
+    id: "isVisible",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Viditeľná"
+      />
+    ),
     accessorKey: "isVisible",
     cell: ({ row }) => (
       <Badge size="xs" variant={row.original.isVisible ? "default" : "outline"}>
@@ -107,17 +120,33 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
     ),
   },
   {
-    header: "Produktov",
+    id: "productsCount",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Produktov"
+      />
+    ),
     accessorKey: "productsCount",
     cell: ({ row }) => (
-      <span className="font-medium text-xs">{row.original.productsCount}</span>
+      <span className="font-medium text-xs">
+        {row.original.productsCount}ks
+      </span>
     ),
     size: 16,
   },
   {
     id: "createdAt",
-    header: "Vytvorené",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Vytvorené"
+      />
+    ),
     accessorKey: "createdAt",
+    enableSorting: true,
     cell: ({ row }) => (
       <span className="font-medium text-xs">
         {format(row.original.createdAt, "dd.MM.yyyy")}
@@ -126,7 +155,13 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
   },
   {
     id: "updatedAt",
-    header: "Upravené",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Upravené"
+      />
+    ),
     accessorKey: "updatedAt",
     enableSorting: true,
     cell: ({ row }) => (
