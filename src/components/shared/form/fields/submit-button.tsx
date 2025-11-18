@@ -1,16 +1,22 @@
-import { useStore } from "@tanstack/react-form";
+"use client";
+
 import { useFormContext } from "@/components/shared/form";
 import { Button, type ButtonProps } from "@/components/ui/button";
 
 export function SubmitButton({ ...props }: ButtonProps) {
   const form = useFormContext();
 
-  const [isSubmitting, canSubmit] = useStore(form.store, (state) => [
-    state.isSubmitting,
-    state.canSubmit,
-  ]);
-
-  const disabled = isSubmitting || !canSubmit;
-
-  return <Button disabled={disabled} type="submit" {...props} />;
+  return (
+    <form.Subscribe>
+      {(state) => (
+        <Button
+          disabled={state.isSubmitting || !state.canSubmit}
+          type="submit"
+          {...props}
+        >
+          {state.isSubmitting ? "Ukladám..." : "Uložiť"}
+        </Button>
+      )}
+    </form.Subscribe>
+  );
 }

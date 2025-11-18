@@ -1,11 +1,9 @@
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { ProductForm } from "@/components/forms/products";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
-import { db } from "@/db";
-import { HydrateClient } from "@/trpc/server";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 type Props = {
   params: Promise<{
@@ -15,13 +13,7 @@ type Props = {
 
 export default async function B2CProductPage({ params }: Props) {
   const { id } = await params;
-  const product = await db.query.products.findFirst({
-    where: (p, { eq }) => eq(p.id, id),
-  });
-
-  if (!product) {
-    notFound();
-  }
+  prefetch(trpc.admin.products.byId.queryOptions({ id }));
 
   return (
     <HydrateClient>
@@ -29,13 +21,13 @@ export default async function B2CProductPage({ params }: Props) {
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
           { label: "Produkty", href: "/admin/products" },
-          { label: product?.name },
+          { label: "Upraviť produkt" },
         ]}
       />
 
       <ErrorBoundary fallback={<div>Error</div>}>
         <Suspense fallback={<FormSkeleton />}>
-          <ProductForm initialData={product} />
+          <ProductForm id={id} />
         </Suspense>
       </ErrorBoundary>
     </HydrateClient>

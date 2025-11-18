@@ -12,6 +12,7 @@ import {
   SettingsIcon,
   ShieldUserIcon,
   ShoppingBasketIcon,
+  StoreIcon,
   TagsIcon,
   Users2Icon,
 } from "lucide-react";
@@ -46,6 +47,7 @@ const iconMap: Record<string, LucideIcon> = {
   Users2: Users2Icon,
   ShieldUser: ShieldUserIcon,
   Settings2: Settings2Icon,
+  Store: StoreIcon,
 };
 
 type Props = ComponentProps<typeof Sidebar> & {

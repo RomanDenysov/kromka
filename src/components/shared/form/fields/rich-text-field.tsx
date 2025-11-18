@@ -40,7 +40,7 @@ export function RichTextField({
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <div className="rounded-md border border-input bg-background">
         <Editor
-          className="prose prose-sm min-h-[200px] max-w-none px-4 py-3 focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+          className="prose prose-sm min-h-[200px] max-w-none rounded-md px-4 py-3 focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
           content={field.state.value ?? undefined}
           onBlur={field.handleBlur}
           onUpdate={handleUpdate}

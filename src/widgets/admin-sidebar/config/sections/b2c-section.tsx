@@ -9,6 +9,11 @@ export const b2cSection: NavSectionConfig = {
   perm: "b2c.read",
   items: [
     {
+      label: "Stores",
+      href: "/admin/stores",
+      icon: "Store",
+    },
+    {
       label: "Categories",
       href: "/admin/categories",
       icon: "Tags",

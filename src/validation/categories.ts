@@ -1,7 +1,5 @@
 import z from "zod";
 import { MAX_DESCRIPTION_LENGTH, MAX_STRING_LENGTH } from "./constants";
-import { mediaSchema } from "./media";
-import { productSchema } from "./products";
 
 export const updateCategorySchema = z.object({
   name: z.string().min(1).max(MAX_STRING_LENGTH),
@@ -27,15 +25,5 @@ export const outputCategorySchema = updateCategorySchema.extend({
     .nullable(),
 });
 
-export const categoryWithRelationsSchema = outputCategorySchema.extend({
-  products: z.array(productSchema),
-  children: z.array(outputCategorySchema),
-  parent: outputCategorySchema.nullable(),
-  image: mediaSchema.nullable(),
-});
-
 export type UpdateCategorySchema = z.infer<typeof updateCategorySchema>;
 export type OutputCategorySchema = z.infer<typeof outputCategorySchema>;
-export type CategoryWithRelationsSchema = z.infer<
-  typeof categoryWithRelationsSchema
->;

@@ -1,5 +1,11 @@
 import { useFieldContext } from "@/components/shared/form";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -7,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 type Option = {
   value: string;
@@ -18,26 +25,49 @@ type Props = {
   placeholder?: string;
   className?: string;
   options: Option[];
+  description?: string;
 };
 
-export function SelectField({ label, placeholder, className, options }: Props) {
+export function SelectField({
+  label,
+  placeholder,
+  className,
+  options,
+  description,
+}: Props) {
   const field = useFieldContext<string>();
 
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   return (
-    <Field className={className} data-invalid={isInvalid}>
-      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+    <Field
+      className={cn(className, "rounded-md border bg-card p-3")}
+      data-invalid={isInvalid}
+      orientation="horizontal"
+    >
+      <FieldContent>
+        {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+        {description && <FieldDescription>{description}</FieldDescription>}
+      </FieldContent>
       <Select
         onValueChange={(value) => field.handleChange(value)}
         value={field.state.value ?? ""}
       >
-        <SelectTrigger id={field.name} name={field.name} size="sm">
+        <SelectTrigger
+          className="capitalize"
+          id={field.name}
+          name={field.name}
+          size="sm"
+        >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent align="end" position="popper">
           {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem
+              className="capitalize"
+              key={option.value}
+              value={option.value}
+            >
               {option.label}
             </SelectItem>
           ))}

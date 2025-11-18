@@ -37,55 +37,53 @@ export function QuantitySetterField({ label, max = 1000, min = 0 }: Props) {
   }, [field, min]);
 
   return (
-    <div className="max-w-md rounded-md border bg-card p-3">
-      <Field data-invalid={isInvalid} orientation="horizontal">
-        {label && (
-          <FieldLabel className="text-muted-foreground" htmlFor={field.name}>
-            {label}
-          </FieldLabel>
-        )}
-        <ButtonGroup
-          aria-label="Quantity setter"
-          className="w-fit"
-          orientation="horizontal"
+    <Field
+      className="max-w-md rounded-md border bg-card p-3"
+      data-invalid={isInvalid}
+      orientation="horizontal"
+    >
+      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+      <ButtonGroup
+        aria-label="Quantity setter"
+        className="w-fit"
+        orientation="horizontal"
+      >
+        <Button
+          className="size-6"
+          disabled={field.state.value === min}
+          onClick={handleDecrement}
+          size="icon-xs"
+          type="button"
+          variant="outline"
         >
-          <Button
-            className="size-6"
-            disabled={field.state.value === min}
-            onClick={handleDecrement}
-            size="icon-xs"
-            type="button"
-            variant="outline"
-          >
-            <MinusIcon className="size-3" />
-          </Button>
-          <Input
-            className="h-6 w-full max-w-8 text-wrap bg-background text-center font-mono"
-            id={field.name}
-            max={max}
-            min={min}
-            name={field.name}
-            onBlur={field.handleBlur}
-            onChange={(e) => field.handleChange(Number(e.target.value))}
-            pattern="[0-9]*"
-            type="text"
-            value={field.state.value ?? 0}
-            volume="xs"
-          />
+          <MinusIcon className="size-3" />
+        </Button>
+        <Input
+          className="h-6 w-full max-w-12 text-wrap bg-background text-center font-mono"
+          id={field.name}
+          max={max}
+          min={min}
+          name={field.name}
+          onBlur={field.handleBlur}
+          onChange={(e) => field.handleChange(Number(e.target.value))}
+          pattern="[0-9]*"
+          type="text"
+          value={field.state.value ?? 0}
+          volume="xs"
+        />
 
-          <Button
-            className="size-6"
-            disabled={field.state.value === max}
-            onClick={handleIncrement}
-            size="icon-xs"
-            type="button"
-            variant="outline"
-          >
-            <PlusIcon className="size-3" />
-          </Button>
-        </ButtonGroup>
-      </Field>
+        <Button
+          className="size-6"
+          disabled={field.state.value === max}
+          onClick={handleIncrement}
+          size="icon-xs"
+          type="button"
+          variant="outline"
+        >
+          <PlusIcon className="size-3" />
+        </Button>
+      </ButtonGroup>
       {isInvalid && <FieldError errors={field.state.meta.errors} />}
-    </div>
+    </Field>
   );
 }
