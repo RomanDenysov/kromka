@@ -7,12 +7,12 @@ import { type ChangeEvent, useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { useTRPC } from "@/trpc/client";
-import type { RouterOutputs } from "@/trpc/routers";
 import { ImageCrop } from "./image-crop";
 import { ImageInput } from "./image-input";
 import { SortableImageItem } from "./sortable-image-item";
 
-export type ProductImage = RouterOutputs["admin"]["products"]["images"][number];
+// biome-ignore lint/performance/noBarrelFile: <explanation>
+export { SingleImageUpload } from "./single-image-upload";
 
 // TODO: Move to constants file
 const KB = 1024;

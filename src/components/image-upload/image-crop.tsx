@@ -96,6 +96,7 @@ type ImageCropProps = {
   onCancel: () => void;
   isUploading: boolean;
   style?: CSSProperties;
+  aspect?: number;
 };
 
 export function ImageCrop({
@@ -104,6 +105,7 @@ export function ImageCrop({
   onCancel,
   isUploading,
   style,
+  aspect = 1,
 }: ImageCropProps) {
   const defaultCrop: Crop = {
     unit: "%",
@@ -126,12 +128,15 @@ export function ImageCrop({
     reader.readAsDataURL(file);
   }, [file]);
 
-  const onImageLoad = useCallback((e: SyntheticEvent<HTMLImageElement>) => {
-    const { width, height } = e.currentTarget;
-    const newCrop = centerAspectCrop(width, height, 1);
-    setCrop(newCrop);
-    setInitialCrop(newCrop);
-  }, []);
+  const onImageLoad = useCallback(
+    (e: SyntheticEvent<HTMLImageElement>) => {
+      const { width, height } = e.currentTarget;
+      const newCrop = centerAspectCrop(width, height, aspect);
+      setCrop(newCrop);
+      setInitialCrop(newCrop);
+    },
+    [aspect]
+  );
 
   const handleApply = async () => {
     if (!completedCrop) {
@@ -167,9 +172,9 @@ export function ImageCrop({
 
   return (
     <div>
-      <div>
+      <div className="relative">
         <ReactCrop
-          aspect={1}
+          aspect={aspect}
           className="max-h-[400px]"
           crop={crop}
           onChange={(c) => setCrop(c)}
@@ -181,7 +186,7 @@ export function ImageCrop({
             // biome-ignore lint/performance/noImgElement: <explanation>
             // biome-ignore lint/a11y/noNoninteractiveElementInteractions: <explanation>
             <img
-              alt="Crop preview"
+              alt="Obrazok na cropovanie"
               className="size-full"
               onLoad={onImageLoad}
               ref={imageRef}
@@ -194,40 +199,29 @@ export function ImageCrop({
         <Button
           disabled={isUploading}
           onClick={handleReset}
-          size="sm"
+          size="icon"
           type="button"
-          variant="outline"
+          variant="ghost"
         >
-          <RotateCcwIcon className="mr-2 size-4" />
-          Reset
+          <RotateCcwIcon />
         </Button>
         <Button
           disabled={isUploading}
           onClick={onCancel}
-          size="sm"
+          size="icon"
           type="button"
-          variant="outline"
+          variant="ghost"
         >
-          <XIcon className="mr-2 size-4" />
-          Cancel
+          <XIcon />
         </Button>
         <Button
           disabled={isUploading || !completedCrop}
           onClick={handleApply}
-          size="sm"
+          size="icon"
           type="button"
+          variant="ghost"
         >
-          {isUploading ? (
-            <>
-              <Spinner />
-              Uploading...
-            </>
-          ) : (
-            <>
-              <CropIcon className="mr-2 size-4" />
-              Apply & Upload
-            </>
-          )}
+          {isUploading ? <Spinner /> : <CropIcon />}
         </Button>
       </div>
     </div>

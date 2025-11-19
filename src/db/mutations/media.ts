@@ -6,7 +6,7 @@ import type { InsertMedia } from "../types";
 
 export const MUTATIONS = {
   ADMIN: {
-    UPLOAD_MEDIA: async (data: InsertMedia, createdBy: string) => {
+    UPLOAD_MEDIA: async (data: InsertMedia) => {
       const results = await db
         .insert(media)
         .values({
@@ -15,7 +15,6 @@ export const MUTATIONS = {
           url: data.url,
           type: data.type,
           size: data.size,
-          createdBy,
         })
         .returning();
       return results;

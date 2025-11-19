@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
 "use client";
 
 import {
@@ -8,11 +9,14 @@ import {
 import type { JSONContent } from "@tiptap/react";
 import { format } from "date-fns";
 import { Editor } from "@/components/editor";
+import { SingleImageUpload } from "@/components/image-upload";
 import { Field, FieldGroup, FieldSet } from "@/components/ui/field";
 import { useTRPC } from "@/trpc/client";
 import { type StoreSchema, storeSchema } from "@/validation/stores";
 import { useAppForm } from "../shared/form";
 import { FormSkeleton } from "../shared/form/form-skeleton";
+
+const IMAGE_ASPECT_RATIO = 16 / 9;
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Component is slightly complex due to form fields
 export function StoreForm({ id }: { id: string }) {
@@ -84,6 +88,20 @@ export function StoreForm({ id }: { id: string }) {
         >
           <FieldSet>
             <FieldGroup>
+              <form.AppField name="imageId">
+                {(field) => (
+                  <Field className="flex flex-col gap-2">
+                    <SingleImageUpload
+                      aspect={IMAGE_ASPECT_RATIO}
+                      className="w-full"
+                      disabled={isPendingUpdateStore}
+                      onChange={(val) => field.handleChange(val)}
+                      value={field.state.value}
+                    />
+                  </Field>
+                )}
+              </form.AppField>
+
               <form.AppField name="name">
                 {(field) => (
                   <field.TextField

@@ -4,7 +4,6 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon, XIcon } from "lucide-react";
 import Image from "next/image";
-import type { ProductImage } from "@/components/image-upload";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +20,14 @@ import { Button } from "@/components/ui/button";
 const DRAG_OPACITY = 0.5;
 
 type Props = {
-  image: ProductImage;
+  image: {
+    mediaId: string;
+    media: {
+      name: string;
+      path: string;
+    };
+    isPrimary: boolean;
+  };
   onRemove: (id: string) => void;
   disabled: boolean;
 };
@@ -83,21 +89,23 @@ export function SortableImageItem({ image, onRemove, disabled }: Props) {
                 type="button"
                 variant="destructive"
               >
-                <XIcon className="size-4" />
+                <XIcon />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete Image</AlertDialogTitle>
+                <AlertDialogTitle>Odstrániť obrázok</AlertDialogTitle>
               </AlertDialogHeader>
               <AlertDialogDescription>
-                Are you sure you want to delete this image? This action cannot
-                be undone.
+                Opravdu chcete odstrániť tento obrázok? Táto akcia je nevratná.
               </AlertDialogDescription>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onRemove(image.mediaId)}>
-                  Delete
+                <AlertDialogCancel>Zrušiť</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => onRemove(image.mediaId)}
+                  variant="destructive"
+                >
+                  Odstrániť
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

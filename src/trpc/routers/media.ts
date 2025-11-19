@@ -19,8 +19,5 @@ export const adminMediaRouter = createTRPCRouter({
         size: z.number(),
       })
     )
-    .mutation(
-      async ({ input, ctx }) =>
-        await MUTATIONS.ADMIN.UPLOAD_MEDIA(input, ctx.session.user.id)
-    ),
+    .mutation(async ({ input }) => await MUTATIONS.ADMIN.UPLOAD_MEDIA(input)),
 });

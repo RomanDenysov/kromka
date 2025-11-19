@@ -50,6 +50,7 @@ const DRAG_OPACITY = 0.5;
 type ProductImageUploadProps = {
   productId: string;
   maxImages?: number;
+  aspect?: number;
 };
 
 type ProductImage = {
@@ -76,6 +77,7 @@ type UploadState =
 export function ProductImageUpload({
   productId,
   maxImages = 4,
+  aspect = 1,
 }: ProductImageUploadProps) {
   const trpc = useTRPC();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -218,8 +220,8 @@ export function ProductImageUpload({
         // Create DB records
         await createImageRecordMutation.mutateAsync({
           productId,
-          blobPath,
-          blobUrl,
+          blobPath: "placeholder-path",
+          blobUrl: "placeholder-url",
           metadata: {
             width,
             height,
@@ -353,7 +355,7 @@ export function ProductImageUpload({
           </DialogHeader>
           {uploadState.type === "cropping" && (
             <ImageCrop
-              aspect={1}
+              aspect={aspect}
               file={uploadState.file}
               maxImageSize={MAX_IMAGE_SIZE}
               onCrop={handleCrop}
