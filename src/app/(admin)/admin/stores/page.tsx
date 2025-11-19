@@ -7,6 +7,7 @@ import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 export default function StoresPage() {
   prefetch(trpc.admin.stores.list.queryOptions());
+
   return (
     <>
       <AdminHeader

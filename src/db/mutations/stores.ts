@@ -1,69 +1,59 @@
-import { eq, type InferInsertModel } from "drizzle-orm";
+import { eq, not } from "drizzle-orm";
 import { db } from "@/db";
-import { getSlug } from "@/lib/get-slug";
-import { createShortId } from "@/lib/ids";
+import type { StoreSchema } from "@/validation/stores";
 import { stores } from "../schema";
-
-type StoreInsert = InferInsertModel<typeof stores>;
-
-const DRAFT_DEFAULTS = Object.freeze({
-  name: "Nova predajňa",
-  description: {
-    type: "doc",
-    content: [
-      {
-        type: "paragraph",
-        content: [{ type: "text", text: "Popis novej predajne..." }],
-      },
-    ],
-  },
-  isActive: false,
-  sortOrder: 0,
-  phone: "+421908589550",
-  email: "kromka@kavejo.sk",
-  address: {
-    street: "17. novembra 104",
-    postalCode: "080 01",
-    city: "Prešov",
-    country: "Slovakia",
-    googleId: "8vEL5DjJF84PASjx7",
-  },
-  openingHours: {
-    weekdays: { period: { open: "07:00", close: "18:00" }, isClosed: false },
-    saturday: { period: { open: "08:00", close: "12:00" }, isClosed: false },
-    sunday: { period: null, isClosed: false },
-  },
-});
-
-function createDraftStoreData(
-  overrides: Partial<StoreInsert> = {}
-): StoreInsert {
-  return {
-    ...DRAFT_DEFAULTS,
-    slug: `${getSlug(DRAFT_DEFAULTS.name)}-${createShortId()}`,
-    ...overrides,
-  };
-}
+import { draftSlug } from "../utils";
 
 export const MUTATIONS = {
   ADMIN: {
-    CREATE_DRAFT_STORE: async (userId: string) => {
-      const draftStoreData: StoreInsert = createDraftStoreData();
-
+    CREATE_DRAFT_STORE: async (): Promise<{ id: string }> => {
       const [newDraftStore] = await db
         .insert(stores)
-        .values({ createdBy: userId, ...draftStoreData })
-        .returning();
+        .values({})
+        .returning({ id: stores.id });
 
-      return newDraftStore;
+      return { id: newDraftStore.id };
     },
-    UPDATE_STORE: async (storeId: string, store: Partial<StoreInsert>) => {
+    UPDATE_STORE: async (storeId: string, store: StoreSchema) => {
       const [updatedStore] = await db
         .update(stores)
         .set(store)
         .where(eq(stores.id, storeId))
         .returning();
       return updatedStore;
+    },
+
+    COPY_STORE: async (storeId: string): Promise<{ id: string }> => {
+      const referenceStore = await db.query.stores.findFirst({
+        where: (store, { eq: eqFn }) => eqFn(store.id, storeId),
+      });
+
+      if (!referenceStore) {
+        throw new Error("Store not found");
+      }
+
+      const newStoreData = {
+        ...referenceStore,
+        id: undefined, // We don't want to copy the id
+        slug: draftSlug(referenceStore.name),
+      };
+
+      const [newStore] = await db
+        .insert(stores)
+        .values(newStoreData)
+        .returning({ id: stores.id });
+
+      return { id: newStore.id };
+    },
+
+    TOGGLE_IS_ACTIVE: async (storeId: string): Promise<{ id: string }> => {
+      const [updatedStore] = await db
+        .update(stores)
+        .set({ isActive: not(stores.isActive) })
+        .where(eq(stores.id, storeId))
+        .returning({ id: stores.id });
+
+      return { id: updatedStore.id };
     },
   },
 };

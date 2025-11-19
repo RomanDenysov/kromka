@@ -93,7 +93,7 @@ export function StoresTable() {
             </TableRow>
           )}
         </TableBody>
-        {table.getRowModel().rows?.length && (
+        {table.getRowModel().rows?.length > 0 && (
           <TableFooter>
             <TableRow>
               <TableCell colSpan={columns.length}>

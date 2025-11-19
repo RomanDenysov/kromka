@@ -10,6 +10,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
+import { draftSlug } from "../utils";
 import { users } from "./auth";
 import { media } from "./media";
 import { orders } from "./orders";
@@ -44,25 +45,38 @@ export const stores = pgTable("stores", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => createPrefixedId("sto")),
-  name: text("name").notNull(),
-  slug: text("slug").notNull().unique(),
-  description: jsonb("description").$type<JSONContent>().notNull(),
+  name: text("name").notNull().default("Nova predajňa"),
+  slug: text("slug")
+    .notNull()
+    .unique()
+    .$defaultFn(() => draftSlug("Nova predajňa")),
+  description: jsonb("description")
+    .$type<JSONContent>()
+    .default({
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Popis novej predajne..." }],
+        },
+      ],
+    }),
 
   isActive: boolean("is_active").default(false).notNull(),
   sortOrder: integer("sort_order").default(0).notNull(),
 
-  phone: text("phone").notNull(),
-  email: text("email").notNull(),
-  address: jsonb("address").$type<Address>().notNull(),
+  phone: text("phone"),
+  email: text("email"),
+  address: jsonb("address").$type<Address>(),
 
-  latitude: text("latitude").notNull(),
-  longitude: text("longitude").notNull(),
+  latitude: text("latitude"),
+  longitude: text("longitude"),
 
   imageId: text("image_id").references(() => media.id, {
     onDelete: "set null",
   }),
 
-  openingHours: jsonb("opening_hours").$type<StoreSchedule>().notNull(),
+  openingHours: jsonb("opening_hours").$type<StoreSchedule>(),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
