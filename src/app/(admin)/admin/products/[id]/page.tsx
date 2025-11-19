@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { ProductForm } from "@/components/forms/products";
+import { ProductForm } from "@/components/forms/product-form";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 

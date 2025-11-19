@@ -12,11 +12,17 @@ import {
 import { createPrefixedId } from "@/lib/ids";
 import { draftSlug } from "../utils";
 import { productCategories } from "./categories";
-import { productStatusEnum } from "./enums";
 import { media } from "./media";
 import { orderItems } from "./orders";
 import { prices } from "./prices";
-import { productChannels } from "./product-channels";
+
+export const PRODUCT_STATUSES = [
+  "draft",
+  "active",
+  "sold",
+  "archived",
+] as const;
+export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
 
 export const products = pgTable("products", {
   id: text("id")
@@ -38,10 +44,16 @@ export const products = pgTable("products", {
         },
       ],
     }),
-  stock: integer("stock").default(0).notNull(),
+
+  priceCents: integer("price_cents").notNull().default(0),
+
+  showInB2c: boolean("show_in_b2c").default(true).notNull(),
+  showInB2b: boolean("show_in_b2b").default(true).notNull(),
+
+  stock: integer("stock"),
   isActive: boolean("is_active").default(false).notNull(),
   sortOrder: integer("sort_order").default(0).notNull(),
-  status: productStatusEnum("status").notNull().default("draft"),
+  status: text("status").$type<ProductStatus>().default("draft").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -78,7 +90,6 @@ export const productImages = pgTable(
 export const productsRelations = relations(products, ({ many }) => ({
   images: many(productImages),
   categories: many(productCategories),
-  channels: many(productChannels),
   prices: many(prices),
   orderItems: many(orderItems),
 }));

@@ -1,8 +1,11 @@
 import { relations } from "drizzle-orm";
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { orders } from "./orders";
-import { prices } from "./prices";
+import { priceTiers } from "./prices";
 import { storeMembers } from "./stores";
+
+export const USER_ROLES = ["admin", "manager", "user"] as const;
+export type UserRole = (typeof USER_ROLES)[number];
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -17,7 +20,7 @@ export const users = pgTable("users", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
   isAnonymous: boolean("is_anonymous"),
-  role: text("role"),
+  role: text("role").$type<UserRole>().default("user").notNull(),
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),
@@ -79,6 +82,9 @@ export const organizations = pgTable("organizations", {
   logo: text("logo"),
   createdAt: timestamp("created_at").notNull(),
   metadata: text("metadata"),
+  priceTierId: text("price_tier_id").references(() => priceTiers.id, {
+    onDelete: "set null",
+  }),
 });
 
 export const members = pgTable("members", {
@@ -125,13 +131,19 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
   }),
 }));
 
-export const organizationsRelations = relations(organizations, ({ many }) => ({
-  members: many(members),
-  invitations: many(invitations),
-  orders: many(orders),
-  prices: many(prices),
-  activeSessions: many(sessions),
-}));
+export const organizationsRelations = relations(
+  organizations,
+  ({ many, one }) => ({
+    members: many(members),
+    invitations: many(invitations),
+    orders: many(orders),
+    priceTier: one(priceTiers, {
+      fields: [organizations.priceTierId],
+      references: [priceTiers.id],
+    }),
+    activeSessions: many(sessions),
+  })
+);
 
 export const membersRelations = relations(members, ({ one }) => ({
   organization: one(organizations, {

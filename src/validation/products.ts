@@ -1,20 +1,19 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
-import { productStatusEnum } from "@/db/schema/enums";
+import { PRODUCT_STATUSES } from "@/db/schema/products";
 import { outputCategorySchema } from "./categories";
 import { MAX_STRING_LENGTH } from "./constants";
 import { mediaSchema } from "./media";
-import { productChannelSchema } from "./product-channels";
 
 export const productSchema = z.object({
   id: z.string(),
   name: z.string().min(1).max(MAX_STRING_LENGTH),
   slug: z.string().min(1).max(MAX_STRING_LENGTH),
   description: z.custom<JSONContent>().nullable(),
-  stock: z.number().min(0),
+  stock: z.number().nullable(),
   isActive: z.boolean(),
   sortOrder: z.number(),
-  status: z.enum(productStatusEnum.enumValues),
+  status: z.enum(PRODUCT_STATUSES),
 });
 
 export const outputProductSchema = productSchema.extend({
@@ -33,7 +32,6 @@ export const outputProductSchema = productSchema.extend({
 
 export const productWithRelationsSchema = outputProductSchema.extend({
   categories: z.array(outputCategorySchema),
-  channels: z.array(productChannelSchema),
   images: z.array(mediaSchema),
 });
 

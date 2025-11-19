@@ -20,7 +20,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { productStatusEnum } from "@/db/schema/enums";
 import { cn } from "@/lib/utils";
-import type { ProductFormValues } from ".";
 
 export function OptionsForm({ className }: { className?: string }) {
   const form = useFormContext<ProductFormValues>();

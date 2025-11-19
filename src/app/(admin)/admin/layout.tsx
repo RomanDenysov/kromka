@@ -1,6 +1,8 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { forbidden } from "next/navigation";
 import type { CSSProperties, ReactNode } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { auth } from "@/lib/auth/server";
 import { getBadgeCounts, getNav } from "@/widgets/admin-sidebar/model/get-nav";
 import AppSidebar from "@/widgets/admin-sidebar/ui/app-sidebar";
 
@@ -11,6 +13,11 @@ type Props = {
 export default async function AdminLayout({ children }: Props) {
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (session?.user?.role !== "admin") {
+    forbidden();
+  }
 
   const [navigation, badgeCounts] = await Promise.all([
     getNav(cookieStore.toString()),

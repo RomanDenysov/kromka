@@ -5,7 +5,6 @@ import {
   media,
   prices,
   productCategories,
-  productChannels,
   productImages,
   products,
 } from "@/db/schema";
@@ -21,23 +20,6 @@ export const MUTATIONS = {
         .values({})
         .returning({ id: products.id });
 
-      await db.insert(productChannels).values({
-        productId: newDraftProduct.id,
-        channel: "B2C",
-        isListed: false,
-      });
-
-      await db.insert(prices).values({
-        productId: newDraftProduct.id,
-        channel: "B2C",
-        amountCents: 0,
-        minQty: 1,
-        priority: 0,
-        isActive: true,
-        startsAt: null,
-        endsAt: null,
-      });
-
       return { id: newDraftProduct.id };
     },
     COPY_PRODUCT: async (productId: string): Promise<{ id: string }> => {
@@ -49,9 +31,12 @@ export const MUTATIONS = {
               category: true,
             },
           },
-          channels: true,
           images: true,
-          prices: true,
+          prices: {
+            with: {
+              priceTier: true,
+            },
+          },
         },
       });
 
@@ -74,40 +59,15 @@ export const MUTATIONS = {
         .values({ ...newProductData })
         .returning({ id: products.id });
 
-      // Batch insert channels
-      if (referenceProduct.channels.length > 0) {
-        await db.insert(productChannels).values(
-          referenceProduct.channels.map(({ channel, isListed }) => ({
-            productId: newProduct.id,
-            channel,
-            isListed,
-          }))
-        );
-      }
-
       // Batch insert prices
       if (referenceProduct.prices.length > 0) {
         await db.insert(prices).values(
           referenceProduct.prices.map(
-            ({
-              channel,
-              amountCents,
-              minQty,
-              priority,
-              isActive,
-              orgId,
-              startsAt,
-              endsAt,
-            }) => ({
+            ({ priceCents, priceTierId, minQty }) => ({
               productId: newProduct.id,
-              channel,
-              amountCents,
+              priceTierId,
+              priceCents,
               minQty,
-              priority,
-              isActive,
-              orgId,
-              startsAt,
-              endsAt,
             })
           )
         );

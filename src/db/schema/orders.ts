@@ -6,24 +6,54 @@ import {
   pgTable,
   primaryKey,
   text,
+  time,
   timestamp,
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
 import { organizations, users } from "./auth";
-import {
-  channelEnum,
-  orderStatusEnum,
-  paymentMethodEnum,
-  paymentStatusEnum,
-} from "./enums";
 import { products } from "./products";
 import { stores } from "./stores";
 
 type ProductSnapshot = {
-  sku: string;
   name: string;
   price: number;
 };
+
+export const PAYMENT_METHODS = [
+  "in_store",
+  "card",
+  "invoice",
+  "other",
+] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+
+export const ORDER_STATUSES = [
+  "cart",
+  "new",
+  "in_progress",
+  "ready_for_pickup",
+  "completed",
+  "cancelled",
+  "refunded",
+] as const;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export const PAYMENT_STATUSES = [
+  "pending",
+  "paid",
+  "failed",
+  "refunded",
+] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+
+export const INVOICE_STATUSES = [
+  "draft",
+  "issued",
+  "sent",
+  "paid",
+  "void",
+] as const;
+export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
 
 export const orders = pgTable(
   "orders",
@@ -31,7 +61,7 @@ export const orders = pgTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => createPrefixedId("ord")),
-    orderNumber: text("order_number").notNull().unique(),
+    orderNumber: text("order_number").unique(),
 
     createdBy: text("created_by").references(() => users.id, {
       onDelete: "set null",
@@ -43,12 +73,26 @@ export const orders = pgTable(
       onDelete: "set null",
     }),
 
-    channel: channelEnum("channel").notNull().default("B2C"),
+    orderStatus: text("order_status")
+      .$type<OrderStatus>()
+      .default("cart")
+      .notNull(),
 
-    currentStatus: orderStatusEnum("current_status").notNull().default("cart"),
+    paymentStatus: text("payment_status")
+      .$type<PaymentStatus>()
+      .default("pending")
+      .notNull(),
+    paymentMethod: text("payment_method")
+      .$type<PaymentMethod>()
+      .default("in_store")
+      .notNull(),
+
     totalCents: integer("total_cents"),
 
     pickupDate: timestamp("pickup_date"),
+    pickupTime: time("pickup_time"),
+
+    paymentId: text("payment_id"),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -59,12 +103,29 @@ export const orders = pgTable(
   (table) => [
     index("idx_orders_order_number").on(table.orderNumber),
     index("idx_created_by_store_id").on(table.createdBy, table.storeId),
-    index("idx_current_status").on(table.currentStatus),
-    index("idx_channel").on(table.channel),
+    index("idx_order_status").on(table.orderStatus),
+    index("idx_payment_status").on(table.paymentStatus),
+    index("idx_payment_method").on(table.paymentMethod),
     index("idx_pickup_date").on(table.pickupDate),
     index("idx_created_at").on(table.createdAt),
   ]
 );
+
+export const invoices = pgTable("invoices", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createPrefixedId("inv")),
+  orgId: text("org_id").references(() => organizations.id),
+  status: text("status").$type<InvoiceStatus>().default("draft").notNull(),
+  totalCents: integer("total_cents").notNull(),
+  dueDate: timestamp("due_date"),
+  pdfUrl: text("pdf_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
 
 export const orderStatusEvents = pgTable(
   "order_status_events",
@@ -75,7 +136,10 @@ export const orderStatusEvents = pgTable(
     orderId: text("order_id")
       .notNull()
       .references(() => orders.id, { onDelete: "cascade" }),
-    status: orderStatusEnum("status").notNull(),
+    createdBy: text("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    status: text("status").$type<OrderStatus>().default("cart").notNull(),
     note: text("note"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -103,52 +167,6 @@ export const orderItems = pgTable(
   (table) => [primaryKey({ columns: [table.orderId, table.productId] })]
 );
 
-export const orderPayments = pgTable(
-  "order_payments",
-  {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => createPrefixedId("pay")),
-    orderId: text("order_id")
-      .notNull()
-      .references(() => orders.id, { onDelete: "cascade" }),
-    method: paymentMethodEnum("method").notNull(), // cash, card_dotypay, ...
-    status: paymentStatusEnum("status").notNull().default("pending"),
-    amountCents: integer("amount_cents").notNull(),
-    provider: text("provider"), // "dotypay", "bank_transfer", ...
-    providerPaymentId: text("provider_payment_id"),
-    authorizedAt: timestamp("authorized_at"),
-    capturedAt: timestamp("captured_at"),
-    failedAt: timestamp("failed_at"),
-    failureReason: text("failure_reason"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => new Date())
-      .notNull(),
-  },
-  (t) => [
-    index("idx_pay_order").on(t.orderId),
-    index("idx_pay_status").on(t.status),
-  ]
-);
-
-export const paymentRefunds = pgTable(
-  "payment_refunds",
-  {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => createPrefixedId("ref")),
-    paymentId: text("payment_id")
-      .notNull()
-      .references(() => orderPayments.id, { onDelete: "cascade" }),
-    amountCents: integer("amount_cents").notNull(),
-    reason: text("reason"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-  },
-  (t) => [index("idx_ref_payment").on(t.paymentId)]
-);
-
 export const ordersRelations = relations(orders, ({ one, many }) => ({
   createdBy: one(users, {
     fields: [orders.createdBy],
@@ -164,7 +182,6 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
   }),
   items: many(orderItems),
   statusEvents: many(orderStatusEvents),
-  payments: many(orderPayments),
 }));
 
 export const orderStatusEventsRelations = relations(
@@ -173,6 +190,10 @@ export const orderStatusEventsRelations = relations(
     order: one(orders, {
       fields: [orderStatusEvents.orderId],
       references: [orders.id],
+    }),
+    createdBy: one(users, {
+      fields: [orderStatusEvents.createdBy],
+      references: [users.id],
     }),
   })
 );
@@ -187,14 +208,3 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
     references: [products.id],
   }),
 }));
-
-export const orderPaymentsRelations = relations(
-  orderPayments,
-  ({ one, many }) => ({
-    order: one(orders, {
-      fields: [orderPayments.orderId],
-      references: [orders.id],
-    }),
-    refunds: many(paymentRefunds),
-  })
-);

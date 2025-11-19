@@ -4,7 +4,7 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAppForm } from "@/components/shared/form";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
-import { productStatusEnum } from "@/db/schema/enums";
+import { PRODUCT_STATUSES } from "@/db/schema/products";
 import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
 import { productSchema } from "@/validation/products";
@@ -35,7 +35,7 @@ export function ProductForm({ id }: { id: string }) {
       name: product?.name ?? "",
       slug: product?.slug ?? "",
       description: product?.description ?? null,
-      stock: product?.stock ?? 0,
+      stock: product?.stock ?? null,
       isActive: product?.isActive ?? false,
       sortOrder: product?.sortOrder ?? 0,
       status: product?.status ?? "draft",
@@ -105,7 +105,7 @@ export function ProductForm({ id }: { id: string }) {
                 {(field) => (
                   <field.SelectField
                     label="Status"
-                    options={productStatusEnum.enumValues.map((status) => ({
+                    options={PRODUCT_STATUSES.map((status) => ({
                       label: status,
                       value: status,
                     }))}

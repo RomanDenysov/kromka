@@ -2,6 +2,7 @@ import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   check,
+  foreignKey,
   index,
   integer,
   pgTable,
@@ -11,6 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
 import { draftSlug } from "../utils";
+import { media } from "./media";
 import { products } from "./products";
 
 export const categories = pgTable(
@@ -27,8 +29,19 @@ export const categories = pgTable(
     description: text("description")
       .notNull()
       .default("Popis vašej kategórie..."),
-    isVisible: boolean("is_visible").default(false).notNull(),
-    isActive: boolean("is_active").default(false).notNull(),
+
+    parentId: text("parent_id"),
+
+    showInMenu: boolean("show_in_menu").default(true).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+
+    imageId: text("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+
+    showInB2c: boolean("show_in_b2c").default(true).notNull(),
+    showInB2b: boolean("show_in_b2b").default(true).notNull(),
+
     sortOrder: integer("sort_order").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -39,6 +52,11 @@ export const categories = pgTable(
   (table) => [
     index("categories_sort_order_idx").on(table.sortOrder),
     index("categories_slug_idx").on(table.slug),
+
+    foreignKey({
+      columns: [table.parentId],
+      foreignColumns: [table.id],
+    }).onDelete("set null"),
   ]
 );
 
@@ -53,7 +71,6 @@ export const categoryAvailabilityWindows = pgTable(
       .references(() => categories.id, { onDelete: "cascade" }),
     startDate: timestamp("start_date").notNull(),
     endDate: timestamp("end_date").notNull(),
-    isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
