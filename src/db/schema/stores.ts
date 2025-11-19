@@ -22,20 +22,22 @@ type Address = {
   googleId: string;
 };
 
-type TimeSlot = {
-  open: string;
-  close: string;
-};
+type TimeRange = { start: string; end: string }; // "08:00", "18:00"
 
-type DaySchedule = {
-  period: TimeSlot | null;
-  isClosed: boolean;
-};
-
-type OpeningHours = {
-  weekdays: DaySchedule;
-  saturday: DaySchedule;
-  sunday: DaySchedule;
+type StoreSchedule = {
+  // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+  days: {
+    0?: TimeRange | null; // Closed if null or missing
+    1?: TimeRange | null;
+    2?: TimeRange | null;
+    3?: TimeRange | null;
+    4?: TimeRange | null;
+    5?: TimeRange | null;
+    6?: TimeRange | null;
+  };
+  exceptions: {
+    [date: string]: TimeRange | null; // "2024-12-24": { start: "08:00", end: "12:00" }
+  };
 };
 
 export const stores = pgTable("stores", {
@@ -53,10 +55,15 @@ export const stores = pgTable("stores", {
   email: text("email").notNull(),
   address: jsonb("address").$type<Address>().notNull(),
 
+  latitude: text("latitude").notNull(),
+  longitude: text("longitude").notNull(),
+
   imageId: text("image_id").references(() => media.id, {
     onDelete: "set null",
   }),
-  openingHours: jsonb("opening_hours").$type<OpeningHours>().notNull(),
+
+  openingHours: jsonb("opening_hours").$type<StoreSchedule>().notNull(),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
