@@ -1,13 +1,13 @@
 import "server-only";
+
 import type { SQL } from "drizzle-orm";
 import { db } from "@/db";
-import type { OrderSchema } from "@/validation/orders";
+import type { OrderStatus } from "../schema/orders";
 
 export const QUERIES = {
   ADMIN: {
     GET_ORDERS: async (filters?: {
-      status?: OrderSchema["currentStatus"];
-      channel?: "B2C" | "B2B";
+      status?: OrderStatus;
       storeId?: string;
       companyId?: string;
       createdBy?: string;
@@ -16,10 +16,7 @@ export const QUERIES = {
         where: (order, { eq, and: andFn }) => {
           const conditions: SQL[] = [];
           if (filters?.status) {
-            conditions.push(eq(order.currentStatus, filters.status));
-          }
-          if (filters?.channel) {
-            conditions.push(eq(order.channel, filters.channel));
+            conditions.push(eq(order.orderStatus, filters.status));
           }
           if (filters?.storeId) {
             conditions.push(eq(order.storeId, filters.storeId));
@@ -61,7 +58,6 @@ export const QUERIES = {
                 columns: {
                   id: true,
                   name: true,
-                  sku: true,
                 },
               },
             },
@@ -69,19 +65,7 @@ export const QUERIES = {
           statusEvents: {
             orderBy: (event, { desc }) => [desc(event.createdAt)],
             with: {
-              author: {
-                columns: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  image: true,
-                },
-              },
-            },
-          },
-          payments: {
-            with: {
-              refunds: true,
+              createdBy: true,
             },
           },
         },
@@ -120,7 +104,6 @@ export const QUERIES = {
                 columns: {
                   id: true,
                   name: true,
-                  sku: true,
                 },
               },
             },
@@ -128,19 +111,7 @@ export const QUERIES = {
           statusEvents: {
             orderBy: (event, { desc }) => [desc(event.createdAt)],
             with: {
-              author: {
-                columns: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  image: true,
-                },
-              },
-            },
-          },
-          payments: {
-            with: {
-              refunds: true,
+              createdBy: true,
             },
           },
         },
@@ -178,7 +149,6 @@ export const QUERIES = {
                 columns: {
                   id: true,
                   name: true,
-                  sku: true,
                 },
               },
             },
@@ -186,19 +156,7 @@ export const QUERIES = {
           statusEvents: {
             orderBy: (event, { desc }) => [desc(event.createdAt)],
             with: {
-              author: {
-                columns: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  image: true,
-                },
-              },
-            },
-          },
-          payments: {
-            with: {
-              refunds: true,
+              createdBy: true,
             },
           },
         },
@@ -212,7 +170,6 @@ export const QUERIES = {
             columns: {
               id: true,
               name: true,
-              sku: true,
             },
           },
         },
@@ -223,24 +180,8 @@ export const QUERIES = {
         where: (event, { eq: eqFn }) => eqFn(event.orderId, orderId),
         orderBy: (event, { desc }) => [desc(event.createdAt)],
         with: {
-          author: {
-            columns: {
-              id: true,
-              name: true,
-              email: true,
-              image: true,
-            },
-          },
+          createdBy: true,
         },
-      }),
-
-    GET_ORDER_PAYMENTS: async (orderId: string) =>
-      await db.query.orderPayments.findMany({
-        where: (payment, { eq: eqFn }) => eqFn(payment.orderId, orderId),
-        with: {
-          refunds: true,
-        },
-        orderBy: (payment, { desc }) => [desc(payment.createdAt)],
       }),
   },
 };

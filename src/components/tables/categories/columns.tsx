@@ -114,8 +114,11 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
     ),
     accessorKey: "isVisible",
     cell: ({ row }) => (
-      <Badge size="xs" variant={row.original.isVisible ? "default" : "outline"}>
-        {row.original.isVisible ? "Viditeľná" : "Neviditeľná"}
+      <Badge
+        size="xs"
+        variant={row.original.showInMenu ? "default" : "outline"}
+      >
+        {row.original.showInMenu ? "Viditeľná" : "Neviditeľná"}
       </Badge>
     ),
   },

@@ -2,12 +2,16 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
+  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { fuzzyFilter } from "@/components/data-table/ui/data-table-search";
 import {
   Table,
   TableBody,
@@ -28,9 +32,26 @@ export function UsersTable({ className }: { className?: string }) {
 
   const processedUsers = useMemo(() => data ?? [], [data]);
 
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   const table = useReactTable<User>({
     data: processedUsers,
     columns,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
+    globalFilterFn: "fuzzy",
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      columnFilters,
+      globalFilter,
+      sorting,
+    },
     getRowId: ({ id }) => id,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

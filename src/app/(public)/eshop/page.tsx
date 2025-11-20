@@ -11,13 +11,13 @@ export default function EshopPage() {
       <div className="flex flex-col gap-2 border">
         <h2>CATEGORIES</h2>
         <div className="flex flex-wrap gap-2">
-          <Link className="text-sm" href="/eshop/category/1">
+          <Link className="text-sm" href="/eshop?category=1">
             Category 1
           </Link>
-          <Link className="text-sm" href="/eshop/category/2">
+          <Link className="text-sm" href="/eshop?category=2">
             Category 2
           </Link>
-          <Link className="text-sm" href="/eshop/category/3">
+          <Link className="text-sm" href="/eshop?category=3">
             Category 3
           </Link>
         </div>

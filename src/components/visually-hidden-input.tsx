@@ -163,7 +163,7 @@ function VisuallyHiddenInput<T = InputValue>(
       aria-hidden={isCheckInput}
       defaultChecked={isCheckInput ? checked : undefined}
       ref={inputRef}
-      // @ts-expect-error: Ignore this for now
+      // biome-ignore lint/suspicious/noExplicitAny: React 19 type incompatibility
       style={composedStyle}
       tabIndex={-1}
     />

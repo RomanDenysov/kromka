@@ -17,7 +17,6 @@ export const QUERIES = {
               media: true,
             },
           },
-          channels: true,
         },
         orderBy: (product, { desc }) => desc(product.createdAt),
       });
@@ -32,7 +31,6 @@ export const QUERIES = {
         ...product,
         categories: product.categories.map((c) => c.category),
         images: product.images.map((img) => img.media.url),
-        channels: product.channels.map((ch) => ch.channel),
       }));
 
       return result;
@@ -46,8 +44,13 @@ export const QUERIES = {
         where: (product, { eq: eqFn }) => eqFn(product.id, categoryId),
       }),
     GET_PRODUCT_IMAGES: async (productId: string) =>
-      await db.query.products.findFirst({
-        where: (product, { eq: eqFn }) => eqFn(product.id, productId),
+      await db.query.productImages.findMany({
+        where: (productImage, { eq: eqFn }) =>
+          eqFn(productImage.productId, productId),
+        with: {
+          media: true,
+        },
+        orderBy: (productImage, { asc }) => asc(productImage.sortOrder),
       }),
   },
   PUBLIC: {
@@ -67,10 +70,6 @@ export const QUERIES = {
             },
           },
           prices: true,
-          channels: {
-            where: (channel, { eq: eqFn, and: andFn }) =>
-              andFn(eqFn(channel.isListed, true), eqFn(channel.channel, "B2C")),
-          },
         },
         orderBy: (product, { desc }) => desc(product.createdAt),
       });
@@ -82,14 +81,13 @@ export const QUERIES = {
         product.categories = product.categories.sort(
           (a, b) => a.sortOrder - b.sortOrder
         );
-        product.prices = product.prices.sort((a, b) => a.priority - b.priority);
+        product.prices = product.prices.sort((a, b) => a.minQty - b.minQty);
       }
 
       const result = products.map((product) => ({
         ...product,
         categories: product.categories.map((c) => c.category),
         images: product.images.map((img) => img.media.url),
-        channels: product.channels,
       }));
 
       return result;

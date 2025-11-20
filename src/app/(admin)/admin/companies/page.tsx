@@ -5,7 +5,7 @@ export default function B2BCompaniesPage() {
     <AdminHeader
       breadcrumbs={[
         { label: "Dashboard", href: "/admin" },
-        { label: "Klienty", href: "/admin/b2b/companies" },
+        { label: "Klienty", href: "/admin/companies" },
       ]}
     />
   );

@@ -22,12 +22,18 @@ const timeRangeSchema = z
 
 const dayScheduleSchema = z.literal("closed").or(timeRangeSchema).nullable();
 
-export const openingHoursSchema = z
-  .object({
-    regularHours: z.record(z.string(), dayScheduleSchema).optional(),
-    exceptions: z.record(z.string(), dayScheduleSchema).optional(),
-  })
-  .nullable();
+export const openingHoursSchema = z.object({
+  regularHours: z.object({
+    monday: dayScheduleSchema,
+    tuesday: dayScheduleSchema,
+    wednesday: dayScheduleSchema,
+    thursday: dayScheduleSchema,
+    friday: dayScheduleSchema,
+    saturday: dayScheduleSchema,
+    sunday: dayScheduleSchema,
+  }),
+  exceptions: z.record(z.string(), dayScheduleSchema).optional(),
+});
 
 export const storeSchema = z.object({
   name: z.string().min(1).max(MAX_STRING_LENGTH),
@@ -38,7 +44,7 @@ export const storeSchema = z.object({
   isActive: z.boolean(),
   sortOrder: z.number(),
   imageId: z.string().nullable(),
-  address: addressSchema.partial().nullable(),
+  address: addressSchema.partial(),
   latitude: z.string().nullable(),
   longitude: z.string().nullable(),
   openingHours: openingHoursSchema,

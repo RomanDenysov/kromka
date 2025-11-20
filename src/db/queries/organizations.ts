@@ -28,22 +28,7 @@ export const QUERIES = {
             columns: {
               id: true,
               orderNumber: true,
-              currentStatus: true,
-            },
-          },
-          invoices: {
-            columns: {
-              id: true,
-              number: true,
-              status: true,
-            },
-          },
-          prices: {
-            columns: {
-              id: true,
-              productId: true,
-              channel: true,
-              amountCents: true,
+              orderStatus: true,
             },
           },
         },
@@ -69,22 +54,7 @@ export const QUERIES = {
             columns: {
               id: true,
               orderNumber: true,
-              currentStatus: true,
-            },
-          },
-          invoices: {
-            columns: {
-              id: true,
-              number: true,
-              status: true,
-            },
-          },
-          prices: {
-            columns: {
-              id: true,
-              productId: true,
-              channel: true,
-              amountCents: true,
+              orderStatus: true,
             },
           },
         },

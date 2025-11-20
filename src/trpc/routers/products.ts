@@ -20,6 +20,12 @@ export const adminProductsRouter = createTRPCRouter({
       async ({ input }) =>
         await QUERIES.ADMIN.GET_PRODUCTS_BY_CATEGORY(input.categoryId)
     ),
+  images: protectedProcedure
+    .input(z.object({ productId: z.string() }))
+    .query(
+      async ({ input }) =>
+        await QUERIES.ADMIN.GET_PRODUCT_IMAGES(input.productId)
+    ),
   // ACTIONS
   createDraft: protectedProcedure.mutation(
     async () => await MUTATIONS.ADMIN.CREATE_DRAFT_PRODUCT()

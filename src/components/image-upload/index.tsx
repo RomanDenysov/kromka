@@ -14,6 +14,21 @@ import { SortableImageItem } from "./sortable-image-item";
 // biome-ignore lint/performance/noBarrelFile: <explanation>
 export { SingleImageUpload } from "./single-image-upload";
 
+export type ProductImageType = {
+  mediaId: string;
+  sortOrder: number;
+  isPrimary: boolean;
+  media: {
+    id: string;
+    title: string;
+    url: string;
+    path: string;
+    type: string;
+    size: number;
+  };
+  productId: string;
+};
+
 // TODO: Move to constants file
 const KB = 1024;
 const MB = 4;
@@ -43,10 +58,7 @@ export function ImageUpload({ productId }: { productId: string }) {
       },
     })
   );
-  const processedImages = useMemo(
-    () => (images as ProductImage[]) ?? [],
-    [images]
-  );
+  const processedImages = useMemo(() => images ?? [], [images]);
 
   const handleFileSelect = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -97,7 +109,7 @@ export function ImageUpload({ productId }: { productId: string }) {
       )}
       <ImagesSortable
         disabled={isUploadingMedia || isLoadingImages}
-        images={processedImages}
+        images={processedImages as unknown as ProductImageType[]}
         onChange={handleFileSelect}
       />
     </div>
@@ -109,7 +121,7 @@ function ImagesSortable({
   onChange,
   disabled,
 }: {
-  images: ProductImage[];
+  images: ProductImageType[];
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   disabled: boolean;
 }) {

@@ -9,31 +9,31 @@ type OpeningHoursFieldGroupValues = z.infer<typeof openingHoursSchema>;
 
 const defaultValues: OpeningHoursFieldGroupValues | undefined = {
   regularHours: {
-    0: {
+    monday: {
       start: "08:00",
       end: "18:00",
     },
-    1: {
+    tuesday: {
       start: "08:00",
       end: "18:00",
     },
-    2: {
+    wednesday: {
       start: "08:00",
       end: "18:00",
     },
-    3: {
+    thursday: {
       start: "08:00",
       end: "18:00",
     },
-    4: {
+    friday: {
       start: "08:00",
       end: "18:00",
     },
-    5: {
+    saturday: {
       start: "08:00",
       end: "18:00",
     },
-    6: {
+    sunday: {
       start: "08:00",
       end: "18:00",
     },
@@ -47,13 +47,13 @@ const defaultValues: OpeningHoursFieldGroupValues | undefined = {
 };
 
 const options = [
-  { value: 0, label: "Nedeľa" },
-  { value: 1, label: "Pondelok" },
-  { value: 2, label: "Utorok" },
-  { value: 3, label: "Streda" },
-  { value: 4, label: "Štvrtok" },
-  { value: 5, label: "Piatok" },
-  { value: 6, label: "Sobota" },
+  { value: "monday", label: "Pondelok" },
+  { value: "tuesday", label: "Utorok" },
+  { value: "wednesday", label: "Streda" },
+  { value: "thursday", label: "Štvrtok" },
+  { value: "friday", label: "Piatok" },
+  { value: "saturday", label: "Sobota" },
+  { value: "sunday", label: "Nedeľa" },
 ] as const;
 
 export const OpeningHoursFieldGroup = withFieldGroup({

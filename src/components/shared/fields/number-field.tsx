@@ -95,7 +95,7 @@ const Root = forwardRef<ComponentRef<"div">, RootProps>(
           decrement,
         }}
       >
-        {/* @ts-expect-error React 19 type incompatibility */}
+        {/* biome-ignore lint/suspicious/noExplicitAny: React 19 type incompatibility */}
         <div
           className={className}
           data-disabled={disabled || undefined}
@@ -156,7 +156,7 @@ const ScrubArea = forwardRef<ComponentRef<"div">, ScrubAreaProps>(
     };
 
     return (
-      // @ts-expect-error React 19 type incompatibility
+      // biome-ignore lint/suspicious/noExplicitAny: React 19 type incompatibility
       <div
         className={cn("cursor-ew-resize touch-none select-none", className)}
         onPointerDown={handlePointerDown}
@@ -174,7 +174,7 @@ ScrubArea.displayName = "NumberField.ScrubArea";
 
 const Group = forwardRef<ComponentRef<"div">, ComponentPropsWithoutRef<"div">>(
   ({ className, children, ...props }, ref) => (
-    // @ts-expect-error React 19 type incompatibility
+    // biome-ignore lint/suspicious/noExplicitAny: React 19 type incompatibility
     <div
       className={cn("flex items-center gap-1", className)}
       ref={ref}
@@ -201,7 +201,7 @@ const Input = forwardRef<
   };
 
   return (
-    // @ts-expect-error React 19 type incompatibility
+    // biome-ignore lint/suspicious/noExplicitAny: React 19 type incompatibility
     <input
       className={cn(
         "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
@@ -228,7 +228,7 @@ const Decrement = forwardRef<ComponentRef<"button">, DecrementProps>(
     const Comp = asChild ? Slot : "button";
 
     return (
-      // @ts-expect-error React 19 type incompatibility
+      // biome-ignore lint/suspicious/noExplicitAny: React 19 type incompatibility
       <Comp
         className={className}
         disabled={disabled || value <= min}
@@ -254,7 +254,7 @@ const Increment = forwardRef<ComponentRef<"button">, IncrementProps>(
     const Comp = asChild ? Slot : "button";
 
     return (
-      // @ts-expect-error React 19 type incompatibility
+      // biome-ignore lint/suspicious/noExplicitAny: React 19 type incompatibility
       <Comp
         className={className}
         disabled={disabled || value >= max}

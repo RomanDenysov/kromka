@@ -166,9 +166,9 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
       return (
         <div className="flex flex-wrap items-center gap-1">
           {prices.map((price) => (
-            <span className="font-medium text-xs" key={price.id}>
+            <span className="font-medium text-xs" key={price.priceTierId}>
               {/** biome-ignore lint/style/noMagicNumbers: <explanation> */}
-              {formatPrice(price.amountCents / 100)}
+              {formatPrice(price.priceCents / 100)}
             </span>
           ))}
         </div>
@@ -219,7 +219,13 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     header: "Katalog",
     accessorKey: "channels",
     cell: ({ row }) => {
-      const channels = row.original.channels;
+      const channels =
+        row.original.showInB2c && row.original.showInB2b
+          ? ["B2C", "B2B"]
+          : // biome-ignore lint/style/noNestedTernary: <explanation>
+            row.original.showInB2c
+            ? ["B2C"]
+            : ["B2B"];
       return (
         <span className="font-medium font-mono text-xs">
           {channels.map((channel) => channel.toUpperCase()).join(", ")}

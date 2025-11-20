@@ -4,7 +4,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useMemo } from "react";
 import { useTRPC } from "@/trpc/client";
-import { ProductImageUpload } from "../forms/products/product-image-upload";
 import { AspectRatio } from "../ui/aspect-ratio";
 
 export function MediaList() {
@@ -31,7 +30,6 @@ export function MediaList() {
           </AspectRatio>
         </div>
       ))}
-      <ProductImageUpload productId="1" />
     </div>
   );
 }

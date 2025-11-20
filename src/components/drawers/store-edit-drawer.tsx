@@ -10,9 +10,7 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
-import { useFormStatus } from "react-dom";
 import { StoreForm } from "@/components/forms/store-form";
-import { useGetStoreQuery } from "@/hooks/use-get-store-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useStoreParams } from "@/hooks/use-store-params";
 import {
@@ -49,9 +47,7 @@ export function StoreEditDrawer() {
   const isOpen = Boolean(storeId);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
-  const { data: store, isLoading } = useGetStoreQuery(storeId);
-
-  if (!store) {
+  if (!storeId) {
     return null;
   }
 
@@ -121,7 +117,7 @@ export function StoreEditDrawer() {
 
               <div className="flex size-full flex-1 flex-col px-4 py-2">
                 <TabsContent value="form">
-                  <StoreForm store={store} />
+                  <StoreForm id={storeId} />
                 </TabsContent>
                 <TabsContent value="members">
                   <div>Zakazníci</div>
@@ -136,7 +132,6 @@ export function StoreEditDrawer() {
                 Zavrieť
               </Button>
             </DrawerClose>
-            <SubmitButton isLoading={isLoading} />
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
@@ -157,20 +152,5 @@ export function StoreEditDrawer() {
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
-}
-
-function SubmitButton({ isLoading }: { isLoading: boolean }) {
-  const status = useFormStatus();
-
-  return (
-    <Button
-      disabled={status.pending || isLoading}
-      form="store-form"
-      size="sm"
-      type="submit"
-    >
-      {status.pending ? "Ukladám..." : "Uložiť"}
-    </Button>
   );
 }

@@ -16,18 +16,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import type { ProductImageType } from ".";
 
 const DRAG_OPACITY = 0.5;
 
 type Props = {
-  image: {
-    mediaId: string;
-    media: {
-      name: string;
-      path: string;
-    };
-    isPrimary: boolean;
-  };
+  image: ProductImageType;
   onRemove: (id: string) => void;
   disabled: boolean;
 };
@@ -48,7 +42,7 @@ export function SortableImageItem({ image, onRemove, disabled }: Props) {
     opacity: isDragging ? DRAG_OPACITY : 1,
   };
 
-  const imageUrl = image.media.path;
+  const imageUrl = image.media.url;
 
   return (
     <div
@@ -57,7 +51,7 @@ export function SortableImageItem({ image, onRemove, disabled }: Props) {
       style={style}
     >
       <Image
-        alt={image.media.name}
+        alt={image.media.title}
         className="object-cover"
         fill
         src={imageUrl}

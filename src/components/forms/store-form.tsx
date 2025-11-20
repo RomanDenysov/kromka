@@ -67,9 +67,17 @@ export function StoreForm({ id }: { id: string }) {
       address: (store?.address ?? null) as StoreSchema["address"],
       latitude: store?.latitude ?? null,
       longitude: store?.longitude ?? null,
-      // Initialize openingHours with fallback
+      // Initialize openingHours with fallback (though DB provides default)
       openingHours: (store?.openingHours ?? {
-        regularHours: {},
+        regularHours: {
+          monday: "closed",
+          tuesday: "closed",
+          wednesday: "closed",
+          thursday: "closed",
+          friday: "closed",
+          saturday: "closed",
+          sunday: "closed",
+        },
         exceptions: {},
       }) as StoreSchema["openingHours"],
     },

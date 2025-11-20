@@ -1,3 +1,12 @@
+import { AdminHeader } from "@/components/admin-header/admin-header";
+
 export default function SettingsPage() {
-  return <div>SettingsPage</div>;
+  return (
+    <AdminHeader
+      breadcrumbs={[
+        { label: "Dashboard", href: "/admin" },
+        { label: "Nastavenia", href: "/admin/settings" },
+      ]}
+    />
+  );
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { type ReactNode, Suspense } from "react";
+import type { ReactNode } from "react";
 import { fonts } from "@/components/fonts";
 import { Providers } from "@/components/providers";
 import { cn } from "@/lib/utils";
@@ -19,9 +19,7 @@ export default function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(fonts, "relative h-full min-h-screen")}>
-        <Providers>
-          <Suspense>{children}</Suspense>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

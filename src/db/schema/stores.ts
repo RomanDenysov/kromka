@@ -16,11 +16,11 @@ import { media } from "./media";
 import { orders } from "./orders";
 
 type Address = {
-  street: string;
-  postalCode: string;
-  city: string;
-  country: string;
-  googleId: string;
+  street?: string;
+  postalCode?: string;
+  city?: string;
+  country?: string;
+  googleId?: string;
 };
 
 type TimeRange = {
@@ -32,17 +32,30 @@ type DaySchedule = TimeRange | "closed" | null;
 
 export type StoreSchedule = {
   regularHours: {
-    monday?: DaySchedule;
-    tuesday?: DaySchedule;
-    wednesday?: DaySchedule;
-    thursday?: DaySchedule;
-    friday?: DaySchedule;
-    saturday?: DaySchedule;
-    sunday?: DaySchedule;
+    monday: DaySchedule;
+    tuesday: DaySchedule;
+    wednesday: DaySchedule;
+    thursday: DaySchedule;
+    friday: DaySchedule;
+    saturday: DaySchedule;
+    sunday: DaySchedule;
   };
   exceptions?: {
     [date: string]: DaySchedule; // "2024-12-24": { start: "08:00", end: "12:00" } | "closed"
   };
+};
+
+const DEFAULT_OPENING_HOURS: StoreSchedule = {
+  regularHours: {
+    monday: "closed",
+    tuesday: "closed",
+    wednesday: "closed",
+    thursday: "closed",
+    friday: "closed",
+    saturday: "closed",
+    sunday: "closed",
+  },
+  exceptions: {},
 };
 
 export const stores = pgTable("stores", {
@@ -71,7 +84,13 @@ export const stores = pgTable("stores", {
 
   phone: text("phone"),
   email: text("email"),
-  address: jsonb("address").$type<Address>(),
+  address: jsonb("address").$type<Address>().default({
+    street: "",
+    postalCode: "",
+    city: "",
+    country: "",
+    googleId: "",
+  }),
 
   latitude: text("latitude"),
   longitude: text("longitude"),
@@ -80,7 +99,9 @@ export const stores = pgTable("stores", {
     onDelete: "set null",
   }),
 
-  openingHours: jsonb("opening_hours").$type<StoreSchedule>(),
+  openingHours: jsonb("opening_hours")
+    .$type<StoreSchedule | null>()
+    .default(DEFAULT_OPENING_HOURS),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
