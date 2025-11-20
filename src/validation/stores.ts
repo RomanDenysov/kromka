@@ -13,6 +13,22 @@ const addressSchema = z.object({
   postalCode: z.string().min(1).max(POSTAL_CODE_LENGTH),
 });
 
+const timeRangeSchema = z
+  .object({
+    start: z.string(),
+    end: z.string(),
+  })
+  .nullable();
+
+const dayScheduleSchema = z.literal("closed").or(timeRangeSchema).nullable();
+
+export const openingHoursSchema = z
+  .object({
+    regularHours: z.record(z.string(), dayScheduleSchema).optional(),
+    exceptions: z.record(z.string(), dayScheduleSchema).optional(),
+  })
+  .nullable();
+
 export const storeSchema = z.object({
   name: z.string().min(1).max(MAX_STRING_LENGTH),
   slug: z.string().min(1).max(MAX_STRING_LENGTH),
@@ -25,6 +41,7 @@ export const storeSchema = z.object({
   address: addressSchema.partial().nullable(),
   latitude: z.string().nullable(),
   longitude: z.string().nullable(),
+  openingHours: openingHoursSchema,
 });
 
 export type StoreSchema = z.infer<typeof storeSchema>;

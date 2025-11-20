@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
 "use client";
 
 import {
@@ -11,11 +10,14 @@ import { format } from "date-fns";
 import { Editor } from "@/components/editor";
 import { SingleImageUpload } from "@/components/image-upload";
 import { Field, FieldGroup, FieldSet } from "@/components/ui/field";
+import type { StoreSchedule } from "@/db/schema";
 import { useTRPC } from "@/trpc/client";
 import { type StoreSchema, storeSchema } from "@/validation/stores";
 import { useAppForm } from "../shared/form";
 import { FormSkeleton } from "../shared/form/form-skeleton";
+import { TestHoursField } from "./stores/test-hours-field";
 
+// biome-ignore lint/style/noMagicNumbers: Image aspect ratio
 const IMAGE_ASPECT_RATIO = 16 / 9;
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Component is slightly complex due to form fields
@@ -53,6 +55,11 @@ export function StoreForm({ id }: { id: string }) {
       address: (store?.address ?? null) as StoreSchema["address"],
       latitude: store?.latitude ?? null,
       longitude: store?.longitude ?? null,
+      // Initialize openingHours with fallback
+      openingHours: (store?.openingHours ?? {
+        regularHours: {},
+        exceptions: {},
+      }) as StoreSchema["openingHours"],
     },
     validators: {
       onSubmit: storeSchema,
@@ -101,7 +108,6 @@ export function StoreForm({ id }: { id: string }) {
                   </Field>
                 )}
               </form.AppField>
-
               <form.AppField name="name">
                 {(field) => (
                   <field.TextField
@@ -113,7 +119,6 @@ export function StoreForm({ id }: { id: string }) {
               <form.AppField name="slug">
                 {(field) => <field.TextField label="Slug" placeholder="Slug" />}
               </form.AppField>
-
               <form.AppField name="description">
                 {(field) => (
                   <Field className="w-full">
@@ -136,6 +141,14 @@ export function StoreForm({ id }: { id: string }) {
                   <field.TextField label="Email" placeholder="Email" />
                 )}
               </form.AppField>
+              <form.AppField name="openingHours">
+                {(field) => (
+                  <TestHoursField
+                    onChange={(value) => field.handleChange(value)}
+                    value={field.state.value as StoreSchedule}
+                  />
+                )}
+              </form.AppField>
               <form.AppField name="isActive">
                 {(field) => (
                   <field.SwitchField
@@ -149,8 +162,6 @@ export function StoreForm({ id }: { id: string }) {
                   <field.QuantitySetterField label="Sort Order" min={0} />
                 )}
               </form.AppField>
-
-              {/* <OpeningHoursForm fields="openingHours" form={form} /> */}
             </FieldGroup>
             <form.SubmitButton
               className="mt-auto self-end"

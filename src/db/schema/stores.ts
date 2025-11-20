@@ -23,21 +23,25 @@ type Address = {
   googleId: string;
 };
 
-type TimeRange = { start: string; end: string }; // "08:00", "18:00"
+type TimeRange = {
+  start: string; // "08:00"
+  end: string; // "18:00"
+};
 
-type StoreSchedule = {
-  // 0 = Sunday, 1 = Monday, ... 6 = Saturday
-  days: {
-    0?: TimeRange | null; // Closed if null or missing
-    1?: TimeRange | null;
-    2?: TimeRange | null;
-    3?: TimeRange | null;
-    4?: TimeRange | null;
-    5?: TimeRange | null;
-    6?: TimeRange | null;
+type DaySchedule = TimeRange | "closed" | null;
+
+export type StoreSchedule = {
+  regularHours: {
+    monday?: DaySchedule;
+    tuesday?: DaySchedule;
+    wednesday?: DaySchedule;
+    thursday?: DaySchedule;
+    friday?: DaySchedule;
+    saturday?: DaySchedule;
+    sunday?: DaySchedule;
   };
-  exceptions: {
-    [date: string]: TimeRange | null; // "2024-12-24": { start: "08:00", end: "12:00" }
+  exceptions?: {
+    [date: string]: DaySchedule; // "2024-12-24": { start: "08:00", end: "12:00" } | "closed"
   };
 };
 
