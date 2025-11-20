@@ -6,7 +6,7 @@ import { MagicLinkForm } from "@/app/prihlasenie/magic-link-form";
 import { ProvidersForm } from "@/app/prihlasenie/providers-form";
 import { BackButton } from "@/components/shared/back-button";
 import { Spinner } from "@/components/ui/spinner";
-import doorsPhoto from "../../../public/images/doors.webp";
+import doorsPhoto from "../../../public/images/doors.jpg";
 
 const POLICY_LINKS = {
   podmienkyPouzivania: "/podmienky-pouzivania" as Route,
