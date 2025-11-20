@@ -20,7 +20,7 @@ export function SwitchField({ label, description }: Props) {
 
   return (
     <Field
-      className="max-w-md rounded-md border bg-card p-3"
+      className="max-w-md rounded-md border bg-card px-3 py-2"
       data-invalid={isInvalid}
       orientation="horizontal"
     >

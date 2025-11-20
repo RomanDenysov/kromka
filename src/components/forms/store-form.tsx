@@ -80,7 +80,7 @@ export function StoreForm({ id }: { id: string }) {
   });
 
   if (isLoadingStore) {
-    return <FormSkeleton />;
+    return <FormSkeleton className="max-w-md" />;
   }
 
   return (

@@ -1,5 +1,4 @@
 import { FolderOpenIcon, PlusIcon } from "lucide-react";
-import { createDraftCategory } from "@/app/(admin)/admin/categories/actions";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -9,8 +8,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Spinner } from "@/components/ui/spinner";
+import { useCreateDraftCategory } from "@/hooks/use-create-draft-category";
 
 export function EmptyState() {
+  const { mutate: createDraftCategory, isPending } = useCreateDraftCategory();
+
   return (
     <Empty>
       <EmptyHeader>
@@ -23,16 +26,24 @@ export function EmptyState() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <form
-          action={async () => {
-            await createDraftCategory();
-          }}
+        <Button
+          disabled={isPending}
+          onClick={() => createDraftCategory()}
+          size="sm"
+          variant="outline"
         >
-          <Button size="sm" type="submit" variant="outline">
-            <PlusIcon />
-            Pridať novú kategóriu
-          </Button>
-        </form>
+          {isPending ? (
+            <>
+              <Spinner />
+              Pridávame kategóriu...
+            </>
+          ) : (
+            <>
+              <PlusIcon />
+              Pridať novú kategóriu
+            </>
+          )}
+        </Button>
       </EmptyContent>
     </Empty>
   );

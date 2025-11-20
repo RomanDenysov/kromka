@@ -6,8 +6,11 @@ export const updateCategorySchema = z.object({
   slug: z.string().min(1).max(MAX_STRING_LENGTH),
   description: z.string().min(1).max(MAX_DESCRIPTION_LENGTH),
   parentId: z.string().nullable(),
-  isVisible: z.boolean(),
+  showInMenu: z.boolean(),
   isActive: z.boolean(),
+  showInB2c: z.boolean(),
+  showInB2b: z.boolean(),
+  imageId: z.string().nullable(),
   sortOrder: z.number(),
 });
 

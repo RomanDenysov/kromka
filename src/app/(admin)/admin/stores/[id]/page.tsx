@@ -17,7 +17,7 @@ export default async function StorePage({ params }: Props) {
   prefetch(trpc.admin.stores.byId.queryOptions({ id }));
 
   return (
-    <>
+    <HydrateClient>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
@@ -25,15 +25,13 @@ export default async function StorePage({ params }: Props) {
           { label: "Upraviť obchod" },
         ]}
       />
-      <HydrateClient>
-        <ErrorBoundary fallback={<div>Error</div>}>
-          <section className="h-full flex-1 p-4">
-            <Suspense fallback={<FormSkeleton />}>
-              <StoreForm id={id} />
-            </Suspense>
-          </section>
-        </ErrorBoundary>
-      </HydrateClient>
-    </>
+      <ErrorBoundary fallback={<div>Error</div>}>
+        <section className="h-full flex-1 p-4">
+          <Suspense fallback={<FormSkeleton className="max-w-md" />}>
+            <StoreForm id={id} />
+          </Suspense>
+        </section>
+      </ErrorBoundary>
+    </HydrateClient>
   );
 }

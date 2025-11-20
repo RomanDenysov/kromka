@@ -1,6 +1,7 @@
 import z from "zod";
 import { MUTATIONS } from "@/db/mutations/categories";
 import { QUERIES } from "@/db/queries/categories";
+import { updateCategorySchema } from "@/validation/categories";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const adminCategoriesRouter = createTRPCRouter({
@@ -28,12 +29,12 @@ export const adminCategoriesRouter = createTRPCRouter({
     .mutation(
       async ({ input }) => await MUTATIONS.ADMIN.COPY_CATEGORY(input.categoryId)
     ),
-  // update: protectedProcedure
-  //   .input(z.object({ id: z.string() }))
-  //   .mutation(
-  //     async ({ input }) =>
-  //       await MUTATIONS.ADMIN.UPDATE_CATEGORY(input.id, input.category)
-  //   ),
+  update: protectedProcedure
+    .input(z.object({ id: z.string(), category: updateCategorySchema }))
+    .mutation(
+      async ({ input }) =>
+        await MUTATIONS.ADMIN.UPDATE_CATEGORY(input.id, input.category)
+    ),
   toggleActive: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(

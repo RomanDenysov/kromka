@@ -1,7 +1,9 @@
-import { notFound } from "next/navigation";
-import { CategoryForm } from "@/app/(admin)/admin/categories/[id]/category-form";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { db } from "@/db";
+import { CategoryForm } from "@/components/forms/category-form";
+import { FormSkeleton } from "@/components/shared/form/form-skeleton";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 type Props = {
   params: Promise<{
@@ -11,25 +13,23 @@ type Props = {
 
 export default async function CategoryPage({ params }: Props) {
   const { id } = await params;
-  const category = await db.query.categories.findFirst({
-    where: (c, { eq }) => eq(c.id, id),
-  });
-
-  if (!category) {
-    notFound();
-  }
+  prefetch(trpc.admin.categories.byId.queryOptions({ id }));
   return (
-    <>
+    <HydrateClient>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
           { label: "Kategórie", href: "/admin/categories" },
-          { label: category.name },
+          { label: "Upraviť kategóriu" },
         ]}
       />
-      <section className="p-4">
-        <CategoryForm category={category} />
-      </section>
-    </>
+      <ErrorBoundary fallback={<div>Error</div>}>
+        <section className="h-full flex-1 p-4">
+          <Suspense fallback={<FormSkeleton className="max-w-md" />}>
+            <CategoryForm id={id} />
+          </Suspense>
+        </section>
+      </ErrorBoundary>
+    </HydrateClient>
   );
 }

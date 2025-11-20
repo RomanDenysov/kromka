@@ -14,7 +14,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlusIcon } from "lucide-react";
+import { ArrowDownIcon, FileIcon, PlusIcon } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -22,6 +22,12 @@ import {
   fuzzyFilter,
 } from "@/components/data-table/ui/data-table-search";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
@@ -148,10 +154,20 @@ export function CategoriesTable() {
           value={globalFilter ?? ""}
         />
         <div className="flex items-center justify-end gap-2">
-          <Button size="xs" variant="outline">
-            <PlusIcon />
-            Pridať kategóriu
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline">
+                <ArrowDownIcon />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <FileIcon />
+                CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       <Table>
@@ -205,31 +221,33 @@ export function CategoriesTable() {
             </TableRow>
           )}
         </TableBody>
-        <TableFooter>
-          <TableRow className="p-0">
-            <TableCell className="p-0" colSpan={columns.length}>
-              <Button
-                className="w-full rounded-none"
-                disabled={isCreatingDraft}
-                onClick={() => createDraft()}
-                size="sm"
-                variant="ghost"
-              >
-                {isCreatingDraft ? (
-                  <>
-                    <Spinner />
-                    Pridávame kategóriu...
-                  </>
-                ) : (
-                  <>
-                    <PlusIcon />
-                    Pridať kategóriu
-                  </>
-                )}
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableFooter>
+        {table.getRowModel().rows?.length > 0 && (
+          <TableFooter>
+            <TableRow className="p-0">
+              <TableCell className="p-0" colSpan={columns.length}>
+                <Button
+                  className="w-full rounded-none"
+                  disabled={isCreatingDraft}
+                  onClick={() => createDraft()}
+                  size="sm"
+                  variant="ghost"
+                >
+                  {isCreatingDraft ? (
+                    <>
+                      <Spinner />
+                      Pridávame kategóriu...
+                    </>
+                  ) : (
+                    <>
+                      <PlusIcon />
+                      Pridať kategóriu
+                    </>
+                  )}
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        )}
       </Table>
     </div>
   );
