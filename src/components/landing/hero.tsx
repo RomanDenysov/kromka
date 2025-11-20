@@ -8,29 +8,44 @@ import { buttonVariants } from "../ui/button";
 export function Hero() {
   return (
     <section className="flex h-[calc(100vh-4rem)] py-5">
-      <Container className="flex">
-        <div className="flex flex-1 flex-col items-start justify-center gap-6">
-          <Badge variant="outline">Sme otvorené!</Badge>
+      <Container className="grid grid-cols-1 gap-6 md:grid-cols-5 lg:grid-cols-7">
+        <article
+          className={cn(
+            "relative flex-1 overflow-hidden rounded-md shadow-md",
+            "md:col-span-3 lg:col-span-4"
+          )}
+        >
+          <div className="absolute inset-0 flex flex-col items-start justify-end gap-6 p-4 md:p-6">
+            <Badge variant="outline">
+              <span className="size-3 rounded-full bg-green-500" />
+              Sme otvorené!
+            </Badge>
 
-          <h1 className="font-medium text-5xl tracking-tight sm:text-6xl lg:text-7xl">
-            S láskou ku kvásku
-          </h1>
+            <h1 className="font-bold text-5xl tracking-tight sm:text-6xl lg:text-7xl">
+              S láskou ku kvásku
+            </h1>
 
-          <p className="mb-8 max-w-[600px] text-lg sm:text-xl">
-            V Kromke to vonia čerstvým kváskovým chlebom, koláčmi a kávou, a
-            teraz sme aj online! Vitajte na našom eshope, veríme, že si nájdete
-            lakocinky podľa svojej chuti.
-          </p>
-        </div>
-        <CallToActionBanner />
+            <p className="mb-8 max-w-[600px] text-lg sm:text-xl">
+              V Kromke to vonia čerstvým kváskovým chlebom, koláčmi a kávou, a
+              teraz sme aj online! Vitajte na našom eshope, veríme, že si
+              nájdete lakocinky podľa svojej chuti.
+            </p>
+          </div>
+        </article>
+        <CallToActionBanner className="md:col-span-2 lg:col-span-3" />
       </Container>
     </section>
   );
 }
 
-function CallToActionBanner() {
+function CallToActionBanner({ className }: { className?: string }) {
   return (
-    <div className="relative h-full min-w-md overflow-hidden rounded-md bg-muted text-primary-foreground shadow-md">
+    <article
+      className={cn(
+        "relative h-full overflow-hidden rounded-md shadow-md",
+        className
+      )}
+    >
       <Image
         alt="Čerstvé kváskovanie pečivo a koláče"
         className="touch-none select-none object-cover"
@@ -39,17 +54,17 @@ function CallToActionBanner() {
         src="/images/breads.jpg"
       />
       <div className="absolute inset-0 bg-linear-to-t from-black/25 via-black/25 to-transparent" />
-      <div className="absolute inset-0 flex flex-col items-center justify-end p-4">
+      <div className="absolute inset-0 flex flex-col items-center justify-end p-4 md:p-6">
         <Link
           className={cn(
-            buttonVariants({ variant: "secondary", size: "lg" }),
-            "w-full text-base"
+            buttonVariants({ variant: "secondary", size: "xl" }),
+            "w-full font-medium text-lg"
           )}
           href="/eshop"
         >
-          Nakupovať
+          Prejsť na eshop
         </Link>
       </div>
-    </div>
+    </article>
   );
 }

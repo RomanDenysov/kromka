@@ -1,7 +1,17 @@
-import { LogInIcon, LogOut, Settings, Store } from "lucide-react";
+"use client";
+
+import {
+  LogInIcon,
+  LogOutIcon,
+  PackageIcon,
+  SettingsIcon,
+  Store,
+  UserIcon,
+} from "lucide-react";
 import type { Route } from "next";
-import { headers } from "next/headers";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,18 +20,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { auth } from "@/lib/auth/server";
+import { signOut } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
+import type { User } from "@/types/users";
 import { Icons } from "../icons";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-export async function UserButton() {
+export function UserButton({ user }: { user: User | null }) {
+  const router = useRouter();
   const selectedStore: string | null = null;
-  const user = await auth.api.getSession({ headers: await headers() });
+
   if (!user) {
     return (
       <Link
-        className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
+        className={cn(
+          buttonVariants({ variant: "ghost", size: "icon-sm" }),
+          "hidden md:inline-flex"
+        )}
         href={"/prihlasenie" as Route}
       >
         <LogInIcon className="size-4" />
@@ -33,13 +48,13 @@ export async function UserButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger aria-label="Účet" asChild>
-        <Avatar className="relative size-8 rounded-md">
+        <Avatar className="relative hidden size-8 rounded-md md:flex">
           <AvatarImage
             className="rounded-md object-cover"
-            src={user.user.image ?? undefined}
+            src={user.image ?? undefined}
           />
           <AvatarFallback className="rounded-md" delayMs={300}>
-            {getInitials(user.user.name || user.user.email)}
+            {getInitials(user.name || user.email)}
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -58,19 +73,48 @@ export async function UserButton() {
             <DropdownMenuSeparator />
           </>
         )}
-        <DropdownMenuItem>
-          <Settings className="mr-2 size-4" />
-          Nastavenia
+        <DropdownMenuItem asChild>
+          <Link href="/profil">
+            <UserIcon />
+            Profil
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link className="flex items-center gap-2" href="/admin">
-            <Icons.logo className="mr-2 size-4" />
+          <Link href="/profil/nastavenia">
+            <SettingsIcon />
+            Nastavenia
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/profil/objednavky">
+            <PackageIcon />
+            Objednavky
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/admin">
+            <Icons.logo className="size-4" />
             Admin panel
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LogOut className="mr-2 size-4" />
+        <DropdownMenuItem
+          onClick={() =>
+            signOut({
+              fetchOptions: {
+                onSuccess: () => {
+                  router.push("/");
+                  router.refresh();
+                },
+                onError: () => {
+                  toast.error("Odhlásenie sa nepodarilo");
+                },
+              },
+            })
+          }
+        >
+          <LogOutIcon />
           Odhlásiť sa
         </DropdownMenuItem>
       </DropdownMenuContent>
