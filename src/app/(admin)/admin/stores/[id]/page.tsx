@@ -27,7 +27,7 @@ export default async function StorePage({ params }: Props) {
       />
       <HydrateClient>
         <ErrorBoundary fallback={<div>Error</div>}>
-          <section className="h-full flex-1">
+          <section className="h-full flex-1 p-4">
             <Suspense fallback={<FormSkeleton />}>
               <StoreForm id={id} />
             </Suspense>

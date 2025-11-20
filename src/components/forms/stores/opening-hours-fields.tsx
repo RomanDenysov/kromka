@@ -8,7 +8,7 @@ import type { openingHoursSchema } from "@/validation/stores";
 type OpeningHoursFieldGroupValues = z.infer<typeof openingHoursSchema>;
 
 const defaultValues: OpeningHoursFieldGroupValues | undefined = {
-  days: {
+  regularHours: {
     0: {
       start: "08:00",
       end: "18:00",
@@ -61,7 +61,10 @@ export const OpeningHoursFieldGroup = withFieldGroup({
   render: ({ group }) => (
     <FieldGroup>
       {options.map((option) => (
-        <group.AppField key={option.value} name={`days.${option.value}`}>
+        <group.AppField
+          key={option.value}
+          name={`regularHours.${option.value}`}
+        >
           {(field) => <field.TimeField label={option.label} />}
         </group.AppField>
       ))}

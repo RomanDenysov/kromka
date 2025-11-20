@@ -29,11 +29,7 @@ export function TextField({
       data-invalid={isInvalid}
       orientation="responsive"
     >
-      {label && (
-        <FieldLabel className="text-muted-foreground" htmlFor={field.name}>
-          {label}
-        </FieldLabel>
-      )}
+      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <Input
         id={field.name}
         name={field.name}
