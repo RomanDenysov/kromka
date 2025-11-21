@@ -125,7 +125,7 @@ export function HomeGrid() {
   });
 
   return (
-    <section className="w-full py-6 md:py-10">
+    <section className="w-full pt-5 pb-6 md:pb-10">
       <Container>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-6">
           {visibleItems.map((item) => (
