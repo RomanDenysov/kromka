@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { FeaturedCarousel } from "@/components/featured-carousel";
+import { ProductsReel } from "@/components/lists/products-reel";
 import { Container } from "@/components/shared/container";
-
-const _products = [{}];
 
 export default function EshopPage() {
   return (
-    <Container className="flex h-full flex-col gap-6 border py-6 md:py-12">
+    <Container className="flex h-full flex-col gap-6 border py-10 md:py-20">
       <div className="min-h-60 border-border border-b bg-muted">
         <FeaturedCarousel />
       </div>
@@ -26,6 +25,7 @@ export default function EshopPage() {
       </div>
       <div className="flex h-full flex-1 grow flex-col gap-2 border">
         <h1>Eshop</h1>
+        <ProductsReel cursor={undefined} limit={12} />
       </div>
     </Container>
   );
