@@ -23,6 +23,7 @@ const publicRouter = createTRPCRouter({
 export const appRouter = createTRPCRouter({
   admin: adminRouter,
   public: publicRouter,
+  cart: publicCartRouter,
 });
 
 export type AppRouter = typeof appRouter;
