@@ -26,9 +26,11 @@ export default async function B2CProductPage({ params }: Props) {
       />
 
       <ErrorBoundary fallback={<div>Error</div>}>
-        <Suspense fallback={<FormSkeleton />}>
-          <ProductForm id={id} />
-        </Suspense>
+        <section className="h-full flex-1 p-4">
+          <Suspense fallback={<FormSkeleton />}>
+            <ProductForm id={id} />
+          </Suspense>
+        </section>
       </ErrorBoundary>
     </HydrateClient>
   );

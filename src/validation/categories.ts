@@ -14,19 +14,18 @@ export const updateCategorySchema = z.object({
   sortOrder: z.number(),
 });
 
-export const outputCategorySchema = updateCategorySchema.extend({
-  id: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  createdBy: z
-    .object({
-      id: z.string(),
-      name: z.string(),
-      email: z.string().email(),
-      image: z.string().nullable(),
-    })
-    .nullable(),
-});
-
 export type UpdateCategorySchema = z.infer<typeof updateCategorySchema>;
-export type OutputCategorySchema = z.infer<typeof outputCategorySchema>;
+
+export const categorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  parentId: z.string().nullable(),
+  showInMenu: z.boolean(),
+  isActive: z.boolean(),
+  showInB2c: z.boolean(),
+  showInB2b: z.boolean(),
+  imageId: z.string().nullable(),
+  sortOrder: z.number(),
+});

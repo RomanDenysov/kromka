@@ -1,23 +1,51 @@
 "use client";
 
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { format } from "date-fns";
+import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { useAppForm } from "@/components/shared/form";
-import { FieldGroup, FieldSet } from "@/components/ui/field";
+import { FormSkeleton } from "@/components/shared/form/form-skeleton";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
 import { PRODUCT_STATUSES } from "@/db/schema/products";
 import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
 import { productSchema } from "@/validation/products";
+import { ImageUpload } from "../image-upload";
 
 export function ProductForm({ id }: { id: string }) {
   const trpc = useTRPC();
-  const { data: product } = useSuspenseQuery(
+  const queryClient = useQueryClient();
+  const { data: product, isLoading: isLoadingProduct } = useSuspenseQuery(
     trpc.admin.products.byId.queryOptions({ id })
   );
   const { mutateAsync: updateProduct, isPending: isPendingUpdateProduct } =
     useMutation(
       trpc.admin.products.update.mutationOptions({
-        onSuccess: () => {
+        onSuccess: async (updatedProduct) => {
+          await queryClient.invalidateQueries({
+            queryKey: trpc.admin.products.byId.queryOptions({
+              id: updatedProduct.id,
+            }).queryKey,
+          });
           toast.success("Produkt aktualizovaný");
         },
         onError: (error) => {
@@ -39,88 +67,149 @@ export function ProductForm({ id }: { id: string }) {
       isActive: product?.isActive ?? false,
       sortOrder: product?.sortOrder ?? 0,
       status: product?.status ?? "draft",
+      showInB2c: product?.showInB2c ?? true,
+      showInB2b: product?.showInB2b ?? false,
+      priceCents: product?.priceCents ?? 0,
     },
     onSubmit: ({ value }) => updateProduct({ id, product: value }),
   });
 
+  if (isLoadingProduct) {
+    return <FormSkeleton className="max-w-md" />;
+  }
+
   return (
-    <div className="max-w-md p-3">
-      <form.AppForm>
-        <form
-          aria-disabled={isPendingUpdateProduct}
-          id="product-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
-        >
-          <FieldSet>
-            <FieldGroup>
-              <form.AppField
-                listeners={{
-                  onChangeDebounceMs: 300,
-                  onChange: (event) => {
-                    form.setFieldValue("slug", getSlug(event.value));
-                  },
-                }}
-                name="name"
-              >
-                {(field) => <field.TextField label="Názov" />}
-              </form.AppField>
+    <form.AppForm>
+      <form
+        aria-disabled={isPendingUpdateProduct}
+        id="product-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+      >
+        <FieldSet className="max-w-md gap-5">
+          <div className="flex flex-row items-start justify-between">
+            <div>
+              <FieldLegend>Nastavenie produktu</FieldLegend>
+              <FieldDescription>
+                {isPendingUpdateProduct || isLoadingProduct
+                  ? "Ukladá sa..."
+                  : `Naposledy uložené ${format(
+                      product?.updatedAt ?? new Date(),
+                      "dd.MM.yyyy HH:mm"
+                    )}`}
+              </FieldDescription>
+            </div>
+            <div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon-xs" variant="ghost">
+                    <MoreHorizontalIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem variant="destructive">
+                    <Trash2Icon />
+                    Vymazať
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          <FieldGroup className="gap-4">
+            <Field className="flex flex-col gap-2">
+              <FieldLabel>Galéria</FieldLabel>
+              <ImageUpload productId={id} />
+            </Field>
+            <form.AppField
+              listeners={{
+                onChangeDebounceMs: 300,
+                onChange: (event) => {
+                  form.setFieldValue("slug", getSlug(event.value));
+                },
+              }}
+              name="name"
+            >
+              {(field) => <field.TextField label="Názov" />}
+            </form.AppField>
 
-              <form.AppField
-                listeners={{
-                  onChangeDebounceMs: 300,
-                  onChange: (event) => {
-                    form.setFieldValue("slug", getSlug(event.value));
-                  },
-                }}
-                name="slug"
-              >
-                {(field) => <field.TextField label="Slug" />}
-              </form.AppField>
+            <form.AppField
+              listeners={{
+                onChangeDebounceMs: 300,
+                onChange: (event) => {
+                  form.setFieldValue("slug", getSlug(event.value));
+                },
+              }}
+              name="slug"
+            >
+              {(field) => <field.TextField label="Slug" />}
+            </form.AppField>
 
-              <form.AppField name="description">
-                {(field) => <field.RichTextField label="Popis" />}
-              </form.AppField>
-            </FieldGroup>
-            <FieldGroup>
+            <form.AppField name="description">
+              {(field) => <field.RichTextField label="Popis" />}
+            </form.AppField>
+          </FieldGroup>
+
+          <FieldGroup className="gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <form.AppField name="stock">
                 {(field) => <field.QuantitySetterField label="Množstvo" />}
               </form.AppField>
-            </FieldGroup>
-            <FieldGroup>
-              <form.AppField name="isActive">
-                {(field) => <field.SwitchField label="Aktívny" />}
-              </form.AppField>
-            </FieldGroup>
-            <FieldGroup>
               <form.AppField name="sortOrder">
                 {(field) => <field.QuantitySetterField label="Poradie" />}
               </form.AppField>
-            </FieldGroup>
-            <FieldGroup>
-              <form.AppField name="status">
+            </div>
+            <form.AppField name="status">
+              {(field) => (
+                <field.SelectField
+                  label="Status"
+                  options={PRODUCT_STATUSES.map((status) => ({
+                    label: status,
+                    value: status,
+                  }))}
+                />
+              )}
+            </form.AppField>
+          </FieldGroup>
+
+          <FieldGroup className="gap-4">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-4">
+              <form.AppField name="isActive">
                 {(field) => (
-                  <field.SelectField
-                    label="Status"
-                    options={PRODUCT_STATUSES.map((status) => ({
-                      label: status,
-                      value: status,
-                    }))}
+                  <field.SwitchField
+                    description="Je produkt aktívny?"
+                    label="Aktívny"
                   />
                 )}
               </form.AppField>
-            </FieldGroup>
-            <form.SubmitButton
-              className="mt-auto self-end"
-              form="product-form"
-              size="sm"
-            />
-          </FieldSet>
-        </form>
-      </form.AppForm>
-    </div>
+              <form.AppField name="showInB2c">
+                {(field) => (
+                  <field.SwitchField
+                    description="Zobraziť pre B2C?"
+                    label="B2C"
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="showInB2b">
+                {(field) => (
+                  <field.SwitchField
+                    description="Zobraziť pre B2B?"
+                    label="B2B"
+                  />
+                )}
+              </form.AppField>
+            </div>
+          </FieldGroup>
+
+          <form.SubmitButton
+            className="self-end"
+            form="product-form"
+            size="sm"
+          />
+        </FieldSet>
+      </form>
+    </form.AppForm>
   );
 }

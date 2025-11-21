@@ -1,21 +1,23 @@
 import z from "zod";
 import { MUTATIONS } from "@/db/mutations/products";
 import { QUERIES } from "@/db/queries/products";
-import { productSchema } from "@/validation/products";
+import { outputProductSchema, productSchema } from "@/validation/products";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const adminProductsRouter = createTRPCRouter({
   // QUERIES
-  list: protectedProcedure.query(
-    async () => await QUERIES.ADMIN.GET_PRODUCTS()
-  ),
+  list: protectedProcedure
+    .output(z.array(outputProductSchema))
+    .query(async () => await QUERIES.ADMIN.GET_PRODUCTS()),
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
+    .output(outputProductSchema.nullable())
     .query(
       async ({ input }) => await QUERIES.ADMIN.GET_PRODUCT_BY_ID(input.id)
     ),
   byCategory: protectedProcedure
     .input(z.object({ categoryId: z.string() }))
+    .output(z.array(outputProductSchema))
     .query(
       async ({ input }) =>
         await QUERIES.ADMIN.GET_PRODUCTS_BY_CATEGORY(input.categoryId)

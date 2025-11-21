@@ -13,8 +13,8 @@ export const priceTiers = pgTable("price_tiers", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => createPrefixedId("pri_tier")),
-  name: text("name").notNull(),
-  description: text("description"),
+  name: text("name").notNull().default("Nová cenová skupina"),
+  description: text("description").default("Popis vašej cenovej skupiny..."),
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
@@ -32,7 +32,7 @@ export const prices = pgTable(
     priceTierId: text("price_tier_id")
       .notNull()
       .references(() => priceTiers.id, { onDelete: "cascade" }),
-    priceCents: integer("price_cents").notNull(),
+    priceCents: integer("price_cents").notNull().default(0),
 
     minQty: integer("min_qty").default(1).notNull(),
   },

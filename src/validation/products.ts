@@ -1,7 +1,7 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
 import { PRODUCT_STATUSES } from "@/db/schema/products";
-import { outputCategorySchema } from "./categories";
+import { categorySchema } from "./categories";
 import { MAX_STRING_LENGTH } from "./constants";
 import { mediaSchema } from "./media";
 
@@ -14,24 +14,31 @@ export const productSchema = z.object({
   isActive: z.boolean(),
   sortOrder: z.number(),
   status: z.enum(PRODUCT_STATUSES),
+  showInB2c: z.boolean(),
+  showInB2b: z.boolean(),
+  priceCents: z.number(),
+});
+
+export const priceSchema = z.object({
+  minQty: z.number(),
+  priceCents: z.number(),
+  priceTier: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
 });
 
 export const outputProductSchema = productSchema.extend({
-  id: z.string(),
+  categories: z.array(categorySchema),
+  images: z.array(z.string()),
+  prices: z.array(priceSchema),
+
   createdAt: z.date(),
   updatedAt: z.date(),
-  createdBy: z.object({
-    id: z.string(),
-    name: z.string(),
-    email: z.string().email(),
-    image: z.string().nullable(),
-  }),
-  categories: z.array(outputCategorySchema),
-  images: z.array(mediaSchema),
 });
 
 export const productWithRelationsSchema = outputProductSchema.extend({
-  categories: z.array(outputCategorySchema),
+  categories: z.array(categorySchema),
   images: z.array(mediaSchema),
 });
 

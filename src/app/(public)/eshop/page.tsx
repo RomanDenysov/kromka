@@ -2,6 +2,8 @@ import Link from "next/link";
 import { FeaturedCarousel } from "@/components/featured-carousel";
 import { Container } from "@/components/shared/container";
 
+const _products = [{}];
+
 export default function EshopPage() {
   return (
     <Container className="flex h-full flex-col gap-6 border py-6 md:py-12">

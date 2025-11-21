@@ -20,7 +20,7 @@ export type ProductImageType = {
   isPrimary: boolean;
   media: {
     id: string;
-    title: string;
+    name: string;
     url: string;
     path: string;
     type: string;

@@ -13,7 +13,7 @@ type Props = {
 
 export function ProductCard({ product }: Props) {
   return (
-    <div className="relative aspect-square size-60 overflow-hidden rounded-sm bg-muted">
+    <div className="relative overflow-hidden rounded-sm">
       <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
       <ProductImage
         alt={product.name}

@@ -212,31 +212,33 @@ export function ProductsTable() {
             </TableRow>
           )}
         </TableBody>
-        <TableFooter>
-          <TableRow className="p-0">
-            <TableCell className="p-0" colSpan={columns.length}>
-              <Button
-                className="w-full rounded-none"
-                disabled={isCreatingDraftProduct}
-                onClick={() => createDraftProduct()}
-                size="sm"
-                variant="ghost"
-              >
-                {isCreatingDraftProduct ? (
-                  <>
-                    <Spinner />
-                    Pridávame produkt...
-                  </>
-                ) : (
-                  <>
-                    <PlusIcon />
-                    Pridať produkt
-                  </>
-                )}
-              </Button>
-            </TableCell>
-          </TableRow>
-        </TableFooter>
+        {table.getRowModel().rows?.length > 0 && (
+          <TableFooter>
+            <TableRow className="p-0">
+              <TableCell className="p-0" colSpan={columns.length}>
+                <Button
+                  className="w-full rounded-none"
+                  disabled={isCreatingDraftProduct}
+                  onClick={() => createDraftProduct()}
+                  size="sm"
+                  variant="ghost"
+                >
+                  {isCreatingDraftProduct ? (
+                    <>
+                      <Spinner />
+                      Pridávame produkt...
+                    </>
+                  ) : (
+                    <>
+                      <PlusIcon />
+                      Pridať produkt
+                    </>
+                  )}
+                </Button>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        )}
       </Table>
     </div>
   );

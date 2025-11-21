@@ -51,7 +51,7 @@ export function SortableImageItem({ image, onRemove, disabled }: Props) {
       style={style}
     >
       <Image
-        alt={image.media.title}
+        alt={image.media.name}
         className="object-cover"
         fill
         src={imageUrl}

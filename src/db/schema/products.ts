@@ -48,7 +48,7 @@ export const products = pgTable("products", {
   priceCents: integer("price_cents").notNull().default(0),
 
   showInB2c: boolean("show_in_b2c").default(true).notNull(),
-  showInB2b: boolean("show_in_b2b").default(true).notNull(),
+  showInB2b: boolean("show_in_b2b").default(false).notNull(),
 
   stock: integer("stock"),
   isActive: boolean("is_active").default(false).notNull(),
