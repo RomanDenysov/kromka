@@ -111,6 +111,8 @@ export const orders = pgTable(
   ]
 );
 
+export type SelectOrder = typeof orders.$inferSelect;
+
 export const invoices = pgTable("invoices", {
   id: text("id")
     .primaryKey()
