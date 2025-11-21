@@ -17,7 +17,6 @@ const gridItems: GridItemConfig[] = [
     id: "hero-main",
     title: homepageConfig.hero.main.title || "S láskou ku kvásku",
     subtitle: "V Kromke to vonia čerstvým kváskovým chlebom",
-    href: "/eshop" as Route,
     image: homepageConfig.hero.main.image,
     size: "hero",
     // Can override spans via className if needed, but 'hero' size handles defaults
@@ -28,10 +27,9 @@ const gridItems: GridItemConfig[] = [
     id: "hero-cta",
     title: homepageConfig.hero.cta.link?.label || "Prejsť na eshop",
     subtitle: "Objednajte si online a vyzdvihnite na predajni",
-    href: (homepageConfig.hero.cta.link?.href as Route) || ("/eshop" as Route),
-    color: "bg-yellow-400", // IKEA-like highlight
+    href: homepageConfig.hero.cta.link?.href,
+    image: homepageConfig.hero.cta.image,
     size: "medium",
-    textColor: "text-black",
   },
 
   // --- Seasonal (Medium) ---
@@ -129,7 +127,6 @@ export function HomeGrid() {
   return (
     <section className="w-full py-6 md:py-10">
       <Container>
-        {/* Responsive grid based on IKEA example */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-6">
           {visibleItems.map((item) => (
             <GridCard key={item.id} {...item} />

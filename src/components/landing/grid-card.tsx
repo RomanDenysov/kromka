@@ -6,13 +6,19 @@ import { ArrowRight } from "lucide-react";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { type MouseEvent, useCallback, useEffect, useState } from "react";
+import {
+  type MouseEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { cn } from "@/lib/utils";
 
 export type GridCardProps = {
   title: string;
   subtitle?: string;
-  href: Route;
+  href?: Route | null;
   image?: string;
   images?: string[]; // Support multiple images for carousel
   color?: string;
@@ -200,7 +206,7 @@ export function GridCard({
   };
 
   return (
-    <Link
+    <Wrapper
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-lg transition-transform",
         getCardSizeClasses(size),
@@ -240,16 +246,39 @@ export function GridCard({
           </div>
 
           {/* Arrow in the same container, bottom-left area */}
-          <div
-            className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full backdrop-blur-sm transition-transform group-hover:translate-x-1",
-              hasImage ? "bg-white/20 text-white" : "bg-black/5 text-foreground"
-            )}
-          >
-            <ArrowRight className="size-5" />
-          </div>
+          {href && (
+            <div
+              className={cn(
+                "flex h-10 w-10 shrink-0 items-center justify-center rounded-full backdrop-blur-sm transition-transform group-hover:translate-x-1",
+                hasImage
+                  ? "bg-white/20 text-white"
+                  : "bg-black/5 text-foreground"
+              )}
+            >
+              <ArrowRight className="size-5" />
+            </div>
+          )}
         </div>
       </div>
-    </Link>
+    </Wrapper>
   );
+}
+
+function Wrapper({
+  children,
+  href,
+  className,
+}: {
+  children: ReactNode;
+  href?: Route | null;
+  className?: string;
+}) {
+  if (href) {
+    return (
+      <Link className={cn(className)} href={href} prefetch>
+        {children}
+      </Link>
+    );
+  }
+  return <article className={cn(className)}>{children}</article>;
 }
