@@ -18,7 +18,7 @@ type Props = {
 export default function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(fonts, "relative h-full min-h-screen")}>
+      <body className={cn(fonts, "relative h-full min-h-screen scroll-smooth")}>
         <Providers>{children}</Providers>
       </body>
     </html>

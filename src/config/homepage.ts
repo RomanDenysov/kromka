@@ -13,7 +13,8 @@ type Config = Record<
   }
 >;
 
-type SectionName = "hero" | "features" | "statistics" | "cta" | "contact";
+// Only 'hero' is currently used in the new grid layout
+type SectionName = "hero";
 
 type PageConfig = Record<SectionName, Config>;
 
@@ -31,38 +32,6 @@ export const homepageConfig: PageConfig = {
         label: "Prejsť na eshop",
         href: "/eshop",
       },
-    },
-  },
-  features: {
-    main: {
-      image: "/images/breads.jpg",
-      title: "Čo vám ponúkame",
-      description:
-        "Objavte všetky služby a možnosti, ktoré pre vás máme pripravené",
-    },
-  },
-  statistics: {
-    main: {
-      image: "/images/breads.jpg",
-      title: "Statistiky",
-      description:
-        "Objavte všetky služby a možnosti, ktoré pre vás máme pripravené",
-    },
-  },
-  cta: {
-    main: {
-      image: "/images/breads.jpg",
-      title: "Kontakt",
-      description:
-        "Objavte všetky služby a možnosti, ktoré pre vás máme pripravené",
-    },
-  },
-  contact: {
-    main: {
-      image: "/images/breads.jpg",
-      title: "Kontakt",
-      description:
-        "Objavte všetky služby a možnosti, ktoré pre vás máme pripravené",
     },
   },
 };
