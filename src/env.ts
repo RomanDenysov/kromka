@@ -8,7 +8,7 @@ export const env = createEnv({
     // BETTER_AUTH_URL: z.string().url(),
 
     BLOB_READ_WRITE_TOKEN: z.string().min(1),
-    BLOB_STORE_ID: z.string().min(1).startsWith("store_"),
+    BLOB_STORE_ID: z.string().min(1),
 
     EMAIL_HOST: z.string().min(1),
     EMAIL_USER: z.string().email(),

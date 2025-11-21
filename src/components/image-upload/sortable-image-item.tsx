@@ -76,7 +76,7 @@ export function SortableImageItem({ image, onRemove, disabled }: Props) {
             <GripVerticalIcon className="size-4 text-white" />
           </div>
           <AlertDialog key={image.mediaId}>
-            <AlertDialogTrigger>
+            <AlertDialogTrigger asChild>
               <Button
                 className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
                 size="icon-xs"
