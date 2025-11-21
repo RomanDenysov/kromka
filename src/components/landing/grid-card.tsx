@@ -101,7 +101,7 @@ export function GridCard({
   size = "medium",
   className,
   textColor,
-  autoplay = false,
+  autoplay = true,
   autoplayDelay = 3000,
 }: GridCardProps) {
   // Helper to initialize carousel only if needed
