@@ -15,6 +15,9 @@ export function LoadMore({
   ref: ForwardedRef<HTMLDivElement>;
   isFetching: boolean;
 }) {
+  if (!hasNextPage) {
+    return null;
+  }
   return (
     <div className="mt-5 flex items-center justify-center" ref={ref}>
       {fetchNextPage ? (

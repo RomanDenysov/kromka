@@ -9,16 +9,14 @@ import { LoadMore } from "../shared/load-more";
 
 type Props = {
   limit: number;
-  cursor?: string;
 };
 
-export function ProductsReel({ limit, cursor }: Props) {
+export function ProductsReel({ limit }: Props) {
   const trpc = useTRPC();
   const infiniteQueryOptions =
     trpc.public.products.infinite.infiniteQueryOptions(
       {
         limit,
-        cursor,
       },
       {
         getNextPageParam: ({ nextCursor }) => nextCursor,

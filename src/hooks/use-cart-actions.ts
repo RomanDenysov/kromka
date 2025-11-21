@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: <explanation> */
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";

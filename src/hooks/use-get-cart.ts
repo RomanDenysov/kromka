@@ -8,7 +8,6 @@ export function useGetCart() {
   return useQuery(
     trpc.public.cart.getCart.queryOptions(undefined, {
       staleTime: 0,
-      refetchOnWindowFocus: true,
     })
   );
 }

@@ -184,10 +184,10 @@ export const QUERIES = {
       return processedProducts;
     },
     GET_PRODUCTS_INFINITE: async (input: {
-      limit: number;
+      limit?: number;
       cursor?: string;
     }) => {
-      const { limit, cursor } = input;
+      const { limit = 12, cursor } = input;
       const fetchedProducts = await db.query.products.findMany({
         where: (product, { eq: eqFn, not: notFn, and: andFn, gt: gtFn }) =>
           andFn(

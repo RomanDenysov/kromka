@@ -1,3 +1,5 @@
+"use client";
+
 import { Facebook, Instagram, MailIcon, PhoneIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";

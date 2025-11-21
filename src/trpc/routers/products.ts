@@ -107,7 +107,7 @@ export const publicProductsRouter = createTRPCRouter({
   infinite: publicProcedure
     .input(
       z.object({
-        limit: z.number(),
+        limit: z.number().optional(),
         cursor: z.string().optional(),
       })
     )
