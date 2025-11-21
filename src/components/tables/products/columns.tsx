@@ -166,7 +166,7 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
       return (
         <div className="flex flex-wrap items-center gap-1">
           {prices.map((price) => (
-            <span className="font-medium text-xs" key={price.priceTierId}>
+            <span className="font-medium text-xs" key={price.priceTier.id}>
               {/** biome-ignore lint/style/noMagicNumbers: <explanation> */}
               {formatPrice(price.priceCents / 100)}
             </span>

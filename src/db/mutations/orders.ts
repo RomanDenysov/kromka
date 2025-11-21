@@ -62,5 +62,72 @@ export const MUTATIONS = {
           },
         });
     },
+    REMOVE_FROM_CART: async (productId: string, userId: string) => {
+      const order = await db.query.orders.findFirst({
+        where: and(
+          eq(orders.orderStatus, "cart"),
+          eq(orders.createdBy, userId)
+        ),
+        columns: {
+          id: true,
+        },
+      });
+
+      if (!order) {
+        return;
+      }
+
+      await db
+        .delete(orderItems)
+        .where(
+          and(
+            eq(orderItems.orderId, order.id),
+            eq(orderItems.productId, productId)
+          )
+        );
+    },
+    UPDATE_CART_ITEM_QUANTITY: async (
+      productId: string,
+      userId: string,
+      quantity: number
+    ) => {
+      const order = await db.query.orders.findFirst({
+        where: and(
+          eq(orders.orderStatus, "cart"),
+          eq(orders.createdBy, userId)
+        ),
+        columns: {
+          id: true,
+        },
+      });
+
+      if (!order) {
+        return;
+      }
+
+      if (quantity <= 0) {
+        await db
+          .delete(orderItems)
+          .where(
+            and(
+              eq(orderItems.orderId, order.id),
+              eq(orderItems.productId, productId)
+            )
+          );
+      } else {
+        await db
+          .update(orderItems)
+          .set({
+            quantity,
+            total: sql`${orderItems.price} * ${quantity}`,
+          })
+          .where(
+            and(
+              eq(orderItems.orderId, order.id),
+              eq(orderItems.productId, productId)
+            )
+          );
+      }
+    },
   },
 };

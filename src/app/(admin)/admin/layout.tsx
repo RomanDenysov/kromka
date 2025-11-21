@@ -1,6 +1,7 @@
 import { cookies, headers } from "next/headers";
 import { forbidden } from "next/navigation";
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode, Suspense } from "react";
+import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth/server";
 import { getBadgeCounts, getNav } from "@/widgets/admin-sidebar/model/get-nav";
@@ -44,6 +45,9 @@ export default async function AdminLayout({ children }: Props) {
           {children}
         </div>
       </SidebarInset>
+      <Suspense>
+        <AdminDrawersProvider />
+      </Suspense>
     </SidebarProvider>
   );
 }

@@ -1,8 +1,23 @@
 import "server-only";
 
+import { headers } from "next/headers";
 import { db } from "@/db";
+import { auth } from "@/lib/auth/server";
 
 export const QUERIES = {
+  PUBLIC: {
+    GET_ME: async () => {
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
+
+      if (session?.user && !session?.user?.isAnonymous) {
+        return session?.user;
+      }
+
+      return null;
+    },
+  },
   ADMIN: {
     GET_USERS: async () =>
       await db.query.users.findMany({

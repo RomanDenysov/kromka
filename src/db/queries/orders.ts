@@ -184,4 +184,28 @@ export const QUERIES = {
         },
       }),
   },
+  PUBLIC: {
+    GET_CART: async (userId: string) => {
+      const cart = await db.query.orders.findFirst({
+        where: (order, { eq, and }) =>
+          and(eq(order.orderStatus, "cart"), eq(order.createdBy, userId)),
+        with: {
+          items: {
+            orderBy: (item, { asc }) => [asc(item.productId)],
+            with: {
+              product: {
+                columns: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  priceCents: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      return cart ?? null;
+    },
+  },
 };

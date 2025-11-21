@@ -74,6 +74,20 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   return result;
 });
 
+export const sessionMiddleware = t.middleware(({ ctx, next }) => {
+  if (!(ctx.session?.session && ctx.session.user)) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+    });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      session: ctx.session,
+    },
+  });
+});
+
 export const protectedMiddleware = t.middleware(({ ctx, next }) => {
   if (
     !(ctx.session?.session && ctx.session.user) ||
@@ -92,6 +106,10 @@ export const protectedMiddleware = t.middleware(({ ctx, next }) => {
 });
 
 export const publicProcedure = t.procedure.use(timingMiddleware);
+
+export const sessionProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(sessionMiddleware);
 
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)

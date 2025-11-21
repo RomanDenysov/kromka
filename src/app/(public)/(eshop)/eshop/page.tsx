@@ -31,7 +31,7 @@ export default function EshopPage() {
   );
 }
 
-// We will call the endpoint to get the:
+/* We will call the endpoint to get the: */
 // - Featured products (which category should be displayed as featured)
 // - Categories (list of categories)
 // - Products (list of products)

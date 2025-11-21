@@ -5,14 +5,14 @@ import {
   LogOutIcon,
   PackageIcon,
   SettingsIcon,
-  Store,
   UserIcon,
 } from "lucide-react";
-import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { buttonVariants } from "@/components/ui/button";
+import { Icons } from "@/components/icons";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,65 +20,66 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetUser } from "@/hooks/use-get-user";
 import { signOut } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
-import { Icons } from "../icons";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Skeleton } from "../ui/skeleton";
 
-export function UserButton() {
+export function MobileUserButton() {
   const { data: user, isLoading } = useGetUser();
   const router = useRouter();
-  const selectedStore: string | null = null;
-
   if (isLoading) {
-    return <Skeleton className="size-8 rounded-md" />;
+    return <Skeleton className="h-8 w-full rounded-md" />;
   }
 
   if (!user) {
     return (
       <Link
         className={cn(
-          buttonVariants({ variant: "ghost", size: "icon-sm" }),
-          "hidden md:inline-flex"
+          buttonVariants({ variant: "outline", size: "xl" }),
+          "w-full"
         )}
-        href={"/prihlasenie" as Route}
+        href="/prihlasenie"
       >
-        <LogInIcon className="size-4" />
-        <span className="sr-only">Prihlásiť sa</span>
+        <LogInIcon />
+        Prihlásiť sa
       </Link>
     );
   }
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label="Účet" asChild>
-        <Avatar className="relative hidden size-8 rounded-md md:flex">
-          <AvatarImage
-            className="rounded-md object-cover"
-            src={user.image ?? undefined}
-          />
-          <AvatarFallback className="rounded-md">
-            {getInitials(user.name || user.email)}
-          </AvatarFallback>
-        </Avatar>
+      <DropdownMenuTrigger asChild>
+        <Button
+          className="w-full justify-start p-2"
+          size="xl"
+          variant="outline"
+        >
+          <Avatar className="relative size-8 rounded-md">
+            <AvatarImage
+              className="rounded-md object-cover"
+              src={user.image ?? undefined}
+            />
+            <AvatarFallback className="rounded-md" delayMs={300}>
+              {getInitials(user.name || user.email)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col items-start">
+            <span className="truncate text-balance text-left font-medium text-sm leading-none">
+              {user.name}
+            </span>
+            <span
+              className={cn(
+                "truncate text-balance text-left text-muted-foreground text-xs",
+                !user.name && "text-primary"
+              )}
+            >
+              {user.email}
+            </span>
+          </div>
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        {selectedStore && (
-          <>
-            <DropdownMenuItem disabled>
-              <Store className="mr-2 size-4" />
-              <div className="flex flex-col gap-1">
-                <span className="text-muted-foreground text-xs">
-                  Vybratá predajňa
-                </span>
-                <span className="font-medium text-sm">{selectedStore}</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
-        )}
+      <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width)">
         <DropdownMenuItem asChild>
           <Link href="/profil">
             <UserIcon />
@@ -111,7 +112,6 @@ export function UserButton() {
               fetchOptions: {
                 onSuccess: () => {
                   router.push("/");
-                  router.refresh();
                 },
                 onError: () => {
                   toast.error("Odhlásenie sa nepodarilo");

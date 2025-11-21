@@ -1,19 +1,7 @@
-"use client";
-
-import {
-  LogInIcon,
-  LogOutIcon,
-  MenuIcon,
-  PackageIcon,
-  SettingsIcon,
-  UserIcon,
-} from "lucide-react";
+import { MenuIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Icons } from "@/components/icons";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Drawer,
@@ -23,30 +11,14 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { signOut } from "@/lib/auth/client";
-import { cn, getInitials } from "@/lib/utils";
-import type { User } from "@/types/users";
+import { cn } from "@/lib/utils";
+import { MobileUserButton } from "./mobile-user-button";
 
 type Props = {
   navigation: { name: string; href: Route }[];
-  user: User | null;
 };
 
-export function MobileNavigation({ navigation, user }: Props) {
-  const isMobile = useIsMobile();
-
-  if (!isMobile) {
-    return null;
-  }
-
+export function MobileNavigation({ navigation }: Props) {
   return (
     <Drawer direction="left">
       <DrawerTrigger asChild>
@@ -82,107 +54,9 @@ export function MobileNavigation({ navigation, user }: Props) {
           </div>
         </div>
         <DrawerFooter>
-          <MobileUserButton user={user} />
+          <MobileUserButton />
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-}
-
-function MobileUserButton({ user }: { user: User | null }) {
-  const router = useRouter();
-  if (!user) {
-    return (
-      <Link
-        className={cn(
-          buttonVariants({ variant: "outline", size: "xl" }),
-          "w-full"
-        )}
-        href="/prihlasenie"
-      >
-        <LogInIcon />
-        Prihlásiť sa
-      </Link>
-    );
-  }
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          className="w-full justify-start p-2"
-          size="xl"
-          variant="outline"
-        >
-          <Avatar className="relative size-8 rounded-md">
-            <AvatarImage
-              className="rounded-md object-cover"
-              src={user.image ?? undefined}
-            />
-            <AvatarFallback className="rounded-md" delayMs={300}>
-              {getInitials(user.name || user.email)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col items-start">
-            <span className="truncate text-balance text-left font-medium text-sm leading-none">
-              {user.name}
-            </span>
-            <span
-              className={cn(
-                "truncate text-balance text-left text-muted-foreground text-xs",
-                !user.name && "text-primary"
-              )}
-            >
-              {user.email}
-            </span>
-          </div>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width)">
-        <DropdownMenuItem asChild>
-          <Link href="/profil">
-            <UserIcon />
-            Profil
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/profil/nastavenia">
-            <SettingsIcon />
-            Nastavenia
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/profil/objednavky">
-            <PackageIcon />
-            Objednavky
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/admin">
-            <Icons.logo className="size-4" />
-            Admin panel
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() =>
-            signOut({
-              fetchOptions: {
-                onSuccess: () => {
-                  router.push("/");
-                },
-                onError: () => {
-                  toast.error("Odhlásenie sa nepodarilo");
-                },
-              },
-            })
-          }
-        >
-          <LogOutIcon />
-          Odhlásiť sa
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }
