@@ -15,6 +15,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { TableColumnHeader } from "@/components/data-table/ui/table-column-header";
+import { Hint } from "@/components/shared/hint";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -160,18 +161,19 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
   },
   {
     header: "Cena",
-    accessorKey: "prices",
+    accessorKey: "priceCents",
     cell: ({ row }) => {
       const prices = row.original.prices;
-      return (
-        <div className="flex flex-wrap items-center gap-1">
-          {prices.map((price) => (
-            <span className="font-medium text-xs" key={price.priceTier.id}>
-              {/** biome-ignore lint/style/noMagicNumbers: <explanation> */}
-              {formatPrice(price.priceCents / 100)}
-            </span>
-          ))}
-        </div>
+      return prices.length > 0 ? (
+        <Hint text={prices.map((price) => price.priceTier.name).join(", ")}>
+          <span className="font-medium text-xs">
+            {formatPrice(row.original.priceCents)}
+          </span>
+        </Hint>
+      ) : (
+        <span className="font-medium text-xs">
+          {formatPrice(row.original.priceCents)}
+        </span>
       );
     },
   },

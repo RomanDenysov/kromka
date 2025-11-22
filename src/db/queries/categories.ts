@@ -38,13 +38,18 @@ export const QUERIES = {
       }),
     GET_CATEGORIES_BY_PRODUCT: async (productId: string) =>
       await db.query.categories.findMany({
-        where: (category, { inArray, eq }) =>
+        where: (category, { inArray, eq, and: andFn }) =>
           inArray(
             category.id,
             db
               .select({ categoryId: productCategories.categoryId })
               .from(productCategories)
-              .where(eq(productCategories.productId, productId))
+              .where(
+                andFn(
+                  eq(productCategories.productId, productId),
+                  eq(productCategories.categoryId, category.id)
+                )
+              )
           ),
         with: {
           products: {

@@ -70,6 +70,7 @@ export function ProductForm({ id }: { id: string }) {
       showInB2c: product?.showInB2c ?? true,
       showInB2b: product?.showInB2b ?? false,
       priceCents: product?.priceCents ?? 0,
+      categoryIds: product?.categories.map((category) => category.id) ?? [],
     },
     onSubmit: ({ value }) => updateProduct({ id, product: value }),
   });
@@ -149,6 +150,12 @@ export function ProductForm({ id }: { id: string }) {
 
             <form.AppField name="description">
               {(field) => <field.RichTextField label="Popis" />}
+            </form.AppField>
+          </FieldGroup>
+
+          <FieldGroup className="gap-4">
+            <form.AppField name="categoryIds">
+              {(field) => <field.CategorySelectField />}
             </form.AppField>
           </FieldGroup>
 
