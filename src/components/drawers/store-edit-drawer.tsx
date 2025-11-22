@@ -98,7 +98,7 @@ export function StoreEditDrawer() {
             </div>
           </DrawerHeader>
           <Separator />
-          <div className="size-full flex-1">
+          <div className="size-full flex-1 overflow-y-auto">
             <Tabs className="size-full" defaultValue="form">
               <TabsList className="w-full justify-start rounded-none">
                 <TabsTrigger

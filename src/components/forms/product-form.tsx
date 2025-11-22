@@ -87,7 +87,7 @@ export function ProductForm({ id }: { id: string }) {
   const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
 
   if (isLoadingProduct) {
-    return <FormSkeleton className="max-w-md" />;
+    return <FormSkeleton className="@md/page:max-w-md" />;
   }
 
   return (
@@ -104,7 +104,7 @@ export function ProductForm({ id }: { id: string }) {
         }}
         ref={formRef}
       >
-        <FieldSet className="max-w-md gap-5">
+        <FieldSet className="@md/page:max-w-md max-w-full gap-5">
           <div className="flex flex-row items-start justify-between">
             <div>
               <FieldLegend>Nastavenie produktu</FieldLegend>

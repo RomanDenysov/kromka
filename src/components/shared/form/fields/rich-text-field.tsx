@@ -4,7 +4,7 @@ import type { JSONContent } from "@tiptap/react";
 import { useCallback } from "react";
 import { Editor } from "@/components/editor";
 import { useFieldContext } from "@/components/shared/form";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 
 type Props = {
   label?: string;
@@ -48,7 +48,6 @@ export function RichTextField({
           variant={variant}
         />
       </div>
-      {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>
   );
 }

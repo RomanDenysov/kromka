@@ -26,8 +26,8 @@ export default async function StorePage({ params }: Props) {
         ]}
       />
       <ErrorBoundary fallback={<div>Error</div>}>
-        <section className="h-full flex-1 p-4">
-          <Suspense fallback={<FormSkeleton className="max-w-md" />}>
+        <section className="@container/page h-full flex-1 p-4">
+          <Suspense fallback={<FormSkeleton className="@md/page:max-w-md" />}>
             <StoreForm id={id} />
           </Suspense>
         </section>

@@ -85,7 +85,7 @@ export function CategoryForm({ id }: { id: string }) {
   const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
 
   if (isLoadingCategory) {
-    return <FormSkeleton className="max-w-md" />;
+    return <FormSkeleton className="@md/page:max-w-md" />;
   }
 
   return (
@@ -102,11 +102,11 @@ export function CategoryForm({ id }: { id: string }) {
         }}
         ref={formRef}
       >
-        <FieldSet className="max-w-md gap-5">
+        <FieldSet className="@md/page:max-w-md max-w-full gap-5">
           <div className="flex flex-row items-start justify-between">
             <div>
               <FieldLegend>Nastavenie kategórie</FieldLegend>
-              <FieldDescription>
+              <FieldDescription className="text-[10px]">
                 {isPendingUpdateCategory || isLoadingCategory
                   ? "Ukladá sa..."
                   : `Naposledy uložené ${format(
@@ -174,9 +174,6 @@ export function CategoryForm({ id }: { id: string }) {
             </form.AppField>
           </FieldGroup>
           <FieldGroup className="gap-4">
-            <div className="h-8 w-full rounded bg-muted/20" />
-          </FieldGroup>
-          <FieldGroup className="gap-4">
             <div className="grid grid-cols-2 gap-x-2 gap-y-4">
               <form.AppField name="isActive">
                 {(field) => (
@@ -215,11 +212,6 @@ export function CategoryForm({ id }: { id: string }) {
               {(field) => <field.QuantitySetterField label="Poradie" min={0} />}
             </form.AppField>
           </FieldGroup>
-          <form.SubmitButton
-            className="self-end"
-            form="category-form"
-            size="sm"
-          />
         </FieldSet>
       </form>
     </form.AppForm>

@@ -68,7 +68,7 @@ export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
     cell: ({ row }) => (
       <Link
         className={buttonVariants({ variant: "link", size: "xs" })}
-        href={`/admin/stores?storeId=${row.original.id}`}
+        href={`/admin/stores/${row.original.id}`}
         prefetch
       >
         {row.original.name}

@@ -97,10 +97,12 @@ export function StoreForm({ id }: { id: string }) {
     onSubmit: ({ value }) => updateStore({ id, store: value }),
   });
 
-  const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
+  const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form, {
+    blurDelay: 1000,
+  });
 
   if (isLoadingStore) {
-    return <FormSkeleton className="max-w-md" />;
+    return <FormSkeleton className="@md/page:max-w-md" />;
   }
 
   return (
@@ -117,11 +119,11 @@ export function StoreForm({ id }: { id: string }) {
         }}
         ref={formRef}
       >
-        <FieldSet className="max-w-md gap-5">
+        <FieldSet className="@md/page:max-w-md max-w-full gap-5">
           <div className="flex flex-row items-start justify-between">
             <div>
               <FieldLegend>Nastavenie obchodu</FieldLegend>
-              <FieldDescription>
+              <FieldDescription className="text-[10px]">
                 {isPendingUpdateStore || isLoadingStore
                   ? "Ukladá sa..."
                   : `Naposledy uložené ${format(
@@ -180,7 +182,7 @@ export function StoreForm({ id }: { id: string }) {
               {(field) => <field.TextField label="Slug" placeholder="Slug" />}
             </form.AppField>
             <form.AppField name="description">
-              {(field) => <field.RichTextField />}
+              {(field) => <field.RichTextField label="Popis obchodu" />}
             </form.AppField>
           </FieldGroup>
           <FieldGroup className="gap-4">
@@ -199,7 +201,7 @@ export function StoreForm({ id }: { id: string }) {
               )}
             </form.AppField>
           </FieldGroup>
-          <FieldGroup className="gap-4">
+          <FieldGroup className="grid grid-cols-2 gap-4">
             <form.AppField name="isActive">
               {(field) => (
                 <field.SwitchField
@@ -214,7 +216,6 @@ export function StoreForm({ id }: { id: string }) {
               )}
             </form.AppField>
           </FieldGroup>
-          <form.SubmitButton className="self-end" form="store-form" size="sm" />
         </FieldSet>
       </form>
     </form.AppForm>

@@ -1,8 +1,8 @@
 import { useFieldContext } from "@/components/shared/form";
 import {
   Field,
+  FieldContent,
   FieldDescription,
-  FieldError,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,10 @@ export function TextField({
       data-invalid={isInvalid}
       orientation="responsive"
     >
-      {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+      <FieldContent>
+        {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
+        {description && <FieldDescription>{description}</FieldDescription>}
+      </FieldContent>
       <Input
         id={field.name}
         name={field.name}
@@ -39,8 +42,6 @@ export function TextField({
         value={field.state.value}
         volume="sm"
       />
-      {description && <FieldDescription>{description}</FieldDescription>}
-      {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>
   );
 }
