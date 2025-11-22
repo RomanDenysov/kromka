@@ -30,11 +30,11 @@ const footerLinks: Record<"company" | "legal", FooterLinkItem[]> = {
 export function Footer() {
   return (
     <div
-      className="relative h-[550px] sm:h-[650px]"
+      className="relative h-[550px] sm:h-[650px] lg:h-[750px] xl:h-[850px]"
       style={{ clipPath: "polygon(0% 0, 100% 0, 100% 100%, 0 100%)" }}
     >
-      <div className="-top-[100vh] relative h-[calc(100vh+550px)] sm:h-[calc(100vh+650px)]">
-        <footer className="sticky top-[calc(100vh-550px)] h-[550px] w-full border-t pt-3 sm:top-[calc(100vh-650px)] sm:h-[650px]">
+      <div className="-top-[100vh] relative h-[calc(100vh+550px)] sm:h-[calc(100vh+650px)] lg:h-[calc(100vh+750px)] xl:h-[calc(100vh+850px)]">
+        <footer className="sticky top-[calc(100vh-550px)] h-[550px] w-full border-t pt-3 sm:top-[calc(100vh-650px)] sm:h-[650px] lg:top-[calc(100vh-750px)] lg:h-[750px] xl:top-[calc(100vh-850px)] xl:h-[850px]">
           <div className="flex size-full flex-col items-center justify-end gap-8 pt-5">
             <div className="w-full shrink-0 px-3">
               <Icons.kromka className="h-full text-primary" />

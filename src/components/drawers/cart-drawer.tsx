@@ -6,7 +6,7 @@ import { ShoppingCartIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useGetCart } from "@/hooks/use-get-cart";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { ProductCartListItem } from "../shared/product-cart-list-item";
 import { Badge } from "../ui/badge";
 import { Button, buttonVariants } from "../ui/button";
@@ -22,7 +22,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 
 export function CartDrawer() {
-  const { data: cart } = useGetCart();
+  const { data: cart, isLoading } = useGetCart();
 
   const items = cart?.items ?? [];
   const cartItemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
@@ -34,12 +34,22 @@ export function CartDrawer() {
   return (
     <Drawer direction={"right"}>
       <DrawerTrigger asChild>
-        <Button className="relative" size="icon-sm" variant="ghost">
+        <Button
+          className="relative"
+          disabled={isLoading}
+          size="icon-sm"
+          variant="ghost"
+        >
           <ShoppingCartIcon className="size-5" />
           <span className="sr-only">Košík</span>
+          {isLoading && (
+            <span className="-top-1.5 -right-1.5 absolute size-4 rounded-full bg-muted" />
+          )}
           {cartItemsCount > 0 && (
             <Badge
-              className="-top-1.5 -right-1.5 absolute h-4 px-0.5 py-0 font-semibold text-[10px]"
+              className={cn(
+                "-top-1.5 -right-1.5 absolute aspect-square h-4 w-auto px-0.5 py-0 font-semibold text-[10px]"
+              )}
               variant="default"
             >
               {cartItemsCount}
