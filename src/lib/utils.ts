@@ -31,7 +31,8 @@ export function formatPrice(
     currency,
     notation,
     maximumFractionDigits: 2,
-  }).format(numericPrice);
+    // biome-ignore lint/style/noMagicNumbers: <explanation>
+  }).format(numericPrice / 100);
 }
 
 export function capitalize(str: string) {

@@ -200,12 +200,42 @@ export const QUERIES = {
                   slug: true,
                   priceCents: true,
                 },
+                with: {
+                  images: {
+                    with: {
+                      media: true,
+                    },
+                  },
+                },
               },
             },
           },
         },
       });
-      return cart ?? null;
+
+      if (cart) {
+        for (const item of cart.items) {
+          item.product.images = item.product.images.map((image) => ({
+            ...image,
+            url: image.media.url,
+          }));
+        }
+      }
+
+      const processedCart = {
+        ...cart,
+        items: cart?.items.map((item) => ({
+          ...item,
+          product: {
+            ...item.product,
+            images: item.product.images.map((image) => ({
+              url: image.media.url,
+            })),
+          },
+        })),
+      };
+
+      return processedCart;
     },
   },
 };
