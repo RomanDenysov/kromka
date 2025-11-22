@@ -1,8 +1,9 @@
-import { MinusIcon, PlusIcon } from "lucide-react";
+"use client";
+
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/routers";
-import { Button } from "../ui/button";
+import { QuantitySetter } from "./quantity-setter";
 
 type CartItem = NonNullable<
   NonNullable<RouterOutputs["public"]["cart"]["getCart"]>["items"]
@@ -37,22 +38,8 @@ export function ProductCartListItem({ item }: Props) {
         <span className="font-medium text-sm">
           {formatPrice(product.priceCents * quantity)}
         </span>
-        <QuantitySetter quantity={quantity} />
+        <QuantitySetter productId={product.id} quantity={quantity} />
       </div>
-    </div>
-  );
-}
-
-function QuantitySetter({ quantity }: { quantity: number }) {
-  return (
-    <div className="flex items-center gap-1">
-      <Button size="icon-xs" variant="outline">
-        <MinusIcon className="size-3" />
-      </Button>
-      <span className="w-4 text-center text-sm">{quantity}</span>
-      <Button size="icon-xs" variant="outline">
-        <PlusIcon className="size-3" />
-      </Button>
     </div>
   );
 }

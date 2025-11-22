@@ -137,11 +137,13 @@ export function useCartActions() {
             return {
               ...old,
               // biome-ignore lint/suspicious/noExplicitAny: Optimistic update payload is partial
-              items: old.items.map((item: any) =>
-                item.productId === variables.productId
-                  ? { ...item, quantity: variables.quantity }
-                  : item
-              ),
+              items: old.items
+                .map((item: any) =>
+                  item.productId === variables.productId
+                    ? { ...item, quantity: variables.quantity }
+                    : item
+                )
+                .filter((item: any) => item.quantity > 0),
             };
           }
         );
