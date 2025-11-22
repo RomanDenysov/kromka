@@ -1,7 +1,10 @@
 import z from "zod";
 import { MUTATIONS } from "@/db/mutations/products";
 import { QUERIES } from "@/db/queries/products";
-import { outputProductSchema, productSchema } from "@/validation/products";
+import {
+  outputProductSchema,
+  updateProductSchema,
+} from "@/validation/products";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const adminProductsRouter = createTRPCRouter({
@@ -39,7 +42,12 @@ export const adminProductsRouter = createTRPCRouter({
       async ({ input }) => await MUTATIONS.ADMIN.COPY_PRODUCT(input.productId)
     ),
   update: protectedProcedure
-    .input(z.object({ id: z.string(), product: productSchema }))
+    .input(
+      z.object({
+        id: z.string(),
+        product: updateProductSchema,
+      })
+    )
     .mutation(
       async ({ input }) =>
         await MUTATIONS.ADMIN.UPDATE_PRODUCT(input.id, input.product)
@@ -108,7 +116,7 @@ export const publicProductsRouter = createTRPCRouter({
     .input(
       z.object({
         limit: z.number().optional(),
-        cursor: z.string().optional(),
+        cursor: z.number().optional(),
       })
     )
     .query(

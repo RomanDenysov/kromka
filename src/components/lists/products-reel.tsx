@@ -23,7 +23,7 @@ export function ProductsReel({ limit }: Props) {
       }
     );
   const { data, fetchNextPage, hasNextPage, isFetching } =
-    useSuspenseInfiniteQuery(infiniteQueryOptions);
+    useSuspenseInfiniteQuery({ ...infiniteQueryOptions, initialPageParam: 0 });
 
   const { ref, inView } = useInView();
 
@@ -34,13 +34,13 @@ export function ProductsReel({ limit }: Props) {
   }, [inView, fetchNextPage]);
 
   useEffect(() => {
-    // biome-ignore lint/suspicious/noConsole: <explanation>
+    // biome-ignore lint/suspicious/noConsole: debugging
     console.log("products", data.pages);
   }, [data.pages]);
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-4 p-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 px-4 md:grid-cols-3 lg:grid-cols-4">
         {data.pages
           .flatMap((page) => page.data)
           .map((product) => (

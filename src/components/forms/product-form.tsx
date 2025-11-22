@@ -28,7 +28,7 @@ import {
 import { PRODUCT_STATUSES } from "@/db/schema/products";
 import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
-import { productSchema } from "@/validation/products";
+import { updateProductSchema } from "@/validation/products";
 import { ImageUpload } from "../image-upload";
 
 export function ProductForm({ id }: { id: string }) {
@@ -56,7 +56,7 @@ export function ProductForm({ id }: { id: string }) {
 
   const form = useAppForm({
     validators: {
-      onSubmit: productSchema,
+      onSubmit: updateProductSchema,
     },
     defaultValues: {
       id,

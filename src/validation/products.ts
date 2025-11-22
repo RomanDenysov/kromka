@@ -19,6 +19,12 @@ export const productSchema = z.object({
   priceCents: z.number(),
 });
 
+export const updateProductSchema = productSchema.extend({
+  categoryIds: z.array(z.string()),
+});
+
+export type UpdateProductSchema = z.infer<typeof updateProductSchema>;
+
 export const priceSchema = z.object({
   minQty: z.number(),
   priceCents: z.number(),

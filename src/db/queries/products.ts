@@ -185,18 +185,18 @@ export const QUERIES = {
     },
     GET_PRODUCTS_INFINITE: async (input: {
       limit?: number;
-      cursor?: string;
+      cursor?: number;
     }) => {
-      const { limit = 12, cursor } = input;
+      const { limit = 12, cursor = 0 } = input;
       const fetchedProducts = await db.query.products.findMany({
-        where: (product, { eq: eqFn, not: notFn, and: andFn, gt: gtFn }) =>
+        where: (product, { eq: eqFn, not: notFn, and: andFn }) =>
           andFn(
             eqFn(product.isActive, true),
             notFn(eqFn(product.status, "archived")),
-            notFn(eqFn(product.status, "draft")),
-            cursor ? gtFn(product.id, cursor) : undefined
+            notFn(eqFn(product.status, "draft"))
           ),
         limit: limit + 1,
+        offset: cursor,
         with: {
           images: {
             with: {
@@ -212,6 +212,7 @@ export const QUERIES = {
         orderBy: (product, { asc: ascFn, desc: descFn }) => [
           ascFn(product.sortOrder),
           descFn(product.createdAt),
+          ascFn(product.id),
         ],
       });
 
@@ -227,15 +228,15 @@ export const QUERIES = {
         );
 
       let hasMore = false;
-      let nextCursor: string | undefined;
+      let nextCursor: number | undefined;
 
       if (fetchedProducts.length > limit) {
         hasMore = true;
         fetchedProducts.pop();
       }
 
-      if (fetchedProducts.length > 0) {
-        nextCursor = fetchedProducts.at(-1)?.id;
+      if (hasMore) {
+        nextCursor = cursor + limit;
       }
 
       for (const p of fetchedProducts) {
@@ -252,7 +253,7 @@ export const QUERIES = {
       const result = {
         data: processedProducts,
         total: total?.count ?? 0,
-        hasMore: hasMore || fetchedProducts.length === limit,
+        hasMore,
         nextCursor,
       };
 

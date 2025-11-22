@@ -21,11 +21,11 @@ export function ProductCartListItem({ item }: Props) {
       <div className="flex items-center gap-2">
         <Image
           alt={product.name}
-          className="rounded-md"
-          height={50}
+          className="aspect-square rounded-sm object-cover"
+          height={60}
           quality={65}
-          src={product.images[0].url ?? ""}
-          width={50}
+          src={product.images[0]?.url || "/images/doors.jpg"}
+          width={60}
         />
         <div className="flex flex-1 flex-col gap-1">
           <span className="font-medium text-sm">{product.name}</span>

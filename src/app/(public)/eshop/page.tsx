@@ -10,11 +10,10 @@ export default async function EshopPage() {
   const queryClient = getQueryClient();
 
   // Change this to prefetch once this is fixed: https://github.com/trpc/trpc/issues/6632
-  await queryClient.fetchInfiniteQuery(
-    trpc.public.products.infinite.infiniteQueryOptions({
-      limit: 12,
-    })
-  );
+  const options = trpc.public.products.infinite.infiniteQueryOptions({
+    limit: 12,
+  });
+  await queryClient.fetchInfiniteQuery({ ...options, initialPageParam: 0 });
   return (
     <HydrateClient>
       <ErrorBoundary fallback={<div>Error loading products</div>}>

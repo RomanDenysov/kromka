@@ -27,9 +27,9 @@ export function ProductImage({
       height={height}
       placeholder="blur"
       priority={priority}
-      quality={85}
+      quality={75}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      src={src || "/images/doors.webp"}
+      src={src || "/images/doors.jpg"}
       width={width}
     />
   );

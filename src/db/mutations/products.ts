@@ -100,14 +100,34 @@ export const MUTATIONS = {
     },
     UPDATE_PRODUCT: async (
       productId: string,
-      product: Partial<ProductInsert>
+      product: Partial<ProductInsert> & { categoryIds?: string[] }
     ): Promise<{ id: string }> => {
-      const [updatedProduct] = await db
-        .update(products)
-        .set(product)
-        .where(eq(products.id, productId))
-        .returning({ id: products.id });
-      return updatedProduct;
+      const { categoryIds, ...productData } = product;
+
+      if (Object.keys(productData).length > 0) {
+        await db
+          .update(products)
+          .set(productData)
+          .where(eq(products.id, productId));
+      }
+
+      if (categoryIds) {
+        await db
+          .delete(productCategories)
+          .where(eq(productCategories.productId, productId));
+
+        if (categoryIds.length > 0) {
+          await db.insert(productCategories).values(
+            categoryIds.map((categoryId) => ({
+              productId,
+              categoryId,
+              sortOrder: 0,
+            }))
+          );
+        }
+      }
+
+      return { id: productId };
     },
 
     TOGGLE_IS_ACTIVE: async (productId: string): Promise<{ id: string }> => {
@@ -176,21 +196,19 @@ export const MUTATIONS = {
     },
 
     UPDATE_IMAGE_SORT_ORDER: async (productId: string, mediaIds: string[]) => {
-      // Update sortOrder for all images in a transaction
-      await db.transaction(async (tx) => {
-        // biome-ignore lint/nursery/noIncrementDecrement: <explanation>
-        for (let index = 0; index < mediaIds.length; index++) {
-          await tx
-            .update(productImages)
-            .set({ sortOrder: index })
-            .where(
-              and(
-                eq(productImages.productId, productId),
-                eq(productImages.mediaId, mediaIds[index])
-              )
-            );
-        }
-      });
+      // Update sortOrder for all images
+      // biome-ignore lint/nursery/noIncrementDecrement: <explanation>
+      for (let index = 0; index < mediaIds.length; index++) {
+        await db
+          .update(productImages)
+          .set({ sortOrder: index })
+          .where(
+            and(
+              eq(productImages.productId, productId),
+              eq(productImages.mediaId, mediaIds[index])
+            )
+          );
+      }
 
       // Return updated images
       return await db.query.productImages.findMany({
