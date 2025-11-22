@@ -9,15 +9,17 @@ export function Hint({
   align = "center",
   side = "right",
   asChild = true,
+  delay,
 }: {
   children: ReactNode;
   text: string;
   align?: "center" | "start" | "end";
   side?: "top" | "bottom" | "left" | "right";
   asChild?: boolean;
+  delay?: number;
 }) {
   return (
-    <Tooltip>
+    <Tooltip delayDuration={delay ?? 0}>
       <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
       <TooltipContent align={align} side={side} sideOffset={4}>
         <span className="font-medium text-xs">{text}</span>

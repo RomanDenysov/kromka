@@ -39,7 +39,7 @@ export function CartDrawer() {
           <span className="sr-only">Košík</span>
           {cartItemsCount > 0 && (
             <Badge
-              className="-top-1.5 -right-1.5 absolute h-4 px-0.5 py-0 text-[10px]"
+              className="-top-1.5 -right-1.5 absolute h-4 px-0.5 py-0 font-semibold text-[10px]"
               variant="default"
             >
               {cartItemsCount}

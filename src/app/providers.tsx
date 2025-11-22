@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, Suspense } from "react";
+import type { ReactNode } from "react";
 import { PageTracker } from "react-page-tracker";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AnonymousProvider } from "@/lib/auth/anonymous-provider";
@@ -22,9 +22,7 @@ export function Providers({ children }: Props) {
       >
         {children}
       </ThemeProvider>
-      <Suspense>
-        <AnonymousProvider />
-      </Suspense>
+      <AnonymousProvider />
     </TRPCReactProvider>
   );
 }
