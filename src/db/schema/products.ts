@@ -70,15 +70,7 @@ export const productImages = pgTable(
     mediaId: text("media_id")
       .notNull()
       .references(() => media.id, { onDelete: "cascade" }),
-    alt: text("alt"),
     sortOrder: integer("sort_order").default(0).notNull(),
-    isPrimary: boolean("is_primary").default(false).notNull(),
-
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
   },
   (table) => [
     primaryKey({ columns: [table.productId, table.mediaId] }),

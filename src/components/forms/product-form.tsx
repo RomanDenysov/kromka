@@ -26,6 +26,7 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { PRODUCT_STATUSES } from "@/db/schema/products";
+import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
 import { updateProductSchema } from "@/validation/products";
@@ -34,6 +35,7 @@ import { ImageUpload } from "../image-upload";
 export function ProductForm({ id }: { id: string }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+
   const { data: product, isLoading: isLoadingProduct } = useSuspenseQuery(
     trpc.admin.products.byId.queryOptions({ id })
   );
@@ -46,7 +48,6 @@ export function ProductForm({ id }: { id: string }) {
               id: updatedProduct.id,
             }).queryKey,
           });
-          toast.success("Produkt aktualizovaný");
         },
         onError: (error) => {
           toast.error(error.message);
@@ -72,8 +73,18 @@ export function ProductForm({ id }: { id: string }) {
       priceCents: product?.priceCents ?? 0,
       categoryIds: product?.categories.map((category) => category.id) ?? [],
     },
+    listeners: {
+      onChangeDebounceMs: 5000,
+      onChange: ({ formApi }) => {
+        if (formApi.state.isValid && !formApi.state.isSubmitting) {
+          formApi.handleSubmit();
+        }
+      },
+    },
     onSubmit: ({ value }) => updateProduct({ id, product: value }),
   });
+
+  const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
 
   if (isLoadingProduct) {
     return <FormSkeleton className="max-w-md" />;
@@ -84,17 +95,20 @@ export function ProductForm({ id }: { id: string }) {
       <form
         aria-disabled={isPendingUpdateProduct}
         id="product-form"
+        onBlurCapture={onBlurCapture}
+        onFocusCapture={onFocusCapture}
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
         }}
+        ref={formRef}
       >
         <FieldSet className="max-w-md gap-5">
           <div className="flex flex-row items-start justify-between">
             <div>
               <FieldLegend>Nastavenie produktu</FieldLegend>
-              <FieldDescription>
+              <FieldDescription className="text-[10px]">
                 {isPendingUpdateProduct || isLoadingProduct
                   ? "Ukladá sa..."
                   : `Naposledy uložené ${format(
@@ -209,12 +223,6 @@ export function ProductForm({ id }: { id: string }) {
               </form.AppField>
             </div>
           </FieldGroup>
-
-          <form.SubmitButton
-            className="self-end"
-            form="product-form"
-            size="sm"
-          />
         </FieldSet>
       </form>
     </form.AppForm>

@@ -60,25 +60,19 @@ export function SortableImageItem({ image, onRemove, disabled }: Props) {
 
       <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/20" />
 
-      {image.isPrimary && (
-        <div className="absolute top-2 left-2 rounded bg-primary px-2 py-1 font-medium text-primary-foreground text-xs">
-          Primary
-        </div>
-      )}
-
       {!disabled && (
         <>
           <div
             {...attributes}
             {...listeners}
-            className="absolute bottom-2 left-2 cursor-grab rounded bg-black/70 p-1.5 opacity-0 transition-opacity active:cursor-grabbing group-hover:opacity-100"
+            className="absolute bottom-1.5 left-1.5 cursor-grab rounded bg-black/70 p-1.5 opacity-0 transition-opacity active:cursor-grabbing group-hover:opacity-100"
           >
-            <GripVerticalIcon className="size-4 text-white" />
+            <GripVerticalIcon className="size-3 text-white" />
           </div>
           <AlertDialog key={image.mediaId}>
             <AlertDialogTrigger asChild>
               <Button
-                className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
+                className="absolute top-1.5 right-1.5 opacity-0 transition-opacity group-hover:opacity-100"
                 size="icon-xs"
                 type="button"
                 variant="destructive"

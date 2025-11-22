@@ -76,11 +76,10 @@ export const MUTATIONS = {
       // Batch insert images
       if (referenceProduct.images.length > 0) {
         await db.insert(productImages).values(
-          referenceProduct.images.map(({ mediaId, sortOrder, isPrimary }) => ({
+          referenceProduct.images.map(({ mediaId, sortOrder }) => ({
             productId: newProduct.id,
             mediaId,
             sortOrder,
-            isPrimary,
           }))
         );
       }
@@ -178,7 +177,6 @@ export const MUTATIONS = {
           productId,
           mediaId: mediaRecord.id,
           sortOrder,
-          isPrimary: sortOrder === 0, // First image is primary
         })
         .returning();
 

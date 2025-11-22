@@ -1,13 +1,22 @@
 "use client";
 
-import { closestCenter, DndContext, type DragEndEvent } from "@dnd-kit/core";
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import {
   arrayMove,
   rectSortingStrategy,
   SortableContext,
+  sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ChangeEvent, useCallback, useMemo, useState } from "react";
+import { type ChangeEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { uploadImage } from "@/lib/upload";
 import { useTRPC } from "@/trpc/client";
@@ -15,13 +24,9 @@ import { ImageCrop } from "./image-crop";
 import { ImageInput } from "./image-input";
 import { SortableImageItem } from "./sortable-image-item";
 
-// biome-ignore lint/performance/noBarrelFile: Only specific exports
-export { SingleImageUpload } from "./single-image-upload";
-
 export type ProductImageType = {
   mediaId: string;
   sortOrder: number;
-  isPrimary: boolean;
   media: {
     id: string;
     name: string;
@@ -29,88 +34,143 @@ export type ProductImageType = {
     path: string;
     type: string;
     size: number;
+    createdAt: Date;
+    updatedAt: Date;
   };
   productId: string;
 };
 
-// TODO: Move to constants file
 const KB = 1024;
 const MB = 4;
 const IMAGE_SIZE_MB = MB * KB * KB;
 
-export function ImageUpload({ productId }: { productId: string }) {
+function useProductImages(productId: string) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const queryKey = trpc.admin.products.images.queryKey({ productId });
 
-  const { data: images, isLoading: isLoadingImages } = useQuery(
+  const { data: images, isLoading } = useQuery(
     trpc.admin.products.images.queryOptions(
       { productId },
       { enabled: !!productId }
     )
   );
 
-  const { mutateAsync: uploadMedia, isPending: isUploadingMedia } = useMutation(
+  const uploadMutation = useMutation(
     trpc.admin.products.createImageRecord.mutationOptions({
       onSuccess: (newImage) => {
         toast.success("Obrázok úspešne nahraný");
-        setFileToUpload(null);
-
         if (newImage) {
-          queryClient.setQueryData(
-            trpc.admin.products.images.queryKey({ productId }),
-            (oldData) => {
-              // biome-ignore lint/suspicious/noExplicitAny: Type compatibility
-              const newItem = newImage as any;
-              return oldData ? [...oldData, newItem] : [newItem];
-            }
+          queryClient.setQueryData<ProductImageType[]>(queryKey, (old) =>
+            old
+              ? [...old, newImage as unknown as ProductImageType]
+              : [newImage as unknown as ProductImageType]
           );
         }
-
-        queryClient.invalidateQueries({
-          queryKey: trpc.admin.products.images.queryKey({ productId }),
-        });
+        queryClient.invalidateQueries({ queryKey });
       },
-      onError: (error) => {
-        toast.error(`Chyba pri nahrávaní: ${error.message}`);
-      },
+      onError: (error) => toast.error(`Chyba pri nahrávaní: ${error.message}`),
     })
   );
 
-  const { mutate: updateSortOrder } = useMutation(
+  const sortMutation = useMutation(
     trpc.admin.products.updateImageSortOrder.mutationOptions({
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.admin.products.images.queryKey({ productId }),
+      onMutate: async ({ mediaIds }) => {
+        // Cancel outgoing refetches
+        await queryClient.cancelQueries({ queryKey });
+
+        // Snapshot the previous value
+        const previousImages =
+          queryClient.getQueryData<ProductImageType[]>(queryKey);
+
+        // Optimistically update to the new value
+        queryClient.setQueryData<ProductImageType[]>(queryKey, (old) => {
+          if (!old) {
+            return [];
+          }
+
+          const itemMap = new Map(old.map((item) => [item.mediaId, item]));
+          return mediaIds
+            .map((id) => itemMap.get(id))
+            .filter((item): item is ProductImageType => item !== undefined);
         });
+
+        return { previousImages };
       },
-      onError: () => {
+      onError: (_, __, context) => {
         toast.error("Nepodarilo sa aktualizovať poradie");
+        // Rollback on error
+        if (context?.previousImages) {
+          queryClient.setQueryData<ProductImageType[]>(
+            queryKey,
+            context.previousImages
+          );
+        }
+      },
+      onSettled: () => {
+        // Always refetch after error or success
+        queryClient.invalidateQueries({ queryKey });
       },
     })
   );
 
-  const { mutate: deleteImage } = useMutation(
+  const deleteMutation = useMutation(
     trpc.admin.products.deleteImage.mutationOptions({
-      onSuccess: () => {
-        toast.success("Obrázok odstránený");
-        queryClient.invalidateQueries({
-          queryKey: trpc.admin.products.images.queryKey({ productId }),
-        });
+      onMutate: async ({ mediaId }) => {
+        await queryClient.cancelQueries({ queryKey });
+        const previousImages =
+          queryClient.getQueryData<ProductImageType[]>(queryKey);
+
+        queryClient.setQueryData<ProductImageType[]>(queryKey, (old) =>
+          old ? old.filter((img) => img.mediaId !== mediaId) : []
+        );
+
+        return { previousImages };
       },
-      onError: (error) => {
+      onSuccess: () => toast.success("Obrázok odstránený"),
+      onError: (error, _, context) => {
         toast.error(`Chyba pri odstraňovaní: ${error.message}`);
+        if (context?.previousImages) {
+          queryClient.setQueryData<ProductImageType[]>(
+            queryKey,
+            context.previousImages
+          );
+        }
       },
+      onSettled: () => queryClient.invalidateQueries({ queryKey }),
     })
   );
 
-  const processedImages = useMemo(() => images ?? [], [images]);
+  return {
+    images: images ?? [],
+    isLoading,
+    uploadImage: uploadMutation.mutateAsync,
+    isUploading: uploadMutation.isPending,
+    updateSortOrder: sortMutation.mutate,
+    isSorting: sortMutation.isPending,
+    deleteImage: deleteMutation.mutate,
+  };
+}
+
+export function ImageUpload({ productId }: { productId: string }) {
+  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+
+  const {
+    images,
+    isLoading,
+    isUploading,
+    uploadImage: uploadMedia,
+    updateSortOrder,
+    isSorting,
+    deleteImage,
+  } = useProductImages(productId);
 
   const handleFileSelect = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
       return;
     }
+
     if (!file.type.startsWith("image/")) {
       toast.error("Prosím vyberte súbor s obrázkom");
       return;
@@ -122,28 +182,30 @@ export function ImageUpload({ productId }: { productId: string }) {
     }
 
     setFileToUpload(file);
-
-    if (e.target.value) {
-      e.target.value = "";
-    }
+    e.target.value = "";
   }, []);
 
   const handleApply = useCallback(
     async (croppedFile: File) => {
-      const result = await uploadImage(croppedFile, "products");
-      const { url, pathname, size } = result.data;
+      try {
+        const result = await uploadImage(croppedFile, "products");
+        const { url, pathname, size } = result.data;
 
-      await uploadMedia({
-        productId,
-        blobUrl: url,
-        blobPath: pathname,
-        metadata: {
-          filename: croppedFile.name,
-          size,
-          width: 0, // Metadata extraction not implemented on client side yet
-          height: 0,
-        },
-      });
+        await uploadMedia({
+          productId,
+          blobUrl: url,
+          blobPath: pathname,
+          metadata: {
+            filename: croppedFile.name,
+            size,
+            width: 0,
+            height: 0,
+          },
+        });
+        setFileToUpload(null);
+      } catch {
+        toast.error("Chyba pri nahrávaní obrázka");
+      }
     },
     [uploadMedia, productId]
   );
@@ -155,29 +217,23 @@ export function ImageUpload({ productId }: { productId: string }) {
         return;
       }
 
-      const oldIndex = processedImages.findIndex(
-        (img) => img.mediaId === active.id
-      );
-      const newIndex = processedImages.findIndex(
-        (img) => img.mediaId === over.id
-      );
+      const oldIndex = images.findIndex((img) => img.mediaId === active.id);
+      const newIndex = images.findIndex((img) => img.mediaId === over.id);
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        // Optimistic update could be done here if we manage local state
-        const newOrderIds = arrayMove(processedImages, oldIndex, newIndex).map(
-          (img) => img.mediaId
-        );
-        updateSortOrder({ productId, mediaIds: newOrderIds });
+      if (oldIndex === -1 || newIndex === -1) {
+        return;
       }
-    },
-    [processedImages, productId, updateSortOrder]
-  );
 
-  const handleRemove = useCallback(
-    (mediaId: string) => {
-      deleteImage({ productId, mediaId });
+      // Get new order immediately
+      const newOrder = arrayMove(images, oldIndex, newIndex);
+
+      // Update server - optimistic update happens in mutation
+      updateSortOrder({
+        productId,
+        mediaIds: newOrder.map((img) => img.mediaId),
+      });
     },
-    [deleteImage, productId]
+    [images, updateSortOrder, productId]
   );
 
   return (
@@ -185,17 +241,17 @@ export function ImageUpload({ productId }: { productId: string }) {
       {fileToUpload && (
         <ImageCrop
           file={fileToUpload}
-          isUploading={isUploadingMedia}
+          isUploading={isUploading}
           onApply={handleApply}
           onCancel={() => setFileToUpload(null)}
         />
       )}
       <ImagesSortable
-        disabled={isUploadingMedia || isLoadingImages}
-        images={processedImages as unknown as ProductImageType[]}
+        disabled={isUploading || isLoading || isSorting}
+        images={images}
         onChange={handleFileSelect}
         onDragEnd={handleDragEnd}
-        onRemove={handleRemove}
+        onRemove={(mediaId) => deleteImage({ productId, mediaId })}
       />
     </div>
   );
@@ -214,8 +270,23 @@ function ImagesSortable({
   onDragEnd: (event: DragEndEvent) => void;
   onRemove: (mediaId: string) => void;
 }) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   return (
-    <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+    <DndContext
+      collisionDetection={closestCenter}
+      onDragEnd={onDragEnd}
+      sensors={sensors}
+    >
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <SortableContext
           items={images.map((img) => img.mediaId)}

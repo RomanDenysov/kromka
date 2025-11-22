@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
-import { SingleImageUpload } from "@/components/image-upload";
 import {
   Field,
   FieldDescription,
@@ -18,6 +17,7 @@ import {
 import type { StoreSchedule } from "@/db/schema";
 import { useTRPC } from "@/trpc/client";
 import { type StoreSchema, storeSchema } from "@/validation/stores";
+import { SingleImageUpload } from "../image-upload/single-image-upload";
 import { useAppForm } from "../shared/form";
 import { FormSkeleton } from "../shared/form/form-skeleton";
 import { Button } from "../ui/button";
