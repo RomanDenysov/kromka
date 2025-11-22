@@ -8,7 +8,7 @@ import {
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,6 +26,8 @@ import { signOut } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
 
 export function MobileUserButton() {
+  const pathname = usePathname();
+  const callbackURL = pathname === "/" ? undefined : pathname;
   const { data: user, isLoading } = useGetUser();
   const router = useRouter();
   if (isLoading) {
@@ -39,7 +41,10 @@ export function MobileUserButton() {
           buttonVariants({ variant: "outline", size: "xl" }),
           "w-full"
         )}
-        href="/prihlasenie"
+        href={{
+          pathname: "/prihlasenie",
+          query: callbackURL ? { origin: callbackURL } : undefined,
+        }}
       >
         <LogInIcon />
         Prihlásiť sa

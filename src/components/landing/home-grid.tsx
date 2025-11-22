@@ -1,5 +1,3 @@
-"use client";
-
 import type { Route } from "next";
 import { Container } from "@/components/shared/container";
 import { featureFlags } from "@/config/features";

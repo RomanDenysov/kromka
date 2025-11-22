@@ -6,7 +6,6 @@ import { MagicLinkForm } from "@/app/prihlasenie/magic-link-form";
 import { ProvidersForm } from "@/app/prihlasenie/providers-form";
 import { BackButton } from "@/components/shared/back-button";
 import { Spinner } from "@/components/ui/spinner";
-import doorsPhoto from "../../../public/images/doors.jpg";
 
 const POLICY_LINKS = {
   podmienkyPouzivania: "/podmienky-pouzivania" as Route,
@@ -21,9 +20,10 @@ export default function LoginPage() {
         <Image
           alt="Doors"
           className="absolute inset-0 size-full object-cover object-center grayscale-[10]"
+          fill
           priority
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          src={doorsPhoto}
+          src="/images/doors.jpg"
         />
       </div>
       <div className="flex-1">

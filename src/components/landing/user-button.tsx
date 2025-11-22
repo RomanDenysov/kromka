@@ -8,9 +8,8 @@ import {
   Store,
   UserIcon,
 } from "lucide-react";
-import type { Route } from "next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -28,6 +27,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Skeleton } from "../ui/skeleton";
 
 export function UserButton() {
+  const pathname = usePathname();
+  const callbackURL = pathname === "/" ? undefined : pathname;
   const { data: user, isLoading } = useGetUser();
   const router = useRouter();
   const selectedStore: string | null = null;
@@ -43,7 +44,10 @@ export function UserButton() {
           buttonVariants({ variant: "ghost", size: "icon-sm" }),
           "hidden md:inline-flex"
         )}
-        href={"/prihlasenie" as Route}
+        href={{
+          pathname: "/prihlasenie",
+          query: callbackURL ? { origin: callbackURL } : undefined,
+        }}
       >
         <LogInIcon className="size-4" />
         <span className="sr-only">Prihlásiť sa</span>

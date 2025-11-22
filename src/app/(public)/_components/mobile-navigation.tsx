@@ -1,5 +1,3 @@
-"use client";
-
 import { MenuIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
