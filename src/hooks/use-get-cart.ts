@@ -1,9 +1,17 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "@/lib/auth/client";
 import { useTRPC } from "@/trpc/client";
 
 export function useGetCart() {
   const trpc = useTRPC();
-  return useSuspenseQuery(trpc.public.cart.getCart.queryOptions());
+  const { data: session, isPending } = useSession();
+
+  const queryOptions = trpc.public.cart.getCart.queryOptions();
+
+  return useQuery({
+    ...queryOptions,
+    enabled: !!session && !isPending,
+  });
 }

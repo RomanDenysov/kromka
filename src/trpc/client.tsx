@@ -4,7 +4,6 @@ import type { QueryClient } from "@tanstack/react-query";
 import { isServer, QueryClientProvider } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCContext } from "@trpc/tanstack-react-query";
-import { useState } from "react";
 import superjson from "superjson";
 import { makeQueryClient } from "./query-client";
 import type { AppRouter } from "./routers";
@@ -34,33 +33,46 @@ function getUrl() {
   return url;
 }
 
+function makeTRPCClient() {
+  return createTRPCClient<AppRouter>({
+    links: [
+      loggerLink({
+        enabled: (opts) =>
+          process.env.NODE_ENV === "development" ||
+          (opts.direction === "down" && opts.result instanceof Error),
+      }),
+      httpBatchLink({
+        transformer: superjson,
+        url: getUrl(),
+        fetch(url, options) {
+          return fetch(url, {
+            ...options,
+            credentials: "include",
+          });
+        },
+      }),
+    ],
+  });
+}
+
+let browserTRPCClient: ReturnType<typeof makeTRPCClient>;
+
+function getTRPCClient() {
+  if (isServer) {
+    return makeTRPCClient();
+  }
+  browserTRPCClient ??= makeTRPCClient();
+  return browserTRPCClient;
+}
+
 export function TRPCReactProvider(
   props: Readonly<{
     children: React.ReactNode;
   }>
 ) {
   const queryClient = getQueryClient();
-  const [trpcClient] = useState(() =>
-    createTRPCClient<AppRouter>({
-      links: [
-        loggerLink({
-          enabled: (opts) =>
-            process.env.NODE_ENV === "development" ||
-            (opts.direction === "down" && opts.result instanceof Error),
-        }),
-        httpBatchLink({
-          transformer: superjson,
-          url: getUrl(),
-          fetch(url, options) {
-            return fetch(url, {
-              ...options,
-              credentials: "include",
-            });
-          },
-        }),
-      ],
-    })
-  );
+  const trpcClient = getTRPCClient();
+
   return (
     <QueryClientProvider client={queryClient}>
       <TRPCProvider queryClient={queryClient} trpcClient={trpcClient}>

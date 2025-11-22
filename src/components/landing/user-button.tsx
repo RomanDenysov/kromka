@@ -43,6 +43,7 @@ export function UserButton() {
           pathname: "/prihlasenie",
           query: callbackURL ? { origin: callbackURL } : undefined,
         }}
+        prefetch
       >
         <LogInIcon className="size-4" />
         <span className="sr-only">Prihlásiť sa</span>

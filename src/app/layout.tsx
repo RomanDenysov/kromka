@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Providers } from "@/app/providers";
 import { fonts } from "@/components/fonts";
-import { Providers } from "@/components/providers";
 import { cn } from "@/lib/utils";
 
 import "./globals.css";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,7 +21,10 @@ export default function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(fonts, "relative h-full min-h-screen scroll-smooth")}>
-        <Providers>{children}</Providers>
+        <NuqsAdapter>
+          <Providers>{children}</Providers>
+          <Toaster richColors />
+        </NuqsAdapter>
       </body>
     </html>
   );

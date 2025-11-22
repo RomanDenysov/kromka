@@ -74,10 +74,11 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   return result;
 });
 
-export const sessionMiddleware = t.middleware(({ ctx, next }) => {
+export const sessionMiddleware = t.middleware(({ ctx, next, path }) => {
   if (!(ctx.session?.session && ctx.session.user)) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
+      message: `[Session Procedure] Unauthorized for path: ${path}`,
     });
   }
   return next({
@@ -88,13 +89,14 @@ export const sessionMiddleware = t.middleware(({ ctx, next }) => {
   });
 });
 
-export const protectedMiddleware = t.middleware(({ ctx, next }) => {
+export const protectedMiddleware = t.middleware(({ ctx, next, path }) => {
   if (
     !(ctx.session?.session && ctx.session.user) ||
     ctx.session.user.isAnonymous
   ) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
+      message: `[Protected Procedure] Unauthorized for path: ${path}`,
     });
   }
   return next({
@@ -116,10 +118,11 @@ export const protectedProcedure = t.procedure
   .use(protectedMiddleware);
 
 export const roleProcedure = (role: string) =>
-  protectedProcedure.use(({ ctx, next }) => {
+  protectedProcedure.use(({ ctx, next, path }) => {
     if (ctx.session?.user?.role !== role) {
       throw new TRPCError({
         code: "FORBIDDEN",
+        message: `[Role Procedure] Forbidden for path: ${path}`,
       });
     }
     return next();
