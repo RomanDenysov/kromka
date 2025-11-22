@@ -7,7 +7,8 @@ import {
 } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
-import { SingleImageUpload } from "@/components/image-upload";
+import { toast } from "sonner";
+import { SingleImageUpload } from "@/components/image-upload/single-image-upload";
 import {
   Field,
   FieldDescription,
@@ -15,6 +16,8 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
+import { useFormAutoSave } from "@/hooks/use-form-auto-save";
+import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
 import { updateCategorySchema } from "@/validation/categories";
 import { useAppForm } from "../shared/form";
@@ -47,8 +50,7 @@ export function CategoryForm({ id }: { id: string }) {
           });
         },
         onError: (error) => {
-          // biome-ignore lint/suspicious/noConsole: TODO: Implement error handling
-          console.error(error);
+          toast.error(error.message);
         },
       })
     );
@@ -66,11 +68,21 @@ export function CategoryForm({ id }: { id: string }) {
       imageId: category?.imageId ?? null,
       sortOrder: category?.sortOrder ?? 0,
     },
+    listeners: {
+      onChangeDebounceMs: 5000,
+      onChange: ({ formApi }) => {
+        if (formApi.state.isValid && !formApi.state.isSubmitting) {
+          formApi.handleSubmit();
+        }
+      },
+    },
     validators: {
       onSubmit: updateCategorySchema,
     },
     onSubmit: ({ value }) => updateCategory({ id, category: value }),
   });
+
+  const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
 
   if (isLoadingCategory) {
     return <FormSkeleton className="max-w-md" />;
@@ -81,11 +93,14 @@ export function CategoryForm({ id }: { id: string }) {
       <form
         aria-disabled={isPendingUpdateCategory}
         id="category-form"
+        onBlurCapture={onBlurCapture}
+        onFocusCapture={onFocusCapture}
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
         }}
+        ref={formRef}
       >
         <FieldSet className="max-w-md gap-5">
           <div className="flex flex-row items-start justify-between">
@@ -130,7 +145,15 @@ export function CategoryForm({ id }: { id: string }) {
                 </Field>
               )}
             </form.AppField>
-            <form.AppField name="name">
+            <form.AppField
+              listeners={{
+                onChangeDebounceMs: 300,
+                onChange: (event) => {
+                  form.setFieldValue("slug", getSlug(event.value));
+                },
+              }}
+              name="name"
+            >
               {(field) => (
                 <field.TextField
                   label="Názov kategórie"

@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
 import {
   Field,
   FieldDescription,
@@ -15,6 +16,8 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import type { StoreSchedule } from "@/db/schema";
+import { useFormAutoSave } from "@/hooks/use-form-auto-save";
+import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
 import { type StoreSchema, storeSchema } from "@/validation/stores";
 import { SingleImageUpload } from "../image-upload/single-image-upload";
@@ -48,8 +51,7 @@ export function StoreForm({ id }: { id: string }) {
         });
       },
       onError: (error) => {
-        // biome-ignore lint/suspicious/noConsole: TODO: Implement error handling
-        console.error(error);
+        toast.error(error.message);
       },
     })
   );
@@ -81,11 +83,21 @@ export function StoreForm({ id }: { id: string }) {
         exceptions: {},
       }) as StoreSchema["openingHours"],
     },
+    listeners: {
+      onChangeDebounceMs: 5000,
+      onChange: ({ formApi }) => {
+        if (formApi.state.isValid && !formApi.state.isSubmitting) {
+          formApi.handleSubmit();
+        }
+      },
+    },
     validators: {
       onSubmit: storeSchema,
     },
     onSubmit: ({ value }) => updateStore({ id, store: value }),
   });
+
+  const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
 
   if (isLoadingStore) {
     return <FormSkeleton className="max-w-md" />;
@@ -96,11 +108,14 @@ export function StoreForm({ id }: { id: string }) {
       <form
         aria-disabled={isPendingUpdateStore}
         id="store-form"
+        onBlurCapture={onBlurCapture}
+        onFocusCapture={onFocusCapture}
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
         }}
+        ref={formRef}
       >
         <FieldSet className="max-w-md gap-5">
           <div className="flex flex-row items-start justify-between">
@@ -145,7 +160,15 @@ export function StoreForm({ id }: { id: string }) {
                 </Field>
               )}
             </form.AppField>
-            <form.AppField name="name">
+            <form.AppField
+              listeners={{
+                onChangeDebounceMs: 300,
+                onChange: (event) => {
+                  form.setFieldValue("slug", getSlug(event.value));
+                },
+              }}
+              name="name"
+            >
               {(field) => (
                 <field.TextField
                   label="Názov obchodu"
