@@ -2,13 +2,13 @@ import { ShoppingCartIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { UserButton } from "@/components/landing/user-button";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { CartButton } from "./cart-button";
 import { MobileNavigation } from "./mobile-navigation";
 
 const navigation: { name: string; href: Route }[] = [
@@ -48,7 +48,11 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3">
-            <Suspense fallback={<Skeleton className="size-8 rounded-md" />}>
+            <Suspense
+              fallback={
+                <Skeleton className="hidden size-8 rounded-md md:block" />
+              }
+            >
               <UserButton />
             </Suspense>
             <Suspense
@@ -64,7 +68,7 @@ export function Header() {
                 </Button>
               }
             >
-              <CartButton />
+              <CartDrawer />
             </Suspense>
           </div>
         </div>

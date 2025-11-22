@@ -1,6 +1,9 @@
+"use client";
+
 import { MenuIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { useState } from "react";
 import { Icons } from "@/components/icons";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -19,8 +22,9 @@ type Props = {
 };
 
 export function MobileNavigation({ navigation }: Props) {
+  const [open, setOpen] = useState(false);
   return (
-    <Drawer direction="left">
+    <Drawer direction="left" onOpenChange={setOpen} open={open}>
       <DrawerTrigger asChild>
         <Button
           aria-label="Otvoriť menu"
@@ -47,6 +51,7 @@ export function MobileNavigation({ navigation }: Props) {
                 )}
                 href={item.href}
                 key={item.href}
+                onClick={() => setOpen(false)}
               >
                 {item.name}
               </Link>

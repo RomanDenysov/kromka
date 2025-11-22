@@ -3,9 +3,9 @@
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { type ReactNode, Suspense } from "react";
 import { PageTracker } from "react-page-tracker";
+import { AnonymousProvider } from "@/lib/auth/anonymous-provider";
 import { TRPCReactProvider } from "@/trpc/client";
 import { ConfirmDialogProvider } from "@/widgets/confirm-dialog/ui/confirm-provider";
-import { PublicDrawersProvider } from "./drawers/public-drawers-provider";
 import { Toaster } from "./ui/sonner";
 
 type Props = {
@@ -20,7 +20,7 @@ export function Providers({ children }: Props) {
         <ConfirmDialogProvider>
           {children}
           <Suspense>
-            <PublicDrawersProvider />
+            <AnonymousProvider />
           </Suspense>
         </ConfirmDialogProvider>
         <Toaster richColors />

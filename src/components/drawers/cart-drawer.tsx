@@ -7,10 +7,9 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useDebouncedCallback } from "use-debounce";
 import { useCartActions } from "@/hooks/use-cart-actions";
-import { useCartStore } from "@/hooks/use-cart-store";
 import { useGetCart } from "@/hooks/use-get-cart";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { formatPrice } from "@/lib/utils";
+import { Badge } from "../ui/badge";
 import { Button, buttonVariants } from "../ui/button";
 import {
   Drawer,
@@ -18,17 +17,14 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
+  DrawerTrigger,
 } from "../ui/drawer";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
-import { Spinner } from "../ui/spinner";
 
 export function CartDrawer() {
-  const isMobile = useIsMobile();
-  const { data: cart, isLoading } = useGetCart();
+  const { data: cart } = useGetCart();
   const { removeFromCart, updateQuantity } = useCartActions();
-  const open = useCartStore((state) => state.open);
-  const setOpen = useCartStore((state) => state.setOpen);
 
   const items = cart?.items ?? [];
   const cartItemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
@@ -45,23 +41,25 @@ export function CartDrawer() {
   );
 
   return (
-    <Drawer
-      direction={isMobile ? "bottom" : "right"}
-      onOpenChange={setOpen}
-      open={open}
-    >
-      <DrawerContent className="h-[85vh] sm:h-full sm:max-w-md">
+    <Drawer direction={"right"}>
+      <DrawerTrigger asChild>
+        <Button className="relative" size="icon-sm" variant="ghost">
+          <ShoppingCartIcon className="size-5" />
+          <span className="sr-only">Košík</span>
+          {cartItemsCount > 0 && (
+            <Badge
+              className="-top-1.5 -right-1.5 absolute h-4 px-0.5 py-0 text-[10px]"
+              variant="default"
+            >
+              {cartItemsCount}
+            </Badge>
+          )}
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>Košík ({cartItemsCount})</DrawerTitle>
         </DrawerHeader>
-        {isLoading && (
-          <div className="flex h-full flex-col items-center justify-center space-y-2">
-            <Spinner className="size-12 text-muted-foreground" />
-            <span className="font-medium text-lg text-muted-foreground">
-              Načítavam váš košík...
-            </span>
-          </div>
-        )}
 
         {items.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center space-y-2">

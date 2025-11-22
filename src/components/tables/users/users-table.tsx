@@ -24,7 +24,6 @@ import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import type { User } from "@/types/users";
 import { columns } from "./columns";
-import { Header } from "./header";
 
 export function UsersTable({ className }: { className?: string }) {
   const trpc = useTRPC();
@@ -58,7 +57,6 @@ export function UsersTable({ className }: { className?: string }) {
   });
   return (
     <div className={cn("size-full", className)}>
-      <Header table={table} />
       <div className="size-full overflow-hidden border-t">
         <Table>
           <TableHeader>

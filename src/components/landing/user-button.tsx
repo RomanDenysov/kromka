@@ -24,18 +24,13 @@ import { signOut } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
 import { Icons } from "../icons";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Skeleton } from "../ui/skeleton";
 
 export function UserButton() {
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
-  const { data: user, isLoading } = useGetUser();
+  const { data: user } = useGetUser();
   const router = useRouter();
   const selectedStore: string | null = null;
-
-  if (isLoading) {
-    return <Skeleton className="size-8 rounded-md" />;
-  }
 
   if (!user) {
     return (
