@@ -9,15 +9,13 @@ import { Badge } from "../ui/badge";
 
 const MAX_CATEGORIES_DISPLAY = 3;
 
-const _CENTS_PER_UNIT = 100;
-
 type Props = {
   product: RouterOutputs["public"]["products"]["list"][number];
 };
 
 export function ProductCard({ product }: Props) {
   return (
-    <div className="relative flex flex-col gap-2 overflow-hidden rounded-md bg-accent p-2">
+    <div className="relative flex flex-col gap-2 overflow-hidden rounded-md bg-accent px-2 pt-2 pb-3">
       <ProductImage
         alt={product.name}
         className="aspect-square rounded-sm object-cover transition-transform duration-300"
@@ -54,8 +52,8 @@ export function ProductCard({ product }: Props) {
         <div className="flex-1" />
 
         {/* Price */}
-        <div className="mt-auto flex items-center justify-between gap-2">
-          <span className="font-bold text-base">
+        <div className="mt-auto flex w-full flex-col items-start justify-between gap-3 md:flex-row md:items-center">
+          <span className="flex-1 font-bold text-base">
             {formatPrice(product.priceCents)}
           </span>
           <AddToCartButton id={product.id} />

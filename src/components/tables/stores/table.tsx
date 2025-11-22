@@ -93,32 +93,31 @@ export function StoresTable() {
             </TableRow>
           )}
         </TableBody>
-        {table.getRowModel().rows?.length > 0 && (
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={columns.length}>
-                <Button
-                  disabled={isCreatingDraftStore}
-                  onClick={() => createDraftStore()}
-                  size="sm"
-                  variant="ghost"
-                >
-                  {isCreatingDraftStore ? (
-                    <>
-                      <Spinner />
-                      Pridávame obchod...
-                    </>
-                  ) : (
-                    <>
-                      <PlusIcon />
-                      Pridať obchod
-                    </>
-                  )}
-                </Button>
-              </TableCell>
-            </TableRow>
-          </TableFooter>
-        )}
+        <TableFooter className="p-0">
+          <TableRow className="p-0">
+            <TableCell className="p-0" colSpan={columns.length}>
+              <Button
+                className="w-full"
+                disabled={isCreatingDraftStore}
+                onClick={() => createDraftStore()}
+                size="sm"
+                variant="ghost"
+              >
+                {isCreatingDraftStore ? (
+                  <>
+                    <Spinner />
+                    Pridávame obchod...
+                  </>
+                ) : (
+                  <>
+                    <PlusIcon />
+                    Pridať obchod
+                  </>
+                )}
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableFooter>
       </Table>
     </div>
   );

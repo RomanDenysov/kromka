@@ -9,8 +9,10 @@ export function AddToCartButton({ id }: { id: string }) {
 
   return (
     <Button
+      className="w-full md:w-auto"
       disabled={isAddingToCart}
       onClick={() => addToCart({ productId: id, quantity: 1 })}
+      size="sm"
     >
       <ShoppingCartIcon className="mr-2 size-4" />
       <span>Do košíka</span>

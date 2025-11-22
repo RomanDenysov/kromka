@@ -15,7 +15,7 @@ type Props = {
 
 export function AdminHeader({ breadcrumbs, className, children }: Props) {
   return (
-    <header className="sticky inset-x-0 top-0 z-40 w-full bg-sidebar">
+    <header className="sticky inset-x-0 top-0 z-40 bg-sidebar">
       <div
         className={cn(
           "flex h-(--header-height) items-center px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)",

@@ -31,7 +31,7 @@ export default async function AdminLayout({ children }: Props) {
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 48)",
-          "--header-height": "calc(var(--spacing) * 10)",
+          "--header-height": "calc(var(--spacing) * 12)",
         } as CSSProperties
       }
     >
