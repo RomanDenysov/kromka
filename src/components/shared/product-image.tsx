@@ -1,15 +1,6 @@
 "use client";
 
-import Image from "next/image";
-
-type ProductImageProps = {
-  src: string;
-  alt: string;
-  width?: number;
-  height?: number;
-  priority?: boolean;
-  className?: string;
-};
+import Image, { type ImageProps } from "next/image";
 
 export function ProductImage({
   src,
@@ -18,7 +9,7 @@ export function ProductImage({
   height = 400,
   priority = false,
   className,
-}: ProductImageProps) {
+}: ImageProps) {
   return (
     <Image
       alt={alt}

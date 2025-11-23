@@ -4,9 +4,9 @@ import { HeartIcon } from "lucide-react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/routers";
+import { ImageSlider } from "../image-slider";
 import { AddToCartButton } from "../shared/add-to-cart-button";
 import { Hint } from "../shared/hint";
-import { ProductImage } from "../shared/product-image";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 
@@ -19,15 +19,17 @@ type Props = {
 export function ProductCard({ product }: Props) {
   const totalCategories = product.categories.length;
   const showingCategories = product.categories.slice(0, MAX_CATEGORIES_DISPLAY);
+  const isActive = product.status === "active";
 
   return (
     <Link
-      className="relative flex flex-col gap-2 overflow-hidden rounded-md bg-accent p-2"
+      className="relative flex flex-col gap-4 overflow-hidden rounded-md bg-accent p-2"
       href={`/eshop/products/${product.slug}`}
       prefetch
+      title={isActive ? product.name : `${product.name} (neaktívny produkt)`}
     >
       <div className="relative">
-        <div className="absolute top-2 right-2 z-10">
+        <div className="absolute top-2 right-2 z-20">
           <Button
             onClick={(e) => {
               e.preventDefault();
@@ -39,13 +41,9 @@ export function ProductCard({ product }: Props) {
             <HeartIcon className="size-5" />
           </Button>
         </div>
-        <ProductImage
-          alt={product.name}
-          className="aspect-square rounded-sm object-cover transition-transform duration-300"
-          src={product.images[0]}
-        />
+        <ImageSlider disabled={!isActive} urls={product.images} />
       </div>
-      <div className="flex size-full flex-col justify-between gap-1 px-0.5">
+      <div className="flex size-full flex-col justify-between gap-2 px-0.5 pb-0.5">
         {/* Categories */}
         <div className="flex flex-wrap items-center gap-0.5">
           {showingCategories.map((category) => (
@@ -78,7 +76,7 @@ export function ProductCard({ product }: Props) {
           <span className="flex-1 font-bold text-base">
             {formatPrice(product.priceCents)}
           </span>
-          <AddToCartButton id={product.id} />
+          <AddToCartButton disabled={!isActive} id={product.id} />
         </div>
       </div>
     </Link>

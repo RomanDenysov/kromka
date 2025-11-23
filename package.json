@@ -103,6 +103,7 @@
     "slugify": "^1.6.6",
     "sonner": "^2.0.7",
     "superjson": "^2.2.5",
+    "swiper": "^12.0.3",
     "tailwind-merge": "^3.4.0",
     "use-debounce": "^10.0.6",
     "vaul": "^1.1.2",
