@@ -88,7 +88,10 @@ export function CartDrawer() {
                 <span>{formatPrice(totalCents / 100)}</span>
               </div>
               <Link
-                className={buttonVariants({ size: "lg", className: "w-full" })}
+                className={cn(
+                  buttonVariants({ size: "lg", className: "w-full" }),
+                  "text-base"
+                )}
                 href={"/checkout" as Route}
               >
                 Pokračovať do pokladne

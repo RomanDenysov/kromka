@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { signIn } from "@/lib/auth/client";
 
-const PROVIDERS = ["google", "apple", "facebook"] as const;
+const PROVIDERS = ["google"] as const;
 
 type Provider = (typeof PROVIDERS)[number];
 
