@@ -1,18 +1,6 @@
-"use server";
-
 import { type Permission, ROLE_PERMS } from "@/lib/auth/rbac";
-import { auth } from "@/lib/auth/server";
-import { b2bSection } from "../config/sections/b2b-section";
-import { b2cSection } from "../config/sections/b2c-section";
-import { blogSection } from "../config/sections/blog-section";
-import { dashboardSection } from "../config/sections/dashboard-section";
-import { settingsSection } from "../config/sections/settings-section";
-import type { NavItemConfig, NavSectionConfig } from "./types";
-
-/**
- * Combined navigation node type
- */
-export type NavNode = NavItemConfig | NavSectionConfig;
+import { adminNavigation } from "../config/navigation";
+import type { NavItemConfig, NavNode, NavSectionConfig } from "./types";
 
 /**
  * Check if user has required permission
@@ -52,39 +40,24 @@ function filterSection(
 /**
  * Get filtered navigation based on user role and permissions
  */
-export async function getNav(cookies: string): Promise<NavNode[]> {
-  const session = await auth.api.getSession({
-    headers: { Cookie: cookies },
-  });
-
-  const role = session?.user?.role;
-
+export function getFilteredNav(role: string | undefined): NavNode[] {
   if (!role) {
     return [];
   }
 
   const perms = new Set(ROLE_PERMS[role] ?? []);
-
-  const sections = [
-    dashboardSection,
-    b2cSection,
-    b2bSection,
-    blogSection,
-    settingsSection,
-  ];
-
   const filtered: NavNode[] = [];
 
-  for (const section of sections) {
-    if ("items" in section) {
+  for (const node of adminNavigation) {
+    if ("items" in node) {
       // It's a NavSectionConfig
-      const filteredSection = filterSection(section, perms);
+      const filteredSection = filterSection(node, perms);
       if (filteredSection) {
         filtered.push(filteredSection);
       }
     } else {
       // It's a NavItemConfig
-      const filteredItem = filterItem(section, perms);
+      const filteredItem = filterItem(node, perms);
       if (filteredItem) {
         filtered.push(filteredItem);
       }
@@ -92,26 +65,4 @@ export async function getNav(cookies: string): Promise<NavNode[]> {
   }
 
   return filtered;
-}
-
-/**
- * Get badge counts for sidebar items
- * TODO: Replace placeholder queries with actual table queries when schemas are ready
- */
-
-// biome-ignore lint/suspicious/useAwait: <explanation>
-export async function getBadgeCounts(): Promise<Record<string, number>> {
-  // TODO: Replace these with actual database queries when order/invoice/comment tables exist
-  // Example:
-  // const b2cOrders = await db.select({ count: count() }).from(b2cOrdersTable).where(...);
-  // const b2bOrders = await db.select({ count: count() }).from(b2bOrdersTable).where(...);
-  // const b2bInvoices = await db.select({ count: count() }).from(b2bInvoicesTable).where(...);
-  // const blogComments = await db.select({ count: count() }).from(blogCommentsTable).where(...);
-
-  return {
-    "b2c.orders": 10,
-    "b2b.orders": 30,
-    "b2b.invoices": 123,
-    "blog.comments": 300,
-  };
 }

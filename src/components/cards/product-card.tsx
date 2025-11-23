@@ -2,7 +2,7 @@
 
 import { HeartIcon } from "lucide-react";
 import Link from "next/link";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/routers";
 import { ImageSlider } from "../image-slider";
 import { AddToCartButton } from "../shared/add-to-cart-button";
@@ -14,16 +14,20 @@ const MAX_CATEGORIES_DISPLAY = 3;
 
 type Props = {
   product: RouterOutputs["public"]["products"]["list"][number];
+  className?: string;
 };
 
-export function ProductCard({ product }: Props) {
+export function ProductCard({ product, className }: Props) {
   const totalCategories = product.categories.length;
   const showingCategories = product.categories.slice(0, MAX_CATEGORIES_DISPLAY);
   const isActive = product.status === "active";
 
   return (
     <Link
-      className="relative flex flex-col gap-4 overflow-hidden rounded-md bg-accent p-2"
+      className={cn(
+        "relative flex flex-col gap-4 overflow-hidden rounded-md bg-accent p-2",
+        className
+      )}
       href={`/eshop/products/${product.slug}`}
       prefetch
       title={isActive ? product.name : `${product.name} (neaktívny produkt)`}

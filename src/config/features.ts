@@ -5,10 +5,10 @@
 
 export const featureFlags = {
   eshop: true,
-  b2b: true,
+  b2b: false,
   partnership: true,
   stores: true,
-  blog: true,
+  blog: false,
 } as const;
 
 export type FeatureFlag = keyof typeof featureFlags;

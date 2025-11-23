@@ -17,11 +17,11 @@ import { makeQueryClient } from "./query-client";
 import { type AppRouter, appRouter } from "./routers";
 
 const createContext = cache(async () => {
-  const hdrs = new Headers(await headers());
-  hdrs.set("x-trpc-source", "rsc");
+  const heads = new Headers(await headers());
+  heads.set("x-trpc-source", "rsc");
 
   return createTRPCContext({
-    headers: hdrs,
+    headers: heads,
   });
 });
 
@@ -64,13 +64,12 @@ export function batchPrefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
     }
   }
 }
-
 /**
  * Server-side caller for direct API calls in Server Components
  * Always creates a fresh context with current request headers
  */
 export async function createCaller() {
   const callerFactory = createCallerFactoryHelper(appRouter);
-  const ctx = await createTRPCContext();
+  const ctx = await createContext();
   return callerFactory(ctx);
 }

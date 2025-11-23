@@ -1,7 +1,6 @@
 import "server-only";
 
 import { initTRPC, TRPCError } from "@trpc/server";
-import { headers as nextHeaders } from "next/headers";
 import { cache } from "react";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -10,7 +9,7 @@ import { auth, type Session } from "@/lib/auth/server";
 const DEV_WAIT_MS = 100;
 const DEV_WAIT_MS_MAX = 400;
 
-export type CreateTRPCContextOptions = {
+type CreateTRPCContextOptions = {
   session: Session | null;
 };
 
@@ -18,22 +17,9 @@ export type CreateTRPCContextOptions = {
  * Server-side context creation for Server Components and server-side prefetch
  */
 export const createTRPCContext = cache(
-  async (opts?: { headers: Headers }): Promise<CreateTRPCContextOptions> => {
-    let hdrs: Headers | undefined = opts?.headers;
-    if (!hdrs) {
-      try {
-        const ro = await nextHeaders();
-        const h = new Headers();
-        ro.forEach((value, key) => {
-          h.append(key, value);
-        });
-        hdrs = h;
-        // biome-ignore lint/suspicious/noEmptyBlockStatements: Ignore empty block statements
-      } catch {}
-    }
-
+  async (opts: { headers: Headers }): Promise<CreateTRPCContextOptions> => {
     const session = await auth.api.getSession({
-      headers: hdrs ?? new Headers(),
+      headers: opts.headers,
     });
 
     return { session };

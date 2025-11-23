@@ -2,23 +2,50 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
-import { ProductCard } from "./cards/product-card";
-import { Carousel, CarouselContent, CarouselItem } from "./ui/carousel";
+import { FeaturedProductCard } from "./cards/featured-product-card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "./ui/carousel";
 
 export function FeaturedCarousel() {
   const trpc = useTRPC();
   const { data: products } = useSuspenseQuery(
     trpc.public.products.list.queryOptions()
   );
+
+  if (products.length === 0) {
+    return null;
+  }
+
   return (
-    <Carousel>
-      <CarouselContent>
-        {products.map((product) => (
-          <CarouselItem key={product.id}>
-            <ProductCard product={product} />
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-    </Carousel>
+    <section>
+      <h2 className="mb-4 font-bold text-2xl">Vybrané produkty</h2>
+      <div className="relative">
+        <Carousel
+          className="w-full"
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+        >
+          <CarouselContent className="-ml-4 pb-4">
+            {products.map((product) => (
+              <CarouselItem
+                className="basis-1/2 pl-4 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                key={product.id}
+              >
+                <FeaturedProductCard product={product} />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="left-4 transition-opacity disabled:opacity-0" />
+          <CarouselNext className="right-4 transition-opacity disabled:opacity-0" />
+        </Carousel>
+      </div>
+    </section>
   );
 }

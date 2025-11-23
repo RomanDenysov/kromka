@@ -4,7 +4,7 @@ import { type CSSProperties, type ReactNode, Suspense } from "react";
 import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth/server";
-import { getBadgeCounts, getNav } from "@/widgets/admin-sidebar/model/get-nav";
+import { getBadgeCounts } from "@/widgets/admin-sidebar/model/badges";
 import AppSidebar from "@/widgets/admin-sidebar/ui/app-sidebar";
 
 type Props = {
@@ -20,10 +20,7 @@ export default async function AdminLayout({ children }: Props) {
     forbidden();
   }
 
-  const [navigation, badgeCounts] = await Promise.all([
-    getNav(cookieStore.toString()),
-    getBadgeCounts(),
-  ]);
+  const badgeCounts = await getBadgeCounts();
 
   return (
     <SidebarProvider
@@ -38,7 +35,7 @@ export default async function AdminLayout({ children }: Props) {
       <AppSidebar
         badgeCounts={badgeCounts}
         collapsible="icon"
-        navigation={navigation}
+        userRole={session.user.role}
       />
       <SidebarInset>
         <div className="grid size-full h-svh grid-rows-[auto_1fr]">
