@@ -1,4 +1,4 @@
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { forbidden } from "next/navigation";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
 import AppSidebar from "@/components/app-sidebar";
@@ -14,7 +14,9 @@ export default async function AdminLayout({ children }: Props) {
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await auth.api.getSession({
+    headers: { Cookie: cookieStore.toString() },
+  });
   if (session?.user?.role !== "admin") {
     forbidden();
   }
