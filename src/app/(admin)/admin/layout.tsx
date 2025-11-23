@@ -1,11 +1,10 @@
 import { cookies, headers } from "next/headers";
 import { forbidden } from "next/navigation";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
+import AppSidebar from "@/components/app-sidebar";
 import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth/server";
-import { getBadgeCounts } from "@/widgets/admin-sidebar/model/badges";
-import AppSidebar from "@/widgets/admin-sidebar/ui/app-sidebar";
 
 type Props = {
   readonly children: ReactNode;
@@ -20,8 +19,6 @@ export default async function AdminLayout({ children }: Props) {
     forbidden();
   }
 
-  const badgeCounts = await getBadgeCounts();
-
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
@@ -32,11 +29,7 @@ export default async function AdminLayout({ children }: Props) {
         } as CSSProperties
       }
     >
-      <AppSidebar
-        badgeCounts={badgeCounts}
-        collapsible="icon"
-        userRole={session.user.role}
-      />
+      <AppSidebar collapsible="icon" />
       <SidebarInset>
         <div className="grid size-full h-svh grid-rows-[auto_1fr]">
           {children}

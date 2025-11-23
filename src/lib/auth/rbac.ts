@@ -1,33 +1,11 @@
 import { redirect } from "next/navigation";
 import { ERROR_CODES } from "../errors";
+import { type Permission, ROLE_PERMS } from "./permissions";
 import { auth, type Session } from "./server";
 
-export type Permission =
-  | "admin.read"
-  | "b2c.read"
-  | "b2b.read"
-  | "blog.read"
-  | "settings.read"
-  | "users.read"
-  | "roles.read"
-  | "config.read"
-  | "perms.read";
-
-export const ROLE_PERMS: Record<string, Permission[]> = {
-  admin: [
-    "admin.read",
-    "b2c.read",
-    "b2b.read",
-    "blog.read",
-    "settings.read",
-    "users.read",
-    "roles.read",
-    "config.read",
-    "perms.read",
-  ],
-  editor: ["admin.read", "blog.read"],
-  manager: ["admin.read", "b2c.read", "b2b.read"],
-};
+export type { Permission } from "./permissions";
+// biome-ignore lint/performance/noBarrelFile: This file serves as a central export point for auth types
+export { ROLE_PERMS } from "./permissions";
 
 export async function assertPermission(
   cookies: string,

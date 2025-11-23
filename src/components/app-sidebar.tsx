@@ -1,5 +1,22 @@
 "use client";
 
+import {
+  BookAIcon,
+  Building2Icon,
+  FileTextIcon,
+  LayoutDashboardIcon,
+  type LucideIcon,
+  MessageCircleIcon,
+  Package2Icon,
+  Settings2Icon,
+  SettingsIcon,
+  ShieldUserIcon,
+  ShoppingBasketIcon,
+  StoreIcon,
+  TagsIcon,
+  Users2Icon,
+} from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ComponentProps, useMemo } from "react";
@@ -12,26 +29,147 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { getFilteredNav } from "../model/get-nav";
 
-type Props = ComponentProps<typeof Sidebar> & {
-  userRole?: string;
-  badgeCounts: Record<string, number>;
+type Props = ComponentProps<typeof Sidebar> & {};
+
+export type NavItemConfig = {
+  label: string;
+  href: Route;
+  icon?: LucideIcon;
+  badgeKey?: string;
+  exact?: boolean;
 };
 
-export default function AppSidebar({ userRole, badgeCounts, ...props }: Props) {
+/**
+ * Navigation section configuration
+ */
+export type NavSectionConfig = {
+  label: string;
+  href: Route;
+  items: NavItemConfig[];
+};
+
+/**
+ * Combined navigation node type
+ */
+export type NavNode = NavItemConfig | NavSectionConfig;
+
+export const adminNavigation: NavNode[] = [
+  {
+    label: "Dashboard",
+    href: "/admin",
+    icon: LayoutDashboardIcon,
+    exact: true,
+  },
+  {
+    label: "B2C",
+    href: "/admin",
+    items: [
+      {
+        label: "Stores",
+        href: "/admin/stores",
+        icon: StoreIcon,
+      },
+      {
+        label: "Categories",
+        href: "/admin/categories",
+        icon: TagsIcon,
+      },
+      {
+        label: "Products",
+        href: "/admin/products",
+        icon: Package2Icon,
+      },
+      {
+        label: "Orders",
+        href: "/admin/orders",
+        icon: ShoppingBasketIcon,
+        badgeKey: "b2c.orders",
+      },
+    ],
+  },
+  {
+    label: "B2B",
+    href: "/admin",
+    items: [
+      {
+        label: "Companies",
+        href: "/admin/invoices",
+        icon: Building2Icon,
+      },
+      {
+        label: "Invoices",
+        href: "/admin/invoices",
+        icon: FileTextIcon,
+        badgeKey: "b2b.invoices",
+      },
+    ],
+  },
+  {
+    label: "Blog",
+    href: "/admin/blog",
+    items: [
+      {
+        label: "Posts",
+        href: "/admin/blog/posts",
+        icon: BookAIcon,
+      },
+      {
+        label: "Tags",
+        href: "/admin/blog/tags",
+        icon: TagsIcon,
+      },
+      {
+        label: "Comments",
+        href: "/admin/blog/comments",
+        icon: MessageCircleIcon,
+        badgeKey: "blog.comments",
+      },
+      {
+        label: "Settings",
+        href: "/admin/blog/settings",
+        icon: SettingsIcon,
+      },
+    ],
+  },
+  {
+    label: "Settings",
+    href: "/admin/settings",
+    items: [
+      {
+        label: "Users",
+        href: "/admin/settings/users",
+        icon: Users2Icon,
+      },
+      {
+        label: "Roles",
+        href: "/admin/settings/roles",
+        icon: ShieldUserIcon,
+      },
+      {
+        label: "Permissions",
+        href: "/admin/settings/permissions",
+        icon: ShieldUserIcon,
+      },
+      {
+        label: "Configurations",
+        href: "/admin/settings/configurations",
+        icon: Settings2Icon,
+      },
+    ],
+  },
+];
+
+export default function AppSidebar({ ...props }: Props) {
   const pathname = usePathname();
   const getIsActive = useMemo(
     () => (href: string, exact?: boolean) =>
       exact ? pathname === href : pathname.startsWith(href),
     [pathname]
   );
-
-  const navigation = useMemo(() => getFilteredNav(userRole), [userRole]);
 
   return (
     <Sidebar {...props}>
@@ -54,7 +192,7 @@ export default function AppSidebar({ userRole, badgeCounts, ...props }: Props) {
       </SidebarHeader>
 
       <SidebarContent>
-        {navigation.map((node) => {
+        {adminNavigation.map((node) => {
           // Check if it's a section (has items) or a single item
           if ("items" in node) {
             // It's a section
@@ -81,11 +219,6 @@ export default function AppSidebar({ userRole, badgeCounts, ...props }: Props) {
                               <span>{item.label}</span>
                             </Link>
                           </SidebarMenuButton>
-                          {item.badgeKey && badgeCounts[item.badgeKey] > 0 && (
-                            <SidebarMenuBadge>
-                              {badgeCounts[item.badgeKey]}
-                            </SidebarMenuBadge>
-                          )}
                         </SidebarMenuItem>
                       );
                     })}
@@ -116,11 +249,6 @@ export default function AppSidebar({ userRole, badgeCounts, ...props }: Props) {
                         <span>{node.label}</span>
                       </Link>
                     </SidebarMenuButton>
-                    {node.badgeKey && badgeCounts[node.badgeKey] > 0 && (
-                      <SidebarMenuBadge>
-                        {badgeCounts[node.badgeKey]}
-                      </SidebarMenuBadge>
-                    )}
                   </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>
