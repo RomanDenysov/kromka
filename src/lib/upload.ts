@@ -1,5 +1,5 @@
-/** biome-ignore-all lint/style/noNonNullAssertion: <explanation> */
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+/** biome-ignore-all lint/style/noNonNullAssertion: sharp metadata is checked */
+/** biome-ignore-all lint/style/noMagicNumbers: compression constants */
 "use server";
 
 import { put } from "@vercel/blob";
@@ -23,7 +23,7 @@ async function optimizeProductImage(file: File) {
 
   const originalSize = buffer.length;
 
-  const qualities = [85, 82, 78, 75];
+  const qualities = [95, 90, 85];
   let bestResult: { buffer: Buffer; quality: number; size: number } | null =
     null;
 
@@ -37,7 +37,7 @@ async function optimizeProductImage(file: File) {
       .jpeg({
         quality,
         mozjpeg: true,
-        chromaSubsampling: "4:2:0",
+        chromaSubsampling: "4:4:4",
         trellisQuantisation: true,
         overshootDeringing: true,
         optimizeScans: true,
@@ -46,7 +46,7 @@ async function optimizeProductImage(file: File) {
 
     const sizeKB = processed.length / 1024;
 
-    if (sizeKB <= 800) {
+    if (sizeKB <= 1500) {
       bestResult = { buffer: processed, quality, size: processed.length };
       break;
     }
@@ -61,13 +61,13 @@ async function optimizeProductImage(file: File) {
         kernel: sharp.kernel.lanczos3,
       })
       .jpeg({
-        quality: 70,
+        quality: 80,
         mozjpeg: true,
-        chromaSubsampling: "4:2:0",
+        chromaSubsampling: "4:4:4",
       })
       .toBuffer();
 
-    bestResult = { buffer: processed, quality: 70, size: processed.length };
+    bestResult = { buffer: processed, quality: 80, size: processed.length };
   }
 
   const metadata = await sharp(bestResult.buffer).metadata();

@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+/** biome-ignore-all lint/style/noMagicNumbers: default crop values */
 "use client";
 
 import { CropIcon, RotateCcwIcon, XIcon } from "lucide-react";
@@ -79,13 +79,13 @@ function getCroppedFile(
           return;
         }
         const file = new File([blob], originalFileName, {
-          type: "image/jpeg",
+          type: "image/png",
           lastModified: Date.now(),
         });
         resolve(file);
       },
-      "image/jpeg",
-      0.95
+      "image/png",
+      1
     );
   });
 }
@@ -182,9 +182,9 @@ export function ImageCrop({
           style={{ ...shadcnStyle, ...style }}
         >
           {imageSrc && (
-            // biome-ignore lint/correctness/useImageSize: <explanation>
-            // biome-ignore lint/performance/noImgElement: <explanation>
-            // biome-ignore lint/a11y/noNoninteractiveElementInteractions: <explanation>
+            // biome-ignore lint/correctness/useImageSize: image size handled by crop
+            // biome-ignore lint/performance/noImgElement: image crop needs raw img
+            // biome-ignore lint/a11y/noNoninteractiveElementInteractions: interaction handled by crop wrapper
             <img
               alt="Obrazok na cropovanie"
               className="size-full"
