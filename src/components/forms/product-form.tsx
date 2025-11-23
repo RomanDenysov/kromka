@@ -162,6 +162,10 @@ export function ProductForm({ id }: { id: string }) {
               {(field) => <field.TextField label="Slug" />}
             </form.AppField>
 
+            <form.AppField name="priceCents">
+              {(field) => <field.PriceInputField label="Cena" />}
+            </form.AppField>
+
             <form.AppField name="description">
               {(field) => <field.RichTextField label="Popis" />}
             </form.AppField>

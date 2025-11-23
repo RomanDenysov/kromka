@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -31,10 +32,15 @@ export function formatPrice(
     currency,
     notation,
     maximumFractionDigits: 2,
-    // biome-ignore lint/style/noMagicNumbers: <explanation>
   }).format(numericPrice / 100);
 }
 
 export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export const formatCentsToPrice = (cents: number) => {
+  const processedCents = Math.round(cents);
+  const price = processedCents / 100;
+  return price;
+};

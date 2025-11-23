@@ -112,11 +112,11 @@ export function ImageSlider({
                 brightness && "group-hover:brightness-90"
               )}
               decoding="sync"
-              height={400}
+              height={500}
               loading={index === 0 ? "eager" : "lazy"}
-              quality={65}
+              quality={80}
               src={url}
-              width={400}
+              width={500}
             />
           </SwiperSlide>
         ))}

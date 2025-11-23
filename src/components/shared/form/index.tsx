@@ -5,6 +5,7 @@ import { CheckboxField } from "./fields/checkbox-field";
 import { DateRangeField } from "./fields/date-range-field";
 import { DaysToggleField } from "./fields/days-toggle-field";
 import { EditableField } from "./fields/editable-field";
+import { PriceInputField } from "./fields/price-input-field";
 import { QuantitySetterField } from "./fields/quantity-setter-field";
 import { RichTextField } from "./fields/rich-text-field";
 import { SelectField } from "./fields/select-field";
@@ -36,6 +37,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     TimeField,
     DateRangeField,
     DaysToggleField,
+    PriceInputField,
   },
   formComponents: {
     SubmitButton,
