@@ -85,7 +85,7 @@ export function CartDrawer() {
             <DrawerFooter>
               <div className="mb-4 flex items-center justify-between font-medium">
                 <span>Spolu</span>
-                <span>{formatPrice(totalCents / 100)}</span>
+                <span>{formatPrice(totalCents)}</span>
               </div>
               <Link
                 className={cn(

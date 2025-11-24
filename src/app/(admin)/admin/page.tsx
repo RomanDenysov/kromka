@@ -12,6 +12,7 @@ import {
   getRecentOrders,
 } from "@/db/queries/dashboard";
 import { formatPrice } from "@/lib/utils";
+import { HydrateClient } from "@/trpc/server";
 import { MetricCard } from "./_components/metric-card";
 import { RecentOrders } from "./_components/recent-orders";
 
@@ -36,7 +37,7 @@ async function DashboardContent() {
   ]);
 
   return (
-    <>
+    <HydrateClient>
       <div className="grid gap-0.5 bg-muted p-0.5 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           description="For paid orders today"
@@ -65,8 +66,10 @@ async function DashboardContent() {
       </div>
 
       <div className="grid lg:grid-cols-1">
-        <RecentOrders carts={activeCarts} orders={recentOrders} />
+        <Suspense>
+          <RecentOrders carts={activeCarts} orders={recentOrders} />
+        </Suspense>
       </div>
-    </>
+    </HydrateClient>
   );
 }

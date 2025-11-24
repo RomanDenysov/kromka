@@ -1,20 +1,15 @@
 "use client";
 
 import {
-  BookAIcon,
   Building2Icon,
   FileTextIcon,
   LayoutDashboardIcon,
   type LucideIcon,
-  MessageCircleIcon,
   Package2Icon,
-  Settings2Icon,
   SettingsIcon,
-  ShieldUserIcon,
   ShoppingBasketIcon,
   StoreIcon,
   TagsIcon,
-  Users2Icon,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -108,58 +103,37 @@ export const adminNavigation: NavNode[] = [
       },
     ],
   },
-  {
-    label: "Blog",
-    href: "/admin/blog",
-    items: [
-      {
-        label: "Posts",
-        href: "/admin/blog/posts",
-        icon: BookAIcon,
-      },
-      {
-        label: "Tags",
-        href: "/admin/blog/tags",
-        icon: TagsIcon,
-      },
-      {
-        label: "Comments",
-        href: "/admin/blog/comments",
-        icon: MessageCircleIcon,
-        badgeKey: "blog.comments",
-      },
-      {
-        label: "Settings",
-        href: "/admin/blog/settings",
-        icon: SettingsIcon,
-      },
-    ],
-  },
+  // {
+  //   label: "Blog",
+  //   href: "/admin/blog",
+  //   items: [
+  //     {
+  //       label: "Posts",
+  //       href: "/admin/blog/posts",
+  //       icon: BookAIcon,
+  //     },
+  //     {
+  //       label: "Tags",
+  //       href: "/admin/blog/tags",
+  //       icon: TagsIcon,
+  //     },
+  //     {
+  //       label: "Comments",
+  //       href: "/admin/blog/comments",
+  //       icon: MessageCircleIcon,
+  //       badgeKey: "blog.comments",
+  //     },
+  //     {
+  //       label: "Settings",
+  //       href: "/admin/blog/settings",
+  //       icon: SettingsIcon,
+  //     },
+  //   ],
+  // },
   {
     label: "Settings",
     href: "/admin/settings",
-    items: [
-      {
-        label: "Users",
-        href: "/admin/settings/users",
-        icon: Users2Icon,
-      },
-      {
-        label: "Roles",
-        href: "/admin/settings/roles",
-        icon: ShieldUserIcon,
-      },
-      {
-        label: "Permissions",
-        href: "/admin/settings/permissions",
-        icon: ShieldUserIcon,
-      },
-      {
-        label: "Configurations",
-        href: "/admin/settings/configurations",
-        icon: Settings2Icon,
-      },
-    ],
+    icon: SettingsIcon,
   },
 ];
 

@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }: Props) {
     >
       <AppSidebar collapsible="icon" />
       <SidebarInset>
-        <div className="grid size-full h-svh grid-rows-[auto_1fr]">
+        <div className="relative grid size-full h-svh grid-rows-[auto_1fr]">
           {children}
         </div>
       </SidebarInset>

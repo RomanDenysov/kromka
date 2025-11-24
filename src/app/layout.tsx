@@ -21,10 +21,12 @@ export default function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn(fonts, "relative h-full min-h-screen scroll-smooth")}>
-        <NuqsAdapter>
-          <Providers>{children}</Providers>
-          <Toaster richColors />
-        </NuqsAdapter>
+        <Providers>
+          <NuqsAdapter>
+            {children}
+            <Toaster richColors />
+          </NuqsAdapter>
+        </Providers>
       </body>
     </html>
   );
