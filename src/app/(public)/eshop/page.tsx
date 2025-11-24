@@ -1,11 +1,22 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { FeaturedCarousel } from "@/components/featured-carousel";
-import { CategoriesReel } from "@/components/lists/categories-reel";
-import { ProductsReel } from "@/components/lists/products-reel";
+import {
+  CategoriesReel,
+  CategoriesReelSkeleton,
+} from "@/components/lists/categories-reel";
+import {
+  ProductsReel,
+  ProductsReelSkeleton,
+} from "@/components/lists/products-reel";
 import { Container } from "@/components/shared/container";
 import { Spinner } from "@/components/ui/spinner";
-import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
+import {
+  batchPrefetch,
+  getQueryClient,
+  HydrateClient,
+  trpc,
+} from "@/trpc/server";
 
 export default async function EshopPage(props: {
   searchParams: Promise<{ category?: string }>;
@@ -15,8 +26,10 @@ export default async function EshopPage(props: {
 
   const queryClient = getQueryClient();
 
-  prefetch(trpc.public.products.list.queryOptions());
-  prefetch(trpc.public.categories.list.queryOptions());
+  batchPrefetch([
+    trpc.public.products.list.queryOptions(),
+    trpc.public.categories.list.queryOptions(),
+  ]);
 
   // Change this to prefetch once this is fixed: https://github.com/trpc/trpc/issues/6632
   const options = trpc.public.products.infinite.infiniteQueryOptions({
@@ -33,10 +46,12 @@ export default async function EshopPage(props: {
               <FeaturedCarousel />
             </Suspense>
           </div>
-          <CategoriesReel />
+          <Suspense fallback={<CategoriesReelSkeleton />}>
+            <CategoriesReel />
+          </Suspense>
 
-          <Suspense fallback={<Spinner />}>
-            <ProductsReel limit={12} />
+          <Suspense fallback={<ProductsReelSkeleton />}>
+            <ProductsReel limit={20} />
           </Suspense>
         </Container>
       </ErrorBoundary>

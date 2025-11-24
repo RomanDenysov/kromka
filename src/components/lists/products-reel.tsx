@@ -6,6 +6,7 @@ import { useInView } from "react-intersection-observer";
 import { useEshopParams } from "@/hooks/use-eshop-params";
 import { useTRPC } from "@/trpc/client";
 import { ProductCard } from "../cards/product-card";
+import { ProductCardSkeleton } from "../cards/product-card-skeleton";
 import { LoadMore } from "../shared/load-more";
 
 type Props = {
@@ -44,8 +45,23 @@ export function ProductsReel({ limit }: Props) {
           .map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
+        {isFetching &&
+          hasNextPage &&
+          Array.from({ length: 4 }).map((_, i) => (
+            <ProductCardSkeleton key={`skeleton-${i.toString()}`} />
+          ))}
       </div>
       <LoadMore hasNextPage={hasNextPage} isFetching={isFetching} ref={ref} />
+    </div>
+  );
+}
+
+export function ProductsReelSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <ProductCardSkeleton key={`skeleton-${i.toString()}`} />
+      ))}
     </div>
   );
 }

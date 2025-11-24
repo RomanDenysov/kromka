@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEshopParams } from "@/hooks/use-eshop-params";
@@ -10,13 +10,9 @@ export function CategoriesReel() {
   const trpc = useTRPC();
   const { category: categoryId, setParams } = useEshopParams();
 
-  const { data: categories, isLoading } = useQuery(
+  const { data: categories } = useSuspenseQuery(
     trpc.public.categories.list.queryOptions()
   );
-
-  if (isLoading) {
-    return <CategoriesReelSkeleton />;
-  }
 
   if (!categories?.length) {
     return null;
@@ -52,7 +48,7 @@ export function CategoriesReel() {
   );
 }
 
-function CategoriesReelSkeleton() {
+export function CategoriesReelSkeleton() {
   return (
     <div className="flex gap-2 overflow-hidden px-4 py-1">
       {Array.from({ length: 6 }).map((_, i) => (
