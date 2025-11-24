@@ -71,5 +71,14 @@ export const QUERIES = {
 
       return categories;
     },
+    GET_CATEGORY_BY_SLUG: async (slug: string) =>
+      await db.query.categories.findFirst({
+        where: (category, { eq, and: andFn }) =>
+          andFn(
+            eq(category.slug, slug),
+            eq(category.isActive, true),
+            eq(category.showInMenu, true)
+          ),
+      }),
   },
 };

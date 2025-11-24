@@ -14,3 +14,15 @@ export function Container({ className, ...props }: Props) {
     />
   );
 }
+
+export function PageWrapper({ className, ...props }: Props) {
+  return (
+    <div
+      className={cn(
+        "container mx-auto size-full space-y-6 px-4 pt-6 pb-10 sm:px-6 md:pb-16 lg:space-y-10 lg:px-8 xl:pb-20",
+        className
+      )}
+      {...props}
+    />
+  );
+}

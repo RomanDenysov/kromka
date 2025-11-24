@@ -46,4 +46,9 @@ export const publicCategoriesRouter = createTRPCRouter({
   list: publicProcedure.query(
     async () => await QUERIES.PUBLIC.GET_CATEGORIES()
   ),
+  bySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(
+      async ({ input }) => await QUERIES.PUBLIC.GET_CATEGORY_BY_SLUG(input.slug)
+    ),
 });

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { Container } from "@/components/shared/container";
+import { PageWrapper } from "@/components/shared/container";
 import {
   SingleProduct,
   SingleProductSkeleton,
@@ -21,11 +21,11 @@ export default async function ProductPage({ params }: Props) {
   return (
     <HydrateClient>
       <ErrorBoundary fallback={<div>Error</div>}>
-        <Container className="@container/product-page flex size-full py-5 md:pb-20">
+        <PageWrapper>
           <Suspense fallback={<SingleProductSkeleton />}>
             <SingleProduct slug={slug} />
           </Suspense>
-        </Container>
+        </PageWrapper>
       </ErrorBoundary>
     </HydrateClient>
   );

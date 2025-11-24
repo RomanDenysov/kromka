@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { MobileNavigation } from "./mobile-navigation";
 
 const navigation: { name: string; href: Route }[] = [
-  { name: "Eshop", href: "/eshop" },
+  { name: "E-shop", href: "/e-shop" },
   { name: "B2B", href: "/b2b" },
   { name: "Predajne", href: "/predajne" },
   { name: "Blog", href: "/blog" },

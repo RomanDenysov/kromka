@@ -28,7 +28,7 @@ export function ProductCard({ product, className }: Props) {
         "relative flex flex-col gap-4 overflow-hidden rounded-md bg-accent p-0.5",
         className
       )}
-      href={`/eshop/products/${product.slug}`}
+      href={`/e-shop/${product.slug}`}
       prefetch
       title={isActive ? product.name : `${product.name} (neaktívny produkt)`}
     >

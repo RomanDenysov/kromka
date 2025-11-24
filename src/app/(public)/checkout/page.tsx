@@ -1,7 +1,10 @@
+import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
+import { PageWrapper } from "@/components/shared/container";
+
 export default function CheckoutPage() {
   return (
-    <div>
-      <h1>Checkout</h1>
-    </div>
+    <PageWrapper>
+      <AppBreadcrumbs items={[{ label: "Checkout", href: "/checkout" }]} />
+    </PageWrapper>
   );
 }
