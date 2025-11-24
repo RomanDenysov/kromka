@@ -112,7 +112,7 @@ export function SingleProduct({ slug }: { slug: string }) {
                     buttonVariants({ variant: "secondary", size: "xs" }),
                     "rounded-full"
                   )}
-                  href={`/eshop?category=${cat.slug}`}
+                  href={`/e-shop?category=${cat.slug}`}
                   key={cat.id}
                 >
                   {cat.name}
