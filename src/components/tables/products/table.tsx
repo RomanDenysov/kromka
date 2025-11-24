@@ -14,7 +14,12 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDown01Icon, PlusIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  FileTextIcon,
+  PlusIcon,
+  TablePropertiesIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Fragment, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -23,6 +28,12 @@ import {
   fuzzyFilter,
 } from "@/components/data-table/ui/data-table-search";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
@@ -140,7 +151,7 @@ export function ProductsTable() {
     },
   });
 
-  const _handleExport = (format: "csv" | "xlsx") => {
+  const handleExport = (format: "csv" | "xlsx") => {
     const selectedRows = table.getSelectedRowModel().rows;
     const exportData = selectedRows.length
       ? selectedRows.map((r) => r.original)
@@ -162,10 +173,24 @@ export function ProductsTable() {
           value={globalFilter ?? ""}
         />
         <div className="flex items-center justify-end gap-2">
-          <Button size="xs" variant="outline">
-            <ArrowDown01Icon />
-            Export
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline">
+                <ArrowDownIcon />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
+                <FileTextIcon />
+                CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
+                <TablePropertiesIcon />
+                XLSX
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       <Table>
