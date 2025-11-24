@@ -1,20 +1,27 @@
-import Link from "next/link";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { FeaturedCarousel } from "@/components/featured-carousel";
+import { CategoriesReel } from "@/components/lists/categories-reel";
 import { ProductsReel } from "@/components/lists/products-reel";
 import { Container } from "@/components/shared/container";
 import { Spinner } from "@/components/ui/spinner";
 import { getQueryClient, HydrateClient, prefetch, trpc } from "@/trpc/server";
 
-export default async function EshopPage() {
+export default async function EshopPage(props: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const searchParams = await props.searchParams;
+  const categoryId = searchParams.category;
+
   const queryClient = getQueryClient();
 
   prefetch(trpc.public.products.list.queryOptions());
+  prefetch(trpc.public.categories.list.queryOptions());
 
   // Change this to prefetch once this is fixed: https://github.com/trpc/trpc/issues/6632
   const options = trpc.public.products.infinite.infiniteQueryOptions({
     limit: 12,
+    categoryId,
   });
   await queryClient.fetchInfiniteQuery({ ...options, initialPageParam: 0 });
   return (
@@ -26,26 +33,11 @@ export default async function EshopPage() {
               <FeaturedCarousel />
             </Suspense>
           </div>
-          <div className="flex flex-col gap-2 border">
-            <h2>CATEGORIES</h2>
-            <div className="flex flex-wrap gap-2">
-              <Link className="text-sm" href="/eshop?category=1">
-                Category 1
-              </Link>
-              <Link className="text-sm" href="/eshop?category=2">
-                Category 2
-              </Link>
-              <Link className="text-sm" href="/eshop?category=3">
-                Category 3
-              </Link>
-            </div>
-          </div>
-          <div className="flex h-full flex-1 grow flex-col gap-2 border">
-            <h1>Eshop</h1>
-            <Suspense fallback={<Spinner />}>
-              <ProductsReel limit={12} />
-            </Suspense>
-          </div>
+          <CategoriesReel />
+
+          <Suspense fallback={<Spinner />}>
+            <ProductsReel limit={12} />
+          </Suspense>
         </Container>
       </ErrorBoundary>
     </HydrateClient>

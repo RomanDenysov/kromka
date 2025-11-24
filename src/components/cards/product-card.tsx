@@ -25,7 +25,7 @@ export function ProductCard({ product, className }: Props) {
   return (
     <Link
       className={cn(
-        "relative flex flex-col gap-4 overflow-hidden rounded-md bg-accent p-2",
+        "relative flex flex-col gap-4 overflow-hidden rounded-md bg-accent p-0.5",
         className
       )}
       href={`/eshop/products/${product.slug}`}
@@ -47,7 +47,7 @@ export function ProductCard({ product, className }: Props) {
         </div>
         <ImageSlider disabled={!isActive} urls={product.images} />
       </div>
-      <div className="flex size-full flex-col justify-between gap-2 px-0.5 pb-0.5">
+      <div className="flex size-full flex-col justify-between gap-2 px-1 pb-1">
         {/* Categories */}
         <div className="flex flex-wrap items-center gap-0.5">
           {showingCategories.map((category) => (

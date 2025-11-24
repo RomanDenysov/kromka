@@ -2,7 +2,7 @@ import z from "zod";
 import { MUTATIONS } from "@/db/mutations/categories";
 import { QUERIES } from "@/db/queries/categories";
 import { updateCategorySchema } from "@/validation/categories";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const adminCategoriesRouter = createTRPCRouter({
   list: protectedProcedure.query(
@@ -40,4 +40,10 @@ export const adminCategoriesRouter = createTRPCRouter({
     .mutation(
       async ({ input }) => await MUTATIONS.ADMIN.TOGGLE_IS_ACTIVE(input.id)
     ),
+});
+
+export const publicCategoriesRouter = createTRPCRouter({
+  list: publicProcedure.query(
+    async () => await QUERIES.PUBLIC.GET_CATEGORIES()
+  ),
 });

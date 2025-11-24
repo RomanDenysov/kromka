@@ -3,6 +3,7 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
+import { useEshopParams } from "@/hooks/use-eshop-params";
 import { useTRPC } from "@/trpc/client";
 import { ProductCard } from "../cards/product-card";
 import { LoadMore } from "../shared/load-more";
@@ -12,11 +13,13 @@ type Props = {
 };
 
 export function ProductsReel({ limit }: Props) {
+  const { category: categoryId } = useEshopParams();
   const trpc = useTRPC();
   const infiniteQueryOptions =
     trpc.public.products.infinite.infiniteQueryOptions(
       {
         limit,
+        categoryId: categoryId || undefined,
       },
       {
         getNextPageParam: ({ nextCursor }) => nextCursor,
@@ -33,14 +36,9 @@ export function ProductsReel({ limit }: Props) {
     }
   }, [inView, fetchNextPage]);
 
-  useEffect(() => {
-    // biome-ignore lint/suspicious/noConsole: debugging
-    console.log("products", data.pages);
-  }, [data.pages]);
-
   return (
     <div>
-      <div className="grid grid-cols-2 gap-4 px-4 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {data.pages
           .flatMap((page) => page.data)
           .map((product) => (

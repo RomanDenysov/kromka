@@ -61,4 +61,14 @@ export const QUERIES = {
         orderBy: (category, { desc }) => desc(category.sortOrder),
       }),
   },
+  PUBLIC: {
+    GET_CATEGORIES: async () => {
+      const categories = await db.query.categories.findMany({
+        where: (category, { eq }) => eq(category.isActive, true),
+        orderBy: (category, { asc }) => asc(category.sortOrder),
+      });
+
+      return categories;
+    },
+  },
 };

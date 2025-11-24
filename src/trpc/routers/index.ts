@@ -1,7 +1,7 @@
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { createTRPCRouter } from "../init";
 import { publicCartRouter } from "./cart";
-import { adminCategoriesRouter } from "./categories";
+import { adminCategoriesRouter, publicCategoriesRouter } from "./categories";
 import { adminMediaRouter } from "./media";
 import { adminOrdersRouter } from "./orders";
 import { adminOrganizationsRouter } from "./organizations";
@@ -21,6 +21,7 @@ const adminRouter = createTRPCRouter({
 
 const publicRouter = createTRPCRouter({
   products: publicProductsRouter,
+  categories: publicCategoriesRouter,
   cart: publicCartRouter,
   users: publicUsersRouter,
 });

@@ -1,5 +1,5 @@
 import "server-only";
-import { and, count, eq, not } from "drizzle-orm";
+import { and, count, eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
 import { productCategories } from "../schema/categories";
 import { products } from "../schema/products";
@@ -94,13 +94,13 @@ export const QUERIES = {
     },
     GET_PRODUCTS_BY_CATEGORY: async (categoryId: string) => {
       const fetchedProducts = await db.query.products.findMany({
-        where: (product, { inArray, eq: eqFn }) =>
+        where: (product, { inArray: inArrayFn }) =>
           inArray(
             product.id,
             db
               .select({ productId: productCategories.productId })
               .from(productCategories)
-              .where(eqFn(productCategories.categoryId, categoryId))
+              .where(inArrayFn(productCategories.categoryId, [categoryId]))
           ),
         with: {
           categories: {
@@ -186,14 +186,24 @@ export const QUERIES = {
     GET_PRODUCTS_INFINITE: async (input: {
       limit?: number;
       cursor?: number;
+      categoryId?: string;
     }) => {
-      const { limit = 12, cursor = 0 } = input;
+      const { limit = 12, cursor = 0, categoryId } = input;
       const fetchedProducts = await db.query.products.findMany({
-        where: (product, { eq: eqFn, not: notFn, and: andFn }) =>
+        where: (product, { eq: eqFn, not: notFn, and: andFn, inArray }) =>
           andFn(
             eqFn(product.isActive, true),
             notFn(eqFn(product.status, "archived")),
-            notFn(eqFn(product.status, "draft"))
+            notFn(eqFn(product.status, "draft")),
+            categoryId
+              ? inArray(
+                  product.id,
+                  db
+                    .select({ productId: productCategories.productId })
+                    .from(productCategories)
+                    .where(eqFn(productCategories.categoryId, categoryId))
+                )
+              : undefined
           ),
         limit: limit + 1,
         offset: cursor,
@@ -216,16 +226,25 @@ export const QUERIES = {
         ],
       });
 
+      const whereConditions = and(
+        eq(products.isActive, true),
+        not(eq(products.status, "archived")),
+        not(eq(products.status, "draft")),
+        categoryId
+          ? inArray(
+              products.id,
+              db
+                .select({ productId: productCategories.productId })
+                .from(productCategories)
+                .where(eq(productCategories.categoryId, categoryId))
+            )
+          : undefined
+      );
+
       const [total] = await db
         .select({ count: count() })
         .from(products)
-        .where(
-          and(
-            eq(products.isActive, true),
-            not(eq(products.status, "archived")),
-            not(eq(products.status, "draft"))
-          )
-        );
+        .where(whereConditions);
 
       let hasMore = false;
       let nextCursor: number | undefined;

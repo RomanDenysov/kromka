@@ -117,6 +117,7 @@ export const publicProductsRouter = createTRPCRouter({
       z.object({
         limit: z.number().optional(),
         cursor: z.number().optional(),
+        categoryId: z.string().optional(),
       })
     )
     .query(
