@@ -12,12 +12,13 @@ export type Item = {
 
 type Props = {
   items: Item[];
+  className?: string;
 };
 
-export function SecondaryNav({ items }: Props) {
+export function SecondaryNav({ items, className }: Props) {
   const pathname = usePathname();
   return (
-    <nav className="p-2">
+    <nav className={cn("p-2", className)}>
       <ul className="scrollbar-hide flex justify-start gap-2 overflow-auto">
         {items.map((item) => (
           <li key={item.href}>
