@@ -1,16 +1,16 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEshopParams } from "@/hooks/use-eshop-params";
 import { useTRPC } from "@/trpc/client";
+import { FilterCarousel } from "./filter-carousel";
 
 export function CategoriesReel() {
   const trpc = useTRPC();
   const { category: categoryId, setParams } = useEshopParams();
 
-  const { data: categories } = useSuspenseQuery(
+  const { data: categories, isLoading: isLoadingCategories } = useSuspenseQuery(
     trpc.public.categories.list.queryOptions()
   );
 
@@ -19,33 +19,45 @@ export function CategoriesReel() {
   }
 
   return (
-    <div className="group relative w-full">
-      <div className="pointer-events-none absolute top-0 bottom-0 left-0 z-10 w-12 bg-linear-to-r from-background to-transparent" />
-      <div className="pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-12 bg-linear-to-l from-background to-transparent" />
-
-      <div className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth">
-        <Button
-          className="h-8 whitespace-nowrap rounded-full"
-          onClick={() => setParams({ category: null })}
-          size="sm"
-          variant={categoryId === null ? "default" : "secondary"}
-        >
-          All
-        </Button>
-        {categories.map((category) => (
-          <Button
-            className="h-8 whitespace-nowrap rounded-full"
-            key={category.id}
-            onClick={() => setParams({ category: category.id })}
-            size="sm"
-            variant={categoryId === category.id ? "default" : "secondary"}
-          >
-            {category.name}
-          </Button>
-        ))}
-      </div>
-    </div>
+    <FilterCarousel
+      data={categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      }))}
+      isLoading={isLoadingCategories}
+      onSelect={(value) => setParams({ category: value })}
+      value={categoryId}
+    />
   );
+
+  // return (
+  //   <div className="group relative w-full">
+  //     <div className="pointer-events-none absolute top-0 bottom-0 left-0 z-10 w-12 bg-linear-to-r from-background to-transparent" />
+  //     <div className="pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-12 bg-linear-to-l from-background to-transparent" />
+
+  //     <div className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth">
+  //       <Button
+  //         className="h-8 whitespace-nowrap rounded-full"
+  //         onClick={() => setParams({ category: null })}
+  //         size="sm"
+  //         variant={categoryId === null ? "default" : "secondary"}
+  //       >
+  //         All
+  //       </Button>
+  //       {categories.map((category) => (
+  //         <Button
+  //           className="h-8 whitespace-nowrap rounded-full"
+  //           key={category.id}
+  //           onClick={() => setParams({ category: category.id })}
+  //           size="sm"
+  //           variant={categoryId === category.id ? "default" : "secondary"}
+  //         >
+  //           {category.name}
+  //         </Button>
+  //       ))}
+  //     </div>
+  //   </div>
+  // );
 }
 
 export function CategoriesReelSkeleton() {
