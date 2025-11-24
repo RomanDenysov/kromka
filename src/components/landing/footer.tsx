@@ -13,16 +13,17 @@ type FooterLinkItem = {
 
 const footerLinks: Record<"company" | "legal", FooterLinkItem[]> = {
   company: [
-    { name: "O nás", href: "/o-nas" as Route },
-    { name: "Kontakt", href: "/kontakt" as Route },
-    { name: "Predajne", href: "/obchody" as Route },
-    { name: "Blog", href: "/blog" as Route },
+    { name: "O nás", href: "/o-nas" },
+    { name: "E-shop", href: "/e-shop" },
+    { name: "Kontakt", href: "/kontakt" },
+    { name: "Predajne", href: "/predajne" },
+    { name: "Blog", href: "/blog" },
   ],
   legal: [
-    { name: "Podmienky používania", href: "/podmienky-pouzivania" as Route },
+    { name: "Podmienky používania", href: "/podmienky-pouzivania" },
     {
       name: "Ochrana osobných údajov",
-      href: "/zasady-ochrany-osobnych-udajov" as Route,
+      href: "/zasady-ochrany-osobnych-udajov",
     },
   ],
 } as const;

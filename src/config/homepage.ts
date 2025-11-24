@@ -29,8 +29,8 @@ export const homepageConfig: PageConfig = {
     cta: {
       image: "/images/sortiment-warm.jpg",
       link: {
-        label: "Prejsť na eshop",
-        href: "/eshop",
+        label: "Prejsť na e-shop",
+        href: "/e-shop",
       },
     },
   },
