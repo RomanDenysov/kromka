@@ -183,6 +183,45 @@ export const QUERIES = {
 
       return processedProducts;
     },
+    GET_PRODUCT_BY_SLUG: async (slug: string) => {
+      const product = await db.query.products.findFirst({
+        where: (p, { eq: eqFn, and: andFn, inArray: inArrayFn }) =>
+          andFn(
+            eqFn(p.slug, slug),
+            eqFn(p.isActive, true),
+            inArrayFn(p.status, ["active", "sold"])
+          ),
+        with: {
+          images: {
+            with: {
+              media: true,
+            },
+          },
+          categories: {
+            with: {
+              category: true,
+            },
+          },
+        },
+      });
+
+      if (product) {
+        product.images = product.images.sort(
+          (a, b) => a.sortOrder - b.sortOrder
+        );
+        product.categories = product.categories.sort(
+          (a, b) => a.sortOrder - b.sortOrder
+        );
+
+        return {
+          ...product,
+          categories: product.categories.map((c) => c.category),
+          images: product.images.map((img) => img.media.url),
+        };
+      }
+
+      return null;
+    },
     GET_PRODUCTS_INFINITE: async (input: {
       limit?: number;
       cursor?: number;
@@ -190,13 +229,16 @@ export const QUERIES = {
     }) => {
       const { limit = 12, cursor = 0, categoryId } = input;
       const fetchedProducts = await db.query.products.findMany({
-        where: (product, { eq: eqFn, not: notFn, and: andFn, inArray }) =>
+        where: (
+          product,
+          { eq: eqFn, not: notFn, and: andFn, inArray: inArrayFn }
+        ) =>
           andFn(
             eqFn(product.isActive, true),
             notFn(eqFn(product.status, "archived")),
             notFn(eqFn(product.status, "draft")),
             categoryId
-              ? inArray(
+              ? inArrayFn(
                   product.id,
                   db
                     .select({ productId: productCategories.productId })

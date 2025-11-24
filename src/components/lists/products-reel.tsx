@@ -4,6 +4,7 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { useEshopParams } from "@/hooks/use-eshop-params";
+import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { ProductCard } from "../cards/product-card";
 import { ProductCardSkeleton } from "../cards/product-card-skeleton";
@@ -11,9 +12,10 @@ import { LoadMore } from "../shared/load-more";
 
 type Props = {
   limit: number;
+  className?: string;
 };
 
-export function ProductsReel({ limit }: Props) {
+export function ProductsReel({ limit, className }: Props) {
   const { category: categoryId } = useEshopParams();
   const trpc = useTRPC();
   const infiniteQueryOptions =
@@ -38,7 +40,7 @@ export function ProductsReel({ limit }: Props) {
   }, [inView, fetchNextPage]);
 
   return (
-    <div>
+    <div className={cn("flex size-full flex-col gap-4", className)}>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {data.pages
           .flatMap((page) => page.data)

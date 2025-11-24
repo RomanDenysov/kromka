@@ -20,7 +20,7 @@ export function FeaturedProductCard({ product, className }: Props) {
   return (
     <Link
       className={cn(
-        "group relative block aspect-square overflow-hidden rounded-xl bg-muted shadow-sm",
+        "group relative block aspect-square overflow-hidden rounded-sm bg-muted shadow-sm",
         className
       )}
       href={`/eshop/products/${product.slug}`}

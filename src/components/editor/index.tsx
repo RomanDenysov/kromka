@@ -18,6 +18,7 @@ type EditorProps = {
   onFocus?: () => void;
   className?: string;
   tabIndex?: number;
+  editable?: boolean;
 };
 
 export function Editor({
@@ -29,10 +30,12 @@ export function Editor({
   onFocus,
   className,
   tabIndex,
+  editable = true,
 }: EditorProps) {
   const editor = useEditor({
     extensions: registerExtensions({ placeholder, variant }),
     content,
+    editable,
     immediatelyRender: false,
     onBlur,
     onFocus,

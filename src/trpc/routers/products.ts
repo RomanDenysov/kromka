@@ -123,4 +123,9 @@ export const publicProductsRouter = createTRPCRouter({
     .query(
       async ({ input }) => await QUERIES.PUBLIC.GET_PRODUCTS_INFINITE(input)
     ),
+  bySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(
+      async ({ input }) => await QUERIES.PUBLIC.GET_PRODUCT_BY_SLUG(input.slug)
+    ),
 });

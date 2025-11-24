@@ -10,6 +10,14 @@ import {
   ProductsReelSkeleton,
 } from "@/components/lists/products-reel";
 import { Container } from "@/components/shared/container";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Spinner } from "@/components/ui/spinner";
 import {
   batchPrefetch,
@@ -40,8 +48,19 @@ export default async function EshopPage(props: {
   return (
     <HydrateClient>
       <ErrorBoundary fallback={<div>Error loading products</div>}>
-        <Container className="flex h-full flex-col gap-6 border py-5 md:pb-20">
-          <div className="min-h-60 border-border border-b">
+        <Container className="flex size-full flex-col gap-6 py-5 md:pb-20">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/">Domov</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>E-shop</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <div className="min-h-60 shrink-0">
             <Suspense fallback={<Spinner />}>
               <FeaturedCarousel />
             </Suspense>
@@ -51,7 +70,7 @@ export default async function EshopPage(props: {
           </Suspense>
 
           <Suspense fallback={<ProductsReelSkeleton />}>
-            <ProductsReel limit={20} />
+            <ProductsReel className="grow" limit={20} />
           </Suspense>
         </Container>
       </ErrorBoundary>
