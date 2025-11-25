@@ -17,10 +17,13 @@ export default function ProductsPage() {
             { label: "Produkty", href: "/admin/products" },
           ]}
         />
-
-        <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-          <ProductsTable />
-        </Suspense>
+        <section className="h-full flex-1">
+          <Suspense
+            fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}
+          >
+            <ProductsTable />
+          </Suspense>
+        </section>
       </ErrorBoundary>
     </HydrateClient>
   );

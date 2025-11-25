@@ -16,7 +16,7 @@ export default function B2COrdersPage() {
           { label: "Objednávky", href: "/admin/orders" },
         ]}
       />
-      <section className="h-full flex-1 p-4">
+      <section className="h-full flex-1">
         <ErrorBoundary fallback={<div>Error loading orders</div>}>
           <Suspense
             fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}

@@ -1,9 +1,39 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { orderItems, orders } from "../schema/orders";
+import {
+  type OrderStatus,
+  orderItems,
+  orderStatusEvents,
+  orders,
+} from "../schema/orders";
 import { products } from "../schema/products";
 
 export const MUTATIONS = {
+  ADMIN: {
+    UPDATE_ORDER_STATUS: async (
+      orderId: string,
+      status: OrderStatus,
+      userId: string,
+      note?: string
+    ) => {
+      // Update the order status
+      const [updatedOrder] = await db
+        .update(orders)
+        .set({ orderStatus: status })
+        .where(eq(orders.id, orderId))
+        .returning();
+
+      // Create a status event
+      await db.insert(orderStatusEvents).values({
+        orderId,
+        status,
+        createdBy: userId,
+        note: note ?? null,
+      });
+
+      return updatedOrder;
+    },
+  },
   PUBLIC: {
     ADD_TO_CART: async (
       productId: string,

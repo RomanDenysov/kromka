@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
+import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { OrderDetail } from "./_components/order-detail";
 
 type Props = {
   params: Promise<{
@@ -23,13 +25,13 @@ export default async function AdminOrderPage({ params }: Props) {
           { label: "Detail objednávky" },
         ]}
       />
-      <section className="h-full flex-1 p-4">
-        <ErrorBoundary fallback={<div>Error</div>}>
-          <Suspense fallback={<div>Loading...</div>}>
-            {/* <OrderDetail orderId={orderId} /> */}
+      <ErrorBoundary fallback={<div>Error</div>}>
+        <section className="@container/page h-full flex-1 p-4">
+          <Suspense fallback={<FormSkeleton />}>
+            <OrderDetail orderId={id} />
           </Suspense>
-        </ErrorBoundary>
-      </section>
+        </section>
+      </ErrorBoundary>
     </HydrateClient>
   );
 }
