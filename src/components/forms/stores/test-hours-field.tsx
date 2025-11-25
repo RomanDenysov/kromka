@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+"use client";
 
 import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";

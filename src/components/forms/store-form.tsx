@@ -19,7 +19,7 @@ import type { StoreSchedule } from "@/db/schema";
 import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
-import { type StoreSchema, storeSchema } from "@/validation/stores";
+import { storeSchema } from "@/validation/stores";
 import { SingleImageUpload } from "../image-upload/single-image-upload";
 import { useAppForm } from "../shared/form";
 import { FormSkeleton } from "../shared/form/form-skeleton";
@@ -62,15 +62,15 @@ export function StoreForm({ id }: { id: string }) {
       slug: store?.slug ?? "",
       description: store?.description ?? null,
       phone: store?.phone ?? "",
-      email: store?.email ?? "",
+      email: store?.email ?? "kromka@kavejo.sk",
       isActive: store?.isActive ?? false,
       sortOrder: store?.sortOrder ?? 0,
       imageId: store?.imageId ?? null,
-      address: (store?.address ?? null) as StoreSchema["address"],
+      address: store?.address ?? null,
       latitude: store?.latitude ?? null,
       longitude: store?.longitude ?? null,
       // Initialize openingHours with fallback (though DB provides default)
-      openingHours: (store?.openingHours ?? {
+      openingHours: store?.openingHours ?? {
         regularHours: {
           monday: "closed",
           tuesday: "closed",
@@ -81,7 +81,7 @@ export function StoreForm({ id }: { id: string }) {
           sunday: "closed",
         },
         exceptions: {},
-      }) as StoreSchema["openingHours"],
+      },
     },
     listeners: {
       onChangeDebounceMs: 5000,

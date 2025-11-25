@@ -6,11 +6,11 @@ const MAX_STRING_LENGTH = 255;
 const POSTAL_CODE_LENGTH = 6;
 
 const addressSchema = z.object({
-  street: z.string().min(1),
-  city: z.string().min(1),
-  country: z.string().min(1),
-  googleId: z.string().min(1),
-  postalCode: z.string().min(1).max(POSTAL_CODE_LENGTH),
+  street: z.string(),
+  city: z.string(),
+  country: z.string(),
+  googleId: z.string(),
+  postalCode: z.string().max(POSTAL_CODE_LENGTH),
 });
 
 const timeRangeSchema = z
@@ -44,7 +44,7 @@ export const storeSchema = z.object({
   isActive: z.boolean(),
   sortOrder: z.number(),
   imageId: z.string().nullable(),
-  address: addressSchema.partial(),
+  address: addressSchema.partial().nullable(),
   latitude: z.string().nullable(),
   longitude: z.string().nullable(),
   openingHours: openingHoursSchema,

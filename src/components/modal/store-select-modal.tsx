@@ -70,9 +70,15 @@ export function StoreSelectModal() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="truncate" size="sm" variant="secondary">
+        <Button
+          className="max-w-[140px] justify-start"
+          size="sm"
+          variant="secondary"
+        >
           <StoreIcon />
-          {selectedStore ? selectedStore.name : "Vybrať obchod"}
+          <span className="truncate">
+            {selectedStore ? selectedStore.name : "Vybrať obchod"}
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -98,16 +104,18 @@ export function StoreSelectModal() {
               Zavrieť
             </Button>
           </DialogClose>
-          <Button
-            disabled={!selectedStore || setStore.isPending}
-            onClick={() => {
-              setStore.mutate({ storeId: selectedStore?.id ?? "" });
-            }}
-            size="sm"
-            type="button"
-          >
-            Vybrať
-          </Button>
+          <DialogClose asChild>
+            <Button
+              disabled={!selectedStore || setStore.isPending}
+              onClick={() => {
+                setStore.mutate({ storeId: selectedStore?.id ?? "" });
+              }}
+              size="sm"
+              type="button"
+            >
+              Vybrať
+            </Button>
+          </DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
