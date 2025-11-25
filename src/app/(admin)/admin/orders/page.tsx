@@ -2,9 +2,12 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { DataTableSkeleton } from "@/components/data-table/ui/data-table-skeleton";
-import { HydrateClient } from "@/trpc/server";
+import { OrdersTable } from "@/components/tables/orders/table";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 export default function B2COrdersPage() {
+  prefetch(trpc.admin.orders.list.queryOptions());
+
   return (
     <HydrateClient>
       <AdminHeader
@@ -18,7 +21,7 @@ export default function B2COrdersPage() {
           <Suspense
             fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}
           >
-            <div>Orders</div>
+            <OrdersTable />
           </Suspense>
         </ErrorBoundary>
       </section>

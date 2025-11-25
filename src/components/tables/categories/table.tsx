@@ -14,7 +14,12 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDownIcon, FileIcon, PlusIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  FileIcon,
+  PlusIcon,
+  TablePropertiesIcon,
+} from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -39,6 +44,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useCreateDraftCategory } from "@/hooks/use-create-draft-category";
+import {
+  type ExportColumnConfig,
+  exportAsCsv,
+  exportAsXlsx,
+} from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import type { RouterOutputs } from "@/trpc/routers";
@@ -47,6 +57,39 @@ import { EmptyState } from "./empty-state";
 
 export type TableCategory =
   RouterOutputs["admin"]["categories"]["list"][number];
+
+const categoryExportColumns: ExportColumnConfig<TableCategory>[] = [
+  {
+    key: "name",
+    header: "Názov",
+  },
+  {
+    key: "isActive",
+    header: "Aktívna",
+    format: (value) => (value ? "Áno" : "Nie"),
+  },
+  {
+    key: "showInMenu",
+    header: "Viditeľná v menu",
+    format: (value) => (value ? "Áno" : "Nie"),
+  },
+  {
+    key: "productsCount",
+    header: "Počet produktov",
+  },
+  {
+    key: "createdAt",
+    header: "Vytvorené",
+    format: (value) =>
+      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
+  },
+  {
+    key: "updatedAt",
+    header: "Upravené",
+    format: (value) =>
+      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
+  },
+];
 
 export function CategoriesTable() {
   const trpc = useTRPC();
@@ -135,6 +178,23 @@ export function CategoriesTable() {
     },
   });
 
+  const handleExport = async (format: "csv" | "xlsx") => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    const exportData = selectedRows.length
+      ? selectedRows.map((r) => r.original)
+      : table.getFilteredRowModel().rows.map((r) => r.original);
+
+    if (!exportData.length) {
+      return;
+    }
+
+    if (format === "csv") {
+      exportAsCsv(exportData, categoryExportColumns, "categories");
+    } else {
+      await exportAsXlsx(exportData, categoryExportColumns, "categories");
+    }
+  };
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Need to ignore this
   useEffect(() => {
     if (
@@ -162,9 +222,13 @@ export function CategoriesTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
                 <FileIcon />
                 CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
+                <TablePropertiesIcon />
+                XLSX
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

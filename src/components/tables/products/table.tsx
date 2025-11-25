@@ -46,6 +46,11 @@ import {
 } from "@/components/ui/table";
 import { useCreateDraftProduct } from "@/hooks/mutations/use-create-draft-product";
 import { useProductParams } from "@/hooks/use-product-params";
+import {
+  type ExportColumnConfig,
+  exportAsCsv,
+  exportAsXlsx,
+} from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import type { RouterOutputs } from "@/trpc/routers";
@@ -53,6 +58,41 @@ import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
 export type TableProduct = RouterOutputs["admin"]["products"]["list"][number];
+
+const productExportColumns: ExportColumnConfig<TableProduct>[] = [
+  {
+    key: "name",
+    header: "Názov",
+  },
+  {
+    key: "sku",
+    header: "SKU",
+  },
+  {
+    key: "priceCents",
+    header: "Cena (EUR)",
+    format: (value) =>
+      // biome-ignore lint/style/noMagicNumbers: <explanation>
+      typeof value === "number" ? (value / 100).toFixed(2) : "",
+  },
+  {
+    key: "isActive",
+    header: "Aktívny",
+    format: (value) => (value ? "Áno" : "Nie"),
+  },
+  {
+    key: "createdAt",
+    header: "Vytvorené",
+    format: (value) =>
+      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
+  },
+  {
+    key: "updatedAt",
+    header: "Upravené",
+    format: (value) =>
+      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
+  },
+];
 
 export function ProductsTable() {
   const router = useRouter();
@@ -151,17 +191,21 @@ export function ProductsTable() {
     },
   });
 
-  const handleExport = (format: "csv" | "xlsx") => {
+  const handleExport = async (format: "csv" | "xlsx") => {
     const selectedRows = table.getSelectedRowModel().rows;
     const exportData = selectedRows.length
       ? selectedRows.map((r) => r.original)
       : table.getFilteredRowModel().rows.map((r) => r.original);
 
-    // TODO: Implement export via XLSX or CSV based on the format
-    // biome-ignore lint/suspicious/noConsole: <explanation>
-    console.log("Exporting:", exportData);
-    // biome-ignore lint/suspicious/noConsole: <explanation>
-    console.log("Format:", format);
+    if (!exportData.length) {
+      return;
+    }
+
+    if (format === "csv") {
+      exportAsCsv(exportData, productExportColumns, "products");
+    } else {
+      await exportAsXlsx(exportData, productExportColumns, "products");
+    }
   };
 
   return (

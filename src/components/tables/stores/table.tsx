@@ -14,7 +14,12 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDownIcon, FileIcon, PlusIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  FileIcon,
+  PlusIcon,
+  TablePropertiesIcon,
+} from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -39,6 +44,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useCreateDraftStore } from "@/hooks/use-create-draft-store";
+import {
+  type ExportColumnConfig,
+  exportAsCsv,
+  exportAsXlsx,
+} from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import type { RouterOutputs } from "@/trpc/routers";
@@ -46,6 +56,38 @@ import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
 export type TableStore = RouterOutputs["admin"]["stores"]["list"][number];
+
+const storeExportColumns: ExportColumnConfig<TableStore>[] = [
+  {
+    key: "name",
+    header: "Názov",
+  },
+  {
+    key: "slug",
+    header: "Slug",
+  },
+  {
+    key: "city",
+    header: "Mesto",
+  },
+  {
+    key: "isActive",
+    header: "Aktívny",
+    format: (value) => (value ? "Áno" : "Nie"),
+  },
+  {
+    key: "createdAt",
+    header: "Vytvorené",
+    format: (value) =>
+      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
+  },
+  {
+    key: "updatedAt",
+    header: "Upravené",
+    format: (value) =>
+      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
+  },
+];
 
 export function StoresTable() {
   const trpc = useTRPC();
@@ -132,6 +174,23 @@ export function StoresTable() {
     },
   });
 
+  const handleExport = async (format: "csv" | "xlsx") => {
+    const selectedRows = table.getSelectedRowModel().rows;
+    const exportData = selectedRows.length
+      ? selectedRows.map((r) => r.original)
+      : table.getFilteredRowModel().rows.map((r) => r.original);
+
+    if (!exportData.length) {
+      return;
+    }
+
+    if (format === "csv") {
+      exportAsCsv(exportData, storeExportColumns, "stores");
+    } else {
+      await exportAsXlsx(exportData, storeExportColumns, "stores");
+    }
+  };
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Need to ignore this
   useEffect(() => {
     if (
@@ -159,9 +218,13 @@ export function StoresTable() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
                 <FileIcon />
                 CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
+                <TablePropertiesIcon />
+                XLSX
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
