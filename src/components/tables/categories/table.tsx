@@ -239,7 +239,11 @@ export function CategoriesTable() {
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id} style={{ width: header.getSize() }}>
+                <TableHead
+                  className="text-xs"
+                  key={header.id}
+                  style={{ width: header.getSize() }}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
