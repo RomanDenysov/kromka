@@ -6,7 +6,7 @@ import { adminMediaRouter } from "./media";
 import { adminOrdersRouter } from "./orders";
 import { adminOrganizationsRouter } from "./organizations";
 import { adminProductsRouter, publicProductsRouter } from "./products";
-import { adminStoresRouter } from "./stores";
+import { adminStoresRouter, publicStoresRouter } from "./stores";
 import { adminUsersRouter, publicUsersRouter } from "./users";
 
 const adminRouter = createTRPCRouter({
@@ -24,6 +24,7 @@ const publicRouter = createTRPCRouter({
   categories: publicCategoriesRouter,
   cart: publicCartRouter,
   users: publicUsersRouter,
+  stores: publicStoresRouter,
 });
 
 export const appRouter = createTRPCRouter({

@@ -1,0 +1,152 @@
+"use client";
+
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { StoreIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useTRPC } from "@/trpc/client";
+import type { Store } from "@/types/store";
+import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+  FieldTitle,
+} from "../ui/field";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { ScrollArea } from "../ui/scroll-area";
+
+export function StoreSelectModal() {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const { data: stores } = useSuspenseQuery(
+    trpc.public.stores.list.queryOptions()
+  );
+
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+
+  const { data: userStore } = useSuspenseQuery(
+    trpc.public.stores.getUserStore.queryOptions()
+  );
+
+  const setStore = useMutation(
+    trpc.public.stores.setUserStore.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: trpc.public.stores.getUserStore.queryKey(),
+        });
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    })
+  );
+
+  useEffect(() => {
+    if (userStore) {
+      setSelectedStore(userStore as unknown as Store);
+    } else {
+      setSelectedStore(null);
+    }
+  }, [userStore]);
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="truncate" size="sm" variant="secondary">
+          <StoreIcon />
+          {selectedStore ? selectedStore.name : "Vybrať obchod"}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Vyberte predajňu</DialogTitle>
+          <DialogDescription>
+            Vyberte predajňu, v ktorej chcete nakupovať.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grow">
+          <ScrollArea className="h-80 pr-2.5">
+            <StoreList
+              selectedStore={selectedStore}
+              setSelectedStore={setSelectedStore}
+              stores={stores}
+            />
+          </ScrollArea>
+        </div>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button size="sm" type="button" variant="outline">
+              Zavrieť
+            </Button>
+          </DialogClose>
+          <Button
+            disabled={!selectedStore || setStore.isPending}
+            onClick={() => {
+              setStore.mutate({ storeId: selectedStore?.id ?? "" });
+            }}
+            size="sm"
+            type="button"
+          >
+            Vybrať
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function StoreList({
+  stores,
+  selectedStore,
+  setSelectedStore,
+}: {
+  stores: Store[];
+  selectedStore: Store | null;
+  setSelectedStore: (store: Store | null) => void;
+}) {
+  return (
+    <FieldGroup>
+      <FieldSet>
+        <RadioGroup
+          onValueChange={(value) =>
+            setSelectedStore(stores.find((store) => store.id === value) || null)
+          }
+          value={selectedStore?.id ?? ""}
+        >
+          {stores.map((store) => (
+            <FieldLabel key={store.id}>
+              <Field orientation="horizontal">
+                <FieldContent>
+                  <FieldTitle>{store.name}</FieldTitle>
+                  <FieldDescription>
+                    {store.description?.content?.[0]?.text}
+                  </FieldDescription>
+                </FieldContent>
+                <RadioGroupItem id={store.id} value={store.id} />
+              </Field>
+            </FieldLabel>
+          ))}
+        </RadioGroup>
+      </FieldSet>
+    </FieldGroup>
+  );
+}

@@ -1,10 +1,18 @@
 import { eq, not } from "drizzle-orm";
 import { db } from "@/db";
 import type { StoreSchema } from "@/validation/stores";
-import { stores } from "../schema";
+import { storeMembers, stores } from "../schema";
 import { draftSlug } from "../utils";
 
 export const MUTATIONS = {
+  PUBLIC: {
+    SET_USER_STORE: async (storeId: string, userId: string): Promise<void> => {
+      await db
+        .insert(storeMembers)
+        .values({ storeId, userId })
+        .onConflictDoNothing();
+    },
+  },
   ADMIN: {
     CREATE_DRAFT_STORE: async (): Promise<{ id: string }> => {
       const [newDraftStore] = await db

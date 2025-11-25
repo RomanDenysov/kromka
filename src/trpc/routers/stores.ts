@@ -2,7 +2,7 @@ import z from "zod";
 import { MUTATIONS } from "@/db/mutations/stores";
 import { QUERIES } from "@/db/queries/stores";
 import { storeSchema } from "@/validation/stores";
-import { createTRPCRouter, protectedProcedure } from "../init";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const adminStoresRouter = createTRPCRouter({
   // QUERIES
@@ -36,5 +36,26 @@ export const adminStoresRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(
       async ({ input }) => await MUTATIONS.ADMIN.TOGGLE_IS_ACTIVE(input.id)
+    ),
+});
+
+export const publicStoresRouter = createTRPCRouter({
+  list: publicProcedure.query(async () => await QUERIES.PUBLIC.GET_STORES()),
+  setUserStore: protectedProcedure
+    .input(z.object({ storeId: z.string() }))
+    .mutation(
+      async ({ ctx, input }) =>
+        await MUTATIONS.PUBLIC.SET_USER_STORE(
+          input.storeId,
+          ctx.session.user.id
+        )
+    ),
+  getUserStore: protectedProcedure.query(
+    async ({ ctx }) => await QUERIES.PUBLIC.GET_USER_STORE(ctx.session.user.id)
+  ),
+  bySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(
+      async ({ input }) => await QUERIES.PUBLIC.GET_STORE_BY_SLUG(input.slug)
     ),
 });

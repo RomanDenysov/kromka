@@ -5,10 +5,12 @@ import { Suspense } from "react";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { UserButton } from "@/components/landing/user-button";
+import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { batchPrefetch, HydrateClient, trpc } from "@/trpc/server";
 import { MobileNavigation } from "./mobile-navigation";
 
 const navigation: { name: string; href: Route }[] = [
@@ -19,60 +21,75 @@ const navigation: { name: string; href: Route }[] = [
 ] as const;
 
 export function Header() {
+  batchPrefetch([
+    trpc.public.stores.list.queryOptions(),
+    trpc.public.stores.getUserStore.queryOptions(),
+  ]);
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <Container>
-        <div className="flex h-14 w-full items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-5">
-          <Suspense fallback={<Skeleton className="size-8 rounded-md" />}>
-            <MobileNavigation navigation={navigation} />
-          </Suspense>
-          {/* Navigation */}
-          <nav className="hidden grow items-center justify-start gap-2 md:flex">
-            {navigation.map((item) => (
-              <Link
-                className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
-                href={item.href}
-                key={item.href}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Logo */}
-          <div className="flex grow items-center justify-start md:justify-center">
-            <Link href="/">
-              <Icons.kromka className="h-4 lg:h-5" />
-            </Link>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-3">
-            <Suspense
-              fallback={
-                <Skeleton className="hidden size-8 rounded-md md:block" />
-              }
-            >
-              <UserButton />
+    <HydrateClient>
+      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+        <Container>
+          <div className="flex h-14 w-full items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-5">
+            <Suspense fallback={<Skeleton className="size-8 rounded-md" />}>
+              <MobileNavigation navigation={navigation} />
             </Suspense>
-            <Suspense
-              fallback={
-                <Button
-                  className="relative"
-                  disabled
-                  size="icon-sm"
-                  variant="ghost"
+            {/* Navigation */}
+            <nav className="hidden grow items-center justify-start gap-2 md:flex">
+              {navigation.map((item) => (
+                <Link
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "sm" })
+                  )}
+                  href={item.href}
+                  key={item.href}
                 >
-                  <ShoppingCartIcon className="size-5" />
-                  <span className="sr-only">Košík</span>
-                </Button>
-              }
-            >
-              <CartDrawer />
-            </Suspense>
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Logo */}
+            <div className="flex grow items-center justify-start md:justify-center">
+              <Link href="/">
+                <Icons.kromka className="h-4 lg:h-5" />
+              </Link>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3">
+              <Suspense
+                fallback={
+                  <Skeleton className="hidden h-8 w-20 rounded-md md:block" />
+                }
+              >
+                <StoreSelectModal />
+              </Suspense>
+              <Suspense
+                fallback={
+                  <Skeleton className="hidden size-8 rounded-md md:block" />
+                }
+              >
+                <UserButton />
+              </Suspense>
+              <Suspense
+                fallback={
+                  <Button
+                    className="relative"
+                    disabled
+                    size="icon-sm"
+                    variant="ghost"
+                  >
+                    <ShoppingCartIcon className="size-5" />
+                    <span className="sr-only">Košík</span>
+                  </Button>
+                }
+              >
+                <CartDrawer />
+              </Suspense>
+            </div>
           </div>
-        </div>
-      </Container>
-    </header>
+        </Container>
+      </header>
+    </HydrateClient>
   );
 }
