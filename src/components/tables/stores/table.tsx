@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -20,8 +16,7 @@ import {
   PlusIcon,
   TablePropertiesIcon,
 } from "lucide-react";
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { Fragment, useMemo, useState } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -43,7 +38,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useCreateDraftStore } from "@/hooks/use-create-draft-store";
+import {
+  useCopyStore,
+  useCreateDraftStore,
+  useDeleteStore,
+  useToggleStore,
+} from "@/hooks/use-admin-store-mutations";
 import {
   type ExportColumnConfig,
   exportAsCsv,
@@ -91,53 +91,16 @@ const storeExportColumns: ExportColumnConfig<TableStore>[] = [
 
 export function StoresTable() {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
-  const queryKey = trpc.admin.stores.list.queryKey();
   const { data } = useSuspenseQuery(trpc.admin.stores.list.queryOptions());
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
-
   const { mutate: createDraft, isPending: isCreatingDraft } =
     useCreateDraftStore();
-
-  const { mutate: copyStore } = useMutation(
-    trpc.admin.stores.copyStore.mutationOptions({
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey });
-      },
-    })
-  );
-
-  const toggleActive = useMutation(
-    trpc.admin.stores.toggleIsActive.mutationOptions({
-      onMutate: ({ id }) => {
-        queryClient.cancelQueries({
-          queryKey,
-        });
-        const previousStores = queryClient.getQueryData(queryKey);
-        if (previousStores) {
-          queryClient.setQueryData<TableStore[]>(queryKey, (old) =>
-            old?.map((store) =>
-              store.id === id
-                ? {
-                    ...store,
-                    isActive: !store.isActive,
-                  }
-                : store
-            )
-          );
-        }
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey });
-      },
-    })
-  );
+  const { mutate: copyStore } = useCopyStore();
+  const { mutate: toggleActive } = useToggleStore();
+  const { mutate: deleteStore } = useDeleteStore();
 
   const processedStores = useMemo(() => data.map((store) => store), [data]);
 
@@ -162,14 +125,13 @@ export function StoresTable() {
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
       toggleActive: (id: string) => {
-        toggleActive.mutate({ id });
+        toggleActive({ ids: [id] });
       },
       onCopy: (id: string) => {
         copyStore({ storeId: id });
       },
       onDelete: (id: string) => {
-        // biome-ignore lint/suspicious/noConsole: Need to ignore this
-        console.log("Delete store", id);
+        deleteStore({ ids: [id] });
       },
     },
   });
@@ -190,16 +152,6 @@ export function StoresTable() {
       await exportAsXlsx(exportData, storeExportColumns, "stores");
     }
   };
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Need to ignore this
-  useEffect(() => {
-    if (
-      table.getState().columnFilters[0]?.id === "name" &&
-      table.getState().sorting[0]?.id !== "name"
-    ) {
-      table.setSorting([{ id: "name", desc: false }]);
-    }
-  }, [table.getState().columnFilters[0]?.id]);
 
   return (
     <div className="size-full overflow-hidden">
@@ -268,17 +220,6 @@ export function StoresTable() {
                     </TableCell>
                   ))}
                 </TableRow>
-                {/* Stores don't have description in list usually, or maybe they do? 
-                    Category table shows description on expansion.
-                    Let's keep it only if 'description' is a key field, but let's check type.
-                    Store type has description as JSONContent. Rendering it might be complex.
-                    Category description is likely text.
-                    I'll omit the expansion row for now to avoid issues unless requested or description is simple text.
-                    Wait, categories table row expansion renders row.original.description.
-                    Let's check category schema. Description is text.
-                    Store description is JSONContent.
-                    I will REMOVE the expansion row for stores for now.
-                */}
               </Fragment>
             ))
           ) : (

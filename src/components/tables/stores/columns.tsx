@@ -1,7 +1,6 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns/format";
 import {
   CheckIcon,
   CopyIcon,
@@ -12,6 +11,17 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { TableColumnHeader } from "@/components/data-table/ui/table-column-header";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -76,8 +86,14 @@ export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
     ),
   },
   {
-    header: "Stav",
     accessorKey: "isActive",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Stav"
+      />
+    ),
     cell: ({ row, table }) => {
       const meta = table.options.meta as StoreTableMeta;
       return (
@@ -103,40 +119,6 @@ export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
     },
   },
   {
-    id: "createdAt",
-    header: ({ column, table }) => (
-      <TableColumnHeader
-        column={column}
-        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
-        title="Vytvorené"
-      />
-    ),
-    accessorKey: "createdAt",
-    enableSorting: true,
-    cell: ({ row }) => (
-      <span className="font-medium text-xs">
-        {format(row.original.createdAt, "dd.MM.yyyy")}
-      </span>
-    ),
-  },
-  {
-    id: "updatedAt",
-    header: ({ column, table }) => (
-      <TableColumnHeader
-        column={column}
-        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
-        title="Upravené"
-      />
-    ),
-    accessorKey: "updatedAt",
-    enableSorting: true,
-    cell: ({ row }) => (
-      <span className="font-medium text-xs">
-        {format(row.original.updatedAt, "dd.MM.yyyy")}
-      </span>
-    ),
-  },
-  {
     id: "actions",
     header: "",
     cell: ({ row, table }) => {
@@ -159,13 +141,31 @@ export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
               <CopyIcon />
               Kopírovať
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => meta?.onDelete(row.original.id)}
-              variant="destructive"
-            >
-              <Trash2Icon />
-              Vymazať
-            </DropdownMenuItem>
+            <AlertDialog key={`delete-${row.original.id}`}>
+              <DropdownMenuItem asChild asDialogTrigger variant="destructive">
+                <AlertDialogTrigger className="w-full">
+                  <Trash2Icon />
+                  Vymazať
+                </AlertDialogTrigger>
+              </DropdownMenuItem>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Odstrániť obchod</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Opravdu chcete odstrániť obchod? Táto akcia je nevratná.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Zrušiť</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => meta?.onDelete(row.original.id)}
+                    variant="destructive"
+                  >
+                    Odstrániť
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </DropdownMenuContent>
         </DropdownMenu>
       );

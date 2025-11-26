@@ -33,9 +33,14 @@ export const adminStoresRouter = createTRPCRouter({
         await MUTATIONS.ADMIN.UPDATE_STORE(input.id, input.store)
     ),
   toggleIsActive: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ ids: z.array(z.string()) }))
     .mutation(
-      async ({ input }) => await MUTATIONS.ADMIN.TOGGLE_IS_ACTIVE(input.id)
+      async ({ input }) => await MUTATIONS.ADMIN.TOGGLE_IS_ACTIVE(input.ids)
+    ),
+  deleteStore: protectedProcedure
+    .input(z.object({ ids: z.array(z.string()) }))
+    .mutation(
+      async ({ input }) => await MUTATIONS.ADMIN.DELETE_STORE(input.ids)
     ),
 });
 

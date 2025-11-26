@@ -1,4 +1,4 @@
-import { eq, not } from "drizzle-orm";
+import { eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
 import type { StoreSchema } from "@/validation/stores";
 import { storeMembers, stores } from "../schema";
@@ -54,14 +54,21 @@ export const MUTATIONS = {
       return { id: newStore.id };
     },
 
-    TOGGLE_IS_ACTIVE: async (storeId: string): Promise<{ id: string }> => {
-      const [updatedStore] = await db
+    TOGGLE_IS_ACTIVE: async (storeIds: string[]): Promise<{ id: string }[]> => {
+      const updatedStores = await db
         .update(stores)
         .set({ isActive: not(stores.isActive) })
-        .where(eq(stores.id, storeId))
+        .where(inArray(stores.id, storeIds))
         .returning({ id: stores.id });
 
-      return { id: updatedStore.id };
+      return updatedStores.map((store) => ({ id: store.id }));
+    },
+    DELETE_STORE: async (ids: string[]): Promise<{ id: string }> => {
+      const [deletedStore] = await db
+        .delete(stores)
+        .where(inArray(stores.id, ids))
+        .returning({ id: stores.id });
+      return { id: deletedStore.id };
     },
   },
 };

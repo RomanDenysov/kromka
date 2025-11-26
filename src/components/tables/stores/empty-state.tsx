@@ -11,7 +11,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateDraftStore } from "@/hooks/use-create-draft-store";
+import { useCreateDraftStore } from "@/hooks/use-admin-store-mutations";
 
 export function EmptyState() {
   const { mutate: createDraftStore, isPending } = useCreateDraftStore();
