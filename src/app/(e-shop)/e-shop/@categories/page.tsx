@@ -4,10 +4,11 @@ import {
   CategoriesReel,
   CategoriesReelSkeleton,
 } from "@/components/lists/categories-reel";
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 
-export default function CategoriesPage() {
-  prefetch(trpc.public.categories.list.queryOptions());
+export default async function CategoriesPage() {
+  const queryClient = getQueryClient();
+  await queryClient.prefetchQuery(trpc.public.categories.list.queryOptions());
 
   return (
     <HydrateClient>

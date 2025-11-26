@@ -19,7 +19,9 @@ export default async function EshopPage(props: {
     limit: 12,
     categoryId,
   });
+
   await queryClient.fetchInfiniteQuery({ ...options, initialPageParam: 0 });
+
   return (
     <HydrateClient>
       <ErrorBoundary fallback={<div>Error loading products reel</div>}>

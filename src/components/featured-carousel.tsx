@@ -10,6 +10,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "./ui/carousel";
+import { Skeleton } from "./ui/skeleton";
 
 export function FeaturedCarousel() {
   const trpc = useTRPC();
@@ -47,5 +48,16 @@ export function FeaturedCarousel() {
         </Carousel>
       </div>
     </section>
+  );
+}
+
+export function FeaturedCarouselSkeleton() {
+  return (
+    <div className="min-h-60 shrink-0">
+      <Skeleton className="mb-3 h-8 w-40" />
+      <div className="h-50 w-full rounded-md">
+        <Skeleton className="h-full w-full rounded-md" />
+      </div>
+    </div>
   );
 }

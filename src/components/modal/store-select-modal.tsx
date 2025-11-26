@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { StoreIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -32,17 +28,18 @@ import {
 } from "../ui/field";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
+import { Skeleton } from "../ui/skeleton";
 
 export function StoreSelectModal() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { data: stores } = useSuspenseQuery(
+  const { data: stores, isLoading: isLoadingStores } = useQuery(
     trpc.public.stores.list.queryOptions()
   );
 
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
 
-  const { data: userStore } = useSuspenseQuery(
+  const { data: userStore, isLoading: isLoadingUserStore } = useQuery(
     trpc.public.stores.getUserStore.queryOptions()
   );
 
@@ -66,6 +63,10 @@ export function StoreSelectModal() {
       setSelectedStore(null);
     }
   }, [userStore]);
+
+  if (isLoadingStores || isLoadingUserStore) {
+    return <Skeleton className="hidden h-8 w-20 rounded-md md:block" />;
+  }
 
   return (
     <Dialog>
@@ -93,7 +94,7 @@ export function StoreSelectModal() {
             <StoreList
               selectedStore={selectedStore}
               setSelectedStore={setSelectedStore}
-              stores={stores}
+              stores={stores ?? []}
             />
           </ScrollArea>
         </div>
