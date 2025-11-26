@@ -62,22 +62,22 @@ export const adminNavigation: NavNode[] = [
     href: "/admin",
     items: [
       {
-        label: "Stores",
+        label: "Predajne",
         href: "/admin/stores",
         icon: StoreIcon,
       },
       {
-        label: "Categories",
+        label: "Kategórie",
         href: "/admin/categories",
         icon: TagsIcon,
       },
       {
-        label: "Products",
+        label: "Produkty",
         href: "/admin/products",
         icon: Package2Icon,
       },
       {
-        label: "Orders",
+        label: "Objednávky",
         href: "/admin/orders",
         icon: ShoppingBasketIcon,
         badgeKey: "b2c.orders",
@@ -129,7 +129,7 @@ export const adminNavigation: NavNode[] = [
   //   ],
   // },
   {
-    label: "Settings",
+    label: "Nastavenia",
     href: "/admin/settings",
     icon: SettingsIcon,
   },
