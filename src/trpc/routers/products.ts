@@ -108,6 +108,11 @@ export const adminProductsRouter = createTRPCRouter({
           input.mediaId
         )
     ),
+  delete: protectedProcedure
+    .input(z.object({ ids: z.array(z.string()) }))
+    .mutation(
+      async ({ input }) => await MUTATIONS.ADMIN.DELETE_PRODUCTS(input.ids)
+    ),
 });
 
 export const publicProductsRouter = createTRPCRouter({

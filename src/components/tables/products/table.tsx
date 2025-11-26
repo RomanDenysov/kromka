@@ -1,16 +1,13 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
+  type RowSelectionState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -19,14 +16,24 @@ import {
   FileTextIcon,
   PlusIcon,
   TablePropertiesIcon,
+  Trash2Icon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Fragment, useMemo, useState } from "react";
-import { toast } from "sonner";
 import {
   DataTableSearch,
   fuzzyFilter,
 } from "@/components/data-table/ui/data-table-search";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -44,7 +51,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useCreateDraftProduct } from "@/hooks/mutations/use-create-draft-product";
+import {
+  useCopyProduct,
+  useCreateDraftProduct,
+  useDeleteProduct,
+  useToggleProducts,
+} from "@/hooks/use-admin-products-mutations";
 import { useProductParams } from "@/hooks/use-product-params";
 import {
   type ExportColumnConfig,
@@ -95,60 +107,22 @@ const productExportColumns: ExportColumnConfig<TableProduct>[] = [
 ];
 
 export function ProductsTable() {
-  const router = useRouter();
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
   const { data } = useSuspenseQuery(trpc.admin.products.list.queryOptions());
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const { mutate: createDraftProduct, isPending: isCreatingDraftProduct } =
     useCreateDraftProduct();
 
-  const toggleActive = useMutation(
-    trpc.admin.products.toggleIsActive.mutationOptions({
-      onMutate: ({ id }) => {
-        queryClient.cancelQueries({
-          queryKey: trpc.admin.products.list.queryKey(),
-        });
-        const previousProducts = queryClient.getQueryData(
-          trpc.admin.products.list.queryKey()
-        );
-        if (previousProducts) {
-          queryClient.setQueryData<TableProduct[]>(
-            trpc.admin.products.list.queryKey(),
-            (old) =>
-              old?.map((product) =>
-                product.id === id
-                  ? { ...product, isActive: !product.isActive }
-                  : product
-              )
-          );
-        }
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.admin.products.list.queryKey(),
-        });
-      },
-    })
-  );
+  const { mutate: toggleActive } = useToggleProducts();
 
-  const copyProduct = useMutation(
-    trpc.admin.products.copyProduct.mutationOptions({
-      onSuccess: ({ id }) => {
-        router.push(`/admin/products/${id}`);
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    })
-  );
+  const { mutate: copyProduct } = useCopyProduct();
+  const { mutate: deleteProduct, isPending: isDeletingProducts } =
+    useDeleteProduct();
   const { setParams } = useProductParams();
 
   const processedProducts = useMemo(() => data ?? [], [data]);
@@ -160,12 +134,14 @@ export function ProductsTable() {
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
     getSortedRowModel: getSortedRowModel(),
     globalFilterFn: "fuzzy",
     state: {
       columnFilters,
       globalFilter,
       sorting,
+      rowSelection,
     },
     data: processedProducts,
     getRowId: ({ id }) => id,
@@ -179,14 +155,14 @@ export function ProductsTable() {
         setParams({ productId: id });
       },
       onToggleActive: (id: string) => {
-        toggleActive.mutate({ id });
+        toggleActive({ id });
       },
       onCopy: (id: string) => {
-        copyProduct.mutate({ productId: id });
+        copyProduct({ productId: id });
       },
       onDelete: (id: string) => {
         // biome-ignore lint/suspicious/noConsole: Need to ignore this
-        console.log("Delete product", id);
+        deleteProduct({ ids: [id] });
       },
     },
   });
@@ -213,10 +189,47 @@ export function ProductsTable() {
       <div className="flex items-center justify-between p-3">
         <DataTableSearch
           onChange={(value) => setGlobalFilter(String(value))}
-          placeholder="Hľadať kategóriu..."
+          placeholder="Hľadať produkt..."
           value={globalFilter ?? ""}
         />
         <div className="flex items-center justify-end gap-2">
+          {Object.keys(rowSelection).length > 1 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  disabled={
+                    isDeletingProducts || Object.keys(rowSelection).length === 0
+                  }
+                  size="sm"
+                  variant="destructive"
+                >
+                  <Trash2Icon />
+                  Vymazať {Object.keys(rowSelection).length} produktov
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Odstrániť produkty</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Opravdu chcete odstrániť {Object.keys(rowSelection).length}{" "}
+                    produktov? Táto akcia je nevratná.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel size="sm">Zrušiť</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() =>
+                      deleteProduct({ ids: Object.keys(rowSelection) })
+                    }
+                    size="sm"
+                    variant="destructive"
+                  >
+                    Vymazať
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="outline">

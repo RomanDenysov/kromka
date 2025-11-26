@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/noUndeclaredVariables: <explanation> */
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
@@ -6,16 +7,25 @@ import {
   CheckIcon,
   CircleIcon,
   CopyIcon,
-  ImageIcon,
   MoreHorizontalIcon,
   PencilIcon,
   Trash2Icon,
   XIcon,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { TableColumnHeader } from "@/components/data-table/ui/table-column-header";
 import { Hint } from "@/components/shared/hint";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -67,33 +77,6 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     enableHiding: false,
   },
   {
-    id: "image",
-    header: "",
-    accessorKey: "images",
-    cell: ({ row }) => {
-      const product = row.original;
-      const imgPath = product.images[0] ?? null;
-      return (
-        <div className="flex items-center gap-2">
-          {imgPath ? (
-            <Image
-              alt={product.name}
-              className="rounded-md object-cover"
-              height={64}
-              src={imgPath}
-              width={64}
-            />
-          ) : (
-            <div className="flex size-16 items-center justify-center rounded-md bg-muted">
-              <ImageIcon className="size-5" />
-            </div>
-          )}
-        </div>
-      );
-    },
-    enableSorting: false,
-  },
-  {
     header: ({ column, table }) => (
       <TableColumnHeader
         column={column}
@@ -120,7 +103,13 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     enableGlobalFilter: true,
   },
   {
-    header: "Status",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Status"
+      />
+    ),
     accessorKey: "status",
     enableSorting: true,
     cell: ({ row }) => (
@@ -132,7 +121,13 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     enableGlobalFilter: true,
   },
   {
-    header: "Stav",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Stav"
+      />
+    ),
     accessorKey: "isActive",
     enableSorting: true,
     cell: ({ row, table }) => {
@@ -160,7 +155,13 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     },
   },
   {
-    header: "Cena",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Cena"
+      />
+    ),
     accessorKey: "priceCents",
     cell: ({ row }) => {
       const prices = row.original.prices;
@@ -178,7 +179,13 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     },
   },
   {
-    header: "Kategórie",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Kategórie"
+      />
+    ),
     accessorKey: "categories",
     cell: ({ row }) => {
       const categories = row.original.categories;
@@ -218,7 +225,14 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     },
   },
   {
-    header: "Katalog",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Katalog"
+      />
+    ),
+    accessorKey: "showInB2cAndB2b",
     cell: ({ row }) => {
       const channels =
         row.original.showInB2c && row.original.showInB2b
@@ -235,7 +249,13 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     },
   },
   {
-    header: "Vytvorené",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Vytvorené"
+      />
+    ),
     accessorKey: "createdAt",
     cell: ({ row }) => (
       <span className="font-medium font-mono text-xs">
@@ -245,7 +265,6 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
   },
   {
     id: "actions",
-    header: "",
     cell: ({ row, table }) => {
       const meta = table.options.meta as ProductTableMeta;
       return (
@@ -266,13 +285,32 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
               <CopyIcon />
               Kopírovať
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => meta?.onDelete?.(row.original.id)}
-              variant="destructive"
-            >
-              <Trash2Icon />
-              Vymazať
-            </DropdownMenuItem>
+            <AlertDialog key={`delete-${row.original.id}`}>
+              <DropdownMenuItem asChild asDialogTrigger variant="destructive">
+                <AlertDialogTrigger className="w-full">
+                  <Trash2Icon />
+                  Vymazať
+                </AlertDialogTrigger>
+              </DropdownMenuItem>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Odstrániť produkt</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Opravdu chcete odstrániť produkt? Táto akcia je nevratná.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel size="sm">Zrušiť</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => meta?.onDelete?.(row.original.id)}
+                    size="sm"
+                    variant="destructive"
+                  >
+                    Odstrániť
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </DropdownMenuContent>
         </DropdownMenu>
       );

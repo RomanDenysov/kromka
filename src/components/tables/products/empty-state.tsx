@@ -11,10 +11,11 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateDraftProduct } from "@/hooks/mutations/use-create-draft-product";
+import { useCreateDraftProduct } from "@/hooks/use-admin-products-mutations";
 
 export function EmptyState() {
-  const { mutate: createDraftProduct, isPending } = useCreateDraftProduct();
+  const { mutate: createDraftProduct, isPending: isCreatingDraftProduct } =
+    useCreateDraftProduct();
 
   return (
     <Empty>
@@ -29,12 +30,12 @@ export function EmptyState() {
       </EmptyHeader>
       <EmptyContent>
         <Button
-          disabled={isPending}
+          disabled={isCreatingDraftProduct}
           onClick={() => createDraftProduct()}
           size="sm"
           variant="outline"
         >
-          {isPending ? (
+          {isCreatingDraftProduct ? (
             <>
               <Spinner />
               Pridávame produkt...

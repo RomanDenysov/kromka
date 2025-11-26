@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, not } from "drizzle-orm";
+import { and, eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
 import {
   media,
@@ -235,6 +235,13 @@ export const MUTATIONS = {
       await db.delete(media).where(eq(media.id, mediaId));
 
       return { success: true };
+    },
+    DELETE_PRODUCTS: async (ids: string[]): Promise<{ id: string }[]> => {
+      const deletedProducts = await db
+        .delete(products)
+        .where(inArray(products.id, ids))
+        .returning({ id: products.id });
+      return deletedProducts.map((product) => ({ id: product.id }));
     },
   },
 };
