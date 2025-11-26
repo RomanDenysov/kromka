@@ -2,6 +2,7 @@ import { ShoppingCartIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { UserButton } from "@/components/landing/user-button";
@@ -10,7 +11,6 @@ import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { batchPrefetch, HydrateClient, trpc } from "@/trpc/server";
 import { MobileNavigation } from "./mobile-navigation";
 
 const navigation: { name: string; href: Route }[] = [
@@ -21,42 +21,36 @@ const navigation: { name: string; href: Route }[] = [
 ] as const;
 
 export function Header() {
-  batchPrefetch([
-    trpc.public.stores.list.queryOptions(),
-    trpc.public.stores.getUserStore.queryOptions(),
-  ]);
   return (
-    <HydrateClient>
-      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <Container>
-          <div className="flex h-14 w-full items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-5">
-            <Suspense fallback={<Skeleton className="size-8 rounded-md" />}>
-              <MobileNavigation navigation={navigation} />
-            </Suspense>
-            {/* Navigation */}
-            <nav className="hidden grow items-center justify-start gap-2 md:flex">
-              {navigation.map((item) => (
-                <Link
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" })
-                  )}
-                  href={item.href}
-                  key={item.href}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Logo */}
-            <div className="flex grow items-center justify-start md:justify-center">
-              <Link href="/">
-                <Icons.kromka className="h-4 lg:h-5" />
+    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+      <Container>
+        <div className="flex h-14 w-full items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-5">
+          <MobileNavigation navigation={navigation} />
+          {/* Navigation */}
+          <nav className="hidden grow items-center justify-start gap-2 md:flex">
+            {navigation.map((item) => (
+              <Link
+                className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                href={item.href}
+                key={item.href}
+              >
+                {item.name}
               </Link>
-            </div>
+            ))}
+          </nav>
 
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-3">
+          {/* Logo */}
+          <div className="flex grow items-center justify-start md:justify-center">
+            <Link href="/">
+              <Icons.kromka className="h-4 lg:h-5" />
+            </Link>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-3">
+            <ErrorBoundary
+              fallback={<div>Error loading store select modal</div>}
+            >
               <Suspense
                 fallback={
                   <Skeleton className="hidden h-8 w-20 rounded-md md:block" />
@@ -64,6 +58,8 @@ export function Header() {
               >
                 <StoreSelectModal />
               </Suspense>
+            </ErrorBoundary>
+            <ErrorBoundary fallback={<div>Error loading user button</div>}>
               <Suspense
                 fallback={
                   <Skeleton className="hidden size-8 rounded-md md:block" />
@@ -71,6 +67,8 @@ export function Header() {
               >
                 <UserButton />
               </Suspense>
+            </ErrorBoundary>
+            <ErrorBoundary fallback={<div>Error loading cart drawer</div>}>
               <Suspense
                 fallback={
                   <Button
@@ -86,10 +84,10 @@ export function Header() {
               >
                 <CartDrawer />
               </Suspense>
-            </div>
+            </ErrorBoundary>
           </div>
-        </Container>
-      </header>
-    </HydrateClient>
+        </div>
+      </Container>
+    </header>
   );
 }

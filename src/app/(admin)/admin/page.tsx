@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { batchPrefetch, HydrateClient, trpc } from "@/trpc/server";
 import { DashboardMetrics } from "./_components/dashboard-metrics";
@@ -16,19 +17,25 @@ export default function AdminPage() {
   ]);
 
   return (
-    <HydrateClient>
+    <>
       <AdminHeader breadcrumbs={[{ label: "Prehľad", href: "/admin" }]} />
       <div className="flex flex-1 flex-col">
-        <Suspense fallback={<DashboardMetricsSkeleton />}>
-          <DashboardMetrics />
-        </Suspense>
+        <HydrateClient>
+          <ErrorBoundary fallback={<div>Error loading dashboard metrics</div>}>
+            <Suspense fallback={<DashboardMetricsSkeleton />}>
+              <DashboardMetrics />
+            </Suspense>
+          </ErrorBoundary>
 
-        <div className="grid lg:grid-cols-1">
-          <Suspense fallback={<RecentOrdersSkeleton />}>
-            <RecentOrders />
-          </Suspense>
-        </div>
+          <div className="grid lg:grid-cols-1">
+            <ErrorBoundary fallback={<div>Error loading recent orders</div>}>
+              <Suspense fallback={<RecentOrdersSkeleton />}>
+                <RecentOrders />
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+        </HydrateClient>
       </div>
-    </HydrateClient>
+    </>
   );
 }

@@ -23,14 +23,6 @@ import { cn, formatPrice } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { Hint } from "./shared/hint";
 import { Badge } from "./ui/badge";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "./ui/breadcrumb";
 import { Button, buttonVariants } from "./ui/button";
 import {
   ButtonGroup,
@@ -63,98 +55,67 @@ export function SingleProduct({ slug }: { slug: string }) {
     notFound();
   }
   const validUrls = useMemo(() => product.images, [product.images]);
-  const category = product.categories[0];
+  // const category = product.categories[0];
 
   return (
-    <div className="flex flex-col gap-8">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Domov</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/eshop">E-shop</BreadcrumbLink>
-          </BreadcrumbItem>
-          {category && (
-            <>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink href={`/eshop?category=${category.slug}`}>
-                  {category.name}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-            </>
-          )}
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{product.name}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <div className="grid grid-cols-1 gap-6 p-4 sm:grid-cols-3 sm:gap-x-12 md:grid-cols-5">
-        <div className="col-span-1 md:col-span-2">
-          <div className="aspect-square rounded-lg">
-            <ImageSlider brightness={false} urls={validUrls} />
-          </div>
+    <div className="grid grid-cols-1 gap-6 p-4 sm:grid-cols-3 sm:gap-x-12 md:grid-cols-5">
+      <div className="col-span-1 md:col-span-2">
+        <div className="aspect-square rounded-lg">
+          <ImageSlider brightness={false} urls={validUrls} />
         </div>
-        <div className="col-span-1 flex flex-col gap-6 sm:col-span-2 md:col-span-3">
-          {/* Product Title and Categories*/}
-          {product.categories.length > 0 && (
-            <div className="flex flex-wrap items-center justify-start gap-1">
-              <Hint side="top" text="Kategórie">
-                <TagsIcon className="size-4 text-muted-foreground" />
-              </Hint>
-              {product.categories.map((cat) => (
-                <Link
-                  className={cn(
-                    buttonVariants({ variant: "secondary", size: "xs" }),
-                    "rounded-full"
-                  )}
-                  href={`/e-shop?category=${cat.slug}`}
-                  key={cat.id}
-                >
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
-          )}
-          <h1 className="line-clamp-2 font-semibold text-2xl leading-tight tracking-tight md:text-3xl">
-            {product.name}
-          </h1>
+      </div>
+      <div className="col-span-1 flex flex-col gap-6 sm:col-span-2 md:col-span-3">
+        {/* Product Title and Categories*/}
+        {product.categories.length > 0 && (
+          <div className="flex flex-wrap items-center justify-start gap-1">
+            <Hint side="top" text="Kategórie">
+              <TagsIcon className="size-4 text-muted-foreground" />
+            </Hint>
+            {product.categories.map((cat) => (
+              <Link
+                className={cn(
+                  buttonVariants({ variant: "secondary", size: "xs" }),
+                  "rounded-full"
+                )}
+                href={`/e-shop?category=${cat.slug}`}
+                key={cat.id}
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </div>
+        )}
+        <h1 className="line-clamp-2 font-semibold text-2xl leading-tight tracking-tight md:text-3xl">
+          {product.name}
+        </h1>
 
-          {/* Product Price and Features */}
-          <h2 className="font-semibold text-2xl tracking-tight md:text-4xl">
-            {formatPrice(product.priceCents)}
-          </h2>
-          <div className="flex flex-col items-start justify-start gap-2 md:flex-row">
-            {isInStock ? (
-              <Badge className="w-fit" variant="success">
-                <CheckCircleIcon />
-                Skladom
-              </Badge>
-            ) : (
-              <Badge className="w-fit" variant="destructive">
-                <ClockIcon />
-                Nie je skladom
-              </Badge>
-            )}
-          </div>
-          <div className="grow">
-            <div
-              className="prose prose-stone dark:prose-invert prose-p:mb-4 max-w-none"
-              // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted content from admin editor
-              dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-            />
-          </div>
-          <Separator />
-          <div className="flex w-full items-center justify-between gap-2">
-            <AddToCartSingleProductButton
-              disabled={!isInStock}
-              id={product.id}
-            />
-          </div>
+        {/* Product Price and Features */}
+        <h2 className="font-semibold text-2xl tracking-tight md:text-4xl">
+          {formatPrice(product.priceCents)}
+        </h2>
+        <div className="flex flex-col items-start justify-start gap-2 md:flex-row">
+          {isInStock ? (
+            <Badge className="w-fit" variant="success">
+              <CheckCircleIcon />
+              Skladom
+            </Badge>
+          ) : (
+            <Badge className="w-fit" variant="destructive">
+              <ClockIcon />
+              Nie je skladom
+            </Badge>
+          )}
+        </div>
+        <div className="grow">
+          <div
+            className="prose prose-stone dark:prose-invert prose-p:mb-4 max-w-none"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted content from admin editor
+            dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+          />
+        </div>
+        <Separator />
+        <div className="flex w-full items-center justify-between gap-2">
+          <AddToCartSingleProductButton disabled={!isInStock} id={product.id} />
         </div>
       </div>
     </div>
