@@ -9,7 +9,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateDraftCategory } from "@/hooks/use-create-draft-category";
+import { useCreateDraftCategory } from "@/hooks/use-admin-categories-mutations";
 
 export function EmptyState() {
   const { mutate: createDraftCategory, isPending } = useCreateDraftCategory();

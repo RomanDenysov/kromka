@@ -1,16 +1,13 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
+  type RowSelectionState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -19,13 +16,24 @@ import {
   FileIcon,
   PlusIcon,
   TablePropertiesIcon,
+  Trash2Icon,
 } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import {
   DataTableSearch,
   fuzzyFilter,
 } from "@/components/data-table/ui/data-table-search";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -43,7 +51,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useCreateDraftCategory } from "@/hooks/use-create-draft-category";
+import {
+  useCopyCategory,
+  useCreateDraftCategory,
+  useDeleteCategories,
+  useToggleCategories,
+} from "@/hooks/use-admin-categories-mutations";
 import {
   type ExportColumnConfig,
   exportAsCsv,
@@ -93,52 +106,20 @@ const categoryExportColumns: ExportColumnConfig<TableCategory>[] = [
 
 export function CategoriesTable() {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
-  const queryKey = trpc.admin.categories.list.queryKey();
   const { data } = useSuspenseQuery(trpc.admin.categories.list.queryOptions());
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const { mutate: createDraft, isPending: isCreatingDraft } =
     useCreateDraftCategory();
 
-  const { mutate: copyCategory } = useMutation(
-    trpc.admin.categories.copyCategory.mutationOptions({
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey });
-      },
-    })
-  );
-  const toggleActive = useMutation(
-    trpc.admin.categories.toggleActive.mutationOptions({
-      onMutate: ({ id }) => {
-        queryClient.cancelQueries({
-          queryKey,
-        });
-        const previousCategories = queryClient.getQueryData(queryKey);
-        if (previousCategories) {
-          queryClient.setQueryData<TableCategory[]>(queryKey, (old) =>
-            old?.map((category) =>
-              category.id === id
-                ? {
-                    ...category,
-                    isActive: !category.isActive,
-                  }
-                : category
-            )
-          );
-        }
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey });
-      },
-    })
-  );
+  const { mutate: copyCategory } = useCopyCategory();
+  const { mutate: toggleActive } = useToggleCategories();
+  const { mutate: deleteCategories, isPending: isDeletingCategories } =
+    useDeleteCategories();
 
   const processedCategories = useMemo(
     () => data.map((category) => category),
@@ -156,24 +137,25 @@ export function CategoriesTable() {
     onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onRowSelectionChange: setRowSelection,
     state: {
       columnFilters,
       globalFilter,
       sorting,
+      rowSelection,
     },
     getRowId: ({ id }) => id,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
       toggleActive: (id: string) => {
-        toggleActive.mutate({ id });
+        toggleActive({ ids: [id] });
       },
       onCopy: (id: string) => {
         copyCategory({ categoryId: id });
       },
       onDelete: (id: string) => {
-        // biome-ignore lint/suspicious/noConsole: Need to ignore this
-        console.log("Delete category", id);
+        deleteCategories({ ids: [id] });
       },
     },
   });
@@ -214,6 +196,44 @@ export function CategoriesTable() {
           value={globalFilter ?? ""}
         />
         <div className="flex items-center justify-end gap-2">
+          {Object.keys(rowSelection).length > 1 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  disabled={
+                    isDeletingCategories ||
+                    Object.keys(rowSelection).length === 0
+                  }
+                  size="sm"
+                  variant="destructive"
+                >
+                  <Trash2Icon />
+                  Vymazať {Object.keys(rowSelection).length} kategórií
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Odstrániť kategórie</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Opravdu chcete odstrániť {Object.keys(rowSelection).length}{" "}
+                    kategórií? Táto akcia je nevratná.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel size="sm">Zrušiť</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() =>
+                      deleteCategories({ ids: Object.keys(rowSelection) })
+                    }
+                    size="sm"
+                    variant="destructive"
+                  >
+                    Odstrániť
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="outline">

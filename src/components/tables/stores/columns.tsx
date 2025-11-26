@@ -23,7 +23,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,29 +38,6 @@ type StoreTableMeta = {
 };
 
 export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
-  {
-    id: "select",
-    enableSorting: false,
-    enableHiding: false,
-    header: ({ table }) => (
-      <Checkbox
-        aria-label="Select all"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        aria-label="Select row"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-    size: 32,
-  },
   {
     id: "name",
     header: ({ column, table }) => (
@@ -156,9 +132,10 @@ export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Zrušiť</AlertDialogCancel>
+                  <AlertDialogCancel size="sm">Zrušiť</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => meta?.onDelete(row.original.id)}
+                    size="sm"
                     variant="destructive"
                   >
                     Odstrániť

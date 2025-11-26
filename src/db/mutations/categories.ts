@@ -1,6 +1,6 @@
 import "server-only";
 
-import { eq, not } from "drizzle-orm";
+import { eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
 import type { UpdateCategorySchema } from "@/validation/categories";
 import { categories } from "../schema";
@@ -48,14 +48,21 @@ export const MUTATIONS = {
 
       return { id: newCategory.id };
     },
-    TOGGLE_IS_ACTIVE: async (id: string): Promise<{ id: string }> => {
-      const [updatedCategory] = await db
+    TOGGLE_IS_ACTIVE: async (ids: string[]): Promise<{ id: string }[]> => {
+      const updatedCategories = await db
         .update(categories)
         .set({ isActive: not(categories.isActive) })
-        .where(eq(categories.id, id))
+        .where(inArray(categories.id, ids))
         .returning({ id: categories.id });
 
-      return { id: updatedCategory.id };
+      return updatedCategories.map((category) => ({ id: category.id }));
+    },
+    DELETE_CATEGORIES: async (ids: string[]): Promise<{ id: string }[]> => {
+      const deletedCategories = await db
+        .delete(categories)
+        .where(inArray(categories.id, ids))
+        .returning({ id: categories.id });
+      return deletedCategories.map((category) => ({ id: category.id }));
     },
   },
 };

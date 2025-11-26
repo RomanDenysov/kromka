@@ -219,7 +219,6 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
   },
   {
     header: "Katalog",
-    accessorKey: "channels",
     cell: ({ row }) => {
       const channels =
         row.original.showInB2c && row.original.showInB2b
