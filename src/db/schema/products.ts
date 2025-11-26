@@ -50,8 +50,7 @@ export const products = pgTable("products", {
   showInB2c: boolean("show_in_b2c").default(true).notNull(),
   showInB2b: boolean("show_in_b2b").default(false).notNull(),
 
-  stock: integer("stock"),
-  isActive: boolean("is_active").default(false).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
   sortOrder: integer("sort_order").default(0).notNull(),
   status: text("status").$type<ProductStatus>().default("draft").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

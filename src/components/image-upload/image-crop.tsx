@@ -42,7 +42,38 @@ const centerAspectCrop = (
     mediaHeight
   );
 
-function getCroppedFile(
+const HIGH_QUALITY = 0.92;
+const LOW_QUALITY = 0.8;
+const MAX_DIMENSION = 2400;
+const TARGET_SIZE_KB = 900;
+const KB = 1024;
+const FILE_EXT_REGEX = /\.\w+$/;
+
+function compressIfNeeded(
+  canvas: HTMLCanvasElement,
+  fileName: string,
+  quality: number
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error("Canvas is empty"));
+          return;
+        }
+        const file = new File([blob], fileName, {
+          type: "image/jpeg",
+          lastModified: Date.now(),
+        });
+        resolve(file);
+      },
+      "image/jpeg",
+      quality
+    );
+  });
+}
+
+async function getCroppedFile(
   image: HTMLImageElement,
   crop: PixelCrop,
   originalFileName: string
@@ -56,38 +87,46 @@ function getCroppedFile(
   const scaleX = image.naturalWidth / image.width;
   const scaleY = image.naturalHeight / image.height;
 
-  canvas.width = crop.width;
-  canvas.height = crop.height;
+  // Use natural resolution, not display resolution
+  let cropWidth = Math.round(crop.width * scaleX);
+  let cropHeight = Math.round(crop.height * scaleY);
+
+  // Limit max dimension to prevent huge files
+  if (Math.max(cropWidth, cropHeight) > MAX_DIMENSION) {
+    const ratio = MAX_DIMENSION / Math.max(cropWidth, cropHeight);
+    cropWidth = Math.round(cropWidth * ratio);
+    cropHeight = Math.round(cropHeight * ratio);
+  }
+
+  canvas.width = cropWidth;
+  canvas.height = cropHeight;
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
 
   ctx.drawImage(
     image,
-    crop.x * scaleX,
-    crop.y * scaleY,
-    crop.width * scaleX,
-    crop.height * scaleY,
+    Math.round(crop.x * scaleX),
+    Math.round(crop.y * scaleY),
+    Math.round(crop.width * scaleX),
+    Math.round(crop.height * scaleY),
     0,
     0,
-    crop.width,
-    crop.height
+    cropWidth,
+    cropHeight
   );
 
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) {
-          reject(new Error("Canvas is empty"));
-          return;
-        }
-        const file = new File([blob], originalFileName, {
-          type: "image/png",
-          lastModified: Date.now(),
-        });
-        resolve(file);
-      },
-      "image/png",
-      1
-    );
-  });
+  const jpegFileName = originalFileName.replace(FILE_EXT_REGEX, ".jpg");
+
+  // Try high quality first
+  let file = await compressIfNeeded(canvas, jpegFileName, HIGH_QUALITY);
+
+  // If still too large, use lower quality
+  if (file.size > TARGET_SIZE_KB * KB) {
+    file = await compressIfNeeded(canvas, jpegFileName, LOW_QUALITY);
+  }
+
+  return file;
 }
 
 type ImageCropProps = {

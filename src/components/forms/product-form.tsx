@@ -64,8 +64,7 @@ export function ProductForm({ id }: { id: string }) {
       name: product?.name ?? "",
       slug: product?.slug ?? "",
       description: product?.description ?? null,
-      stock: product?.stock ?? null,
-      isActive: product?.isActive ?? false,
+      isActive: product?.isActive ?? true,
       sortOrder: product?.sortOrder ?? 0,
       status: product?.status ?? "draft",
       showInB2c: product?.showInB2c ?? true,
@@ -179,36 +178,33 @@ export function ProductForm({ id }: { id: string }) {
 
           <FieldGroup className="gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <form.AppField name="stock">
-                {(field) => <field.QuantitySetterField label="Množstvo" />}
-              </form.AppField>
               <form.AppField name="sortOrder">
                 {(field) => <field.QuantitySetterField label="Poradie" />}
               </form.AppField>
+              <form.AppField name="status">
+                {(field) => (
+                  <field.SelectField
+                    label="Status"
+                    options={PRODUCT_STATUSES.map((status) => ({
+                      label: status,
+                      value: status,
+                    }))}
+                  />
+                )}
+              </form.AppField>
             </div>
-            <form.AppField name="status">
-              {(field) => (
-                <field.SelectField
-                  label="Status"
-                  options={PRODUCT_STATUSES.map((status) => ({
-                    label: status,
-                    value: status,
-                  }))}
-                />
-              )}
-            </form.AppField>
           </FieldGroup>
 
           <FieldGroup className="gap-4">
             <div className="grid grid-cols-2 gap-x-2 gap-y-4">
-              <form.AppField name="isActive">
+              {/* <form.AppField name="isActive">
                 {(field) => (
                   <field.SwitchField
                     description="Je produkt aktívny?"
                     label="Aktívny"
                   />
                 )}
-              </form.AppField>
+              </form.AppField> */}
               <form.AppField name="showInB2c">
                 {(field) => (
                   <field.SwitchField

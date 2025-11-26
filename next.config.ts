@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
   experimental: {
     authInterrupts: true,
+    serverActions: {
+      bodySizeLimit: "4mb",
+    },
   },
   // cacheComponents: true,
   images: {

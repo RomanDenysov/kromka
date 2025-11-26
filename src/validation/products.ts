@@ -10,7 +10,6 @@ export const productSchema = z.object({
   name: z.string().min(1).max(MAX_STRING_LENGTH),
   slug: z.string().min(1).max(MAX_STRING_LENGTH),
   description: z.custom<JSONContent>().nullable(),
-  stock: z.number().nullable(),
   isActive: z.boolean(),
   sortOrder: z.number(),
   status: z.enum(PRODUCT_STATUSES),

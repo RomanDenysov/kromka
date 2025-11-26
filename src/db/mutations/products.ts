@@ -48,7 +48,6 @@ export const MUTATIONS = {
         name: referenceProduct.name,
         slug: draftSlug(referenceProduct.name),
         description: referenceProduct.description,
-        stock: referenceProduct.stock,
         isActive: false,
         sortOrder: referenceProduct.sortOrder,
         status: referenceProduct.status,
