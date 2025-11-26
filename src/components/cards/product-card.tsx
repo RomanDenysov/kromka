@@ -25,7 +25,7 @@ export function ProductCard({ product, className }: Props) {
   return (
     <Link
       className={cn(
-        "relative flex flex-col gap-4 overflow-hidden rounded-md bg-accent p-0.5",
+        "relative flex flex-col gap-4 overflow-hidden rounded-md p-0.5",
         className
       )}
       href={`/e-shop/${product.slug}`}
