@@ -86,9 +86,9 @@ export const MUTATIONS = {
         .onConflictDoUpdate({
           target: [orderItems.orderId, orderItems.productId],
           set: {
-            quantity: sql`excluded.quantity + ${quantity}`,
+            quantity: sql`${orderItems.quantity} + ${quantity}`,
             price: sql`excluded.price`,
-            total: sql`excluded.price * (excluded.quantity + ${quantity})`,
+            total: sql`excluded.price * (${orderItems.quantity} + ${quantity})`,
           },
         });
     },

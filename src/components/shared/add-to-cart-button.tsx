@@ -2,14 +2,19 @@
 
 import { ShoppingCartIcon } from "lucide-react";
 import { useCartActions } from "@/hooks/use-cart-actions";
+import type { ProductMeta } from "@/types/cart";
 import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 
 export function AddToCartButton({
   id,
   disabled = false,
+  product,
 }: {
   id: string;
   disabled?: boolean;
+  /** Optional product data for instant optimistic UI update */
+  product?: ProductMeta;
 }) {
   const { addToCart, isAddingToCart } = useCartActions();
 
@@ -20,11 +25,11 @@ export function AddToCartButton({
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        addToCart({ productId: id, quantity: 1 });
+        addToCart({ productId: id, quantity: 1, product });
       }}
       size="sm"
     >
-      <ShoppingCartIcon />
+      {isAddingToCart ? <Spinner /> : <ShoppingCartIcon />}
       <span>Do košíka</span>
     </Button>
   );

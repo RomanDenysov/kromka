@@ -80,7 +80,17 @@ export function ProductCard({ product, className }: Props) {
           <span className="flex-1 font-bold text-base">
             {formatPrice(product.priceCents)}
           </span>
-          <AddToCartButton disabled={!isActive} id={product.id} />
+          <AddToCartButton
+            disabled={!isActive}
+            id={product.id}
+            product={{
+              id: product.id,
+              name: product.name,
+              priceCents: product.priceCents,
+              slug: product.slug,
+              imageUrl: product.images[0],
+            }}
+          />
         </div>
       </div>
     </Link>

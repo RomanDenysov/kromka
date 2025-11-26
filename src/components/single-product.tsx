@@ -21,6 +21,7 @@ import { useCartActions } from "@/hooks/use-cart-actions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn, formatPrice } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
+import type { ProductMeta } from "@/types/cart";
 import { Hint } from "./shared/hint";
 import { Badge } from "./ui/badge";
 import { Button, buttonVariants } from "./ui/button";
@@ -29,6 +30,7 @@ import {
   ButtonGroupSeparator,
   ButtonGroupText,
 } from "./ui/button-group";
+import { Spinner } from "./ui/spinner";
 
 export function SingleProduct({ slug }: { slug: string }) {
   const trpc = useTRPC();
@@ -115,7 +117,16 @@ export function SingleProduct({ slug }: { slug: string }) {
         </div>
         <Separator />
         <div className="flex w-full items-center justify-between gap-2">
-          <AddToCartSingleProductButton disabled={!isInStock} id={product.id} />
+          <AddToCartSingleProductButton
+            disabled={!isInStock}
+            product={{
+              id: product.id,
+              name: product.name,
+              priceCents: product.priceCents,
+              slug: product.slug,
+              imageUrl: validUrls[0],
+            }}
+          />
         </div>
       </div>
     </div>
@@ -124,16 +135,16 @@ export function SingleProduct({ slug }: { slug: string }) {
 
 function AddToCartSingleProductButton({
   disabled,
-  id,
+  product,
   maxQuantity = 100,
 }: {
   disabled: boolean;
-  id: string;
+  product: ProductMeta;
   maxQuantity?: number;
 }) {
   const isMobile = useIsMobile();
   const [quantity, setQuantity] = useState(Math.min(1, maxQuantity));
-  const { addToCart, isUpdatingQuantity } = useCartActions();
+  const { addToCart, isAddingToCart } = useCartActions();
   return (
     <div className="flex w-full flex-col items-start justify-between gap-6 md:flex-row md:items-center">
       <div className="flex items-center gap-2">
@@ -145,7 +156,7 @@ function AddToCartSingleProductButton({
           <Button
             aria-label="Decrease product quantity"
             aria-roledescription="Decrease product quantity"
-            disabled={disabled || isUpdatingQuantity}
+            disabled={disabled || isAddingToCart}
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
             size={isMobile ? "icon" : "icon-lg"}
             variant="secondary"
@@ -160,7 +171,7 @@ function AddToCartSingleProductButton({
           <Button
             aria-label="Increase product quantity"
             aria-roledescription="Increase product quantity"
-            disabled={disabled || isUpdatingQuantity}
+            disabled={disabled || isAddingToCart}
             onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
             size={isMobile ? "icon" : "icon-lg"}
             variant="secondary"
@@ -171,11 +182,18 @@ function AddToCartSingleProductButton({
       </div>
       <Button
         className="w-full flex-1 md:w-auto md:text-base"
-        disabled={disabled || isUpdatingQuantity}
-        onClick={() => addToCart({ productId: id, quantity })}
+        disabled={disabled || isAddingToCart}
+        onClick={() =>
+          addToCart({
+            productId: product.id,
+            quantity,
+            product,
+            onSuccess: () => setQuantity(1),
+          })
+        }
         size={isMobile ? "default" : "lg"}
       >
-        <ShoppingCartIcon />
+        {isAddingToCart ? <Spinner /> : <ShoppingCartIcon />}
         <span>Do košíka</span>
       </Button>
     </div>

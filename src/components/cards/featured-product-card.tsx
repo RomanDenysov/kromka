@@ -7,6 +7,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/routers";
 import { ProductImage } from "../shared/product-image";
 import { Button } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 
 type Props = {
   product: RouterOutputs["public"]["products"]["list"][number];
@@ -55,11 +56,25 @@ export function FeaturedProductCard({ product, className }: Props) {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              addToCart({ productId: product.id, quantity: 1 });
+              addToCart({
+                productId: product.id,
+                quantity: 1,
+                product: {
+                  id: product.id,
+                  name: product.name,
+                  priceCents: product.priceCents,
+                  slug: product.slug,
+                  imageUrl: product.images[0],
+                },
+              });
             }}
             size="icon"
           >
-            <ShoppingCartIcon className="size-5" />
+            {isAddingToCart ? (
+              <Spinner className="size-5" />
+            ) : (
+              <ShoppingCartIcon className="size-5" />
+            )}
             <span className="sr-only">Do košíka</span>
           </Button>
         </div>

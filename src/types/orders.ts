@@ -1,3 +1,2 @@
-import type { RouterOutputs } from "@/trpc/routers";
-
-export type Order = NonNullable<RouterOutputs["public"]["cart"]["getCart"]>;
+// Re-export cart types for backward compatibility
+export type { Cart as Order, CartItem, CartItems } from "./cart";
