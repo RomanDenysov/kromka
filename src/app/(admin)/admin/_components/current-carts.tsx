@@ -2,10 +2,8 @@ import { ShoppingCartIcon } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import type { getActiveCarts } from "@/db/queries/dashboard";
 import { getInitials } from "@/lib/utils";
-
-type ActiveCartsData = Awaited<ReturnType<typeof getActiveCarts>>;
+import type { ActiveCartsData } from "./recent-orders";
 
 type Props = {
   carts: ActiveCartsData;

@@ -1,30 +1,37 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { RecentOrdersTable } from "@/components/tables/recent-orders/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { getActiveCarts, getRecentOrders } from "@/db/queries/dashboard";
+import { useTRPC } from "@/trpc/client";
+import type { RouterOutputs } from "@/trpc/routers";
 import { CurrentCarts } from "./current-carts";
 
-export type RecentOrdersData = Awaited<ReturnType<typeof getRecentOrders>>;
-export type ActiveCartsData = Awaited<ReturnType<typeof getActiveCarts>>;
+export type RecentOrdersData =
+  RouterOutputs["admin"]["dashboard"]["recentOrders"];
+export type ActiveCartsData =
+  RouterOutputs["admin"]["dashboard"]["activeCarts"];
 
-type Props = {
-  orders: RecentOrdersData;
-  carts: ActiveCartsData;
-};
+export function RecentOrders() {
+  const trpc = useTRPC();
+  const { data: orders } = useSuspenseQuery(
+    trpc.admin.dashboard.recentOrders.queryOptions()
+  );
+  const { data: carts } = useSuspenseQuery(
+    trpc.admin.dashboard.activeCarts.queryOptions()
+  );
 
-export function RecentOrders({ orders, carts }: Props) {
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between p-2">
         <h2 className="font-semibold text-lg tracking-tight">Aktivita</h2>
       </div>
       <Tabs className="w-full" defaultValue="orders">
-        <TabsList className="w-full justify-start rounded-none bg-transparent p-0">
-          <TabsTrigger className="flex-0 rounded-xs" value="orders">
+        <TabsList className="w-full justify-start rounded-none bg-transparent p-0 px-1">
+          <TabsTrigger className="flex-0 rounded-sm" value="orders">
             Posledné objednávky ( {orders.length} )
           </TabsTrigger>
-          <TabsTrigger className="flex-0 rounded-xs" value="carts">
+          <TabsTrigger className="flex-0 rounded-sm" value="carts">
             Aktuálne košíky ( {carts.length} )
           </TabsTrigger>
         </TabsList>

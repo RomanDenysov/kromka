@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  Building2Icon,
-  FileTextIcon,
   LayoutDashboardIcon,
   type LucideIcon,
   Package2Icon,
@@ -60,7 +58,7 @@ export const adminNavigation: NavNode[] = [
     exact: true,
   },
   {
-    label: "B2C",
+    label: "E-shop",
     href: "/admin",
     items: [
       {
@@ -86,23 +84,23 @@ export const adminNavigation: NavNode[] = [
       },
     ],
   },
-  {
-    label: "B2B",
-    href: "/admin",
-    items: [
-      {
-        label: "Companies",
-        href: "/admin/invoices",
-        icon: Building2Icon,
-      },
-      {
-        label: "Invoices",
-        href: "/admin/invoices",
-        icon: FileTextIcon,
-        badgeKey: "b2b.invoices",
-      },
-    ],
-  },
+  // {
+  //   label: "B2B",
+  //   href: "/admin",
+  //   items: [
+  //     {
+  //       label: "Companies",
+  //       href: "/admin/invoices",
+  //       icon: Building2Icon,
+  //     },
+  //     {
+  //       label: "Invoices",
+  //       href: "/admin/invoices",
+  //       icon: FileTextIcon,
+  //       badgeKey: "b2b.invoices",
+  //     },
+  //   ],
+  // },
   // {
   //   label: "Blog",
   //   href: "/admin/blog",
