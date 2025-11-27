@@ -42,6 +42,7 @@ export function ProductsReel({ limit, className }: Props) {
   return (
     <div className={cn("flex size-full flex-col gap-4", className)}>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <ProductCardSkeleton />
         {data.pages
           .flatMap((page) => page.data)
           .map((product) => (

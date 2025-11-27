@@ -29,17 +29,15 @@ export function LoadMore({
             <Spinner />
             // biome-ignore lint/style/noNestedTernary: we need to nest the ternary to get the correct type
           ) : hasNextPage ? (
-            "Load More"
+            "Načítať ďalšie"
           ) : (
-            "No more products"
+            "Žiadne ďalšie výsledky"
           )}
         </Button>
       ) : (
         <div className="flex items-center justify-center gap-x-2">
-          <Spinner />
-          <p className="text-muted-foreground text-xs">
-            Loading more products...
-          </p>
+          <Spinner className="text-muted-foreground" />
+          <p className="text-muted-foreground text-xs">Načítavam...</p>
         </div>
       )}
     </div>
