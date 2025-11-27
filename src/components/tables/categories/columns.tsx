@@ -39,7 +39,7 @@ type CategoryTableMeta = {
   toggleActive: (id: string) => void;
   onDelete: (id: string) => void;
   onCopy: (id: string) => void;
-  setFeatured: (id: string | null) => void;
+  toggleFeatured: (id: string) => void;
 };
 
 export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
@@ -95,7 +95,6 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
             variant="outline"
           >
             <SparklesIcon className="size-3" />
-            Zvýraznená
           </Badge>
         )}
       </div>
@@ -239,14 +238,10 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
               Kopírovať
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() =>
-                meta?.setFeatured(
-                  row.original.isFeatured ? null : row.original.id
-                )
-              }
+              onClick={() => meta?.toggleFeatured(row.original.id)}
             >
               <SparklesIcon />
-              {row.original.isFeatured ? "Zrušiť zvýraznenie" : "Zvýrazniť"}
+              {row.original.isFeatured ? "Zrušiť" : "Zvýrazniť"}
             </DropdownMenuItem>
             <AlertDialog key={`delete-${row.original.id}`}>
               <DropdownMenuItem asChild asDialogTrigger variant="destructive">

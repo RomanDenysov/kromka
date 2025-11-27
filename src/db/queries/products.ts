@@ -151,50 +151,6 @@ export const QUERIES = {
       }),
   },
   PUBLIC: {
-    GET_FEATURED_PRODUCTS: async (categoryId: string) => {
-      const fetchedProducts = await db.query.products.findMany({
-        where: (product, { eq: eqFn, and: andFn, inArray: inArrayFn }) =>
-          andFn(
-            eqFn(product.isActive, true),
-            eqFn(product.status, "active"),
-            inArrayFn(
-              product.id,
-              db
-                .select({ productId: productCategories.productId })
-                .from(productCategories)
-                .where(eqFn(productCategories.categoryId, categoryId))
-            )
-          ),
-        with: {
-          images: {
-            with: {
-              media: true,
-            },
-          },
-          categories: {
-            with: {
-              category: true,
-            },
-          },
-        },
-        orderBy: (product, { asc, desc }) => [
-          asc(product.sortOrder),
-          desc(product.createdAt),
-        ],
-        limit: 12,
-      });
-
-      for (const p of fetchedProducts) {
-        p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
-        p.categories = p.categories.sort((a, b) => a.sortOrder - b.sortOrder);
-      }
-
-      return fetchedProducts.map((p) => ({
-        ...p,
-        categories: p.categories.map((c) => c.category),
-        images: p.images.map((img) => img.media.url),
-      }));
-    },
     GET_PRODUCTS: async () => {
       const fetchedProducts = await db.query.products.findMany({
         where: (product, { eq: eqFn, and: andFn }) =>

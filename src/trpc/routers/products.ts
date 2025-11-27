@@ -117,12 +117,6 @@ export const adminProductsRouter = createTRPCRouter({
 
 export const publicProductsRouter = createTRPCRouter({
   list: publicProcedure.query(async () => await QUERIES.PUBLIC.GET_PRODUCTS()),
-  featured: publicProcedure
-    .input(z.object({ categoryId: z.string() }))
-    .query(
-      async ({ input }) =>
-        await QUERIES.PUBLIC.GET_FEATURED_PRODUCTS(input.categoryId)
-    ),
   infinite: publicProcedure
     .input(
       z.object({

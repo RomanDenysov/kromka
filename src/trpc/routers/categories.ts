@@ -8,13 +8,11 @@ export const adminCategoriesRouter = createTRPCRouter({
   list: protectedProcedure.query(
     async () => await QUERIES.ADMIN.GET_CATEGORIES()
   ),
-  getFeatured: protectedProcedure.query(
-    async () => await QUERIES.PUBLIC.GET_FEATURED_CATEGORY()
-  ),
-  setFeatured: protectedProcedure
-    .input(z.object({ categoryId: z.string().nullable() }))
+  toggleFeatured: protectedProcedure
+    .input(z.object({ categoryId: z.string() }))
     .mutation(
-      async ({ input }) => await MUTATIONS.ADMIN.SET_FEATURED(input.categoryId)
+      async ({ input }) =>
+        await MUTATIONS.ADMIN.TOGGLE_FEATURED(input.categoryId)
     ),
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
@@ -65,6 +63,6 @@ export const publicCategoriesRouter = createTRPCRouter({
       async ({ input }) => await QUERIES.PUBLIC.GET_CATEGORY_BY_SLUG(input.slug)
     ),
   featured: publicProcedure.query(
-    async () => await QUERIES.PUBLIC.GET_FEATURED_CATEGORY()
+    async () => await QUERIES.PUBLIC.GET_FEATURED_CATEGORIES()
   ),
 });

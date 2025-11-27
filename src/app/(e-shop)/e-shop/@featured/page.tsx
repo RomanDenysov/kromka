@@ -1,43 +1,12 @@
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
-import {
-  FeaturedCarousel,
-  FeaturedCarouselSkeleton,
-} from "@/components/featured-carousel";
-import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
+import { FeaturedCarousels } from "@/components/featured-carousel";
+import { QUERIES } from "@/db/queries/categories";
 
 export default async function FeaturedPage() {
-  const queryClient = getQueryClient();
+  const featuredCategories = await QUERIES.PUBLIC.GET_FEATURED_CATEGORIES();
 
-  // Fetch featured category on server
-  const featuredCategory = await queryClient.fetchQuery(
-    trpc.public.categories.featured.queryOptions()
-  );
-
-  // If no featured category is set, don't render anything
-  if (!featuredCategory) {
+  if (featuredCategories.length === 0) {
     return null;
   }
 
-  // Prefetch products for the featured category
-  await queryClient.prefetchQuery(
-    trpc.public.products.featured.queryOptions({
-      categoryId: featuredCategory.id,
-    })
-  );
-
-  return (
-    <HydrateClient>
-      <div className="min-h-60 shrink-0">
-        <ErrorBoundary fallback={<div>Error loading featured products</div>}>
-          <Suspense fallback={<FeaturedCarouselSkeleton />}>
-            <FeaturedCarousel
-              categoryId={featuredCategory.id}
-              categoryName={featuredCategory.name}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      </div>
-    </HydrateClient>
-  );
+  return <FeaturedCarousels categories={featuredCategories} />;
 }

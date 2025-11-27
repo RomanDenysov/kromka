@@ -1,7 +1,4 @@
-"use client";
-
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useTRPC } from "@/trpc/client";
+import type { RouterOutputs } from "@/trpc/routers";
 import { FeaturedProductCard } from "./cards/featured-product-card";
 import {
   Carousel,
@@ -12,27 +9,35 @@ import {
 } from "./ui/carousel";
 import { Skeleton } from "./ui/skeleton";
 
-interface FeaturedCarouselProps {
-  categoryId: string;
-  categoryName: string;
-}
+export type FeaturedCategory =
+  RouterOutputs["public"]["categories"]["featured"][number];
 
-export function FeaturedCarousel({
-  categoryId,
-  categoryName,
-}: FeaturedCarouselProps) {
-  const trpc = useTRPC();
-  const { data: products } = useSuspenseQuery(
-    trpc.public.products.featured.queryOptions({ categoryId })
-  );
+type FeaturedCarouselsProps = {
+  categories: FeaturedCategory[];
+};
 
-  if (products.length === 0) {
+export function FeaturedCarousels({ categories }: FeaturedCarouselsProps) {
+  if (categories.length === 0) {
     return null;
   }
 
   return (
-    <section>
-      <h2 className="mb-4 font-bold text-2xl">{categoryName}</h2>
+    <div className="flex flex-col gap-8">
+      {categories.map((category) => (
+        <FeaturedCarousel category={category} key={category.id} />
+      ))}
+    </div>
+  );
+}
+
+type FeaturedCarouselProps = {
+  category: FeaturedCategory;
+};
+
+function FeaturedCarousel({ category }: FeaturedCarouselProps) {
+  return (
+    <section className="min-h-60 shrink-0" data-featured-category={category.id}>
+      <h2 className="mb-4 font-bold text-2xl">{category.name}</h2>
       <div className="relative">
         <Carousel
           className="w-full"
@@ -42,7 +47,7 @@ export function FeaturedCarousel({
           }}
         >
           <CarouselContent className="-ml-4 pb-4">
-            {products.map((product) => (
+            {category.products.map((product) => (
               <CarouselItem
                 className="basis-1/2 pl-4 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
                 key={product.id}

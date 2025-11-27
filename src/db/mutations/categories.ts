@@ -64,22 +64,14 @@ export const MUTATIONS = {
         .returning({ id: categories.id });
       return deletedCategories.map((category) => ({ id: category.id }));
     },
-    SET_FEATURED: async (categoryId: string | null) => {
-      // First, unset any currently featured category
-      await db
+    TOGGLE_FEATURED: async (categoryId: string) => {
+      const [updated] = await db
         .update(categories)
-        .set({ isFeatured: false })
-        .where(eq(categories.isFeatured, true));
+        .set({ isFeatured: not(categories.isFeatured) })
+        .where(eq(categories.id, categoryId))
+        .returning({ id: categories.id, isFeatured: categories.isFeatured });
 
-      // If categoryId is provided, set it as featured
-      if (categoryId) {
-        await db
-          .update(categories)
-          .set({ isFeatured: true })
-          .where(eq(categories.id, categoryId));
-      }
-
-      return { success: true };
+      return updated;
     },
   },
 };

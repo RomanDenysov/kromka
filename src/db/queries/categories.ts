@@ -2,6 +2,8 @@ import "server-only";
 import { db } from "@/db";
 import { productCategories } from "../schema";
 
+const FEATURED_PRODUCTS_LIMIT = 12;
+
 export const QUERIES = {
   ADMIN: {
     GET_CATEGORIES: async () => {
@@ -65,11 +67,18 @@ export const QUERIES = {
     GET_CATEGORIES: async () => {
       const categories = await db.query.categories.findMany({
         where: (category, { eq, and: andFn }) =>
-          andFn(eq(category.isActive, true), eq(category.showInMenu, true)),
+          andFn(
+            eq(category.isActive, true),
+            eq(category.showInMenu, true),
+            eq(category.isFeatured, false)
+          ),
+        with: {
+          products: true,
+        },
         orderBy: (category, { asc }) => asc(category.sortOrder),
       });
 
-      return categories;
+      return categories.filter((category) => category.products.length > 0);
     },
     GET_CATEGORY_BY_SLUG: async (slug: string) =>
       await db.query.categories.findFirst({
@@ -80,10 +89,62 @@ export const QUERIES = {
             eq(category.showInMenu, true)
           ),
       }),
-    GET_FEATURED_CATEGORY: async () =>
-      await db.query.categories.findFirst({
-        where: (category, { eq, and: andFn }) =>
-          andFn(eq(category.isFeatured, true), eq(category.isActive, true)),
-      }),
+    GET_FEATURED_CATEGORIES: async () => {
+      const categories = await db.query.categories.findMany({
+        where: (cat, { eq, and: andFn }) =>
+          andFn(
+            eq(cat.isFeatured, true),
+            eq(cat.isActive, true),
+            eq(cat.showInMenu, true)
+          ),
+        with: {
+          products: {
+            with: {
+              product: {
+                with: {
+                  images: {
+                    with: {
+                      media: true,
+                    },
+                  },
+                  categories: {
+                    with: {
+                      category: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: (cat, { asc }) => asc(cat.sortOrder),
+      });
+
+      return categories
+        .map((category) => {
+          const activeProducts = category.products
+            .map((pc) => pc.product)
+            .filter((p) => p.isActive && p.status === "active")
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .slice(0, FEATURED_PRODUCTS_LIMIT);
+
+          for (const p of activeProducts) {
+            p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
+            p.categories = p.categories.sort(
+              (a, b) => a.sortOrder - b.sortOrder
+            );
+          }
+
+          return {
+            ...category,
+            products: activeProducts.map((p) => ({
+              ...p,
+              categories: p.categories.map((c) => c.category),
+              images: p.images.map((img) => img.media.url),
+            })),
+          };
+        })
+        .filter((cat) => cat.products.length > 0);
+    },
   },
 };
