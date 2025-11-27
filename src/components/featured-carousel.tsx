@@ -12,10 +12,18 @@ import {
 } from "./ui/carousel";
 import { Skeleton } from "./ui/skeleton";
 
-export function FeaturedCarousel() {
+interface FeaturedCarouselProps {
+  categoryId: string;
+  categoryName: string;
+}
+
+export function FeaturedCarousel({
+  categoryId,
+  categoryName,
+}: FeaturedCarouselProps) {
   const trpc = useTRPC();
   const { data: products } = useSuspenseQuery(
-    trpc.public.products.list.queryOptions()
+    trpc.public.products.featured.queryOptions({ categoryId })
   );
 
   if (products.length === 0) {
@@ -24,7 +32,7 @@ export function FeaturedCarousel() {
 
   return (
     <section>
-      <h2 className="mb-4 font-bold text-2xl">Vybrané produkty</h2>
+      <h2 className="mb-4 font-bold text-2xl">{categoryName}</h2>
       <div className="relative">
         <Carousel
           className="w-full"

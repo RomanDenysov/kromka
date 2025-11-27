@@ -7,6 +7,7 @@ import {
   CopyIcon,
   MoreHorizontalIcon,
   PencilIcon,
+  SparklesIcon,
   Trash2Icon,
   XIcon,
 } from "lucide-react";
@@ -38,6 +39,7 @@ type CategoryTableMeta = {
   toggleActive: (id: string) => void;
   onDelete: (id: string) => void;
   onCopy: (id: string) => void;
+  setFeatured: (id: string | null) => void;
 };
 
 export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
@@ -78,13 +80,25 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
     filterFn: "fuzzy",
     enableSorting: true,
     cell: ({ row }) => (
-      <Link
-        className={buttonVariants({ variant: "link", size: "xs" })}
-        href={`/admin/categories/${row.original.id}`}
-        prefetch
-      >
-        {row.original.name}
-      </Link>
+      <div className="flex items-center gap-1.5">
+        <Link
+          className={buttonVariants({ variant: "link", size: "xs" })}
+          href={`/admin/categories/${row.original.id}`}
+          prefetch
+        >
+          {row.original.name}
+        </Link>
+        {row.original.isFeatured && (
+          <Badge
+            className="border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+            size="xs"
+            variant="outline"
+          >
+            <SparklesIcon className="size-3" />
+            Zvýraznená
+          </Badge>
+        )}
+      </div>
     ),
   },
   {
@@ -156,7 +170,7 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
       const channels =
         row.original.showInB2c && row.original.showInB2b
           ? ["B2C", "B2B"]
-          : // biome-ignore lint/style/noNestedTernary: <explanation>
+          : // biome-ignore lint/style/noNestedTernary: Simple channel selection
             row.original.showInB2c
             ? ["B2C"]
             : ["B2B"];
@@ -223,6 +237,16 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
             <DropdownMenuItem onClick={() => meta?.onCopy(row.original.id)}>
               <CopyIcon />
               Kopírovať
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                meta?.setFeatured(
+                  row.original.isFeatured ? null : row.original.id
+                )
+              }
+            >
+              <SparklesIcon />
+              {row.original.isFeatured ? "Zrušiť zvýraznenie" : "Zvýrazniť"}
             </DropdownMenuItem>
             <AlertDialog key={`delete-${row.original.id}`}>
               <DropdownMenuItem asChild asDialogTrigger variant="destructive">

@@ -106,3 +106,37 @@ export function useDeleteCategories() {
     })
   );
 }
+
+export function useSetFeaturedCategory() {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const queryKey = trpc.admin.categories.list.queryKey();
+
+  return useMutation(
+    trpc.admin.categories.setFeatured.mutationOptions({
+      onMutate: ({ categoryId }) => {
+        queryClient.cancelQueries({ queryKey });
+        const previousCategories = queryClient.getQueryData(queryKey);
+        if (previousCategories) {
+          queryClient.setQueryData<TableCategory[]>(queryKey, (old) =>
+            old?.map((category) => ({
+              ...category,
+              isFeatured: category.id === categoryId,
+            }))
+          );
+        }
+        return { previousCategories };
+      },
+      onError: (error, _, context) => {
+        if (context?.previousCategories) {
+          queryClient.setQueryData(queryKey, context.previousCategories);
+        }
+        toast.error(error.message);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey });
+        toast.success("Zvýraznená kategória bola nastavená");
+      },
+    })
+  );
+}

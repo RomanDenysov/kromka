@@ -80,5 +80,10 @@ export const QUERIES = {
             eq(category.showInMenu, true)
           ),
       }),
+    GET_FEATURED_CATEGORY: async () =>
+      await db.query.categories.findFirst({
+        where: (category, { eq, and: andFn }) =>
+          andFn(eq(category.isFeatured, true), eq(category.isActive, true)),
+      }),
   },
 };

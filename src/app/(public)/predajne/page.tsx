@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { StoreIcon } from "lucide-react";
+import type { Route } from "next";
 import { type Store, StoreCard } from "@/components/cards/store-card";
 import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
@@ -79,7 +80,7 @@ export default function StoresPage() {
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {stores?.map((store) => (
                 <StoreCard
-                  href={`/predajne/${store.slug}`}
+                  href={`/predajne/${store.slug}` as Route}
                   key={store.id}
                   store={store}
                 />

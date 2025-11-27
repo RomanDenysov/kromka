@@ -42,6 +42,8 @@ export const categories = pgTable(
     showInB2c: boolean("show_in_b2c").default(true).notNull(),
     showInB2b: boolean("show_in_b2b").default(true).notNull(),
 
+    isFeatured: boolean("is_featured").default(false).notNull(),
+
     sortOrder: integer("sort_order").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")

@@ -64,5 +64,22 @@ export const MUTATIONS = {
         .returning({ id: categories.id });
       return deletedCategories.map((category) => ({ id: category.id }));
     },
+    SET_FEATURED: async (categoryId: string | null) => {
+      // First, unset any currently featured category
+      await db
+        .update(categories)
+        .set({ isFeatured: false })
+        .where(eq(categories.isFeatured, true));
+
+      // If categoryId is provided, set it as featured
+      if (categoryId) {
+        await db
+          .update(categories)
+          .set({ isFeatured: true })
+          .where(eq(categories.id, categoryId));
+      }
+
+      return { success: true };
+    },
   },
 };

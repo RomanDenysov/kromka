@@ -55,6 +55,7 @@ import {
   useCopyCategory,
   useCreateDraftCategory,
   useDeleteCategories,
+  useSetFeaturedCategory,
   useToggleCategories,
 } from "@/hooks/use-admin-categories-mutations";
 import {
@@ -120,6 +121,7 @@ export function CategoriesTable() {
   const { mutate: toggleActive } = useToggleCategories();
   const { mutate: deleteCategories, isPending: isDeletingCategories } =
     useDeleteCategories();
+  const { mutate: setFeatured } = useSetFeaturedCategory();
 
   const processedCategories = useMemo(
     () => data.map((category) => category),
@@ -156,6 +158,9 @@ export function CategoriesTable() {
       },
       onDelete: (id: string) => {
         deleteCategories({ ids: [id] });
+      },
+      setFeatured: (id: string | null) => {
+        setFeatured({ categoryId: id });
       },
     },
   });
