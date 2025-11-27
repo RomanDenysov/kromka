@@ -30,7 +30,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 
-export function StoreSelectModal() {
+export function StoreSelectModal({ children }: { children?: React.ReactNode }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { data: stores, isLoading: isLoadingStores } = useQuery(
@@ -65,22 +65,29 @@ export function StoreSelectModal() {
   }, [userStore]);
 
   if (isLoadingStores || isLoadingUserStore) {
+    if (children) {
+      return <>{children}</>;
+    }
     return <Skeleton className="hidden h-8 w-20 rounded-md md:block" />;
   }
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          className="max-w-[140px] justify-start"
-          size="sm"
-          variant="secondary"
-        >
-          <StoreIcon />
-          <span className="truncate">
-            {selectedStore ? selectedStore.name : "Vybrať obchod"}
-          </span>
-        </Button>
+        {children ? (
+          children
+        ) : (
+          <Button
+            className="max-w-[140px] justify-start"
+            size="sm"
+            variant="secondary"
+          >
+            <StoreIcon />
+            <span className="truncate">
+              {selectedStore ? selectedStore.name : "Vybrať obchod"}
+            </span>
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

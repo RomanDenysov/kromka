@@ -35,7 +35,11 @@ export const QUERIES = {
       const userStore = await db.query.storeMembers.findFirst({
         where: (storeMember, { eq: eqFn }) => eqFn(storeMember.userId, userId),
         with: {
-          store: true,
+          store: {
+            with: {
+              image: true,
+            },
+          },
         },
       });
       return userStore?.store ?? null;
