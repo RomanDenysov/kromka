@@ -1,9 +1,6 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import {
-  SingleProduct,
-  SingleProductSkeleton,
-} from "@/components/single-product";
+import { SingleProduct } from "@/components/single-product";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 type Props = {
@@ -20,7 +17,7 @@ export default async function ProductPage({ params }: Props) {
   return (
     <HydrateClient>
       <ErrorBoundary fallback={<div>Error</div>}>
-        <Suspense fallback={<SingleProductSkeleton />}>
+        <Suspense>
           <SingleProduct slug={slug} />
         </Suspense>
       </ErrorBoundary>

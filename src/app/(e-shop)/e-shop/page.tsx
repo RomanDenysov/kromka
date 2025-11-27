@@ -6,6 +6,8 @@ import {
 } from "@/components/lists/products-reel";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 
+export const DEFAULT_PRODUCTS_LIMIT = 12;
+
 export default async function EshopPage(props: {
   searchParams: Promise<{ category?: string }>;
 }) {
@@ -15,18 +17,19 @@ export default async function EshopPage(props: {
   const queryClient = getQueryClient();
 
   // Change this to prefetch once this is fixed: https://github.com/trpc/trpc/issues/6632
-  const options = trpc.public.products.infinite.infiniteQueryOptions({
-    limit: 12,
-    categoryId,
+  await queryClient.fetchInfiniteQuery({
+    ...trpc.public.products.infinite.infiniteQueryOptions({
+      limit: DEFAULT_PRODUCTS_LIMIT,
+      categoryId,
+    }),
+    initialPageParam: 0,
   });
-
-  await queryClient.fetchInfiniteQuery({ ...options, initialPageParam: 0 });
 
   return (
     <HydrateClient>
       <ErrorBoundary fallback={<div>Error loading products reel</div>}>
         <Suspense fallback={<ProductsReelSkeleton />}>
-          <ProductsReel className="grow" limit={20} />
+          <ProductsReel className="grow" limit={DEFAULT_PRODUCTS_LIMIT} />
         </Suspense>
       </ErrorBoundary>
     </HydrateClient>

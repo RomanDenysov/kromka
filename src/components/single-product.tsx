@@ -1,6 +1,6 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { generateHTML } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 import {
@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, ViewTransition } from "react";
 import { ImageSlider } from "@/components/image-slider";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +21,7 @@ import { useCartActions } from "@/hooks/use-cart-actions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn, formatPrice } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
+import type { RouterOutputs } from "@/trpc/routers";
 import type { ProductMeta } from "@/types/cart";
 import { Hint } from "./shared/hint";
 import { Badge } from "./ui/badge";
@@ -34,8 +35,32 @@ import { Spinner } from "./ui/spinner";
 
 export function SingleProduct({ slug }: { slug: string }) {
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  // Try to find product from infinite query cache (e-shop listing)
+  type InfinitePage = RouterOutputs["public"]["products"]["infinite"];
+  type InfiniteCache = { pages: InfinitePage[] };
+
+  const initialData = useMemo(() => {
+    const infiniteQueries = queryClient.getQueriesData<InfiniteCache>({
+      queryKey: ["public", "products", "infinite"],
+    });
+
+    for (const [, data] of infiniteQueries) {
+      if (!data?.pages) {
+        continue;
+      }
+      const found = data.pages
+        .flatMap((page) => page.data)
+        .find((p) => p.slug === slug);
+      if (found) {
+        return found;
+      }
+    }
+  }, [queryClient, slug]);
+
   const { data: product } = useSuspenseQuery(
-    trpc.public.products.bySlug.queryOptions({ slug })
+    trpc.public.products.bySlug.queryOptions({ slug }, { initialData })
   );
 
   const isInStock = product?.status === "active" && product?.isActive;
@@ -87,14 +112,18 @@ export function SingleProduct({ slug }: { slug: string }) {
             ))}
           </div>
         )}
-        <h1 className="line-clamp-2 font-semibold text-2xl leading-tight tracking-tight md:text-3xl">
-          {product.name}
-        </h1>
+        <ViewTransition name={`${product.slug}-name`}>
+          <h1 className="line-clamp-2 font-semibold text-2xl leading-tight tracking-tight md:text-3xl">
+            {product.name}
+          </h1>
+        </ViewTransition>
 
         {/* Product Price and Features */}
-        <h2 className="font-semibold text-2xl tracking-tight md:text-4xl">
-          {formatPrice(product.priceCents)}
-        </h2>
+        <ViewTransition name={`${product.slug}-price`}>
+          <h2 className="font-semibold text-2xl tracking-tight md:text-4xl">
+            {formatPrice(product.priceCents)}
+          </h2>
+        </ViewTransition>
         <div className="flex flex-col items-start justify-start gap-2 md:flex-row">
           {isInStock ? (
             <Badge className="w-fit" variant="success">

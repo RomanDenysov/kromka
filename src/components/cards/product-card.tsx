@@ -2,6 +2,7 @@
 
 import { HeartIcon } from "lucide-react";
 import Link from "next/link";
+import { ViewTransition } from "react";
 import { cn, formatPrice } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/routers";
 import { ImageSlider } from "../image-slider";
@@ -15,21 +16,30 @@ const MAX_CATEGORIES_DISPLAY = 3;
 type Props = {
   product: RouterOutputs["public"]["products"]["list"][number];
   className?: string;
+  /** Delay in ms before animation starts. 0 = no animation (already rendered). */
+  animationDelay?: number;
 };
 
-export function ProductCard({ product, className }: Props) {
+export function ProductCard({ product, className, animationDelay = 0 }: Props) {
   const totalCategories = product.categories.length;
   const showingCategories = product.categories.slice(0, MAX_CATEGORIES_DISPLAY);
   const isActive = product.status === "active";
 
+  const shouldAnimate = animationDelay > 0;
+
   return (
     <Link
       className={cn(
-        "relative flex flex-col gap-4 overflow-hidden rounded-md p-0.5",
+        "relative flex flex-col gap-3 overflow-hidden rounded-md p-0.5",
+        shouldAnimate &&
+          "fade-in slide-in-from-bottom-4 animate-in fill-mode-backwards duration-300",
         className
       )}
       href={`/e-shop/${product.slug}`}
       prefetch
+      style={
+        shouldAnimate ? { animationDelay: `${animationDelay}ms` } : undefined
+      }
       title={isActive ? product.name : `${product.name} (neaktívny produkt)`}
     >
       <div className="relative">
@@ -70,16 +80,22 @@ export function ProductCard({ product, className }: Props) {
         </div>
 
         {/* Name */}
-        <h3 className="line-clamp-2 font-semibold text-base">{product.name}</h3>
+        <ViewTransition name={`${product.slug}-name`}>
+          <h3 className="line-clamp-2 font-semibold text-base">
+            {product.name}
+          </h3>
+        </ViewTransition>
 
         {/* Spacer */}
         <div className="h-full flex-1" />
 
         {/* Price */}
         <div className="mt-auto flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
-          <span className="flex-1 font-bold text-base">
-            {formatPrice(product.priceCents)}
-          </span>
+          <ViewTransition name={`${product.slug}-price`}>
+            <span className="flex-1 font-bold text-base">
+              {formatPrice(product.priceCents)}
+            </span>
+          </ViewTransition>
           <AddToCartButton
             disabled={!isActive}
             id={product.id}
