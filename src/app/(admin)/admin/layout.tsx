@@ -14,6 +14,7 @@ export default async function AdminLayout({ children }: Props) {
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
+  // Admin guard: only allow users with admin role
   const session = await auth.api.getSession({
     headers: { Cookie: cookieStore.toString() },
   });
