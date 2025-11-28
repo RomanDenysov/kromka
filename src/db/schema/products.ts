@@ -1,5 +1,4 @@
 import type { JSONContent } from "@tiptap/react";
-import { relations } from "drizzle-orm";
 import {
   boolean,
   integer,
@@ -11,10 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
 import { draftSlug } from "../utils";
-import { productCategories } from "./categories";
 import { media } from "./media";
-import { orderItems } from "./orders";
-import { prices } from "./prices";
 
 export const PRODUCT_STATUSES = [
   "draft",
@@ -77,21 +73,3 @@ export const productImages = pgTable(
     // or via database trigger/constraint. Drizzle doesn't support partial unique indexes.
   ]
 );
-
-export const productsRelations = relations(products, ({ many }) => ({
-  images: many(productImages),
-  categories: many(productCategories),
-  prices: many(prices),
-  orderItems: many(orderItems),
-}));
-
-export const productImagesRelations = relations(productImages, ({ one }) => ({
-  product: one(products, {
-    fields: [productImages.productId],
-    references: [products.id],
-  }),
-  media: one(media, {
-    fields: [productImages.mediaId],
-    references: [media.id],
-  }),
-}));

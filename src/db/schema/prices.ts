@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import {
   integer,
   pgTable,
@@ -42,18 +41,3 @@ export const prices = pgTable(
     }),
   ]
 );
-
-export const priceTiersRelations = relations(priceTiers, ({ many }) => ({
-  prices: many(prices),
-}));
-
-export const pricesRelations = relations(prices, ({ one }) => ({
-  product: one(products, {
-    fields: [prices.productId],
-    references: [products.id],
-  }),
-  priceTier: one(priceTiers, {
-    fields: [prices.priceTierId],
-    references: [priceTiers.id],
-  }),
-}));

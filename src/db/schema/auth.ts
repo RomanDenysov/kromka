@@ -1,8 +1,5 @@
-import { relations } from "drizzle-orm";
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { orders } from "./orders";
 import { priceTiers } from "./prices";
-import { storeMembers } from "./stores";
 
 export const USER_ROLES = ["admin", "manager", "user"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
@@ -112,58 +109,3 @@ export const invitations = pgTable("invitations", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 });
-
-export const usersRelations = relations(users, ({ many }) => ({
-  sessions: many(sessions),
-  accounts: many(accounts),
-  members: many(members),
-  invitationsSent: many(invitations, {
-    relationName: "inviter",
-  }),
-  storeMembers: many(storeMembers),
-  orders: many(orders),
-}));
-
-export const accountsRelations = relations(accounts, ({ one }) => ({
-  user: one(users, {
-    fields: [accounts.userId],
-    references: [users.id],
-  }),
-}));
-
-export const organizationsRelations = relations(
-  organizations,
-  ({ many, one }) => ({
-    members: many(members),
-    invitations: many(invitations),
-    orders: many(orders),
-    priceTier: one(priceTiers, {
-      fields: [organizations.priceTierId],
-      references: [priceTiers.id],
-    }),
-    activeSessions: many(sessions),
-  })
-);
-
-export const membersRelations = relations(members, ({ one }) => ({
-  organization: one(organizations, {
-    fields: [members.organizationId],
-    references: [organizations.id],
-  }),
-  user: one(users, {
-    fields: [members.userId],
-    references: [users.id],
-  }),
-}));
-
-export const invitationsRelations = relations(invitations, ({ one }) => ({
-  organization: one(organizations, {
-    fields: [invitations.organizationId],
-    references: [organizations.id],
-  }),
-  inviter: one(users, {
-    fields: [invitations.inviterId],
-    references: [users.id],
-    relationName: "inviter",
-  }),
-}));

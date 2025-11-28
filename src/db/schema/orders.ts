@@ -1,4 +1,3 @@
-import { relations } from "drizzle-orm";
 import {
   index,
   integer,
@@ -168,45 +167,3 @@ export const orderItems = pgTable(
   },
   (table) => [primaryKey({ columns: [table.orderId, table.productId] })]
 );
-
-export const ordersRelations = relations(orders, ({ one, many }) => ({
-  createdBy: one(users, {
-    fields: [orders.createdBy],
-    references: [users.id],
-  }),
-  store: one(stores, {
-    fields: [orders.storeId],
-    references: [stores.id],
-  }),
-  company: one(organizations, {
-    fields: [orders.companyId],
-    references: [organizations.id],
-  }),
-  items: many(orderItems),
-  statusEvents: many(orderStatusEvents),
-}));
-
-export const orderStatusEventsRelations = relations(
-  orderStatusEvents,
-  ({ one }) => ({
-    order: one(orders, {
-      fields: [orderStatusEvents.orderId],
-      references: [orders.id],
-    }),
-    createdBy: one(users, {
-      fields: [orderStatusEvents.createdBy],
-      references: [users.id],
-    }),
-  })
-);
-
-export const orderItemsRelations = relations(orderItems, ({ one }) => ({
-  order: one(orders, {
-    fields: [orderItems.orderId],
-    references: [orders.id],
-  }),
-  product: one(products, {
-    fields: [orderItems.productId],
-    references: [products.id],
-  }),
-}));

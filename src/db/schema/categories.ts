@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import {
   boolean,
   check,
@@ -112,33 +112,4 @@ export const productCategories = pgTable(
     primaryKey({ columns: [table.productId, table.categoryId] }),
     index("product_category_sort_idx").on(table.categoryId, table.sortOrder),
   ]
-);
-
-export const categoriesRelations = relations(categories, ({ many }) => ({
-  availabilityWindows: many(categoryAvailabilityWindows),
-  products: many(productCategories),
-}));
-
-export const categoryAvailabilityWindowsRelations = relations(
-  categoryAvailabilityWindows,
-  ({ one }) => ({
-    category: one(categories, {
-      fields: [categoryAvailabilityWindows.categoryId],
-      references: [categories.id],
-    }),
-  })
-);
-
-export const productCategoriesRelations = relations(
-  productCategories,
-  ({ one }) => ({
-    product: one(products, {
-      fields: [productCategories.productId],
-      references: [products.id],
-    }),
-    category: one(categories, {
-      fields: [productCategories.categoryId],
-      references: [categories.id],
-    }),
-  })
 );

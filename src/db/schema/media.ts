@@ -1,8 +1,5 @@
-import { relations } from "drizzle-orm";
 import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createPrefixedId } from "@/lib/ids";
-import { productImages } from "./products";
-import { stores } from "./stores";
 
 export const media = pgTable("media", {
   id: text("id")
@@ -19,8 +16,3 @@ export const media = pgTable("media", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
-
-export const mediaRelations = relations(media, ({ many }) => ({
-  productImages: many(productImages),
-  stores: many(stores),
-}));
