@@ -5,8 +5,8 @@ import {
   orderItems,
   orderStatusEvents,
   orders,
-} from "../schema/orders";
-import { products } from "../schema/products";
+  products,
+} from "@/db/schema";
 
 export const MUTATIONS = {
   ADMIN: {

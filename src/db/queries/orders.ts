@@ -2,7 +2,7 @@ import "server-only";
 
 import type { SQL } from "drizzle-orm";
 import { db } from "@/db";
-import type { OrderStatus } from "../schema/orders";
+import type { OrderStatus } from "@/db/schema";
 
 export const QUERIES = {
   ADMIN: {

@@ -2,7 +2,7 @@ import "server-only";
 
 import { db } from "@/db";
 import { media } from "@/db/schema";
-import type { InsertMedia } from "../types";
+import type { InsertMedia } from "@/db/types";
 
 export const MUTATIONS = {
   ADMIN: {

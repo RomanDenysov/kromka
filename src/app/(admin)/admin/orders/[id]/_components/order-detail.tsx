@@ -58,7 +58,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { OrderStatus } from "@/db/schema/orders";
+import type { OrderStatus } from "@/db/schema";
 import {
   ORDER_STATUS_ICONS,
   ORDER_STATUS_LABELS,

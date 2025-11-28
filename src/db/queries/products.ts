@@ -1,8 +1,7 @@
 import "server-only";
 import { and, count, eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
-import { productCategories } from "../schema/categories";
-import { products } from "../schema/products";
+import { productCategories, products } from "@/db/schema";
 
 export const QUERIES = {
   ADMIN: {

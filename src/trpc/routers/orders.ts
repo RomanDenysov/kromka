@@ -1,7 +1,7 @@
 import z from "zod";
 import { MUTATIONS } from "@/db/mutations/orders";
 import { QUERIES } from "@/db/queries/orders";
-import { ORDER_STATUSES, type OrderStatus } from "@/db/schema/orders";
+import { ORDER_STATUSES, type OrderStatus } from "@/db/schema";
 import { createTRPCRouter, roleProcedure } from "../init";
 
 export const adminOrdersRouter = createTRPCRouter({

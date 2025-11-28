@@ -41,7 +41,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { StoreSchedule } from "@/db/schema/stores";
+import type { StoreSchedule } from "@/db/schema";
 import { cn } from "@/lib/utils";
 
 type DaySchedule = { start: string; end: string } | "closed" | null;

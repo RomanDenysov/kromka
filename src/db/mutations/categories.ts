@@ -2,9 +2,9 @@ import "server-only";
 
 import { eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
+import { categories } from "@/db/schema";
+import { draftSlug } from "@/db/utils";
 import type { UpdateCategorySchema } from "@/validation/categories";
-import { categories } from "../schema";
-import { draftSlug } from "../utils";
 
 export const MUTATIONS = {
   ADMIN: {

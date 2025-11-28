@@ -4,8 +4,14 @@ import { nextCookies } from "better-auth/next-js";
 import { admin, anonymous, magicLink, organization } from "better-auth/plugins";
 
 import { db } from "@/db";
-// biome-ignore lint/performance/noNamespaceImport: we need to import the schema to use the database
-import * as schema from "@/db/schema/auth";
+import {
+  accounts,
+  invitations,
+  members,
+  organizations,
+  sessions,
+  users,
+} from "@/db/schema";
 import { env } from "@/env";
 import { sendEmail } from "../email";
 import { createId } from "../ids";
@@ -13,7 +19,14 @@ import { createId } from "../ids";
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
-    schema,
+    schema: {
+      users,
+      accounts,
+      invitations,
+      members,
+      organizations,
+      sessions,
+    },
     usePlural: true, // to fix the schema naming convention
   }),
   plugins: [

@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/db";
-import { productCategories } from "../schema";
+import { productCategories } from "@/db/schema";
 
 const FEATURED_PRODUCTS_LIMIT = 12;
 

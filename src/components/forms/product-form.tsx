@@ -25,7 +25,7 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-import { PRODUCT_STATUSES } from "@/db/schema/products";
+import { PRODUCT_STATUSES } from "@/db/schema";
 import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";

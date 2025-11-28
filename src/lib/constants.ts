@@ -9,7 +9,7 @@ import {
   TruckIcon,
   XCircleIcon,
 } from "lucide-react";
-import type { OrderStatus } from "@/db/schema/orders";
+import type { OrderStatus } from "@/db/schema";
 
 export const ORDER_STATUS_LABELS = {
   cart: "Košík",

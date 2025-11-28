@@ -1,8 +1,8 @@
 import { eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
+import { storeMembers, stores } from "@/db/schema";
+import { draftSlug } from "@/db/utils";
 import type { StoreSchema } from "@/validation/stores";
-import { storeMembers, stores } from "../schema";
-import { draftSlug } from "../utils";
 
 export const MUTATIONS = {
   PUBLIC: {

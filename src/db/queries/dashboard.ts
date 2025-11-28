@@ -2,9 +2,7 @@ import "server-only";
 
 import { and, count, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { orders } from "../schema/orders";
-import { products } from "../schema/products";
-import { stores } from "../schema/stores";
+import { orders, products, stores } from "../schema";
 
 export type DashboardMetrics = {
   newOrdersCount: number;

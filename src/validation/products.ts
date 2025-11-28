@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
-import { PRODUCT_STATUSES } from "@/db/schema/products";
+import { PRODUCT_STATUSES } from "@/db/schema";
 import { categorySchema } from "./categories";
 import { MAX_STRING_LENGTH } from "./constants";
 import { mediaSchema } from "./media";

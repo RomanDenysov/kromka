@@ -8,7 +8,7 @@ import {
   productImages,
   products,
 } from "@/db/schema";
-import { draftSlug } from "../utils";
+import { draftSlug } from "@/db/utils";
 
 type ProductInsert = typeof products.$inferInsert;
 
