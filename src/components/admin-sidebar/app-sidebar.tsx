@@ -63,7 +63,7 @@ export default function AppSidebar({ ...props }: Props) {
             <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                isActive={getIsActive("/admin")}
+                isActive={getIsActive("/admin", true)}
                 tooltip="Prehľad"
               >
                 <Link href="/admin" prefetch>
