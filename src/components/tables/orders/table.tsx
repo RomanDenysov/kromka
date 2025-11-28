@@ -13,10 +13,7 @@ import {
 } from "@tanstack/react-table";
 import { ArrowDownIcon, FileIcon, TablePropertiesIcon } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
-import {
-  DataTableSearch,
-  fuzzyFilter,
-} from "@/components/data-table/data-table-search";
+import { fuzzyFilter } from "@/components/data-table/data-table-search";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -128,12 +125,7 @@ export function OrdersTable() {
   return (
     <div className="size-full overflow-hidden">
       <div className="flex items-center justify-between p-3">
-        <DataTableSearch
-          onChange={(value) => setGlobalFilter(String(value))}
-          placeholder="Hľadať objednávku..."
-          value={globalFilter ?? ""}
-        />
-        <div className="flex items-center justify-end gap-2">
+        <div className="ml-auto flex items-center justify-end gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="outline">

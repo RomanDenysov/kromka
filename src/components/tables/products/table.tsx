@@ -19,7 +19,6 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
-import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -327,7 +326,6 @@ export function ProductsTable() {
           </TableFooter>
         )}
       </Table>
-      <DataTablePagination table={table} />
     </div>
   );
 }

@@ -2,12 +2,23 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { ChevronRightIcon } from "lucide-react";
+import { MoreHorizontalIcon, SquareArrowOutUpRight } from "lucide-react";
 import Link from "next/link";
 import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  PAYMENT_METHOD_ICONS,
+  PAYMENT_METHOD_LABELS,
+  PAYMENT_STATUS_LABELS,
+} from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 import type { TableOrder } from "./table";
 
@@ -59,7 +70,14 @@ export const columns: ColumnDef<TableOrder>[] = [
   {
     id: "status",
     accessorKey: "orderStatus",
-    header: "Stav",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Stav"
+      />
+    ),
+    enableSorting: true,
     cell: ({ row }) => (
       <Badge size="xs" variant="outline">
         {row.original.orderStatus}
@@ -68,18 +86,36 @@ export const columns: ColumnDef<TableOrder>[] = [
   },
   {
     id: "customer",
-    header: "Zákazník",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Zákazník"
+      />
+    ),
+    enableSorting: true,
     accessorFn: (row) =>
       row.createdBy?.name || row.createdBy?.email || "Neznámy zákazník",
-    cell: ({ row }) => (
-      <span className="font-medium text-xs">
-        {row.original.createdBy?.name || row.original.createdBy?.email}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const customer = row.original.createdBy;
+      return (
+        <div className="flex flex-col">
+          <span className="truncate font-medium text-xs">{customer?.name}</span>
+          <span className="truncate text-xs">{customer?.email}</span>
+        </div>
+      );
+    },
   },
   {
     id: "store",
-    header: "Predajňa",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Predajňa"
+      />
+    ),
+    enableSorting: true,
     accessorFn: (row) => row.store?.name ?? "",
     cell: ({ row }) => (
       <span className="font-medium text-xs">{row.original.store?.name}</span>
@@ -87,46 +123,121 @@ export const columns: ColumnDef<TableOrder>[] = [
   },
   {
     id: "total",
-    header: "Spolu (EUR)",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Spolu (EUR)"
+      />
+    ),
+    enableSorting: true,
     accessorKey: "totalCents",
     cell: ({ row }) => (
-      <span className="font-medium text-xs">
+      <span className="font-medium font-mono text-xs tracking-tighter">
         {formatPrice(row.original.totalCents ?? 0)}
       </span>
     ),
   },
   {
-    id: "createdAt",
-    accessorKey: "createdAt",
+    id: "paymentMethod",
     header: ({ column, table }) => (
       <TableColumnHeader
         column={column}
         key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
-        title="Vytvorené"
+        title="Metóda platby"
+      />
+    ),
+    enableSorting: true,
+    accessorKey: "paymentMethod",
+    cell: ({ row }) => (
+      <Badge size="xs" variant="outline">
+        {PAYMENT_METHOD_ICONS[row.original.paymentMethod]}
+        {PAYMENT_METHOD_LABELS[row.original.paymentMethod]}
+      </Badge>
+    ),
+  },
+  {
+    id: "paymentStatus",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Stav platby"
+      />
+    ),
+    enableSorting: true,
+    accessorKey: "paymentStatus",
+    cell: ({ row }) => (
+      <Badge size="xs" variant="outline">
+        {PAYMENT_STATUS_LABELS[row.original.paymentStatus]}
+      </Badge>
+    ),
+  },
+  {
+    id: "pickupDate",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Vyzdvihnúťie"
+      />
+    ),
+    enableSorting: true,
+    accessorKey: "pickupDate",
+    cell: ({ row }) => (
+      <div className="flex flex-col">
+        <span className="font-medium text-xs">
+          {row.original.pickupDate
+            ? format(row.original.pickupDate, "dd.MM.yyyy")
+            : "Neurčený"}
+        </span>
+        <span className="font-medium text-xs">
+          {row.original.pickupTime
+            ? format(row.original.pickupTime, "HH:mm")
+            : "Neurčený"}
+        </span>
+      </div>
+    ),
+  },
+  {
+    id: "updatedAt",
+    accessorKey: "updatedAt",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Aktualizované"
       />
     ),
     enableSorting: true,
     cell: ({ row }) => (
-      <span className="font-medium text-xs">
-        {format(row.original.createdAt, "dd.MM.yyyy HH:mm")}
+      <span className="font-medium font-mono text-xs tracking-tighter">
+        {format(row.original.updatedAt, "dd.MM.yyyy HH:mm")}
       </span>
     ),
   },
   {
     id: "actions",
     header: "",
-    cell: ({ row }) => (
-      <Button
-        aria-label="Detail objednávky"
-        asChild
-        className="ml-auto"
-        size="icon-xs"
-        variant="ghost"
-      >
-        <Link href={`/admin/orders/${row.original.id}`} prefetch>
-          <ChevronRightIcon />
-        </Link>
-      </Button>
-    ),
+    cell: ({ row }) => {
+      const order = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="icon-xs" variant="ghost">
+              <MoreHorizontalIcon />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/orders/${order.id}`} prefetch>
+                <SquareArrowOutUpRight />
+                Otvoriť
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];
