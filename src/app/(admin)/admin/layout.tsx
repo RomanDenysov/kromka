@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { forbidden } from "next/navigation";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
-import AppSidebar from "@/components/app-sidebar";
+import AppSidebar from "@/components/admin-sidebar/app-sidebar";
 import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth/server";
