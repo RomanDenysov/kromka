@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
-import { TableColumnHeader } from "@/components/data-table/ui/table-column-header";
+import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";

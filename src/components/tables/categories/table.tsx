@@ -22,7 +22,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
-} from "@/components/data-table/ui/data-table-search";
+} from "@/components/data-table/data-table-search";
 import {
   AlertDialog,
   AlertDialogAction,

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { DataTableSkeleton } from "@/components/data-table/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { ProductsTable } from "@/components/tables/products/table";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 

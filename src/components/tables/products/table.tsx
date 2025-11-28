@@ -19,10 +19,11 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import {
   DataTableSearch,
   fuzzyFilter,
-} from "@/components/data-table/ui/data-table-search";
+} from "@/components/data-table/data-table-search";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -326,6 +327,7 @@ export function ProductsTable() {
           </TableFooter>
         )}
       </Table>
+      <DataTablePagination table={table} />
     </div>
   );
 }

@@ -11,7 +11,7 @@ import type { RecentOrdersData } from "@/app/(admin)/admin/_components/recent-or
 import {
   DataTableSearch,
   fuzzyFilter,
-} from "@/components/data-table/ui/data-table-search";
+} from "@/components/data-table/data-table-search";
 import {
   Table,
   TableBody,

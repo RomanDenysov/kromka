@@ -15,7 +15,7 @@ import { useMemo, useState } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
-} from "@/components/data-table/ui/data-table-search";
+} from "@/components/data-table/data-table-search";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

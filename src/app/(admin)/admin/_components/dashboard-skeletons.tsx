@@ -1,4 +1,4 @@
-import { DataTableSkeleton } from "@/components/data-table/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MetricCardSkeleton } from "./metric-card-skeleton";
 

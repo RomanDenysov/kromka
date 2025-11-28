@@ -10,7 +10,7 @@ import {
   XIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { TableColumnHeader } from "@/components/data-table/ui/table-column-header";
+import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import {
   AlertDialog,
   AlertDialogAction,
