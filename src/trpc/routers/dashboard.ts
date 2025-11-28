@@ -7,13 +7,15 @@ import {
 import { createTRPCRouter, roleProcedure } from "../init";
 
 export const adminDashboardRouter = createTRPCRouter({
-  metrics: roleProcedure("admin").query(async () => getDashboardMetrics()),
+  metrics: roleProcedure("admin").query(
+    async () => await getDashboardMetrics()
+  ),
 
   recentOrders: roleProcedure("admin")
     .input(z.object({ limit: z.number().optional() }).optional())
-    .query(async ({ input }) => getRecentOrders(input?.limit)),
+    .query(async ({ input }) => await getRecentOrders(input?.limit)),
 
   activeCarts: roleProcedure("admin")
     .input(z.object({ limit: z.number().optional() }).optional())
-    .query(async ({ input }) => getActiveCarts(input?.limit)),
+    .query(async ({ input }) => await getActiveCarts(input?.limit)),
 });

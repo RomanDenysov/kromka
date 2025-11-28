@@ -4,64 +4,65 @@ import { and, count, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { orders, products, stores } from "../schema";
 
-export type DashboardMetrics = {
+type DashboardMetricsResult = {
   newOrdersCount: number;
   activeProductsCount: number;
   activeStoresCount: number;
   todaysRevenue: number;
 };
 
-export const getDashboardMetrics = async (): Promise<DashboardMetrics> => {
-  const [
-    newOrdersCount,
-    activeProductsCount,
-    activeStoresCount,
-    todaysRevenue,
-  ] = await Promise.all([
-    // Count new orders
-    db
-      .select({ count: count() })
-      .from(orders)
-      .where(eq(orders.orderStatus, "new"))
-      .then((res) => res[0]?.count ?? 0),
+export const getDashboardMetrics =
+  async (): Promise<DashboardMetricsResult> => {
+    const [
+      newOrdersCount,
+      activeProductsCount,
+      activeStoresCount,
+      todaysRevenue,
+    ] = await Promise.all([
+      // Count new orders
+      db
+        .select({ count: count() })
+        .from(orders)
+        .where(eq(orders.orderStatus, "new"))
+        .then((res) => res[0]?.count ?? 0),
 
-    // Count active products
-    db
-      .select({ count: count() })
-      .from(products)
-      .where(and(eq(products.isActive, true), eq(products.status, "active")))
-      .then((res) => res[0]?.count ?? 0),
+      // Count active products
+      db
+        .select({ count: count() })
+        .from(products)
+        .where(and(eq(products.isActive, true), eq(products.status, "active")))
+        .then((res) => res[0]?.count ?? 0),
 
-    // Count active stores
-    db
-      .select({ count: count() })
-      .from(stores)
-      .where(eq(stores.isActive, true))
-      .then((res) => res[0]?.count ?? 0),
+      // Count active stores
+      db
+        .select({ count: count() })
+        .from(stores)
+        .where(eq(stores.isActive, true))
+        .then((res) => res[0]?.count ?? 0),
 
-    // Sum revenue for paid orders created today
-    db
-      .select({
-        total: sql<number>`sum(${orders.totalCents})`.mapWith(Number),
-      })
-      .from(orders)
-      .where(
-        and(
-          eq(orders.paymentStatus, "paid"),
-          // Postgres specific date check
-          sql`DATE(${orders.createdAt}) = CURRENT_DATE`
+      // Sum revenue for paid orders created today
+      db
+        .select({
+          total: sql<number>`sum(${orders.totalCents})`.mapWith(Number),
+        })
+        .from(orders)
+        .where(
+          and(
+            eq(orders.paymentStatus, "paid"),
+            // Postgres specific date check
+            sql`DATE(${orders.createdAt}) = CURRENT_DATE`
+          )
         )
-      )
-      .then((res) => res[0]?.total ?? 0),
-  ]);
+        .then((res) => res[0]?.total ?? 0),
+    ]);
 
-  return {
-    newOrdersCount,
-    activeProductsCount,
-    activeStoresCount,
-    todaysRevenue,
+    return {
+      newOrdersCount,
+      activeProductsCount,
+      activeStoresCount,
+      todaysRevenue,
+    };
   };
-};
 
 export const getRecentOrders = async (limit = 5) =>
   await db.query.orders.findMany({

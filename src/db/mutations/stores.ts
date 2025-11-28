@@ -1,3 +1,5 @@
+import "server-only";
+
 import { eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
 import { storeMembers, stores } from "@/db/schema";

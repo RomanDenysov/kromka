@@ -1,3 +1,5 @@
+import "server-only";
+
 import { z } from "zod";
 import { QUERIES } from "@/db/queries/users";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
