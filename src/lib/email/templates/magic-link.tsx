@@ -6,6 +6,7 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Link,
   Preview,
   render,
@@ -13,6 +14,8 @@ import {
   Tailwind,
   Text,
 } from "@react-email/components";
+
+import { DEFAULT_LOGO_URL } from "./shared";
 
 export function MagicLink(props: { url: string }) {
   const { url } = props;
@@ -25,13 +28,13 @@ export function MagicLink(props: { url: string }) {
           <Preview>Prihlásenie do Kromka učtu</Preview>
           <Container className="mx-auto my-[40px] max-w-[465px] rounded-md border border-solid p-[20px]">
             <Section>
-              {/* <Img
-                src="https://fitpoint.app/logo.png"
-                alt="FitPoint Logo"
-                width={100}
-                height={50}
-                className="mx-auto my-0"
-              /> */}
+              <Img
+                alt="Kromka Logo"
+                className="mx-auto my-4"
+                height={64}
+                src={DEFAULT_LOGO_URL}
+                width={64}
+              />
             </Section>
             <Heading className="mx-0 my-[20px] text-center font-semibold text-[24px] text-black">
               Prihlásenie do Kromka učtu
