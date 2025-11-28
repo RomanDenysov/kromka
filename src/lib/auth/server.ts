@@ -11,6 +11,7 @@ import {
   organizations,
   sessions,
   users,
+  verifications,
 } from "@/db/schema";
 import { env } from "@/env";
 import { sendEmail } from "../email";
@@ -25,6 +26,7 @@ export const auth = betterAuth({
       invitations,
       members,
       organizations,
+      verifications,
       sessions,
     },
     usePlural: true, // to fix the schema naming convention
