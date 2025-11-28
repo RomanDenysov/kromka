@@ -1,0 +1,54 @@
+import {
+  CircleHelpIcon,
+  CreditCardIcon,
+  FileIcon,
+  StoreIcon,
+} from "lucide-react";
+
+export const ORDER_STATUS_LABELS = {
+  cart: "Košík",
+  new: "Nová",
+  in_progress: "Spracováva sa",
+  ready_for_pickup: "Pripravená",
+  completed: "Dokončená",
+  cancelled: "Zrušená",
+  refunded: "Vrátená",
+} as const;
+
+export const ORDER_STATUS_VARIANTS = {
+  cart: "outline",
+  new: "default",
+  in_progress: "secondary",
+  ready_for_pickup: "success",
+  completed: "default",
+  cancelled: "destructive",
+  refunded: "secondary",
+} as const;
+
+export const PAYMENT_METHOD_LABELS = {
+  in_store: "V predajni",
+  card: "Kartou",
+  invoice: "Faktúra",
+  other: "Iné",
+} as const;
+
+export const PAYMENT_METHOD_ICONS = {
+  in_store: StoreIcon,
+  card: CreditCardIcon,
+  invoice: FileIcon,
+  other: CircleHelpIcon,
+} as const;
+
+export const PAYMENT_STATUS_VARIANTS = {
+  pending: "outline",
+  paid: "success",
+  failed: "destructive",
+  refunded: "secondary",
+} as const;
+
+export const PAYMENT_STATUS_LABELS = {
+  pending: "Čaká na platbu",
+  paid: "Zaplatená",
+  failed: "Zlyhala",
+  refunded: "Vrátená",
+} as const;

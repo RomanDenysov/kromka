@@ -15,9 +15,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  ORDER_STATUS_LABELS,
+  ORDER_STATUS_VARIANTS,
   PAYMENT_METHOD_ICONS,
   PAYMENT_METHOD_LABELS,
   PAYMENT_STATUS_LABELS,
+  PAYMENT_STATUS_VARIANTS,
 } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 import type { TableOrder } from "./table";
@@ -79,8 +82,11 @@ export const columns: ColumnDef<TableOrder>[] = [
     ),
     enableSorting: true,
     cell: ({ row }) => (
-      <Badge size="xs" variant="outline">
-        {row.original.orderStatus}
+      <Badge
+        size="xs"
+        variant={ORDER_STATUS_VARIANTS[row.original.orderStatus]}
+      >
+        {ORDER_STATUS_LABELS[row.original.orderStatus]}
       </Badge>
     ),
   },
@@ -149,12 +155,15 @@ export const columns: ColumnDef<TableOrder>[] = [
     ),
     enableSorting: true,
     accessorKey: "paymentMethod",
-    cell: ({ row }) => (
-      <Badge size="xs" variant="outline">
-        {PAYMENT_METHOD_ICONS[row.original.paymentMethod]}
-        {PAYMENT_METHOD_LABELS[row.original.paymentMethod]}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const Icon = PAYMENT_METHOD_ICONS[row.original.paymentMethod];
+      return (
+        <Badge size="xs" variant="outline">
+          <Icon />
+          {PAYMENT_METHOD_LABELS[row.original.paymentMethod]}
+        </Badge>
+      );
+    },
   },
   {
     id: "paymentStatus",
@@ -168,7 +177,10 @@ export const columns: ColumnDef<TableOrder>[] = [
     enableSorting: true,
     accessorKey: "paymentStatus",
     cell: ({ row }) => (
-      <Badge size="xs" variant="outline">
+      <Badge
+        size="xs"
+        variant={PAYMENT_STATUS_VARIANTS[row.original.paymentStatus]}
+      >
         {PAYMENT_STATUS_LABELS[row.original.paymentStatus]}
       </Badge>
     ),
@@ -186,12 +198,12 @@ export const columns: ColumnDef<TableOrder>[] = [
     accessorKey: "pickupDate",
     cell: ({ row }) => (
       <div className="flex flex-col">
-        <span className="font-medium text-xs">
+        <span className="font-medium font-mono text-xs tracking-tighter">
           {row.original.pickupDate
             ? format(row.original.pickupDate, "dd.MM.yyyy")
             : "Neurčený"}
         </span>
-        <span className="font-medium text-xs">
+        <span className="font-medium font-mono text-xs tracking-tighter">
           {row.original.pickupTime
             ? format(row.original.pickupTime, "HH:mm")
             : "Neurčený"}
