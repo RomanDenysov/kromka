@@ -1,6 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import type { LucideIcon } from "lucide-react";
 import {
   ImagesIcon,
   LayoutDashboardIcon,
@@ -11,9 +12,10 @@ import {
   TagsIcon,
   UsersIcon,
 } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { type ComponentProps, useMemo } from "react";
+import type { ComponentProps } from "react";
 import { Icons } from "@/components/icons";
 import {
   Sidebar,
@@ -30,121 +32,124 @@ import {
 } from "@/components/ui/sidebar";
 import { useTRPC } from "@/trpc/client";
 
-type Props = ComponentProps<typeof Sidebar> & {};
+type NavItem<T extends string = string> = {
+  href: Route<T>;
+  label: string;
+  icon: LucideIcon;
+  exact?: boolean;
+};
 
-export default function AppSidebar({ ...props }: Props) {
+const NAV_MAIN: NavItem[] = [
+  { href: "/admin", label: "Prehľad", icon: LayoutDashboardIcon, exact: true },
+];
+
+const NAV_ESHOP: NavItem[] = [
+  { href: "/admin/stores", label: "Predajne", icon: StoreIcon },
+  { href: "/admin/categories", label: "Kategórie", icon: TagsIcon },
+  { href: "/admin/products", label: "Produkty", icon: Package2Icon },
+];
+
+const NAV_BOTTOM: NavItem[] = [
+  { href: "/admin/users", label: "Používatelia", icon: UsersIcon },
+  { href: "/admin/media", label: "Médiá", icon: ImagesIcon },
+  { href: "/admin/settings", label: "Nastavenia", icon: SettingsIcon },
+];
+
+function SidebarLogo() {
+  return (
+    <SidebarHeader>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            asChild
+            className="[slot=sidebar-menu-button]:p-1.5!"
+            tooltip="Vrátiť sa na hlavnú stránku"
+          >
+            <Link href="/">
+              <Icons.logo className="size-4!" />
+              <span className="font-semibold text-base tracking-tighter">
+                KROMKA
+              </span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarHeader>
+  );
+}
+
+function NavMenuItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
+  const Icon = item.icon;
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+        <Link href={item.href} prefetch>
+          <Icon />
+          <span>{item.label}</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+function OrdersMenuItem({ isActive }: { isActive: boolean }) {
   const trpc = useTRPC();
-  const pathname = usePathname();
-  const getIsActive = useMemo(
-    () => (href: string, exact?: boolean) =>
-      exact ? pathname === href : pathname.startsWith(href),
-    [pathname]
-  );
-
   const { data: newOrders } = useSuspenseQuery(
-    trpc.admin.orders.list.queryOptions({
-      status: "new",
-    })
+    trpc.admin.orders.list.queryOptions({ status: "new" })
   );
+  const count = newOrders.length;
 
-  const newOrdersCount = useMemo(() => newOrders.length, [newOrders]);
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        asChild
+        isActive={isActive}
+        tooltip={count > 0 ? `Objednávky (${count} nových)` : "Objednávky"}
+      >
+        <Link href="/admin/orders" prefetch>
+          <ShoppingBasketIcon />
+          <span>Objednávky</span>
+        </Link>
+      </SidebarMenuButton>
+      {count > 0 && <SidebarMenuBadge>{count}</SidebarMenuBadge>}
+    </SidebarMenuItem>
+  );
+}
+
+export default function AppSidebar(props: ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+  const isActive = (href: string, exact?: boolean) =>
+    exact ? pathname === href : pathname.startsWith(href);
 
   return (
     <Sidebar {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="[slot=sidebar-menu-button]:p-1.5!"
-              tooltip="Vrátiť sa na hlavnú stránku"
-            >
-              <Link href="/">
-                <Icons.logo className="size-4!" />
-                <span className="font-semibold text-base tracking-tighter">
-                  KROMKA
-                </span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+      <SidebarLogo />
 
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={getIsActive("/admin", true)}
-                tooltip="Prehľad"
-              >
-                <Link href="/admin" prefetch>
-                  <LayoutDashboardIcon />
-                  <span>Prehľad</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {NAV_MAIN.map((item) => (
+              <NavMenuItem
+                isActive={isActive(item.href, item.exact)}
+                item={item}
+                key={item.href}
+              />
+            ))}
           </SidebarMenu>
         </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel>E-shop</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={getIsActive("/admin/stores")}
-                  tooltip="E-shop"
-                >
-                  <Link href="/admin/stores" prefetch>
-                    <StoreIcon />
-                    <span>Predajne</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={getIsActive("/admin/categories")}
-                  tooltip="Kategórie"
-                >
-                  <Link href="/admin/categories" prefetch>
-                    <TagsIcon />
-                    <span>Kategórie</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={getIsActive("/admin/products")}
-                  tooltip="Produkty"
-                >
-                  <Link href="/admin/products" prefetch>
-                    <Package2Icon />
-                    <span>Produkty</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={getIsActive("/admin/orders")}
-                  tooltip={`Objednávky (${newOrdersCount} nových)`}
-                >
-                  <Link href="/admin/orders" prefetch>
-                    <ShoppingBasketIcon />
-                    <span>Objednávky</span>
-                  </Link>
-                </SidebarMenuButton>
-                {newOrdersCount > 0 && (
-                  <SidebarMenuBadge>{newOrdersCount}</SidebarMenuBadge>
-                )}
-              </SidebarMenuItem>
+              {NAV_ESHOP.map((item) => (
+                <NavMenuItem
+                  isActive={isActive(item.href)}
+                  item={item}
+                  key={item.href}
+                />
+              ))}
+              <OrdersMenuItem isActive={isActive("/admin/orders")} />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -152,42 +157,13 @@ export default function AppSidebar({ ...props }: Props) {
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={getIsActive("/admin/users")}
-                  tooltip="Používatelia"
-                >
-                  <Link href="/admin/users" prefetch>
-                    <UsersIcon />
-                    <span>Používatelia</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={getIsActive("/admin/media")}
-                  tooltip="Médiá"
-                >
-                  <Link href="/admin/media" prefetch>
-                    <ImagesIcon />
-                    <span>Médiá</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={getIsActive("/admin/settings")}
-                  tooltip="Nastavenia"
-                >
-                  <Link href="/admin/settings" prefetch>
-                    <SettingsIcon />
-                    <span>Nastavenia</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {NAV_BOTTOM.map((item) => (
+                <NavMenuItem
+                  isActive={isActive(item.href)}
+                  item={item}
+                  key={item.href}
+                />
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -196,61 +172,44 @@ export default function AppSidebar({ ...props }: Props) {
   );
 }
 
+function SkeletonGroup({
+  id,
+  count,
+  showIcon,
+}: {
+  id: string;
+  count: number;
+  showIcon?: boolean;
+}) {
+  return (
+    <SidebarMenu>
+      {Array.from({ length: count }, (_, i) => (
+        <SidebarMenuItem key={`${id}-${i.toString()}`}>
+          <SidebarMenuSkeleton showIcon={showIcon} />
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
+  );
+}
+
 export function AppSidebarSkeleton() {
   return (
     <Sidebar>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/">
-                <Icons.logo className="size-4!" />
-                <span className="font-semibold text-base tracking-tighter">
-                  KROMKA
-                </span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+      <SidebarLogo />
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {Array.from({ length: 2 }).map((_, index) => (
-                <SidebarMenuItem
-                  key={`sidebar-menu-skeleton-top-${index.toString()}`}
-                >
-                  <SidebarMenuSkeleton showIcon />
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SkeletonGroup count={1} id="main" showIcon />
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {Array.from({ length: 5 }).map((_, index) => (
-                <SidebarMenuItem
-                  key={`sidebar-menu-skeleton-middle-${index.toString()}`}
-                >
-                  <SidebarMenuSkeleton />
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SkeletonGroup count={4} id="eshop" showIcon />
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
-            <SidebarMenu>
-              {Array.from({ length: 4 }).map((_, index) => (
-                <SidebarMenuItem
-                  key={`sidebar-menu-skeleton-down-${index.toString()}`}
-                >
-                  <SidebarMenuSkeleton showIcon />
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SkeletonGroup count={3} id="bottom" showIcon />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

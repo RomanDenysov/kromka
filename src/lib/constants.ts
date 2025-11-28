@@ -1,9 +1,15 @@
 import {
+  CheckCircle2Icon,
   CircleHelpIcon,
   CreditCardIcon,
   FileIcon,
+  MapPinIcon,
+  PackageIcon,
   StoreIcon,
+  TruckIcon,
+  XCircleIcon,
 } from "lucide-react";
+import type { OrderStatus } from "@/db/schema/orders";
 
 export const ORDER_STATUS_LABELS = {
   cart: "Košík",
@@ -15,6 +21,16 @@ export const ORDER_STATUS_LABELS = {
   refunded: "Vrátená",
 } as const;
 
+export const ORDER_STATUS_ICONS = {
+  cart: PackageIcon,
+  new: PackageIcon,
+  in_progress: TruckIcon,
+  ready_for_pickup: MapPinIcon,
+  completed: CheckCircle2Icon,
+  cancelled: XCircleIcon,
+  refunded: XCircleIcon,
+} as const;
+
 export const ORDER_STATUS_VARIANTS = {
   cart: "outline",
   new: "default",
@@ -24,6 +40,13 @@ export const ORDER_STATUS_VARIANTS = {
   cancelled: "destructive",
   refunded: "secondary",
 } as const;
+
+export const WORKFLOW_STATUSES: OrderStatus[] = [
+  "new",
+  "in_progress",
+  "ready_for_pickup",
+  "completed",
+];
 
 export const PAYMENT_METHOD_LABELS = {
   in_store: "V predajni",
