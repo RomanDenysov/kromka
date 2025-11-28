@@ -95,6 +95,40 @@ export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
     },
   },
   {
+    id: "customers",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Zákazníci"
+      />
+    ),
+    enableSorting: true,
+    accessorKey: "members",
+    cell: ({ row }) => (
+      <span className="font-medium font-mono text-xs tracking-tighter">
+        {row.original.members.length}
+      </span>
+    ),
+  },
+  {
+    id: "orders",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Objednávky"
+      />
+    ),
+    enableSorting: true,
+    accessorKey: "orders",
+    cell: ({ row }) => (
+      <span className="font-medium font-mono text-xs tracking-tighter">
+        {row.original.orders.length}
+      </span>
+    ),
+  },
+  {
     id: "actions",
     header: "",
     cell: ({ row, table }) => {

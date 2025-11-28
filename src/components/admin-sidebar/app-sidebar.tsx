@@ -1,5 +1,6 @@
 "use client";
 
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ImagesIcon,
   LayoutDashboardIcon,
@@ -22,19 +23,31 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
+import { useTRPC } from "@/trpc/client";
 
 type Props = ComponentProps<typeof Sidebar> & {};
 
 export default function AppSidebar({ ...props }: Props) {
+  const trpc = useTRPC();
   const pathname = usePathname();
   const getIsActive = useMemo(
     () => (href: string, exact?: boolean) =>
       exact ? pathname === href : pathname.startsWith(href),
     [pathname]
   );
+
+  const { data: newOrders } = useSuspenseQuery(
+    trpc.admin.orders.list.queryOptions({
+      status: "new",
+    })
+  );
+
+  const newOrdersCount = useMemo(() => newOrders.length, [newOrders]);
 
   return (
     <Sidebar {...props}>
@@ -121,13 +134,16 @@ export default function AppSidebar({ ...props }: Props) {
                 <SidebarMenuButton
                   asChild
                   isActive={getIsActive("/admin/orders")}
-                  tooltip="Objednávky"
+                  tooltip={`Objednávky (${newOrdersCount} nových)`}
                 >
                   <Link href="/admin/orders" prefetch>
                     <ShoppingBasketIcon />
                     <span>Objednávky</span>
                   </Link>
                 </SidebarMenuButton>
+                {newOrdersCount > 0 && (
+                  <SidebarMenuBadge>{newOrdersCount}</SidebarMenuBadge>
+                )}
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -172,6 +188,68 @@ export default function AppSidebar({ ...props }: Props) {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+}
+
+export function AppSidebarSkeleton() {
+  return (
+    <Sidebar>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/">
+                <Icons.logo className="size-4!" />
+                <span className="font-semibold text-base tracking-tighter">
+                  KROMKA
+                </span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {Array.from({ length: 2 }).map((_, index) => (
+                <SidebarMenuItem
+                  key={`sidebar-menu-skeleton-top-${index.toString()}`}
+                >
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <SidebarMenuItem
+                  key={`sidebar-menu-skeleton-middle-${index.toString()}`}
+                >
+                  <SidebarMenuSkeleton />
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {Array.from({ length: 4 }).map((_, index) => (
+                <SidebarMenuItem
+                  key={`sidebar-menu-skeleton-down-${index.toString()}`}
+                >
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

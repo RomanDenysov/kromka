@@ -1,10 +1,13 @@
 import { cookies } from "next/headers";
 import { forbidden } from "next/navigation";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
-import AppSidebar from "@/components/admin-sidebar/app-sidebar";
+import AppSidebar, {
+  AppSidebarSkeleton,
+} from "@/components/admin-sidebar/app-sidebar";
 import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth/server";
+import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 
 type Props = {
   readonly children: ReactNode;
@@ -22,6 +25,12 @@ export default async function AdminLayout({ children }: Props) {
     forbidden();
   }
 
+  prefetch(
+    trpc.admin.orders.list.queryOptions({
+      status: "new",
+    })
+  );
+
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
@@ -32,7 +41,11 @@ export default async function AdminLayout({ children }: Props) {
         } as CSSProperties
       }
     >
-      <AppSidebar collapsible="icon" />
+      <HydrateClient>
+        <Suspense fallback={<AppSidebarSkeleton />}>
+          <AppSidebar collapsible="icon" />
+        </Suspense>
+      </HydrateClient>
       <SidebarInset>
         <div className="relative grid size-full h-svh grid-rows-[auto_1fr]">
           {children}
