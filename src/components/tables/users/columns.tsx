@@ -2,7 +2,12 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { CheckCircleIcon, MoreHorizontalIcon } from "lucide-react";
+import {
+  CheckCircleIcon,
+  LockIcon,
+  MoreHorizontalIcon,
+  SquareArrowOutUpRightIcon,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -132,11 +137,13 @@ export const columns: ColumnDef<User>[] = [
               <DropdownMenuItem
                 onClick={() => setParams({ customerId: row.original.id })}
               >
-                Upraviť
+                <SquareArrowOutUpRightIcon />
+                Otvoriť
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="text-[#FF3638]">
-                Vymazať
+              <DropdownMenuItem>
+                <LockIcon />
+                Blokovať
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
