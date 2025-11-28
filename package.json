@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "ultracite check",
     "format": "ultracite format",
-    "lint:fix": "ultracite check --fix",
+    "lint:fix": "ultracite check --fix ./src",
     "format:fix": "ultracite fix",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",

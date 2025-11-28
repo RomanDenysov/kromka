@@ -45,4 +45,3 @@ export function AppBreadcrumbs({ items }: Props) {
     </Breadcrumb>
   );
 }
-

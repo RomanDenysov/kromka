@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+/** biome-ignore-all lint/style/noMagicNumbers: Ignore it for now */
 "use client";
 
 import { format } from "date-fns";
@@ -79,7 +79,7 @@ export function TestHoursField({ value, onChange }: Props) {
   const copyToAllWeekdays = (schedule: DaySchedule) => {
     const weekdayKeys = WEEKDAYS.slice(0, 5).map((d) => d.key);
     const newHours = { ...value.regularHours };
-    // biome-ignore lint/complexity/noForEach: <explanation>
+    // biome-ignore lint/complexity/noForEach: Ignore it for now
     weekdayKeys.forEach((day) => {
       newHours[day] = schedule;
     });

@@ -39,7 +39,7 @@ export default function StoresPage() {
 
               {isLoadingUserStore ? (
                 <Skeleton className="h-[340px] w-full max-w-sm rounded-xl" />
-                // biome-ignore lint/style/noNestedTernary: <explanation>
+                // biome-ignore lint/style/noNestedTernary: Ignore it for now
               ) : userStore ? (
                 <div className="max-w-sm">
                   <StoreSelectModal>

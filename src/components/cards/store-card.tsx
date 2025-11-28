@@ -38,7 +38,7 @@ const getTodayOpeningHours = (openingHours: Store["openingHours"]) => {
   return openingHours.regularHours?.[dayName] || null;
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: Ignore it for now
 const formatTimeRange = (schedule: any) => {
   if (!schedule || schedule === "closed") {
     return "Zatvorené";

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { getInitials } from "@/lib/utils";
-import type { ActiveCartsData } from "./recent-orders";
+import type { ActiveCartsData } from "./dashboard-types";
 
 type Props = {
   carts: ActiveCartsData;

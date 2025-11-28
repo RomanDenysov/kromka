@@ -62,7 +62,7 @@ const orderExportColumns: ExportColumnConfig<TableOrder>[] = [
     key: "totalCents",
     header: "Spolu (EUR)",
     format: (value) =>
-      // biome-ignore lint/style/noMagicNumbers: <explanation>
+      // biome-ignore lint/style/noMagicNumbers: Ignore it for now
       typeof value === "number" ? (value / 100).toFixed(2) : "",
   },
   {

@@ -22,7 +22,7 @@ const DAYS_MAP: Record<string, string> = {
   sunday: "Nedeľa",
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: Ignore it for now
 const formatTimeRange = (schedule: any) => {
   if (!schedule || schedule === "closed") {
     return "Zatvorené";

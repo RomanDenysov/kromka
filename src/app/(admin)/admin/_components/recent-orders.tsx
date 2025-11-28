@@ -4,13 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { RecentOrdersTable } from "@/components/tables/recent-orders/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTRPC } from "@/trpc/client";
-import type { RouterOutputs } from "@/trpc/routers";
 import { CurrentCarts } from "./current-carts";
-
-export type RecentOrdersData =
-  RouterOutputs["admin"]["dashboard"]["recentOrders"];
-export type ActiveCartsData =
-  RouterOutputs["admin"]["dashboard"]["activeCarts"];
 
 export function RecentOrders() {
   const trpc = useTRPC();

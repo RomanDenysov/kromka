@@ -1,13 +1,20 @@
 "use client";
 
-// biome-ignore lint/performance/noNamespaceImport: <explanation>
-import * as React from "react";
+import {
+  type CSSProperties,
+  type InputHTMLAttributes,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 type InputValue = string[] | string;
 
 interface VisuallyHiddenInputProps<T = InputValue>
   extends Omit<
-    React.InputHTMLAttributes<HTMLInputElement>,
+    InputHTMLAttributes<HTMLInputElement>,
     "value" | "checked" | "onReset"
   > {
   value?: T;
@@ -29,13 +36,13 @@ function VisuallyHiddenInput<T = InputValue>(
     ...inputProps
   } = props;
 
-  const isCheckInput = React.useMemo(
+  const isCheckInput = useMemo(
     () => type === "checkbox" || type === "radio" || type === "switch",
     [type]
   );
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const prevValueRef = React.useRef<{
+  const prevValueRef = useRef<{
     value: T | boolean | undefined;
     previous: T | boolean | undefined;
   }>({
@@ -43,7 +50,7 @@ function VisuallyHiddenInput<T = InputValue>(
     previous: isCheckInput ? checked : value,
   });
 
-  const prevValue = React.useMemo(() => {
+  const prevValue = useMemo(() => {
     const currentValue = isCheckInput ? checked : value;
     if (prevValueRef.current.value !== currentValue) {
       prevValueRef.current.previous = prevValueRef.current.value;
@@ -52,12 +59,12 @@ function VisuallyHiddenInput<T = InputValue>(
     return prevValueRef.current.previous;
   }, [isCheckInput, value, checked]);
 
-  const [controlSize, setControlSize] = React.useState<{
+  const [controlSize, setControlSize] = useState<{
     width?: number;
     height?: number;
   }>({});
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!control) {
       setControlSize({});
       return;
@@ -107,7 +114,7 @@ function VisuallyHiddenInput<T = InputValue>(
   }, [control]);
 
   // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Ignore this for now
-  React.useEffect(() => {
+  useEffect(() => {
     const input = inputRef.current;
     if (!input) {
       return;
@@ -136,7 +143,7 @@ function VisuallyHiddenInput<T = InputValue>(
     }
   }, [prevValue, value, checked, bubbles, isCheckInput]);
 
-  const composedStyle = React.useMemo<React.CSSProperties>(
+  const composedStyle = useMemo<CSSProperties>(
     () => ({
       ...style,
       ...(controlSize.width !== undefined && controlSize.height !== undefined
@@ -163,7 +170,6 @@ function VisuallyHiddenInput<T = InputValue>(
       aria-hidden={isCheckInput}
       defaultChecked={isCheckInput ? checked : undefined}
       ref={inputRef}
-      // biome-ignore lint/suspicious/noExplicitAny: React 19 type incompatibility
       style={composedStyle}
       tabIndex={-1}
     />

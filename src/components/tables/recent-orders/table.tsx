@@ -7,7 +7,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
-import type { RecentOrdersData } from "@/app/(admin)/admin/_components/recent-orders";
+import type { RecentOrdersData } from "@/app/(admin)/admin/_components/dashboard-types";
 import {
   DataTableSearch,
   fuzzyFilter,

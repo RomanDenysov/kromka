@@ -194,7 +194,7 @@ export const MUTATIONS = {
 
     UPDATE_IMAGE_SORT_ORDER: async (productId: string, mediaIds: string[]) => {
       // Update sortOrder for all images
-      // biome-ignore lint/nursery/noIncrementDecrement: <explanation>
+      // biome-ignore lint/nursery/noIncrementDecrement: Ignore it for now
       for (let index = 0; index < mediaIds.length; index++) {
         await db
           .update(productImages)

@@ -1,5 +1,6 @@
 import "@ncdai/react-wheel-picker/style.css";
 
+// biome-ignore lint/performance/noNamespaceImport: we need to import the namespace
 import * as WheelPickerPrimitive from "@ncdai/react-wheel-picker";
 
 import { cn } from "@/lib/utils";

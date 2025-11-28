@@ -84,7 +84,7 @@ const productExportColumns: ExportColumnConfig<TableProduct>[] = [
     key: "priceCents",
     header: "Cena (EUR)",
     format: (value) =>
-      // biome-ignore lint/style/noMagicNumbers: <explanation>
+      // biome-ignore lint/style/noMagicNumbers: Ignore it for now
       typeof value === "number" ? (value / 100).toFixed(2) : "",
   },
   {
@@ -161,7 +161,6 @@ export function ProductsTable() {
         copyProduct({ productId: id });
       },
       onDelete: (id: string) => {
-        // biome-ignore lint/suspicious/noConsole: Need to ignore this
         deleteProduct({ ids: [id] });
       },
     },

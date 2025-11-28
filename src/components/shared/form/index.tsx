@@ -1,6 +1,5 @@
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { CategorySelectField } from "./fields/category-select-field";
-import { CategoryTagsField } from "./fields/category-tags-field";
 import { CheckboxField } from "./fields/checkbox-field";
 import { DateRangeField } from "./fields/date-range-field";
 import { DaysToggleField } from "./fields/days-toggle-field";
@@ -29,7 +28,6 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     CheckboxField,
     SelectField,
     CategorySelectField,
-    CategoryTagsField,
     QuantitySetterField,
     RichTextField,
     ToggleField,

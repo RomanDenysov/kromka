@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/** biome-ignore-all lint/suspicious/noExplicitAny: <explanation> */
+/** biome-ignore-all lint/suspicious/noExplicitAny: Ignore it for now */
 "use client";
 
 import { format } from "date-fns";
@@ -22,7 +22,7 @@ const escapeCsv = (value: unknown): string => {
     return "";
   }
   const str = String(value);
-  // biome-ignore lint/performance/useTopLevelRegex: <explanation>
+  // biome-ignore lint/performance/useTopLevelRegex: Ignore it for now
   if (/[",\n]/.test(str)) {
     return `"${str.replace(/"/g, '""')}"`;
   }

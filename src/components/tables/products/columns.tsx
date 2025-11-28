@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/correctness/noUndeclaredVariables: <explanation> */
+/** biome-ignore-all lint/correctness/noUndeclaredVariables: Ignore it for now */
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
@@ -237,7 +237,7 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
       const channels =
         row.original.showInB2c && row.original.showInB2b
           ? ["B2C", "B2B"]
-          : // biome-ignore lint/style/noNestedTernary: <explanation>
+          : // biome-ignore lint/style/noNestedTernary: Ignore it for now
             row.original.showInB2c
             ? ["B2C"]
             : ["B2B"];

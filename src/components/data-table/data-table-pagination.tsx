@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+/** biome-ignore-all lint/style/noMagicNumbers: Ignore it for now */
 import type { Table } from "@tanstack/react-table";
 import {
   ChevronLeft,
