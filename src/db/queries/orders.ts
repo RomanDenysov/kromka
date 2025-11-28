@@ -2,7 +2,10 @@ import "server-only";
 
 import type { SQL } from "drizzle-orm";
 import { db } from "@/db";
-import type { OrderStatus } from "@/db/schema";
+import type { orders } from "@/db/schema";
+
+type Order = typeof orders.$inferSelect;
+type OrderStatus = Order["orderStatus"];
 
 export const QUERIES = {
   ADMIN: {

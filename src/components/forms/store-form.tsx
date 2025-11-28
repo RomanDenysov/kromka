@@ -15,7 +15,6 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-import type { StoreSchedule } from "@/db/schema";
 import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
@@ -196,7 +195,7 @@ export function StoreForm({ id }: { id: string }) {
               {(field) => (
                 <TestHoursField
                   onChange={(value) => field.handleChange(value)}
-                  value={field.state.value as StoreSchedule}
+                  value={field.state.value}
                 />
               )}
             </form.AppField>

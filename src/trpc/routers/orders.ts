@@ -1,15 +1,25 @@
 import z from "zod";
 import { MUTATIONS } from "@/db/mutations/orders";
 import { QUERIES } from "@/db/queries/orders";
-import { ORDER_STATUSES, type OrderStatus } from "@/db/schema";
 import { createTRPCRouter, roleProcedure } from "../init";
+
+// TODO: Move to constants
+const ORDER_STATUSES = [
+  "cart",
+  "new",
+  "in_progress",
+  "ready_for_pickup",
+  "completed",
+  "cancelled",
+  "refunded",
+] as const;
 
 export const adminOrdersRouter = createTRPCRouter({
   list: roleProcedure("admin")
     .input(
       z
         .object({
-          status: z.string().optional(),
+          status: z.enum(ORDER_STATUSES).optional(),
           storeId: z.string().optional(),
           companyId: z.string().optional(),
           createdBy: z.string().optional(),
@@ -18,7 +28,7 @@ export const adminOrdersRouter = createTRPCRouter({
     )
     .query(async ({ input }) =>
       QUERIES.ADMIN.GET_ORDERS({
-        status: input?.status as OrderStatus,
+        status: input?.status,
         storeId: input?.storeId,
         companyId: input?.companyId,
         createdBy: input?.createdBy,

@@ -2,7 +2,8 @@ import "server-only";
 
 import { db } from "@/db";
 import { media } from "@/db/schema";
-import type { InsertMedia } from "@/db/types";
+
+type InsertMedia = typeof media.$inferInsert;
 
 export const MUTATIONS = {
   ADMIN: {

@@ -1,9 +1,10 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
-import { PRODUCT_STATUSES } from "@/db/schema";
 import { categorySchema } from "./categories";
 import { MAX_STRING_LENGTH } from "./constants";
 import { mediaSchema } from "./media";
+
+const PRODUCT_STATUSES = ["draft", "active", "sold", "archived"] as const;
 
 export const productSchema = z.object({
   id: z.string(),

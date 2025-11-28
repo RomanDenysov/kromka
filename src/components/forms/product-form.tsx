@@ -25,7 +25,6 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-import { PRODUCT_STATUSES } from "@/db/schema";
 import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
@@ -185,10 +184,12 @@ export function ProductForm({ id }: { id: string }) {
                 {(field) => (
                   <field.SelectField
                     label="Status"
-                    options={PRODUCT_STATUSES.map((status) => ({
-                      label: status,
-                      value: status,
-                    }))}
+                    options={[
+                      { label: "Draft", value: "draft" },
+                      { label: "Active", value: "active" },
+                      { label: "Sold", value: "sold" },
+                      { label: "Archived", value: "archived" },
+                    ]}
                   />
                 )}
               </form.AppField>

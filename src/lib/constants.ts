@@ -9,7 +9,6 @@ import {
   TruckIcon,
   XCircleIcon,
 } from "lucide-react";
-import type { OrderStatus } from "@/db/schema";
 
 export const ORDER_STATUS_LABELS = {
   cart: "Košík",
@@ -19,7 +18,7 @@ export const ORDER_STATUS_LABELS = {
   completed: "Dokončená",
   cancelled: "Zrušená",
   refunded: "Vrátená",
-} as const;
+};
 
 export const ORDER_STATUS_ICONS = {
   cart: PackageIcon,
@@ -41,7 +40,7 @@ export const ORDER_STATUS_VARIANTS = {
   refunded: "secondary",
 } as const;
 
-export const WORKFLOW_STATUSES: OrderStatus[] = [
+export const WORKFLOW_STATUSES: string[] = [
   "new",
   "in_progress",
   "ready_for_pickup",

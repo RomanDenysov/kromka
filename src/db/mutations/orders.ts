@@ -1,12 +1,9 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import {
-  type OrderStatus,
-  orderItems,
-  orderStatusEvents,
-  orders,
-  products,
-} from "@/db/schema";
+import { orderItems, orderStatusEvents, orders, products } from "@/db/schema";
+
+type InsertOrder = typeof orders.$inferInsert;
+type OrderStatus = InsertOrder["orderStatus"];
 
 export const MUTATIONS = {
   ADMIN: {

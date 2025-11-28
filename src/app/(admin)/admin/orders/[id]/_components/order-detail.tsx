@@ -58,7 +58,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { OrderStatus } from "@/db/schema";
 import {
   ORDER_STATUS_ICONS,
   ORDER_STATUS_LABELS,
@@ -69,6 +68,7 @@ import {
 } from "@/lib/constants";
 import { formatPrice, getInitials } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
+import type { OrderStatus } from "@/types/orders";
 
 const ORDER_ID_LENGTH = 8;
 const ITEMS_PLURAL_THRESHOLD = 5;
@@ -249,7 +249,8 @@ function StatusStepperCard({
           >
             <StepperList>
               {WORKFLOW_STATUSES.map((status, index) => {
-                const Icon = ORDER_STATUS_ICONS[status];
+                const Icon =
+                  ORDER_STATUS_ICONS[status as keyof typeof ORDER_STATUS_ICONS];
                 return (
                   <StepperItem
                     completed={currentStatusIndex > index}
@@ -267,7 +268,11 @@ function StatusStepperCard({
                             orderStatus === status ? "text-primary" : ""
                           }
                         >
-                          {ORDER_STATUS_LABELS[status]}
+                          {
+                            ORDER_STATUS_LABELS[
+                              status as keyof typeof ORDER_STATUS_LABELS
+                            ]
+                          }
                         </StepperTitle>
                       </div>
                     </StepperTrigger>
@@ -539,7 +544,10 @@ function StatusHistoryCard({ events }: { events: StatusEventData[] }) {
       <CardContent>
         <div className="flex flex-col gap-4">
           {events.map((event, index) => {
-            const Icon = ORDER_STATUS_ICONS[event.status];
+            const Icon =
+              ORDER_STATUS_ICONS[
+                event.status as keyof typeof ORDER_STATUS_ICONS
+              ];
             const isLast = index === events.length - 1;
 
             return (
@@ -558,7 +566,11 @@ function StatusHistoryCard({ events }: { events: StatusEventData[] }) {
                 <div className="flex-1 pb-4">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">
-                      {ORDER_STATUS_LABELS[event.status]}
+                      {
+                        ORDER_STATUS_LABELS[
+                          event.status as keyof typeof ORDER_STATUS_LABELS
+                        ]
+                      }
                     </span>
                     <span className="text-muted-foreground text-sm">
                       {format(event.createdAt, "d. MMM yyyy HH:mm", {
@@ -669,7 +681,11 @@ export function OrderDetail({ orderId }: { orderId: string }) {
               <strong>{customerEmail}</strong> dostane e-mail s upozornením o
               zmene stavu objednávky na{" "}
               <strong>
-                {pendingStatus ? ORDER_STATUS_LABELS[pendingStatus] : ""}
+                {pendingStatus
+                  ? ORDER_STATUS_LABELS[
+                      pendingStatus as keyof typeof ORDER_STATUS_LABELS
+                    ]
+                  : ""}
               </strong>
               .
             </AlertDialogDescription>

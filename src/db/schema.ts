@@ -17,10 +17,10 @@ import { relations } from "drizzle-orm/relations";
 import { createPrefixedId } from "@/lib/ids";
 import { draftSlug } from "./utils";
 
-// # Auth region
+// #region Auth
 
-export const USER_ROLES = ["admin", "manager", "user"] as const;
-export type UserRole = (typeof USER_ROLES)[number];
+const USER_ROLES = ["admin", "manager", "user"] as const;
+type UserRole = (typeof USER_ROLES)[number];
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -183,9 +183,9 @@ export const invitationsRelations = relations(invitations, ({ one }) => ({
   }),
 }));
 
-// # end region Auth
+// #endregion Auth
 
-// # Categories region
+// #region Categories
 
 export const categories = pgTable(
   "categories",
@@ -315,9 +315,9 @@ export const productCategoriesRelations = relations(
   })
 );
 
-// # end region Categories
+// #endregion Categories
 
-// # Media region
+// #region Media
 
 export const media = pgTable("media", {
   id: text("id")
@@ -341,24 +341,19 @@ export const mediaRelations = relations(media, ({ many }) => ({
   categories: many(categories),
 }));
 
-// # end region Media
+// #endregion Media
 
-// # Orders region
+// #region Orders
 
 type ProductSnapshot = {
   name: string;
   price: number;
 };
 
-export const PAYMENT_METHODS = [
-  "in_store",
-  "card",
-  "invoice",
-  "other",
-] as const;
-export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+const PAYMENT_METHODS = ["in_store", "card", "invoice", "other"] as const;
+type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
-export const ORDER_STATUSES = [
+const ORDER_STATUSES = [
   "cart",
   "new",
   "in_progress",
@@ -367,24 +362,13 @@ export const ORDER_STATUSES = [
   "cancelled",
   "refunded",
 ] as const;
-export type OrderStatus = (typeof ORDER_STATUSES)[number];
+type OrderStatus = (typeof ORDER_STATUSES)[number];
 
-export const PAYMENT_STATUSES = [
-  "pending",
-  "paid",
-  "failed",
-  "refunded",
-] as const;
-export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
+const PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded"] as const;
+type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-export const INVOICE_STATUSES = [
-  "draft",
-  "issued",
-  "sent",
-  "paid",
-  "void",
-] as const;
-export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
+const INVOICE_STATUSES = ["draft", "issued", "sent", "paid", "void"] as const;
+type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
 
 export const orders = pgTable(
   "orders",
@@ -441,8 +425,6 @@ export const orders = pgTable(
     index("idx_created_at").on(table.createdAt),
   ]
 );
-
-export type SelectOrder = typeof orders.$inferSelect;
 
 export const invoices = pgTable("invoices", {
   id: text("id")
@@ -542,9 +524,9 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   }),
 }));
 
-// # end region Orders
+// #endregion Orders
 
-// # Prices region
+// #region Prices
 
 export const priceTiers = pgTable("price_tiers", {
   id: text("id")
@@ -595,17 +577,12 @@ export const pricesRelations = relations(prices, ({ one }) => ({
   }),
 }));
 
-// # end region Prices
+// #endregion Prices
 
-// # Products region
+// #region Products
 
-export const PRODUCT_STATUSES = [
-  "draft",
-  "active",
-  "sold",
-  "archived",
-] as const;
-export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
+const PRODUCT_STATUSES = ["draft", "active", "sold", "archived"] as const;
+type ProductStatus = (typeof PRODUCT_STATUSES)[number];
 
 export const products = pgTable("products", {
   id: text("id")
@@ -679,9 +656,9 @@ export const productImagesRelations = relations(productImages, ({ one }) => ({
   }),
 }));
 
-// # end region Products
+// #endregion Products
 
-// # Stores region
+// #region Stores
 
 type Address = {
   street?: string;
@@ -698,7 +675,7 @@ type TimeRange = {
 
 type DaySchedule = TimeRange | "closed" | null;
 
-export type StoreSchedule = {
+type StoreSchedule = {
   regularHours: {
     monday: DaySchedule;
     tuesday: DaySchedule;
@@ -817,4 +794,4 @@ export const storeMembersRelations = relations(storeMembers, ({ one }) => ({
   }),
 }));
 
-// # end region Stores
+// #endregion Stores
