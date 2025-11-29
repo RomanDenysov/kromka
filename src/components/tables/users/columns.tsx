@@ -19,11 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn, getInitials } from "@/lib/utils";
 import type { User } from "@/types/users";
 
@@ -87,27 +82,36 @@ export const columns: ColumnDef<User, UserTableMeta>[] = [
     enableSorting: true,
     filterFn: "fuzzy",
     cell: ({ row }) => (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span
-            className={cn(
-              "flex items-center gap-0.5 font-medium text-xs",
-              row.original.name.length > 0 && "cursor-pointer"
-            )}
-          >
-            {row.original.email}
-            {row.original.emailVerified && (
-              <CheckCircleIcon className="size-3 text-green-800" />
-            )}
-          </span>
-        </TooltipTrigger>
-        {row.original.name.length > 0 && (
-          <TooltipContent>
-            <span>{row.original.name}</span>
-            {/* <span>{row.original.phone}</span> */}
-          </TooltipContent>
+      <span
+        className={cn(
+          "flex items-center gap-0.5 font-medium text-xs",
+          row.original.name.length > 0 && "cursor-pointer"
         )}
-      </Tooltip>
+      >
+        {row.original.email}
+        {row.original.emailVerified && (
+          <CheckCircleIcon className="size-3 text-green-800" />
+        )}
+      </span>
+    ),
+  },
+  {
+    id: "kontakt",
+    header: "Kontaktne údaje",
+    accessorKey: "phone",
+    cell: ({ row }) => (
+      <div className="flex flex-col gap-0.5">
+        {!row.original.isAnonymous && (
+          <span className="font-medium text-xs">{row.original.name}</span>
+        )}
+        {row.original.phone ? (
+          <span className="truncate font-medium text-xs">
+            {row.original.phone}
+          </span>
+        ) : (
+          <span className="font-medium text-xs">---</span>
+        )}
+      </div>
     ),
   },
   {
@@ -124,6 +128,25 @@ export const columns: ColumnDef<User, UserTableMeta>[] = [
     cell: ({ row }) => (
       <Badge size="xs" variant="outline">
         {row.original.role ?? "Uživatel"}
+      </Badge>
+    ),
+  },
+  {
+    id: "isAnonymous",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Anonymní"
+      />
+    ),
+    accessorKey: "isAnonymous",
+    cell: ({ row }) => (
+      <Badge
+        size="xs"
+        variant={row.original.isAnonymous ? "outline" : "success"}
+      >
+        {row.original.isAnonymous ? "Áno" : "Nie"}
       </Badge>
     ),
   },
