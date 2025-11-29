@@ -31,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useCustomerParams } from "@/hooks/use-customer-params";
 import {
   type ExportColumnConfig,
   exportAsCsv,
@@ -69,6 +70,7 @@ const userExportColumns: ExportColumnConfig<User>[] = [
 
 export function UsersTable({ className }: { className?: string }) {
   const trpc = useTRPC();
+  const { setParams } = useCustomerParams();
   const { data } = useSuspenseQuery(trpc.admin.users.list.queryOptions());
 
   const processedUsers = useMemo(() => data ?? [], [data]);
@@ -92,6 +94,15 @@ export function UsersTable({ className }: { className?: string }) {
       columnFilters,
       globalFilter,
       sorting,
+    },
+    meta: {
+      onOpen: (id: string) => {
+        setParams({ customerId: id });
+      },
+      onLock: (id: string) => {
+        // biome-ignore lint/suspicious/noConsole: <explanation>
+        console.log(id);
+      },
     },
     getRowId: ({ id }) => id,
     getCoreRowModel: getCoreRowModel(),

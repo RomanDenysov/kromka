@@ -8,6 +8,7 @@ import {
   MoreHorizontalIcon,
   SquareArrowOutUpRightIcon,
 } from "lucide-react";
+import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,11 +24,15 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useCustomerParams } from "@/hooks/use-customer-params";
 import { cn, getInitials } from "@/lib/utils";
 import type { User } from "@/types/users";
 
-export const columns: ColumnDef<User>[] = [
+type UserTableMeta = {
+  onOpen: (id: string) => void;
+  onLock: (id: string) => void;
+};
+
+export const columns: ColumnDef<User, UserTableMeta>[] = [
   {
     id: "select",
     enableSorting: false,
@@ -69,8 +74,18 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     id: "email",
-    header: "Email",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Email"
+      />
+    ),
+    enableGlobalFilter: true,
+    enableColumnFilter: true,
     accessorKey: "email",
+    enableSorting: true,
+    filterFn: "fuzzy",
     cell: ({ row }) => (
       <Tooltip>
         <TooltipTrigger asChild>
@@ -97,7 +112,14 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     id: "role",
-    header: "Pozícia",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Pozícia"
+      />
+    ),
+    enableSorting: true,
     accessorKey: "role",
     cell: ({ row }) => (
       <Badge size="xs" variant="outline">
@@ -107,7 +129,14 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     id: "createdAt",
-    header: "Registrovaný",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Registrovaný"
+      />
+    ),
+    enableSorting: true,
     accessorKey: "createdAt",
     cell: ({ row }) => (
       <span className="font-medium text-xs">
@@ -122,8 +151,8 @@ export const columns: ColumnDef<User>[] = [
       className:
         "text-right sticky right-0 bg-background group-hover:bg-[#F2F1EF] group-hover:dark:bg-secondary z-30 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-border after:absolute after:left-[-24px] after:top-0 after:bottom-0 after:w-6 after:bg-gradient-to-r after:from-transparent after:to-background group-hover:after:to-muted after:z-[-1]",
     },
-    cell: ({ row }) => {
-      const { setParams } = useCustomerParams();
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as UserTableMeta;
       return (
         <div>
           <DropdownMenu>
@@ -134,14 +163,12 @@ export const columns: ColumnDef<User>[] = [
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => setParams({ customerId: row.original.id })}
-              >
+              <DropdownMenuItem onClick={() => meta?.onOpen(row.original.id)}>
                 <SquareArrowOutUpRightIcon />
                 Otvoriť
               </DropdownMenuItem>
 
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => meta?.onLock(row.original.id)}>
                 <LockIcon />
                 Blokovať
               </DropdownMenuItem>
