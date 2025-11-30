@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
-import { SidebarTrigger } from "../ui/sidebar";
 import {
   type AdminBreadcrumbItem,
   AdminBreadcrumbs,
@@ -23,7 +22,6 @@ export function AdminHeader({ breadcrumbs, className, children }: Props) {
         )}
       >
         <div className="flex shrink-0 items-center gap-1 lg:gap-2">
-          <SidebarTrigger />
           <Separator
             className="mx-2 data-[orientation=vertical]:h-6"
             orientation="vertical"

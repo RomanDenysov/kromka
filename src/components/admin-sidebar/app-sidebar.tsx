@@ -29,6 +29,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useTRPC } from "@/trpc/client";
 
@@ -59,19 +60,21 @@ function SidebarLogo() {
   return (
     <SidebarHeader>
       <SidebarMenu>
-        <SidebarMenuItem>
+        <SidebarMenuItem className="flex flex-row items-center gap-1 group-data-[state=collapsed]:flex-col">
           <SidebarMenuButton
             asChild
             className="[slot=sidebar-menu-button]:p-1.5!"
+            size="sm"
             tooltip="Vrátiť sa na hlavnú stránku"
           >
             <Link href="/">
               <Icons.logo className="size-4!" />
-              <span className="font-semibold text-base tracking-tighter">
+              <span className="font-semibold text-base tracking-tighter group-data-[state=collapsed]:hidden">
                 KROMKA
               </span>
             </Link>
           </SidebarMenuButton>
+          <SidebarTrigger className="group-data-[state=collapsed]:size-8" />
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarHeader>
@@ -192,9 +195,9 @@ function SkeletonGroup({
   );
 }
 
-export function AppSidebarSkeleton() {
+export function AppSidebarSkeleton(props: ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar>
+    <Sidebar {...props}>
       <SidebarLogo />
       <SidebarContent>
         <SidebarGroup>

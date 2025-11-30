@@ -42,7 +42,7 @@ export default async function AdminLayout({ children }: Props) {
       }
     >
       <HydrateClient>
-        <Suspense fallback={<AppSidebarSkeleton />}>
+        <Suspense fallback={<AppSidebarSkeleton collapsible="icon" />}>
           <AppSidebar collapsible="icon" />
         </Suspense>
       </HydrateClient>
