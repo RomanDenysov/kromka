@@ -13,13 +13,24 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
 import { createPrefixedId } from "@/lib/ids";
+import {
+  type Address,
+  DEFAULT_OPENING_HOURS,
+  DEFAULT_PAYMENT_TERM_DAYS,
+  type InvoiceStatus,
+  type OrderStatus,
+  type PaymentMethod,
+  type PaymentStatus,
+  type PostStatus,
+  type ProductSnapshot,
+  type ProductStatus,
+  type PromoType,
+  type StoreSchedule,
+  type UserRole,
+} from "./types";
 import { draftSlug } from "./utils";
 
 // #region Auth
-
-const USER_ROLES = ["admin", "manager", "user"] as const;
-type UserRole = (typeof USER_ROLES)[number];
-
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -90,8 +101,6 @@ export const verifications = pgTable("verifications", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
-
-const DEFAULT_PAYMENT_TERM_DAYS = 14;
 
 export const organizations = pgTable("organizations", {
   id: text("id").primaryKey(),
@@ -330,9 +339,6 @@ export const mediaRelations = relations(media, ({ many }) => ({
 
 // #region Promo codes
 
-const PROMO_TYPES = ["percentage", "fixed_amount", "free_shipping"] as const;
-type PromoType = (typeof PROMO_TYPES)[number];
-
 export const promoCodes = pgTable(
   "promo_codes",
   {
@@ -423,31 +429,6 @@ export const promoCodeUsagesRelations = relations(
 // #endregion Promo codes
 
 // #region Orders
-
-type ProductSnapshot = {
-  name: string;
-  price: number;
-};
-
-const PAYMENT_METHODS = ["in_store", "card", "invoice", "other"] as const;
-type PaymentMethod = (typeof PAYMENT_METHODS)[number];
-
-const ORDER_STATUSES = [
-  "cart",
-  "new",
-  "in_progress",
-  "ready_for_pickup",
-  "completed",
-  "cancelled",
-  "refunded",
-] as const;
-type OrderStatus = (typeof ORDER_STATUSES)[number];
-
-const PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded"] as const;
-type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
-
-const INVOICE_STATUSES = ["draft", "issued", "sent", "paid", "void"] as const;
-type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
 
 export const invoices = pgTable(
   "invoices",
@@ -707,9 +688,6 @@ export const pricesRelations = relations(prices, ({ one }) => ({
 
 // #region Products
 
-const PRODUCT_STATUSES = ["draft", "active", "sold", "archived"] as const;
-type ProductStatus = (typeof PRODUCT_STATUSES)[number];
-
 export const products = pgTable("products", {
   id: text("id")
     .primaryKey()
@@ -787,49 +765,6 @@ export const productImagesRelations = relations(productImages, ({ one }) => ({
 // #endregion Products
 
 // #region Stores
-
-type Address = {
-  street?: string;
-  postalCode?: string;
-  city?: string;
-  country?: string;
-  googleId?: string;
-};
-
-type TimeRange = {
-  start: string; // "08:00"
-  end: string; // "18:00"
-};
-
-type DaySchedule = TimeRange | "closed" | null;
-
-type StoreSchedule = {
-  regularHours: {
-    monday: DaySchedule;
-    tuesday: DaySchedule;
-    wednesday: DaySchedule;
-    thursday: DaySchedule;
-    friday: DaySchedule;
-    saturday: DaySchedule;
-    sunday: DaySchedule;
-  };
-  exceptions?: {
-    [date: string]: DaySchedule; // e.g. "2024-12-24": { start: "08:00", end: "12:00" } | "closed"
-  };
-};
-
-const DEFAULT_OPENING_HOURS: StoreSchedule = {
-  regularHours: {
-    monday: "closed",
-    tuesday: "closed",
-    wednesday: "closed",
-    thursday: "closed",
-    friday: "closed",
-    saturday: "closed",
-    sunday: "closed",
-  },
-  exceptions: {},
-};
 
 export const stores = pgTable("stores", {
   id: text("id")
@@ -925,9 +860,6 @@ export const storeMembersRelations = relations(storeMembers, ({ one }) => ({
 // #endregion Stores
 
 // #region Blog
-
-const POST_STATUSES = ["draft", "published", "archived"] as const;
-type PostStatus = (typeof POST_STATUSES)[number];
 
 export const posts = pgTable(
   "posts",
