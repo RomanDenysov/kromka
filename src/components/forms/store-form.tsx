@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/field";
 import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { getSlug } from "@/lib/get-slug";
+import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { storeSchema } from "@/validation/stores";
 import { SingleImageUpload } from "../image-upload/single-image-upload";
@@ -35,7 +36,13 @@ import { TestHoursField } from "./stores/test-hours-field";
 const IMAGE_ASPECT_RATIO = 16 / 9;
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Component is slightly complex due to form fields
-export function StoreForm({ id }: { id: string }) {
+export function StoreForm({
+  id,
+  className,
+}: {
+  id: string;
+  className?: string;
+}) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const { data: store, isLoading: isLoadingStore } = useSuspenseQuery(
@@ -105,118 +112,124 @@ export function StoreForm({ id }: { id: string }) {
   }
 
   return (
-    <form.AppForm>
-      <form
-        aria-disabled={isPendingUpdateStore}
-        id="store-form"
-        onBlurCapture={onBlurCapture}
-        onFocusCapture={onFocusCapture}
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          form.handleSubmit();
-        }}
-        ref={formRef}
-      >
-        <FieldSet className="@md/page:max-w-md max-w-full gap-5">
-          <div className="flex flex-row items-start justify-between">
-            <div>
-              <FieldLegend>Nastavenie obchodu</FieldLegend>
-              <FieldDescription className="text-[10px]">
-                {isPendingUpdateStore || isLoadingStore
-                  ? "Ukladá sa..."
-                  : `Naposledy uložené ${format(
-                      store?.updatedAt ?? new Date(),
-                      "dd.MM.yyyy HH:mm"
-                    )}`}
-              </FieldDescription>
+    <div className={cn(className)}>
+      <form.AppForm>
+        <form
+          aria-disabled={isPendingUpdateStore}
+          id="store-form"
+          onBlurCapture={onBlurCapture}
+          onFocusCapture={onFocusCapture}
+          onSubmit={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+          ref={formRef}
+        >
+          <FieldSet className="@md/page:max-w-md max-w-full gap-5">
+            <div className="flex flex-row items-start justify-between">
+              <div>
+                <FieldLegend>Nastavenie obchodu</FieldLegend>
+                <FieldDescription className="text-[10px]">
+                  {isPendingUpdateStore || isLoadingStore
+                    ? "Ukladá sa..."
+                    : `Naposledy uložené ${format(
+                        store?.updatedAt ?? new Date(),
+                        "dd.MM.yyyy HH:mm"
+                      )}`}
+                </FieldDescription>
+              </div>
+              <div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon-xs" variant="ghost">
+                      <MoreHorizontalIcon />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem variant="destructive">
+                      <Trash2Icon />
+                      Vymazať
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
-            <div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="icon-xs" variant="ghost">
-                    <MoreHorizontalIcon />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem variant="destructive">
-                    <Trash2Icon />
-                    Vymazať
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-          <FieldGroup className="gap-4">
-            <form.AppField name="imageId">
-              {(field) => (
-                <Field className="flex flex-col gap-2">
-                  <SingleImageUpload
-                    aspect={IMAGE_ASPECT_RATIO}
-                    className="w-full"
-                    disabled={isPendingUpdateStore}
-                    onChange={(val) => field.handleChange(val)}
+            <FieldGroup className="gap-4">
+              <form.AppField name="imageId">
+                {(field) => (
+                  <Field className="flex flex-col gap-2">
+                    <SingleImageUpload
+                      aspect={IMAGE_ASPECT_RATIO}
+                      className="w-full"
+                      disabled={isPendingUpdateStore}
+                      onChange={(val) => field.handleChange(val)}
+                      value={field.state.value}
+                    />
+                  </Field>
+                )}
+              </form.AppField>
+              <form.AppField
+                listeners={{
+                  onChangeDebounceMs: 300,
+                  onChange: (event) => {
+                    form.setFieldValue("slug", getSlug(event.value));
+                  },
+                }}
+                name="name"
+              >
+                {(field) => (
+                  <field.TextField
+                    label="Názov obchodu"
+                    placeholder="Názov obchodu"
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="slug">
+                {(field) => <field.TextField label="Slug" placeholder="Slug" />}
+              </form.AppField>
+              <form.AppField name="description">
+                {(field) => <field.RichTextField label="Popis obchodu" />}
+              </form.AppField>
+            </FieldGroup>
+            <FieldGroup className="gap-4">
+              <form.AppField name="phone">
+                {(field) => (
+                  <field.TextField label="Phone" placeholder="Phone" />
+                )}
+              </form.AppField>
+              <form.AppField name="email">
+                {(field) => (
+                  <field.TextField label="Email" placeholder="Email" />
+                )}
+              </form.AppField>
+              <form.AppField name="openingHours">
+                {(field) => (
+                  <TestHoursField
+                    onChange={(value) => field.handleChange(value)}
                     value={field.state.value}
                   />
-                </Field>
-              )}
-            </form.AppField>
-            <form.AppField
-              listeners={{
-                onChangeDebounceMs: 300,
-                onChange: (event) => {
-                  form.setFieldValue("slug", getSlug(event.value));
-                },
-              }}
-              name="name"
-            >
-              {(field) => (
-                <field.TextField
-                  label="Názov obchodu"
-                  placeholder="Názov obchodu"
-                />
-              )}
-            </form.AppField>
-            <form.AppField name="slug">
-              {(field) => <field.TextField label="Slug" placeholder="Slug" />}
-            </form.AppField>
-            <form.AppField name="description">
-              {(field) => <field.RichTextField label="Popis obchodu" />}
-            </form.AppField>
-          </FieldGroup>
-          <FieldGroup className="gap-4">
-            <form.AppField name="phone">
-              {(field) => <field.TextField label="Phone" placeholder="Phone" />}
-            </form.AppField>
-            <form.AppField name="email">
-              {(field) => <field.TextField label="Email" placeholder="Email" />}
-            </form.AppField>
-            <form.AppField name="openingHours">
-              {(field) => (
-                <TestHoursField
-                  onChange={(value) => field.handleChange(value)}
-                  value={field.state.value}
-                />
-              )}
-            </form.AppField>
-          </FieldGroup>
-          <FieldGroup className="grid grid-cols-2 gap-4">
-            <form.AppField name="isActive">
-              {(field) => (
-                <field.SwitchField
-                  description="Je obchod aktívny?"
-                  label="Aktívny"
-                />
-              )}
-            </form.AppField>
-            <form.AppField name="sortOrder">
-              {(field) => (
-                <field.QuantitySetterField label="Sort Order" min={0} />
-              )}
-            </form.AppField>
-          </FieldGroup>
-        </FieldSet>
-      </form>
-    </form.AppForm>
+                )}
+              </form.AppField>
+            </FieldGroup>
+            <FieldGroup className="grid grid-cols-2 gap-4">
+              <form.AppField name="isActive">
+                {(field) => (
+                  <field.SwitchField
+                    description="Je obchod aktívny?"
+                    label="Aktívny"
+                  />
+                )}
+              </form.AppField>
+              <form.AppField name="sortOrder">
+                {(field) => (
+                  <field.QuantitySetterField label="Sort Order" min={0} />
+                )}
+              </form.AppField>
+            </FieldGroup>
+          </FieldSet>
+        </form>
+      </form.AppForm>
+    </div>
   );
 }
