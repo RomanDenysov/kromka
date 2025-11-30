@@ -87,7 +87,6 @@ export const MUTATIONS = {
           set: {
             quantity: sql`${orderItems.quantity} + ${quantity}`,
             price: sql`excluded.price`,
-            total: sql`excluded.price * (${orderItems.quantity} + ${quantity})`,
           },
         });
     },
@@ -148,7 +147,6 @@ export const MUTATIONS = {
           .update(orderItems)
           .set({
             quantity,
-            total: sql`${orderItems.price} * ${quantity}`,
           })
           .where(
             and(

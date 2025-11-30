@@ -64,7 +64,6 @@ export function useCartActions() {
             quantity: newItem.quantity,
             price: product.priceCents,
             orderId: previousCart.id ?? "",
-            total: product.priceCents * newItem.quantity,
             productSnapshot: { name: product.name, price: product.priceCents },
             product: {
               id: product.id,

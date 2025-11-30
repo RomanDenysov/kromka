@@ -104,7 +104,7 @@ export function RecentOrdersTable({ orders }: { orders: RecentOrdersData }) {
                         {formatPrice(item.price)}
                       </TableCell>
                       <TableCell className="font-medium text-xs">
-                        {formatPrice(item.total)}
+                        {formatPrice(item.price * item.quantity)}
                       </TableCell>
                     </TableRow>
                   ))}

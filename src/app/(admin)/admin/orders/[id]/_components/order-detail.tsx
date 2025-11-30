@@ -292,20 +292,18 @@ type OrderItemData = {
   productId: string;
   price: number;
   quantity: number;
-  total: number | null;
   productSnapshot: { name: string } | null;
   product: { id: string; name: string } | null;
 };
 
-function ProductsCard({
-  items,
-  totalCents,
-}: {
-  items: OrderItemData[];
-  totalCents: number;
-}) {
+function ProductsCard({ items }: { items: OrderItemData[] }) {
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
   const itemsLabel = getItemsLabel(totalItems);
+
+  const totalPrice = items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
 
   return (
     <Card className="lg:col-span-2">
@@ -344,7 +342,7 @@ function ProductsCard({
                 </TableCell>
                 <TableCell className="text-center">{item.quantity}×</TableCell>
                 <TableCell className="text-right font-medium">
-                  {formatPrice(item.total ?? item.price * item.quantity)}
+                  {formatPrice(item.price * item.quantity)}
                 </TableCell>
               </TableRow>
             ))}
@@ -355,7 +353,7 @@ function ProductsCard({
                 Celkom
               </TableCell>
               <TableCell className="text-right font-semibold">
-                {formatPrice(totalCents)}
+                {formatPrice(totalPrice)}
               </TableCell>
             </TableRow>
           </TableFooter>
@@ -718,7 +716,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <ProductsCard items={order.items} totalCents={order.totalCents ?? 0} />
+        <ProductsCard items={order.items} />
 
         <div className="flex flex-col gap-6">
           <CustomerCard customer={order.createdBy} />

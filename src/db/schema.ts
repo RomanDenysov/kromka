@@ -1,8 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
-import { sql } from "drizzle-orm";
 import {
   boolean,
-  check,
   foreignKey,
   index,
   integer,
@@ -55,7 +53,10 @@ export const sessions = pgTable("sessions", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   impersonatedBy: text("impersonated_by"),
-  activeOrganizationId: text("active_organization_id"),
+  activeOrganizationId: text("active_organization_id").references(
+    () => organizations.id,
+    { onDelete: "set null" }
+  ),
 });
 
 export const accounts = pgTable("accounts", {
@@ -90,6 +91,8 @@ export const verifications = pgTable("verifications", {
     .notNull(),
 });
 
+const DEFAULT_PAYMENT_TERM_DAYS = 14;
+
 export const organizations = pgTable("organizations", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
@@ -100,6 +103,16 @@ export const organizations = pgTable("organizations", {
   priceTierId: text("price_tier_id").references(() => priceTiers.id, {
     onDelete: "set null",
   }),
+
+  billingName: text("billing_name"),
+  ico: text("ico"),
+  dic: text("dic"),
+  icDph: text("ic_dph"),
+  billingAddress: jsonb("billing_address").$type<Address>(),
+  billingEmail: text("billing_email"),
+  paymentTermDays: integer("payment_term_days").default(
+    DEFAULT_PAYMENT_TERM_DAYS
+  ),
 });
 
 export const members = pgTable("members", {
@@ -137,6 +150,12 @@ export const usersRelations = relations(users, ({ many }) => ({
   }),
   storeMembers: many(storeMembers),
   orders: many(orders),
+  posts: many(posts),
+  postComments: many(postComments),
+  reviews: many(reviews),
+  favorites: many(favorites),
+  postLikes: many(postLikes),
+  promoCodeUsages: many(promoCodeUsages),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -207,6 +226,8 @@ export const categories = pgTable(
     showInMenu: boolean("show_in_menu").default(true).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
 
+    pickupDates: jsonb("pickup_dates").$type<string[]>(), // e.g. ["2025-12-24", "2025-12-25"] if empty, all days are available
+
     imageId: text("image_id").references(() => media.id, {
       onDelete: "set null",
     }),
@@ -234,36 +255,6 @@ export const categories = pgTable(
   ]
 );
 
-export const categoryAvailabilityWindows = pgTable(
-  "category_availability_windows",
-  {
-    id: text("id")
-      .primaryKey()
-      .$defaultFn(() => createPrefixedId("cat-avail")),
-    categoryId: text("category_id")
-      .notNull()
-      .references(() => categories.id, { onDelete: "cascade" }),
-    startDate: timestamp("start_date").notNull(),
-    endDate: timestamp("end_date").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
-  },
-  (table) => [
-    index("category_availability_category_idx").on(table.categoryId),
-    index("category_availability_window_idx").on(
-      table.startDate,
-      table.endDate
-    ),
-    check(
-      "category_availability_window_check",
-      sql`${table.startDate} < ${table.endDate}`
-    ),
-  ]
-);
-
 export const productCategories = pgTable(
   "product_categories",
   {
@@ -286,20 +277,13 @@ export const productCategories = pgTable(
   ]
 );
 
-export const categoriesRelations = relations(categories, ({ many }) => ({
-  availabilityWindows: many(categoryAvailabilityWindows),
+export const categoriesRelations = relations(categories, ({ many, one }) => ({
   products: many(productCategories),
+  image: one(media, {
+    fields: [categories.imageId],
+    references: [media.id],
+  }),
 }));
-
-export const categoryAvailabilityWindowsRelations = relations(
-  categoryAvailabilityWindows,
-  ({ one }) => ({
-    category: one(categories, {
-      fields: [categoryAvailabilityWindows.categoryId],
-      references: [categories.id],
-    }),
-  })
-);
 
 export const productCategoriesRelations = relations(
   productCategories,
@@ -339,9 +323,104 @@ export const mediaRelations = relations(media, ({ many }) => ({
   productImages: many(productImages),
   stores: many(stores),
   categories: many(categories),
+  posts: many(posts),
 }));
 
 // #endregion Media
+
+// #region Promo codes
+
+const PROMO_TYPES = ["percentage", "fixed_amount", "free_shipping"] as const;
+type PromoType = (typeof PROMO_TYPES)[number];
+
+export const promoCodes = pgTable(
+  "promo_codes",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("promo")),
+    code: text("code").notNull().unique(),
+
+    type: text("type").$type<PromoType>().notNull(),
+    value: integer("value").notNull(), // percentage or cents
+
+    minOrderCents: integer("min_order_cents"), // minimum order amount
+    maxUsageCount: integer("max_usage_count"), // maximum usage count
+    usageCount: integer("usage_count").default(0).notNull(),
+
+    maxUsagePerUser: integer("max_usage_per_user").default(1),
+
+    validFrom: timestamp("valid_from"),
+    validUntil: timestamp("valid_until"),
+
+    isActive: boolean("is_active").default(true).notNull(),
+
+    // Optional: limit to categories/products
+    applicableToProductIds: jsonb("applicable_to_product_ids").$type<
+      string[]
+    >(),
+    applicableToCategoryIds: jsonb("applicable_to_category_ids").$type<
+      string[]
+    >(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("idx_promo_codes_code").on(table.code)]
+);
+
+// Promo code usages
+export const promoCodeUsages = pgTable(
+  "promo_code_usages",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("promo_use")),
+    promoCodeId: text("promo_code_id")
+      .notNull()
+      .references(() => promoCodes.id, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    orderId: text("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    discountCents: integer("discount_cents").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("idx_promo_usage_user").on(table.userId),
+    index("idx_promo_usage_code").on(table.promoCodeId),
+  ]
+);
+
+export const promoCodesRelations = relations(promoCodes, ({ many }) => ({
+  orders: many(orders),
+  usages: many(promoCodeUsages),
+}));
+
+export const promoCodeUsagesRelations = relations(
+  promoCodeUsages,
+  ({ one }) => ({
+    promoCode: one(promoCodes, {
+      fields: [promoCodeUsages.promoCodeId],
+      references: [promoCodes.id],
+    }),
+    user: one(users, {
+      fields: [promoCodeUsages.userId],
+      references: [users.id],
+    }),
+    order: one(orders, {
+      fields: [promoCodeUsages.orderId],
+      references: [orders.id],
+    }),
+  })
+);
+
+// #endregion Promo codes
 
 // #region Orders
 
@@ -369,6 +448,45 @@ type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 const INVOICE_STATUSES = ["draft", "issued", "sent", "paid", "void"] as const;
 type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
+
+export const invoices = pgTable(
+  "invoices",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("inv")),
+    orgId: text("org_id")
+      .notNull()
+      .references(() => organizations.id),
+
+    periodStart: timestamp("period_start").notNull(),
+    periodEnd: timestamp("period_end").notNull(),
+
+    status: text("status").$type<InvoiceStatus>().default("draft").notNull(),
+    totalCents: integer("total_cents").notNull().default(0),
+
+    dueDate: timestamp("due_date"),
+    issuedAt: timestamp("issued_at"),
+    paidAt: timestamp("paid_at"),
+
+    pdfUrl: text("pdf_url"),
+    invoiceNumber: text("invoice_number").unique(), // VS2025001
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_invoices_org_id").on(table.orgId),
+    index("idx_invoices_status").on(table.status),
+    index("idx_invoices_due_date").on(table.dueDate),
+    index("idx_invoices_issued_at").on(table.issuedAt),
+    index("idx_invoices_paid_at").on(table.paidAt),
+    index("idx_invoices_invoice_number").on(table.invoiceNumber),
+  ]
+);
 
 export const orders = pgTable(
   "orders",
@@ -409,6 +527,15 @@ export const orders = pgTable(
 
     paymentId: text("payment_id"),
 
+    invoiceId: text("invoice_id").references(() => invoices.id, {
+      onDelete: "set null",
+    }),
+
+    promoCodeId: text("promo_code_id").references(() => promoCodes.id, {
+      onDelete: "set null",
+    }),
+    discountCents: integer("discount_cents").default(0),
+
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
@@ -425,22 +552,6 @@ export const orders = pgTable(
     index("idx_created_at").on(table.createdAt),
   ]
 );
-
-export const invoices = pgTable("invoices", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => createPrefixedId("inv")),
-  orgId: text("org_id").references(() => organizations.id),
-  status: text("status").$type<InvoiceStatus>().default("draft").notNull(),
-  totalCents: integer("total_cents").notNull(),
-  dueDate: timestamp("due_date"),
-  pdfUrl: text("pdf_url"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-});
 
 export const orderStatusEvents = pgTable(
   "order_status_events",
@@ -477,7 +588,6 @@ export const orderItems = pgTable(
     productSnapshot: jsonb("product_snapshot").$type<ProductSnapshot>(),
     quantity: integer("quantity").notNull().default(1),
     price: integer("price").notNull(),
-    total: integer("total").notNull().default(0),
   },
   (table) => [primaryKey({ columns: [table.orderId, table.productId] })]
 );
@@ -497,6 +607,14 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
   }),
   items: many(orderItems),
   statusEvents: many(orderStatusEvents),
+  invoice: one(invoices, {
+    fields: [orders.invoiceId],
+    references: [invoices.id],
+  }),
+  promoCode: one(promoCodes, {
+    fields: [orders.promoCodeId],
+    references: [promoCodes.id],
+  }),
 }));
 
 export const orderStatusEventsRelations = relations(
@@ -522,6 +640,14 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
     fields: [orderItems.productId],
     references: [products.id],
   }),
+}));
+
+export const invoicesRelations = relations(invoices, ({ one, many }) => ({
+  organization: one(organizations, {
+    fields: [invoices.orgId],
+    references: [organizations.id],
+  }),
+  orders: many(orders),
 }));
 
 // #endregion Orders
@@ -643,6 +769,8 @@ export const productsRelations = relations(products, ({ many }) => ({
   categories: many(productCategories),
   prices: many(prices),
   orderItems: many(orderItems),
+  favorites: many(favorites),
+  reviews: many(reviews),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({
@@ -686,7 +814,7 @@ type StoreSchedule = {
     sunday: DaySchedule;
   };
   exceptions?: {
-    [date: string]: DaySchedule; // "2024-12-24": { start: "08:00", end: "12:00" } | "closed"
+    [date: string]: DaySchedule; // e.g. "2024-12-24": { start: "08:00", end: "12:00" } | "closed"
   };
 };
 
@@ -795,3 +923,267 @@ export const storeMembersRelations = relations(storeMembers, ({ one }) => ({
 }));
 
 // #endregion Stores
+
+// #region Blog
+
+const POST_STATUSES = ["draft", "published", "archived"] as const;
+type PostStatus = (typeof POST_STATUSES)[number];
+
+export const posts = pgTable(
+  "posts",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("post")),
+
+    title: text("title").notNull().default("Nový článok"),
+    slug: text("slug")
+      .notNull()
+      .unique()
+      .$defaultFn(() => draftSlug("Nový článok")),
+
+    excerpt: text("excerpt"), // short description for preview
+    content: jsonb("content").$type<JSONContent>(), // TipTap like in products
+
+    authorId: text("author_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    coverImageId: text("cover_image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+
+    status: text("status").$type<PostStatus>().default("draft").notNull(),
+    publishedAt: timestamp("published_at"),
+
+    // SEO
+    metaTitle: text("meta_title"),
+    metaDescription: text("meta_description"),
+
+    likesCount: integer("likes_count").default(0).notNull(),
+    commentsCount: integer("comments_count").default(0).notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_posts_slug").on(table.slug),
+    index("idx_posts_status").on(table.status),
+    index("idx_posts_published_at").on(table.publishedAt),
+  ]
+);
+
+// Tags for posts
+export const postTags = pgTable("post_tags", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => createPrefixedId("tag")),
+  name: text("name").notNull().unique(),
+  slug: text("slug").notNull().unique(),
+});
+
+export const postToTags = pgTable(
+  "post_to_tags",
+  {
+    postId: text("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    tagId: text("tag_id")
+      .notNull()
+      .references(() => postTags.id, { onDelete: "cascade" }),
+  },
+  (table) => [primaryKey({ columns: [table.postId, table.tagId] })]
+);
+
+// Comments
+export const postComments = pgTable(
+  "post_comments",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("comment")),
+    postId: text("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    parentId: text("parent_id"), // for nested comments
+
+    content: text("content").notNull(),
+    isPublished: boolean("is_published").default(false).notNull(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_comments_post_id").on(table.postId),
+    foreignKey({
+      columns: [table.parentId],
+      foreignColumns: [table.id],
+    }).onDelete("cascade"),
+  ]
+);
+
+export const postsRelations = relations(posts, ({ one, many }) => ({
+  author: one(users, {
+    fields: [posts.authorId],
+    references: [users.id],
+  }),
+  coverImage: one(media, {
+    fields: [posts.coverImageId],
+    references: [media.id],
+  }),
+  tags: many(postToTags),
+  comments: many(postComments),
+  likes: many(postLikes),
+}));
+
+export const postTagsRelations = relations(postTags, ({ many }) => ({
+  posts: many(postToTags),
+}));
+
+export const postToTagsRelations = relations(postToTags, ({ one }) => ({
+  post: one(posts, {
+    fields: [postToTags.postId],
+    references: [posts.id],
+  }),
+  tag: one(postTags, {
+    fields: [postToTags.tagId],
+    references: [postTags.id],
+  }),
+}));
+
+export const postCommentsRelations = relations(
+  postComments,
+  ({ one, many }) => ({
+    post: one(posts, {
+      fields: [postComments.postId],
+      references: [posts.id],
+    }),
+    user: one(users, {
+      fields: [postComments.userId],
+      references: [users.id],
+    }),
+    parent: one(postComments, {
+      fields: [postComments.parentId],
+      references: [postComments.id],
+      relationName: "parent",
+    }),
+    replies: many(postComments, {
+      relationName: "parent",
+    }),
+  })
+);
+
+// #endregion Blog
+
+// #region Social features
+
+export const favorites = pgTable(
+  "favorites",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.productId] })]
+);
+
+export const favoritesRelations = relations(favorites, ({ one }) => ({
+  user: one(users, {
+    fields: [favorites.userId],
+    references: [users.id],
+  }),
+  product: one(products, {
+    fields: [favorites.productId],
+    references: [products.id],
+  }),
+}));
+
+export const reviews = pgTable(
+  "reviews",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("rev")),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+
+    rating: integer("rating").notNull(), // 1-5
+    title: text("title"),
+    content: text("content"),
+
+    isVerifiedPurchase: boolean("is_verified_purchase")
+      .default(false)
+      .notNull(),
+    isPublished: boolean("is_published").default(false).notNull(), // moderation
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_reviews_product_id").on(table.productId),
+    index("idx_reviews_user_id").on(table.userId),
+    // One review per product per user
+    // unique([table.userId, table.productId]) if needed
+  ]
+);
+
+export const reviewsRelations = relations(reviews, ({ one }) => ({
+  user: one(users, {
+    fields: [reviews.userId],
+    references: [users.id],
+  }),
+  product: one(products, {
+    fields: [reviews.productId],
+    references: [products.id],
+  }),
+}));
+
+export const postLikes = pgTable(
+  "post_likes",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    postId: text("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.postId] }),
+    index("idx_post_likes_post_id").on(table.postId),
+  ]
+);
+
+export const postLikesRelations = relations(postLikes, ({ one }) => ({
+  user: one(users, {
+    fields: [postLikes.userId],
+    references: [users.id],
+  }),
+  post: one(posts, {
+    fields: [postLikes.postId],
+    references: [posts.id],
+  }),
+}));
+
+// #endregion Social features
