@@ -1,9 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { CheckIcon, ChevronsUpDown, StoreIcon } from "lucide-react";
+import type { StoreSchedule } from "@/db/types";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import { Button } from "./ui/button";
 import {
   Command,
@@ -15,27 +14,33 @@ import {
 } from "./ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
+export type StoreOption = {
+  id: string;
+  name: string;
+  openingHours: StoreSchedule | null;
+};
+
+type OrderStorePickerProps = {
+  value: string;
+  onValueChange: (storeId: string, store: StoreOption | null) => void;
+  storeOptions: StoreOption[];
+};
+
 export function OrderStorePicker({
   value,
   onValueChange,
-}: {
-  value: string;
-  onValueChange: (value: string) => void;
-}) {
-  const trpc = useTRPC();
-  const { data: stores } = useQuery(trpc.public.stores.list.queryOptions());
+  storeOptions,
+}: OrderStorePickerProps) {
+  const selectedStore = storeOptions.find((store) => store.id === value);
 
-  const processedStores = stores?.map((store) => ({
-    label: store.name,
-    value: store.id,
-  }));
-
-  const selectedStore = processedStores?.find((store) => store.value === value);
+  const handleSelect = (storeId: string) => {
+    const store = storeOptions.find((s) => s.id === storeId) ?? null;
+    onValueChange(storeId, store);
+  };
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        {/* @ts-ignore */}
         <Button
           className="w-full justify-start"
           role="combobox"
@@ -43,27 +48,29 @@ export function OrderStorePicker({
           variant="outline"
         >
           <StoreIcon />
-          {value ? selectedStore?.label : "Vyberte predajňu"}
+          <span className="truncate">
+            {value ? selectedStore?.name : "Vyberte predajňu"}
+          </span>
           <ChevronsUpDown className="ml-auto opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
         <Command>
-          <CommandInput className="h-9" placeholder="Search framework..." />
+          <CommandInput className="h-9" placeholder="Hľadať predajňu..." />
           <CommandList>
             <CommandEmpty>Nenašli sa žiadne predajne.</CommandEmpty>
             <CommandGroup>
-              {processedStores?.map((store) => (
+              {storeOptions.map((store) => (
                 <CommandItem
-                  key={store.value}
-                  onSelect={() => onValueChange(store.value)}
-                  value={store.value}
+                  key={store.id}
+                  onSelect={() => handleSelect(store.id)}
+                  value={store.id}
                 >
-                  {store.label}
+                  {store.name}
                   <CheckIcon
                     className={cn(
                       "ml-auto",
-                      value === store.value ? "opacity-100" : "opacity-0"
+                      value === store.id ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>
