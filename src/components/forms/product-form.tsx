@@ -7,9 +7,9 @@ import {
 } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import { useRef } from "react";
 import { toast } from "sonner";
 import { useAppForm } from "@/components/shared/form";
-import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,7 +25,6 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { getSlug } from "@/lib/get-slug";
 import { useTRPC } from "@/trpc/client";
 import { updateProductSchema } from "@/validation/products";
@@ -35,20 +34,35 @@ export function ProductForm({ id }: { id: string }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
-  const { data: product, isLoading: isLoadingProduct } = useSuspenseQuery(
+  const { data: product } = useSuspenseQuery(
     trpc.admin.products.byId.queryOptions({ id })
   );
+
+  const requestIdRef = useRef(0);
+
   const { mutateAsync: updateProduct, isPending: isPendingUpdateProduct } =
     useMutation(
       trpc.admin.products.update.mutationOptions({
-        onSuccess: async (updatedProduct) => {
-          await queryClient.invalidateQueries({
-            queryKey: trpc.admin.products.byId.queryOptions({
-              id: updatedProduct.id,
-            }).queryKey,
-          });
+        onMutate: () => {
+          requestIdRef.current += 1;
+          return { requestId: requestIdRef.current };
         },
-        onError: (error) => {
+        onSuccess: async (updatedProduct, _variables, context) => {
+          if (context?.requestId !== requestIdRef.current) {
+            return;
+          }
+          await queryClient.invalidateQueries(
+            trpc.admin.products.byId.queryFilter({
+              id: updatedProduct.id,
+            })
+          );
+        },
+        onError: (error, _variables, context) => {
+          if (context?.requestId !== requestIdRef.current) {
+            return;
+          }
+          // biome-ignore lint/suspicious/noConsole: Error reporting
+          console.error(error);
           toast.error(error.message);
         },
       })
@@ -72,9 +86,13 @@ export function ProductForm({ id }: { id: string }) {
       categoryIds: product?.categories.map((category) => category.id) ?? [],
     },
     listeners: {
-      onChangeDebounceMs: 5000,
+      onChangeDebounceMs: 2000,
       onChange: ({ formApi }) => {
-        if (formApi.state.isValid && !formApi.state.isSubmitting) {
+        if (
+          formApi.state.isValid &&
+          formApi.state.isDirty &&
+          !formApi.state.isSubmitting
+        ) {
           formApi.handleSubmit();
         }
       },
@@ -82,32 +100,28 @@ export function ProductForm({ id }: { id: string }) {
     onSubmit: ({ value }) => updateProduct({ id, product: value }),
   });
 
-  const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
-
-  if (isLoadingProduct) {
-    return <FormSkeleton className="@md/page:max-w-md" />;
-  }
+  // const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
 
   return (
     <form.AppForm>
       <form
         aria-disabled={isPendingUpdateProduct}
         id="product-form"
-        onBlurCapture={onBlurCapture}
-        onFocusCapture={onFocusCapture}
+        // onBlurCapture={onBlurCapture}
+        // onFocusCapture={onFocusCapture}
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
         }}
-        ref={formRef}
+        // ref={formRef}
       >
         <FieldSet className="@md/page:max-w-md max-w-full gap-5">
           <div className="flex flex-row items-start justify-between">
             <div>
               <FieldLegend>Nastavenie produktu</FieldLegend>
               <FieldDescription className="text-[10px]">
-                {isPendingUpdateProduct || isLoadingProduct
+                {isPendingUpdateProduct
                   ? "Ukladá sa..."
                   : `Naposledy uložené ${format(
                       product?.updatedAt ?? new Date(),
@@ -148,16 +162,16 @@ export function ProductForm({ id }: { id: string }) {
               {(field) => <field.TextField label="Názov" />}
             </form.AppField>
 
-            <form.AppField
-              listeners={{
-                onChangeDebounceMs: 300,
-                onChange: (event) => {
-                  form.setFieldValue("slug", getSlug(event.value));
-                },
-              }}
-              name="slug"
-            >
-              {(field) => <field.TextField label="Slug" />}
+            <form.AppField name="slug">
+              {(field) => (
+                <field.TextField
+                  label="Slug"
+                  onBlur={() => {
+                    const formatted = getSlug(field.state.value);
+                    field.handleChange(formatted);
+                  }}
+                />
+              )}
             </form.AppField>
 
             <form.AppField name="priceCents">

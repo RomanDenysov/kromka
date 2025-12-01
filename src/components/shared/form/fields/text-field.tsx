@@ -12,6 +12,7 @@ type Props = {
   placeholder?: string;
   className?: string;
   description?: string;
+  onBlur?: () => void;
 };
 
 export function TextField({
@@ -19,6 +20,7 @@ export function TextField({
   placeholder,
   className,
   description,
+  onBlur,
 }: Props) {
   const field = useFieldContext<string>();
 
@@ -36,7 +38,10 @@ export function TextField({
       <Input
         id={field.name}
         name={field.name}
-        onBlur={field.handleBlur}
+        onBlur={() => {
+          field.handleBlur();
+          onBlur?.();
+        }}
         onChange={(e) => field.handleChange(e.target.value)}
         placeholder={placeholder}
         value={field.state.value}
