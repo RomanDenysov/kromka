@@ -29,7 +29,9 @@ import {
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { StoreSchedule, TimeRange } from "@/db/types";
+import { useGetCart } from "@/hooks/use-get-cart";
 import { useGetUser } from "@/hooks/use-get-user";
+import { formatPrice } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 
 const DAY_KEYS = [
@@ -95,7 +97,9 @@ function getTimeRangeForDate(
 export function CheckoutForm() {
   const { data: user } = useGetUser();
   const trpc = useTRPC();
+
   const { data: stores } = useQuery(trpc.public.stores.list.queryOptions());
+  const { data: cart } = useGetCart();
 
   const [selectedStore, setSelectedStore] = useState<StoreOption | null>(null);
   const [pickupDate, setPickupDate] = useState<Date | undefined>(undefined);
@@ -332,6 +336,13 @@ export function CheckoutForm() {
                 </FieldGroup>
               </CardContent>
             </Card>
+
+            <div className="flex flex-row items-center justify-between">
+              <span className="font-medium text-lg">Spolu</span>
+              <span className="font-semibold text-lg">
+                {formatPrice(cart?.totalCents ?? 0)}
+              </span>
+            </div>
 
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}

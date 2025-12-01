@@ -1,11 +1,27 @@
 import "server-only";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, sql, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { orderItems, orderStatusEvents, orders, products } from "@/db/schema";
 
 type InsertOrder = typeof orders.$inferInsert;
 type OrderStatus = InsertOrder["orderStatus"];
+
+/**
+ * Recalculates and updates the order total from its items
+ */
+async function recalculateOrderTotal(orderId: string) {
+  const result = await db
+    .select({
+      total: sum(sql`${orderItems.price} * ${orderItems.quantity}`),
+    })
+    .from(orderItems)
+    .where(eq(orderItems.orderId, orderId));
+
+  const totalCents = Number(result[0]?.total) || 0;
+
+  await db.update(orders).set({ totalCents }).where(eq(orders.id, orderId));
+}
 
 export const MUTATIONS = {
   ADMIN: {
@@ -89,6 +105,8 @@ export const MUTATIONS = {
             price: sql`excluded.price`,
           },
         });
+
+      await recalculateOrderTotal(orderId);
     },
     REMOVE_FROM_CART: async (productId: string, userId: string) => {
       const order = await db.query.orders.findFirst({
@@ -113,6 +131,8 @@ export const MUTATIONS = {
             eq(orderItems.productId, productId)
           )
         );
+
+      await recalculateOrderTotal(order.id);
     },
     UPDATE_CART_ITEM_QUANTITY: async (
       productId: string,
@@ -155,6 +175,8 @@ export const MUTATIONS = {
             )
           );
       }
+
+      await recalculateOrderTotal(order.id);
     },
   },
 };
