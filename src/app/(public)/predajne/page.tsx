@@ -10,6 +10,7 @@ import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGetUser } from "@/hooks/use-get-user";
 import { useTRPC } from "@/trpc/client";
 
 export default function StoresPage() {
@@ -19,9 +20,14 @@ export default function StoresPage() {
     trpc.public.stores.list.queryOptions()
   );
 
-  const { data: userStore, isLoading: isLoadingUserStore } = useQuery(
-    trpc.public.stores.getUserStore.queryOptions()
-  );
+  const { data: user, isLoading: isLoadingUser } = useGetUser();
+  const userDefaultStoreId = isLoadingUser
+    ? null
+    : (user?.storeMembers?.[0]?.storeId ?? null);
+
+  const userStore = userDefaultStoreId
+    ? (stores?.find((store) => store.id === userDefaultStoreId) ?? null)
+    : null;
 
   return (
     <PageWrapper>
@@ -56,17 +62,25 @@ export default function StoresPage() {
 
               {/* Quick store selector */}
               <div className="mt-8">
-                {isLoadingUserStore ? (
+                {isLoadingUser ? (
                   <Skeleton className="h-12 w-48 rounded-full bg-white/10" />
                   // biome-ignore lint/style/noNestedTernary: <explanation>
-                ) : userStore ? (
+                ) : userDefaultStoreId ? (
                   <StoreSelectModal>
                     <button
                       className="inline-flex items-center gap-3 rounded-full bg-white px-5 py-3 font-medium text-neutral-900 transition-transform hover:scale-105"
                       type="button"
                     >
                       <MapPin className="size-4" />
-                      <span>{(userStore as unknown as Store).name}</span>
+                      <span>
+                        {
+                          (
+                            stores?.find(
+                              (store) => store.id === userDefaultStoreId
+                            ) as unknown as Store
+                          ).name
+                        }
+                      </span>
                       <span className="text-neutral-500">·</span>
                       <span className="text-neutral-500 text-sm">Zmeniť</span>
                     </button>

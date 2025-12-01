@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckIcon, ChevronsUpDown, StoreIcon } from "lucide-react";
+import { useCallback } from "react";
 import type { StoreSchedule } from "@/db/types";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -22,7 +23,7 @@ export type StoreOption = {
 
 type OrderStorePickerProps = {
   value: string;
-  onValueChange: (storeId: string, store: StoreOption | null) => void;
+  onValueChange: (storeId: string) => void;
   storeOptions: StoreOption[];
 };
 
@@ -33,10 +34,12 @@ export function OrderStorePicker({
 }: OrderStorePickerProps) {
   const selectedStore = storeOptions.find((store) => store.id === value);
 
-  const handleSelect = (storeId: string) => {
-    const store = storeOptions.find((s) => s.id === storeId) ?? null;
-    onValueChange(storeId, store);
-  };
+  const handleSelect = useCallback(
+    (storeId: string) => {
+      onValueChange(storeId);
+    },
+    [onValueChange]
+  );
 
   return (
     <Popover>

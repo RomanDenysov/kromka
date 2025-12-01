@@ -1,9 +1,9 @@
+/** biome-ignore-all lint/style/noMagicNumbers: Date calculation constants */
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { format, getDay } from "date-fns";
+import { useStore } from "@tanstack/react-form";
 import { CreditCardIcon, StoreIcon } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import z from "zod";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
@@ -28,21 +28,15 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { StoreSchedule, TimeRange } from "@/db/types";
 import { useGetCart } from "@/hooks/use-get-cart";
 import { useGetUser } from "@/hooks/use-get-user";
+import { useSelectStore } from "@/hooks/use-select-store";
+import {
+  getFirstAvailableDate,
+  getFirstAvailableTime,
+  getTimeRangeForDate,
+} from "@/lib/checkout-utils";
 import { formatPrice } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
-
-const DAY_KEYS = [
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-] as const;
 
 const checkoutFormSchema = z.object({
   name: z.string().min(1),
@@ -56,54 +50,10 @@ const checkoutFormSchema = z.object({
   storeId: z.string().min(1),
 });
 
-/**
- * Gets the time range for a specific date from the store schedule.
- * Returns null if the store is closed on that date.
- */
-function getTimeRangeForDate(
-  date: Date | undefined,
-  schedule: StoreSchedule | null
-): TimeRange | null {
-  if (!date) {
-    return null;
-  }
-
-  if (!schedule) {
-    return null;
-  }
-
-  const dateKey = format(date, "yyyy-MM-dd");
-
-  // Check exceptions first
-  const exception = schedule.exceptions?.[dateKey];
-  if (exception === "closed" || exception === null) {
-    return null;
-  }
-  if (exception) {
-    return exception;
-  }
-
-  // Check regular hours
-  const dayOfWeek = getDay(date);
-  const dayKey = DAY_KEYS[dayOfWeek];
-  const daySchedule = schedule.regularHours[dayKey];
-
-  if (daySchedule === "closed" || daySchedule === null) {
-    return null;
-  }
-  return daySchedule;
-}
-
 export function CheckoutForm() {
   const { data: user } = useGetUser();
-  const trpc = useTRPC();
-
-  const { data: stores } = useQuery(trpc.public.stores.list.queryOptions());
+  const { stores } = useSelectStore();
   const { data: cart } = useGetCart();
-
-  const [selectedStore, setSelectedStore] = useState<StoreOption | null>(null);
-  const [pickupDate, setPickupDate] = useState<Date | undefined>(undefined);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // Map stores to StoreOption format
   const storeOptions: StoreOption[] = useMemo(
@@ -116,17 +66,12 @@ export function CheckoutForm() {
     [stores]
   );
 
-  // Get user's default store ID from membership
-  const userDefaultStoreId = user?.isAnonymous
-    ? null
-    : (user?.storeMembers?.[0]?.storeId ?? null);
-
   const userData = user?.isAnonymous
     ? null
     : {
         name: user?.name ?? "",
         email: user?.email ?? "",
-        phone: user?.phone ?? null,
+        phone: user?.phone ?? "",
       };
 
   const form = useAppForm({
@@ -137,7 +82,7 @@ export function CheckoutForm() {
       paymentMethod: "in_store",
       pickupDate: undefined as Date | undefined,
       pickupTime: "",
-      storeId: "",
+      storeId: user?.storeMembers?.[0]?.storeId ?? "",
     },
     validators: {
       onSubmit: checkoutFormSchema,
@@ -148,42 +93,37 @@ export function CheckoutForm() {
     },
   });
 
-  // Initialize store selection from user's membership once data is loaded
+  const pickupDate = useStore(form.store, (state) => state.values.pickupDate);
+
+  const storeId = useStore(form.store, (state) => state.values.storeId);
+
+  // Derived from form value, not from hook
+  const selectedStoreInForm =
+    storeOptions.find((s) => s.id === storeId) ?? null;
+  const storeSchedule = selectedStoreInForm?.openingHours ?? null;
+  const timeRange = getTimeRangeForDate(pickupDate, storeSchedule);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we want to memoize by all values
   useEffect(() => {
-    if (isInitialized || !storeOptions.length) {
+    const defaultStoreId = user?.storeMembers?.[0]?.storeId;
+    if (!(defaultStoreId && storeOptions.length)) {
       return;
     }
 
-    if (userDefaultStoreId) {
-      const defaultStore = storeOptions.find(
-        (s) => s.id === userDefaultStoreId
-      );
-      if (defaultStore) {
-        setSelectedStore(defaultStore);
-        form.setFieldValue("storeId", defaultStore.id);
-        setIsInitialized(true);
-      }
+    const store = storeOptions.find((s) => s.id === defaultStoreId);
+    if (!store) {
+      return;
     }
-  }, [userDefaultStoreId, storeOptions, isInitialized, form]);
 
-  const storeSchedule = selectedStore?.openingHours ?? null;
-  const timeRange = getTimeRangeForDate(pickupDate, storeSchedule);
+    const schedule = store.openingHours;
+    const firstDate = getFirstAvailableDate(schedule);
 
-  const handleStoreChange = (storeId: string, store: StoreOption | null) => {
-    setSelectedStore(store);
-    form.setFieldValue("storeId", storeId);
-    // Reset date and time when store changes
-    setPickupDate(undefined);
-    form.setFieldValue("pickupDate", undefined);
-    form.setFieldValue("pickupTime", "");
-  };
-
-  const handleDateChange = (date: Date) => {
-    setPickupDate(date);
-    form.setFieldValue("pickupDate", date);
-    // Reset time when date changes (new day may have different hours)
-    form.setFieldValue("pickupTime", "");
-  };
+    if (firstDate) {
+      form.setFieldValue("pickupDate", firstDate);
+      const range = getTimeRangeForDate(firstDate, schedule);
+      form.setFieldValue("pickupTime", getFirstAvailableTime(range));
+    }
+  }, [user?.storeMembers, storeOptions]);
 
   return (
     <div className="sticky top-14 size-full">
@@ -228,17 +168,57 @@ export function CheckoutForm() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <form.Field name="storeId">
+                <form.Field
+                  listeners={{
+                    onChange: ({ value }) => {
+                      if (!value) {
+                        return;
+                      }
+
+                      const store = storeOptions.find((s) => s.id === value);
+                      const schedule = store?.openingHours ?? null;
+
+                      // Set first available date
+                      const firstDate = getFirstAvailableDate(schedule);
+                      form.setFieldValue("pickupDate", firstDate ?? undefined);
+
+                      // Set first available time
+                      if (firstDate) {
+                        const range = getTimeRangeForDate(firstDate, schedule);
+                        const firstTime = getFirstAvailableTime(range);
+                        form.setFieldValue("pickupTime", firstTime);
+                      } else {
+                        form.setFieldValue("pickupTime", "");
+                      }
+                    },
+                  }}
+                  name="storeId"
+                >
                   {(field) => (
                     <OrderStorePicker
-                      onValueChange={handleStoreChange}
+                      onValueChange={(id) => field.handleChange(id)}
                       storeOptions={storeOptions}
                       value={field.state.value}
                     />
                   )}
                 </form.Field>
                 <FieldGroup className="grid w-full gap-2 md:grid-cols-5">
-                  <form.Field name="pickupDate">
+                  <form.Field
+                    listeners={{
+                      onChange: ({ value }) => {
+                        if (!value) {
+                          form.setFieldValue("pickupTime", "");
+                          return;
+                        }
+
+                        // Set first available time for new date
+                        const range = getTimeRangeForDate(value, storeSchedule);
+                        const firstTime = getFirstAvailableTime(range);
+                        form.setFieldValue("pickupTime", firstTime);
+                      },
+                    }}
+                    name="pickupDate"
+                  >
                     {(field) => {
                       const isInvalid =
                         field.state.meta.isTouched && !field.state.meta.isValid;
@@ -248,7 +228,7 @@ export function CheckoutForm() {
                           data-invalid={isInvalid}
                         >
                           <OrderPickupDatePicker
-                            onDateSelect={handleDateChange}
+                            onDateSelect={(date) => field.handleChange(date)}
                             selectedDate={field.state.value}
                             storeSchedule={storeSchedule}
                           />

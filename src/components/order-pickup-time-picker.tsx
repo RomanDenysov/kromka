@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import type { TimeRange } from "@/db/types";
+import { filterTimeSlots, generateAllTimeSlots } from "@/lib/checkout-utils";
 import { ScrollArea } from "./ui/scroll-area";
 import {
   Select,
@@ -10,43 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-
-const INTERVAL_MINUTES = 15;
-const SLOTS_PER_DAY = (24 * 60) / INTERVAL_MINUTES;
-
-/**
- * Generates all time slots for a full day (00:00 - 23:45).
- */
-function generateAllTimeSlots(): string[] {
-  return Array.from({ length: SLOTS_PER_DAY }, (_, i) => {
-    const hour = Math.floor((i * INTERVAL_MINUTES) / 60)
-      .toString()
-      .padStart(2, "0");
-    const minute = ((i * INTERVAL_MINUTES) % 60).toString().padStart(2, "0");
-    return `${hour}:${minute}`;
-  });
-}
-
-/**
- * Parses "HH:MM" string to total minutes from midnight.
- */
-function parseTimeToMinutes(time: string): number {
-  const [hours, minutes] = time.split(":").map(Number);
-  return hours * 60 + minutes;
-}
-
-/**
- * Filters time slots to only include those within the given range.
- */
-function filterTimeSlots(allSlots: string[], range: TimeRange): string[] {
-  const startMinutes = parseTimeToMinutes(range.start);
-  const endMinutes = parseTimeToMinutes(range.end);
-
-  return allSlots.filter((slot) => {
-    const slotMinutes = parseTimeToMinutes(slot);
-    return slotMinutes >= startMinutes && slotMinutes < endMinutes;
-  });
-}
 
 type OrderPickupTimePickerProps = {
   selectedTime: string;

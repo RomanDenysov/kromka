@@ -1,10 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { StoreIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { useTRPC } from "@/trpc/client";
+import { useSelectStore } from "@/hooks/use-select-store";
 import type { Store } from "@/types/store";
 import { Button } from "../ui/button";
 import {
@@ -31,40 +28,16 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Skeleton } from "../ui/skeleton";
 
 export function StoreSelectModal({ children }: { children?: React.ReactNode }) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-  const { data: stores, isLoading: isLoadingStores } = useQuery(
-    trpc.public.stores.list.queryOptions()
-  );
+  const {
+    stores,
+    selectedStore,
+    setSelectedStore,
+    setStore,
+    isLoading,
+    isPending,
+  } = useSelectStore();
 
-  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
-
-  const { data: userStore, isLoading: isLoadingUserStore } = useQuery(
-    trpc.public.stores.getUserStore.queryOptions()
-  );
-
-  const setStore = useMutation(
-    trpc.public.stores.setUserStore.mutationOptions({
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: trpc.public.stores.getUserStore.queryKey(),
-        });
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    })
-  );
-
-  useEffect(() => {
-    if (userStore) {
-      setSelectedStore(userStore as unknown as Store);
-    } else {
-      setSelectedStore(null);
-    }
-  }, [userStore]);
-
-  if (isLoadingStores || isLoadingUserStore) {
+  if (isLoading) {
     if (children) {
       return <>{children}</>;
     }
@@ -114,9 +87,9 @@ export function StoreSelectModal({ children }: { children?: React.ReactNode }) {
           </DialogClose>
           <DialogClose asChild>
             <Button
-              disabled={!selectedStore || setStore.isPending}
+              disabled={!selectedStore || isPending}
               onClick={() => {
-                setStore.mutate({ storeId: selectedStore?.id ?? "" });
+                setStore({ storeId: selectedStore?.id ?? "" });
               }}
               size="sm"
               type="button"

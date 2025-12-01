@@ -826,6 +826,7 @@ export const storeMembers = pgTable(
       .references(() => stores.id, { onDelete: "cascade" }),
     userId: text("user_id")
       .notNull()
+      .unique()
       .references(() => users.id, { onDelete: "cascade" }),
     role: text("role").default("member").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

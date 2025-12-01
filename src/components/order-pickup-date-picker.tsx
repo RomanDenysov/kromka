@@ -1,10 +1,9 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+/** biome-ignore-all lint/style/noMagicNumbers: Date calculation constants */
 "use client";
 
 import {
   addDays,
   format,
-  getDay,
   isAfter,
   isBefore,
   isSameDay,
@@ -14,50 +13,16 @@ import { sk } from "date-fns/locale/sk";
 import { Calendar1Icon, ChevronDownIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { StoreSchedule } from "@/db/types";
+import { isStoreClosed } from "@/lib/checkout-utils";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-
-const DAY_KEYS = [
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-] as const;
 
 type OrderPickupDatePickerProps = {
   selectedDate: Date | undefined;
   onDateSelect: (date: Date) => void;
   storeSchedule: StoreSchedule | null;
 };
-
-/**
- * Checks if a store is closed on a given date based on its schedule.
- * Considers both regular hours and exceptions.
- */
-function isStoreClosed(date: Date, schedule: StoreSchedule | null): boolean {
-  if (!schedule) {
-    return false;
-  }
-
-  const dateKey = format(date, "yyyy-MM-dd");
-
-  // Check exceptions first (holiday closures, special hours, etc.)
-  const exception = schedule.exceptions?.[dateKey];
-  if (exception !== undefined) {
-    return exception === "closed" || exception === null;
-  }
-
-  // Check regular hours
-  const dayOfWeek = getDay(date);
-  const dayKey = DAY_KEYS[dayOfWeek];
-  const daySchedule = schedule.regularHours[dayKey];
-
-  return daySchedule === "closed" || daySchedule === null;
-}
 
 export function OrderPickupDatePicker({
   selectedDate,

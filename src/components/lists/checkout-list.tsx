@@ -93,14 +93,20 @@ function CheckoutListSkeleton() {
       <div className="flex flex-col gap-2">
         {Array.from({ length: 3 }).map((_, index) => (
           <div
-            className="flex size-full flex-col gap-2 rounded-md border p-3"
+            className="flex size-full min-h-24 flex-row gap-2 rounded-md border p-3"
             key={`skeleton-${index.toString()}`}
           >
-            <div className="flex flex-col gap-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="size-[100px] rounded-sm" />
+            <div className="flex flex-1 flex-col justify-between gap-2">
+              <div className="flex flex-row items-center justify-between gap-2">
+                <Skeleton className="h-7 w-3/4" />
+                <Skeleton className="size-7 rounded" />
+              </div>
+              <div className="flex flex-row items-center justify-between gap-2">
+                <Skeleton className="h-7 w-1/4" />
+                <Skeleton className="h-7 w-20 rounded" />
+              </div>
             </div>
-            <Skeleton className="h-4 w-1/4" />
           </div>
         ))}
       </div>

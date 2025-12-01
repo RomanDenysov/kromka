@@ -12,7 +12,12 @@ export const MUTATIONS = {
       await db
         .insert(storeMembers)
         .values({ storeId, userId })
-        .onConflictDoNothing();
+        .onConflictDoUpdate({
+          target: storeMembers.userId,
+          set: {
+            storeId,
+          },
+        });
     },
   },
   ADMIN: {

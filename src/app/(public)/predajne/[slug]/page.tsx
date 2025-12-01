@@ -21,6 +21,7 @@ import { PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { DaySchedule, StoreSchedule } from "@/db/types";
+import { useGetUser } from "@/hooks/use-get-user";
 import { useTRPC } from "@/trpc/client";
 
 const DAYS_ORDER = [
@@ -94,9 +95,17 @@ export default function StorePage({
     trpc.public.stores.bySlug.queryOptions({ slug })
   );
 
-  const { data: userStore } = useQuery(
-    trpc.public.stores.getUserStore.queryOptions()
-  );
+  const { data: user, isLoading: isLoadingUser } = useGetUser();
+  const userDefaultStoreId = isLoadingUser
+    ? null
+    : (user?.storeMembers?.[0]?.storeId ?? null);
+
+  const userStore = userDefaultStoreId
+    ? // biome-ignore lint/style/noNestedTernary: <explanation>
+      userDefaultStoreId === store?.id
+      ? store
+      : null
+    : null;
 
   if (isLoading) {
     return (
