@@ -92,7 +92,7 @@ export function CartDrawer() {
                   buttonVariants({ size: "lg", className: "w-full" }),
                   "text-base"
                 )}
-                href={"/checkout" as Route}
+                href={"/pokladna" as Route}
               >
                 Pokračovať do pokladne
               </Link>

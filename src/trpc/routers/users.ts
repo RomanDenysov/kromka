@@ -2,7 +2,11 @@ import "server-only";
 
 import { z } from "zod";
 import { QUERIES } from "@/db/queries/users";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  sessionProcedure,
+} from "../init";
 
 export const adminUsersRouter = createTRPCRouter({
   list: protectedProcedure.query(async () => await QUERIES.ADMIN.GET_USERS()),
@@ -12,5 +16,12 @@ export const adminUsersRouter = createTRPCRouter({
 });
 
 export const publicUsersRouter = createTRPCRouter({
-  me: publicProcedure.query(async () => await QUERIES.PUBLIC.GET_ME()),
+  me: sessionProcedure.query(async ({ ctx }) => {
+    if (!ctx.session.user) {
+      return null;
+    }
+
+    const user = await QUERIES.PUBLIC.GET_ME(ctx.session.user.id);
+    return user;
+  }),
 });
