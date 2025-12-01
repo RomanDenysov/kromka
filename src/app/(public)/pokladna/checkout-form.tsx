@@ -3,6 +3,8 @@
 import { CreditCardIcon, StoreIcon } from "lucide-react";
 import z from "zod";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
+import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
+import { OrderStorePicker } from "@/components/order-store-picker";
 import { useAppForm } from "@/components/shared/form";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +32,8 @@ const checkoutFormSchema = z.object({
   paymentMethod: z.enum(["in_store", "card"]),
   pickupDate: z.date(),
   pickupTime: z.string().min(1),
+
+  storeId: z.string().min(1),
 });
 
 export function CheckoutForm() {
@@ -51,6 +55,7 @@ export function CheckoutForm() {
       paymentMethod: "in_store",
       pickupDate: new Date(),
       pickupTime: "08:00",
+      storeId: user?.storeMembers?.[0]?.storeId ?? "",
     },
     validators: {
       onSubmit: checkoutFormSchema,
@@ -102,15 +107,40 @@ export function CheckoutForm() {
                 Vyberte si miesto a čas, kedy chcete odobrať vašu objednávku.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <FieldGroup>
+            <CardContent className="space-y-4">
+              <form.Field name="storeId">
+                {(field) => (
+                  <OrderStorePicker
+                    onValueChange={(value) => field.handleChange(value)}
+                    value={field.state.value}
+                  />
+                )}
+              </form.Field>
+              <FieldGroup className="flex flex-col gap-2 md:flex-row">
                 <form.Field name="pickupDate">
                   {(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
-                      <Field data-invalid={isInvalid} orientation="horizontal">
-                        <OrderPickupDatePicker />
+                      <Field className="w-full grow" data-invalid={isInvalid}>
+                        <OrderPickupDatePicker
+                          onDateSelect={(date) => field.handleChange(date)}
+                          selectedDate={field.state.value}
+                        />
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+                <form.Field name="pickupTime">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field className="w-full flex-1" data-invalid={isInvalid}>
+                        <OrderPickupTimePicker
+                          onTimeSelect={(time) => field.handleChange(time)}
+                          selectedTime={field.state.value}
+                        />
                       </Field>
                     );
                   }}
