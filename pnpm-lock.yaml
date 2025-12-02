@@ -203,6 +203,12 @@ importers:
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      leaflet:
+        specifier: ^1.9.4
+        version: 1.9.4
+      leaflet-draw:
+        specifier: ^1.0.4
+        version: 1.0.4
       lucide-react:
         specifier: ^0.548.0
         version: 0.548.0(react@19.2.0)
@@ -251,6 +257,9 @@ importers:
       react-intersection-observer:
         specifier: ^10.0.0
         version: 10.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-leaflet:
+        specifier: ^5.0.0
+        version: 5.0.0(leaflet@1.9.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react-page-tracker:
         specifier: ^0.4.1
         version: 0.4.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -306,6 +315,12 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.17
         version: 4.1.17
+      '@types/leaflet':
+        specifier: ^1.9.21
+        version: 1.9.21
+      '@types/leaflet-draw':
+        specifier: ^1.0.13
+        version: 1.0.13
       '@types/node':
         specifier: ^20.19.25
         version: 20.19.25
@@ -2104,6 +2119,13 @@ packages:
     peerDependencies:
       react: ^18.0 || ^19.0 || ^19.0.0-rc
 
+  '@react-leaflet/core@3.0.0':
+    resolution: {integrity: sha512-3EWmekh4Nz+pGcr+xjf0KNyYfC3U2JjnkWsh0zcqaexYqmmB5ZhH37kz41JXGmKzpaMZCnPofBBm64i+YrEvGQ==}
+    peerDependencies:
+      leaflet: ^1.9.0
+      react: ^19.0.0
+      react-dom: ^19.0.0
+
   '@remirror/core-constants@3.0.0':
     resolution: {integrity: sha512-42aWfPrimMfDKDi4YegyS7x+/0tlzaqwPQCULLanv3DMIlu96KTJR0fM5isWX2UViOqlGnX6YFgqWepcX+XMNg==}
 
@@ -2698,6 +2720,15 @@ packages:
 
   '@types/d3-timer@3.0.2':
     resolution: {integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==}
+
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+
+  '@types/leaflet-draw@1.0.13':
+    resolution: {integrity: sha512-YU82kilOaU+wPNbqKCCDfHH3hqepN6XilrBwG/mSeZ/z4ewumaRCOah44s3FMxSu/Aa0SVa3PPJvhIZDUA09mw==}
+
+  '@types/leaflet@1.9.21':
+    resolution: {integrity: sha512-TbAd9DaPGSnzp6QvtYngntMZgcRk+igFELwR2N99XZn7RXUdKgsXMR+28bUO0rPsWp8MIu/f47luLIQuSLYv/w==}
 
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
@@ -3364,6 +3395,12 @@ packages:
   leac@0.6.0:
     resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
+  leaflet-draw@1.0.4:
+    resolution: {integrity: sha512-rsQ6saQO5ST5Aj6XRFylr5zvarWgzWnrg46zQ1MEOEIHsppdC/8hnN8qMoFvACsPvTioAuysya/TVtog15tyAQ==}
+
+  leaflet@1.9.4:
+    resolution: {integrity: sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==}
+
   lightningcss-android-arm64@1.30.2:
     resolution: {integrity: sha512-BH9sEdOCahSgmkVhBLeU7Hc9DWeZ1Eb6wNS6Da8igvUwAe0sqROHddIlvU06q3WyXVEOYDZ6ykBZQnjTbmo4+A==}
     engines: {node: '>= 12.0.0'}
@@ -3831,6 +3868,13 @@ packages:
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
+
+  react-leaflet@5.0.0:
+    resolution: {integrity: sha512-CWbTpr5vcHw5bt9i4zSlPEVQdTVcML390TjeDG0cK59z1ylexpqC6M1PJFjV8jD7CF+ACBFsLIDs6DRMoLEofw==}
+    peerDependencies:
+      leaflet: ^1.9.0
+      react: ^19.0.0
+      react-dom: ^19.0.0
 
   react-page-tracker@0.4.1:
     resolution: {integrity: sha512-IQhu5HuVkIXgdckhQpSvKPn6LGQw9jAT8/hq9MS5CdOkLqDgpBLn0cn2Jry2jdn6XDaLO4FJn2VhndvDkyidnQ==}
@@ -6095,6 +6139,12 @@ snapshots:
     dependencies:
       react: 19.2.0
 
+  '@react-leaflet/core@3.0.0(leaflet@1.9.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      leaflet: 1.9.4
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
+
   '@remirror/core-constants@3.0.0': {}
 
   '@selderee/plugin-htmlparser2@0.11.0':
@@ -6765,6 +6815,16 @@ snapshots:
 
   '@types/d3-timer@3.0.2': {}
 
+  '@types/geojson@7946.0.16': {}
+
+  '@types/leaflet-draw@1.0.13':
+    dependencies:
+      '@types/leaflet': 1.9.21
+
+  '@types/leaflet@1.9.21':
+    dependencies:
+      '@types/geojson': 7946.0.16
+
   '@types/linkify-it@5.0.0': {}
 
   '@types/markdown-it@14.1.2':
@@ -7309,6 +7369,10 @@ snapshots:
 
   leac@0.6.0: {}
 
+  leaflet-draw@1.0.4: {}
+
+  leaflet@1.9.4: {}
+
   lightningcss-android-arm64@1.30.2:
     optional: true
 
@@ -7828,6 +7892,13 @@ snapshots:
   react-is@16.13.1: {}
 
   react-is@18.3.1: {}
+
+  react-leaflet@5.0.0(leaflet@1.9.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+    dependencies:
+      '@react-leaflet/core': 3.0.0(leaflet@1.9.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      leaflet: 1.9.4
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
 
   react-page-tracker@0.4.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:

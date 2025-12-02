@@ -2,7 +2,12 @@ import z from "zod";
 import { MUTATIONS } from "@/db/mutations/stores";
 import { QUERIES } from "@/db/queries/stores";
 import { storeSchema } from "@/validation/stores";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+  sessionProcedure,
+} from "../init";
 
 export const adminStoresRouter = createTRPCRouter({
   // QUERIES
@@ -46,7 +51,7 @@ export const adminStoresRouter = createTRPCRouter({
 
 export const publicStoresRouter = createTRPCRouter({
   list: publicProcedure.query(async () => await QUERIES.PUBLIC.GET_STORES()),
-  setUserStore: protectedProcedure
+  setUserStore: sessionProcedure
     .input(z.object({ storeId: z.string() }))
     .mutation(
       async ({ ctx, input }) =>
@@ -55,9 +60,6 @@ export const publicStoresRouter = createTRPCRouter({
           ctx.session.user.id
         )
     ),
-  getUserStore: protectedProcedure.query(
-    async ({ ctx }) => await QUERIES.PUBLIC.GET_USER_STORE(ctx.session.user.id)
-  ),
   bySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(

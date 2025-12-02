@@ -60,7 +60,7 @@ export function StoreCard({
   const CardContent = (
     <div
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl bg-neutral-900",
+        "group relative flex h-full flex-col overflow-hidden rounded-md bg-neutral-900",
         variant === "featured" ? "min-h-[320px]" : "min-h-[240px]",
         isSelected && "ring-2 ring-white ring-offset-2 ring-offset-background",
         className
@@ -75,11 +75,11 @@ export function StoreCard({
           src={store.image.url}
         />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-900" />
+        <div className="absolute inset-0 bg-linear-to-br from-neutral-800 to-neutral-900" />
       )}
 
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
 
       {/* Status Indicator - subtle dot */}
       <div className="absolute top-4 left-4 z-10 flex items-center gap-2">

@@ -16,7 +16,7 @@ export function Providers({ children }: Props) {
       <PageTracker enableStrictModeHandler={false} />
       <ThemeProvider
         attribute="class"
-        defaultTheme="system"
+        defaultTheme="light"
         disableTransitionOnChange
         enableSystem
       >

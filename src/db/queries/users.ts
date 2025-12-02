@@ -8,7 +8,11 @@ export const QUERIES = {
         where: (u, { eq }) => eq(u.id, userId),
         with: {
           orders: true,
-          storeMembers: true,
+          storeMembers: {
+            with: {
+              store: true,
+            },
+          },
           members: {
             with: {
               organization: true,
