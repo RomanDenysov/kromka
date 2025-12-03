@@ -1,18 +1,23 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import type { Route } from "next";
 import { StoreCard } from "@/components/cards/store-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/trpc/client";
+import type { User } from "@/types/users";
 
-export function StoresGrid() {
+export function StoresGrid({ user }: { user?: User }) {
   const trpc = useTRPC();
   const { data: stores } = useSuspenseQuery(
     trpc.public.stores.list.queryOptions()
   );
-  const { data: user } = useSuspenseQuery(trpc.public.users.me.queryOptions());
-  const userDefaultStoreId = user?.storeMembers?.[0]?.storeId ?? null;
+  const { data: userData } = useQuery(
+    trpc.public.users.me.queryOptions(undefined, {
+      initialData: user,
+    })
+  );
+  const userDefaultStoreId = userData?.storeMembers?.[0]?.storeId ?? null;
   const userStore = userDefaultStoreId
     ? (stores?.find((store) => store.id === userDefaultStoreId) ?? null)
     : null;

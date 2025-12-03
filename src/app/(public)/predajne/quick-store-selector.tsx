@@ -1,16 +1,15 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { MapPinIcon } from "lucide-react";
 import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { Button } from "@/components/ui/button";
-import { useTRPC } from "@/trpc/client";
-import type { Store } from "@/types/store";
+import type { User } from "@/types/users";
 
-export function QuickStoreSelector() {
-  const trpc = useTRPC();
-  const { data: user } = useSuspenseQuery(trpc.public.users.me.queryOptions());
-  const userDefaultStore = user?.storeMembers?.[0]?.store as Store | null;
+export function QuickStoreSelector({ user }: { user?: User }) {
+  if (!user) {
+    return null;
+  }
+  const userDefaultStore = user.storeMembers?.[0]?.store;
 
   return (
     <div className="mt-8">

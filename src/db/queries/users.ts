@@ -36,12 +36,22 @@ export const QUERIES = {
         orderBy: (user, { desc }) => [desc(user.createdAt)],
         with: {
           orders: true,
-          storeMembers: true,
+          storeMembers: {
+            with: {
+              store: true,
+            },
+          },
           members: {
             with: {
               organization: true,
             },
           },
+          postComments: true,
+          postLikes: true,
+          posts: true,
+          reviews: true,
+          favorites: true,
+          promoCodeUsages: true,
         },
       }),
     GET_USER_BY_ID: async (id: string) =>
@@ -49,12 +59,22 @@ export const QUERIES = {
         where: (user, { eq }) => eq(user.id, id),
         with: {
           orders: true,
-          storeMembers: true,
+          storeMembers: {
+            with: {
+              store: true,
+            },
+          },
           members: {
             with: {
               organization: true,
             },
           },
+          postComments: true,
+          postLikes: true,
+          posts: true,
+          reviews: true,
+          favorites: true,
+          promoCodeUsages: true,
         },
       }),
   },

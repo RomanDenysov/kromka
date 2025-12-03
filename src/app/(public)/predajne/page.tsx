@@ -5,21 +5,32 @@ import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { StoresMap } from "@/components/stores-map";
 import { Skeleton } from "@/components/ui/skeleton";
-import { batchPrefetch, trpc } from "@/trpc/server";
+import {
+  batchPrefetch,
+  getQueryClient,
+  HydrateClient,
+  trpc,
+} from "@/trpc/server";
+import type { User } from "@/types/users";
 import { QuickStoreSelector } from "./quick-store-selector";
 import { StoresGrid, StoresGridSkeleton } from "./stores-grid";
 
-export default function StoresPage() {
+export default async function StoresPage() {
+  const queryClient = getQueryClient();
+
+  const user = await queryClient.fetchQuery(
+    trpc.public.users.me.queryOptions()
+  );
   batchPrefetch([
-    trpc.public.stores.list.queryOptions(),
     trpc.public.users.me.queryOptions(),
+    trpc.public.stores.list.queryOptions(),
   ]);
 
   return (
     <PageWrapper>
       <AppBreadcrumbs items={[{ label: "Predajne" }]} />
 
-      <div className="space-y-16">
+      <HydrateClient>
         {/* Hero Section */}
         <section className="relative overflow-hidden rounded-md bg-primary">
           {/* Background - real image */}
@@ -61,7 +72,7 @@ export default function StoresPage() {
                     </div>
                   }
                 >
-                  <QuickStoreSelector />
+                  <QuickStoreSelector user={user as unknown as User} />
                 </Suspense>
               </ErrorBoundary>
             </div>
@@ -71,7 +82,7 @@ export default function StoresPage() {
         {/* Stores Grid - Bento style */}
         <ErrorBoundary fallback={<StoresGridSkeleton />}>
           <Suspense fallback={<StoresGridSkeleton />}>
-            <StoresGrid />
+            <StoresGrid user={user as unknown as User} />
           </Suspense>
         </ErrorBoundary>
 
@@ -92,7 +103,7 @@ export default function StoresPage() {
             </ErrorBoundary>
           </div>
         </section>
-      </div>
+      </HydrateClient>
     </PageWrapper>
   );
 }
