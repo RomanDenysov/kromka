@@ -1,6 +1,3 @@
-"use client";
-
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import {
@@ -15,14 +12,12 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { use } from "react";
 import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { db } from "@/db";
 import type { DaySchedule, StoreSchedule } from "@/db/types";
-import { useGetUser } from "@/hooks/use-get-user";
-import { useTRPC } from "@/trpc/client";
+import { getUser } from "@/lib/auth/session";
 
 const DAYS_ORDER = [
   "monday",
@@ -83,41 +78,25 @@ const isStoreOpen = (regularHours: StoreSchedule["regularHours"]) => {
 };
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: <explanation>
-export default function StorePage({
+export default async function StorePage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = use(params);
-  const trpc = useTRPC();
+  const { slug } = await params;
 
-  const { data: store, isLoading } = useQuery(
-    trpc.public.stores.bySlug.queryOptions({ slug })
-  );
+  const store = await db.query.stores.findFirst({
+    where: (s, { eq, and }) => and(eq(s.slug, slug), eq(s.isActive, true)),
+    with: {
+      image: true,
+      users: true,
+    },
+  });
 
-  const { data: user, isLoading: isLoadingUser } = useGetUser();
-  const userDefaultStoreId = isLoadingUser
-    ? null
-    : (user?.storeMembers?.[0]?.storeId ?? null);
-
-  const userStore = userDefaultStoreId
-    ? // biome-ignore lint/style/noNestedTernary: <explanation>
-      userDefaultStoreId === store?.id
-      ? store
-      : null
+  const user = await getUser();
+  const userStore = user?.storeId
+    ? store?.users.find((u) => u.id === user?.storeId)
     : null;
-
-  if (isLoading) {
-    return (
-      <PageWrapper>
-        <Skeleton className="h-[400px] w-full rounded-3xl" />
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <Skeleton className="h-48 rounded-2xl" />
-          <Skeleton className="h-48 rounded-2xl" />
-        </div>
-      </PageWrapper>
-    );
-  }
 
   if (!store) {
     notFound();

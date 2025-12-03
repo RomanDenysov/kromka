@@ -31,6 +31,21 @@ export const auth = betterAuth({
     },
     usePlural: true, // to fix the schema naming convention
   }),
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google"],
+      updateUserInfoOnLink: true,
+    },
+  },
+  user: {
+    additionalFields: {
+      storeId: {
+        type: "string",
+        input: false,
+      },
+    },
+  },
   plugins: [
     anonymous(),
     admin(),
@@ -58,4 +73,4 @@ export const auth = betterAuth({
   },
 });
 
-export type Session = Awaited<ReturnType<typeof auth.api.getSession>>;
+export type Session = typeof auth.$Infer.Session;

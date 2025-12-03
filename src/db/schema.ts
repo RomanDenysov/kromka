@@ -43,6 +43,11 @@ export const users = pgTable("users", {
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+
+  storeId: text("store_id").references(() => stores.id, {
+    onDelete: "set null",
+  }),
+
   isAnonymous: boolean("is_anonymous"),
   role: text("role").$type<UserRole>().default("user").notNull(),
   banned: boolean("banned").default(false),
@@ -150,14 +155,17 @@ export const invitations = pgTable("invitations", {
     .references(() => users.id, { onDelete: "cascade" }),
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   sessions: many(sessions),
   accounts: many(accounts),
   members: many(members),
   invitationsSent: many(invitations, {
     relationName: "inviter",
   }),
-  storeMembers: many(storeMembers),
+  store: one(stores, {
+    fields: [users.storeId],
+    references: [stores.id],
+  }),
   orders: many(orders),
   posts: many(posts),
   postComments: many(postComments),
@@ -818,44 +826,13 @@ export const stores = pgTable("stores", {
     .notNull(),
 });
 
-export const storeMembers = pgTable(
-  "store_members",
-  {
-    storeId: text("store_id")
-      .notNull()
-      .references(() => stores.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .unique()
-      .references(() => users.id, { onDelete: "cascade" }),
-    role: text("role").default("member").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
-  },
-  (table) => [primaryKey({ columns: [table.storeId, table.userId] })]
-);
-
 export const storesRelations = relations(stores, ({ many, one }) => ({
   image: one(media, {
     fields: [stores.imageId],
     references: [media.id],
   }),
-  members: many(storeMembers),
   orders: many(orders),
-}));
-
-export const storeMembersRelations = relations(storeMembers, ({ one }) => ({
-  store: one(stores, {
-    fields: [storeMembers.storeId],
-    references: [stores.id],
-  }),
-  user: one(users, {
-    fields: [storeMembers.userId],
-    references: [users.id],
-  }),
+  users: many(users),
 }));
 
 // #endregion Stores
