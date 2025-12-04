@@ -1,6 +1,5 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
   ImagesIcon,
@@ -31,7 +30,6 @@ import {
   SidebarMenuSkeleton,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useTRPC } from "@/trpc/client";
 
 type NavItem<T extends string = string> = {
   href: Route<T>;
@@ -95,12 +93,14 @@ function NavMenuItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
   );
 }
 
-function OrdersMenuItem({ isActive }: { isActive: boolean }) {
-  const trpc = useTRPC();
-  const { data: newOrders } = useSuspenseQuery(
-    trpc.admin.orders.list.queryOptions({ status: "new" })
-  );
-  const count = newOrders.length;
+function OrdersMenuItem({
+  isActive,
+  newOrdersCount,
+}: {
+  isActive: boolean;
+  newOrdersCount?: number;
+}) {
+  const count = newOrdersCount ?? 0;
 
   return (
     <SidebarMenuItem>
@@ -119,7 +119,14 @@ function OrdersMenuItem({ isActive }: { isActive: boolean }) {
   );
 }
 
-export default function AppSidebar(props: ComponentProps<typeof Sidebar>) {
+type AppSidebarProps = ComponentProps<typeof Sidebar> & {
+  newOrdersCount?: number;
+};
+
+export default function AppSidebar({
+  newOrdersCount,
+  ...props
+}: AppSidebarProps) {
   const pathname = usePathname();
   const isActive = (href: string, exact?: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
@@ -152,7 +159,10 @@ export default function AppSidebar(props: ComponentProps<typeof Sidebar>) {
                   key={item.href}
                 />
               ))}
-              <OrdersMenuItem isActive={isActive("/admin/orders")} />
+              <OrdersMenuItem
+                isActive={isActive("/admin/orders")}
+                newOrdersCount={newOrdersCount}
+              />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

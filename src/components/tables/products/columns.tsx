@@ -35,15 +35,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { formatPrice } from "@/lib/utils";
 import type { TableProduct } from "./table";
 
-const MAX_CATEGORIES_DISPLAY = 3;
+const _MAX_CATEGORIES_DISPLAY = 3;
 
 type ProductTableMeta = {
   onEdit: (id: string) => void;
@@ -188,40 +183,12 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     ),
     accessorKey: "categories",
     cell: ({ row }) => {
-      const categories = row.original.categories;
-      return categories.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-1">
-          {categories.slice(0, MAX_CATEGORIES_DISPLAY).map((category) => (
-            <Badge
-              className="truncate capitalize"
-              key={category.id}
-              size="xs"
-              variant={"outline"}
-            >
-              {category.name}
-            </Badge>
-          ))}
-          {categories.length > MAX_CATEGORIES_DISPLAY && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Badge size="xs" variant="outline">
-                  +{categories.length - MAX_CATEGORIES_DISPLAY}
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent>
-                {categories
-                  .slice(MAX_CATEGORIES_DISPLAY)
-                  .map((category) => category.name)
-                  .join(", ")}
-              </TooltipContent>
-            </Tooltip>
-          )}
-        </div>
-      ) : (
-        <Badge size="xs" variant="secondary">
-          Žiadne
+      const category = row.original.category;
+      return category ? (
+        <Badge size="xs" variant="outline">
+          {category.name}
         </Badge>
-      );
+      ) : null;
     },
   },
   {

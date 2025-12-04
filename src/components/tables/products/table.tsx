@@ -1,6 +1,5 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -64,7 +63,6 @@ import {
   exportAsXlsx,
 } from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import type { RouterOutputs } from "@/trpc/routers";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
@@ -106,10 +104,7 @@ const productExportColumns: ExportColumnConfig<TableProduct>[] = [
   },
 ];
 
-export function ProductsTable() {
-  const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.admin.products.list.queryOptions());
-
+export function ProductsTable({ products }: { products: TableProduct[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -125,7 +120,7 @@ export function ProductsTable() {
     useDeleteProduct();
   const { setParams } = useProductParams();
 
-  const processedProducts = useMemo(() => data ?? [], [data]);
+  const processedProducts = useMemo(() => products ?? [], [products]);
 
   const table = useReactTable<TableProduct>({
     filterFns: {

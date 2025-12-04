@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Separator } from "../ui/separator";
 import {
   type AdminBreadcrumbItem,
   AdminBreadcrumbs,
@@ -22,10 +21,6 @@ export function AdminHeader({ breadcrumbs, className, children }: Props) {
         )}
       >
         <div className="flex shrink-0 items-center gap-1 lg:gap-2">
-          <Separator
-            className="mx-2 data-[orientation=vertical]:h-6"
-            orientation="vertical"
-          />
           <AdminBreadcrumbs breadcrumbs={breadcrumbs} />
         </div>
         <div className="ml-auto flex items-center gap-2">{children}</div>

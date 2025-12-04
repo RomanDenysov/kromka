@@ -2,16 +2,8 @@ import "server-only";
 
 import { and, eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
-import {
-  media,
-  prices,
-  productCategories,
-  productImages,
-  products,
-} from "@/db/schema";
+import { media, prices, productImages, products } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
-
-type ProductInsert = typeof products.$inferInsert;
 
 export const MUTATIONS = {
   ADMIN: {
@@ -27,11 +19,7 @@ export const MUTATIONS = {
       const referenceProduct = await db.query.products.findFirst({
         where: (product, { eq: eqFn }) => eqFn(product.id, productId),
         with: {
-          categories: {
-            with: {
-              category: true,
-            },
-          },
+          category: true,
           images: true,
           prices: {
             with: {
@@ -85,48 +73,14 @@ export const MUTATIONS = {
       }
 
       // Batch insert categories
-      if (referenceProduct.categories.length > 0) {
-        await db.insert(productCategories).values(
-          referenceProduct.categories.map(({ categoryId, sortOrder }) => ({
-            productId: newProduct.id,
-            categoryId,
-            sortOrder: sortOrder ?? 0,
-          }))
-        );
+      if (referenceProduct.category) {
+        await db.insert(products).values({
+          ...newProductData,
+          categoryId: referenceProduct.category.id,
+        });
       }
 
       return { id: newProduct.id };
-    },
-    UPDATE_PRODUCT: async (
-      productId: string,
-      product: Partial<ProductInsert> & { categoryIds?: string[] }
-    ): Promise<{ id: string }> => {
-      const { categoryIds, ...productData } = product;
-
-      if (Object.keys(productData).length > 0) {
-        await db
-          .update(products)
-          .set(productData)
-          .where(eq(products.id, productId));
-      }
-
-      if (categoryIds) {
-        await db
-          .delete(productCategories)
-          .where(eq(productCategories.productId, productId));
-
-        if (categoryIds.length > 0) {
-          await db.insert(productCategories).values(
-            categoryIds.map((categoryId) => ({
-              productId,
-              categoryId,
-              sortOrder: 0,
-            }))
-          );
-        }
-      }
-
-      return { id: productId };
     },
 
     TOGGLE_IS_ACTIVE: async (productId: string): Promise<{ id: string }> => {

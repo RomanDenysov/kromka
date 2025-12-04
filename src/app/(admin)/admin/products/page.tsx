@@ -1,30 +1,61 @@
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
+import { cache, Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { ProductsTable } from "@/components/tables/products/table";
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { db } from "@/db";
 
-export default function ProductsPage() {
-  prefetch(trpc.admin.products.list.queryOptions());
+const getProducts = cache(async () => {
+  const fetchedProducts = await db.query.products.findMany({
+    with: {
+      category: true,
+      prices: {
+        with: {
+          priceTier: true,
+        },
+      },
+      images: {
+        with: {
+          media: true,
+        },
+      },
+    },
+    orderBy: (product, { desc }) => desc(product.createdAt),
+  });
 
+  for (const p of fetchedProducts) {
+    p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
+    p.prices = p.prices.sort((a, b) => a.minQty - b.minQty);
+  }
+
+  const processedProducts = fetchedProducts.map((p) => ({
+    ...p,
+    images: p.images.map((img) => img.media.url),
+    category: p.category,
+    prices: p.prices.map((pt) => ({
+      minQty: pt.minQty,
+      priceCents: pt.priceCents,
+      priceTier: pt.priceTier,
+    })),
+  }));
+
+  return processedProducts;
+});
+
+export default async function ProductsPage() {
+  const products = await getProducts();
   return (
-    <HydrateClient>
-      <ErrorBoundary fallback={<div>Error</div>}>
-        <AdminHeader
-          breadcrumbs={[
-            { label: "Dashboard", href: "/admin" },
-            { label: "Produkty", href: "/admin/products" },
-          ]}
-        />
-        <section className="h-full flex-1">
-          <Suspense
-            fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}
-          >
-            <ProductsTable />
-          </Suspense>
-        </section>
-      </ErrorBoundary>
-    </HydrateClient>
+    <>
+      <AdminHeader
+        breadcrumbs={[
+          { label: "Dashboard", href: "/admin" },
+          { label: "Produkty", href: "/admin/products" },
+        ]}
+      />
+      <section className="h-full flex-1">
+        <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
+          <ProductsTable products={products} />
+        </Suspense>
+      </section>
+    </>
   );
 }

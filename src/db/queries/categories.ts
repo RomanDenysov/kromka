@@ -1,7 +1,7 @@
 import "server-only";
 
 import { db } from "@/db";
-import { productCategories } from "@/db/schema";
+import { products } from "@/db/schema";
 
 const FEATURED_PRODUCTS_LIMIT = 12;
 
@@ -10,11 +10,7 @@ export const QUERIES = {
     GET_CATEGORIES: async () => {
       const categories = await db.query.categories.findMany({
         with: {
-          products: {
-            with: {
-              product: true,
-            },
-          },
+          products: true,
         },
         orderBy: (category, { asc, desc }) => [
           asc(category.sortOrder),
@@ -24,7 +20,7 @@ export const QUERIES = {
 
       return categories.map((category) => ({
         ...category,
-        products: category.products.map((product) => product.product),
+        products: category.products,
         productsCount: category.products.length,
       }));
     },
@@ -32,11 +28,7 @@ export const QUERIES = {
       await db.query.categories.findFirst({
         where: (category, { eq: eqFn }) => eqFn(category.id, id),
         with: {
-          products: {
-            with: {
-              product: true,
-            },
-          },
+          products: true,
         },
       }),
     GET_CATEGORIES_BY_PRODUCT: async (productId: string) =>
@@ -45,21 +37,17 @@ export const QUERIES = {
           inArray(
             category.id,
             db
-              .select({ categoryId: productCategories.categoryId })
-              .from(productCategories)
+              .select({ categoryId: products.categoryId })
+              .from(products)
               .where(
                 andFn(
-                  eq(productCategories.productId, productId),
-                  eq(productCategories.categoryId, category.id)
+                  eq(products.id, productId),
+                  eq(products.categoryId, category.id)
                 )
               )
           ),
         with: {
-          products: {
-            with: {
-              product: true,
-            },
-          },
+          products: true,
         },
         orderBy: (category, { desc }) => desc(category.sortOrder),
       }),
@@ -101,18 +89,9 @@ export const QUERIES = {
         with: {
           products: {
             with: {
-              product: {
+              images: {
                 with: {
-                  images: {
-                    with: {
-                      media: true,
-                    },
-                  },
-                  categories: {
-                    with: {
-                      category: true,
-                    },
-                  },
+                  media: true,
                 },
               },
             },
@@ -124,23 +103,19 @@ export const QUERIES = {
       return categories
         .map((category) => {
           const activeProducts = category.products
-            .map((pc) => pc.product)
+            .map((p) => p)
             .filter((p) => p.isActive && p.status === "active")
             .sort((a, b) => a.sortOrder - b.sortOrder)
             .slice(0, FEATURED_PRODUCTS_LIMIT);
 
           for (const p of activeProducts) {
             p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
-            p.categories = p.categories.sort(
-              (a, b) => a.sortOrder - b.sortOrder
-            );
           }
 
           return {
             ...category,
             products: activeProducts.map((p) => ({
               ...p,
-              categories: p.categories.map((c) => c.category),
               images: p.images.map((img) => img.media.url),
             })),
           };

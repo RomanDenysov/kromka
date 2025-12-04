@@ -1,3 +1,4 @@
+import { count, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { forbidden } from "next/navigation";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
@@ -6,8 +7,10 @@ import AppSidebar, {
 } from "@/components/admin-sidebar/app-sidebar";
 import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { auth } from "@/lib/auth/server";
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { db } from "@/db";
+import { orders } from "@/db/schema";
+import { getAuth } from "@/lib/auth/session";
+import { HydrateClient } from "@/trpc/server";
 
 type Props = {
   readonly children: ReactNode;
@@ -18,18 +21,15 @@ export default async function AdminLayout({ children }: Props) {
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   // Admin guard: only allow users with admin role
-  const session = await auth.api.getSession({
-    headers: { Cookie: cookieStore.toString() },
-  });
-  if (session?.user?.role !== "admin") {
+  const { user } = await getAuth();
+  if (user?.role !== "admin") {
     forbidden();
   }
 
-  prefetch(
-    trpc.admin.orders.list.queryOptions({
-      status: "new",
-    })
-  );
+  const [{ count: newOrdersCount }] = await db
+    .select({ count: count() })
+    .from(orders)
+    .where(eq(orders.orderStatus, "new"));
 
   return (
     <SidebarProvider
@@ -43,13 +43,11 @@ export default async function AdminLayout({ children }: Props) {
     >
       <HydrateClient>
         <Suspense fallback={<AppSidebarSkeleton collapsible="icon" />}>
-          <AppSidebar collapsible="icon" />
+          <AppSidebar collapsible="icon" newOrdersCount={newOrdersCount} />
         </Suspense>
       </HydrateClient>
       <SidebarInset>
-        <div className="relative grid size-full h-svh grid-rows-[auto_1fr]">
-          {children}
-        </div>
+        <div className="relative size-full min-h-svh flex-1">{children}</div>
       </SidebarInset>
       <Suspense>
         <AdminDrawersProvider />
