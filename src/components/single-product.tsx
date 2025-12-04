@@ -162,7 +162,7 @@ export function SingleProduct({ slug }: { slug: string }) {
   );
 }
 
-function AddToCartSingleProductButton({
+export function AddToCartSingleProductButton({
   disabled,
   product,
   maxQuantity = 100,

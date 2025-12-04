@@ -1,3 +1,5 @@
+"use client";
+
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import type SwiperType from "swiper";
