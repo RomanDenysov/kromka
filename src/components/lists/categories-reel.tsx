@@ -1,18 +1,12 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEshopParams } from "@/hooks/use-eshop-params";
-import { useTRPC } from "@/trpc/client";
+import type { Category } from "@/types/categories";
 import { FilterCarousel } from "./filter-carousel";
 
-export function CategoriesReel() {
-  const trpc = useTRPC();
+export function CategoriesReel({ categories }: { categories: Category[] }) {
   const { category: categoryId, setParams } = useEshopParams();
-
-  const { data: categories, isLoading: isLoadingCategories } = useSuspenseQuery(
-    trpc.public.categories.list.queryOptions()
-  );
 
   if (!categories?.length) {
     return null;
@@ -24,7 +18,6 @@ export function CategoriesReel() {
         value: category.id,
         label: category.name,
       }))}
-      isLoading={isLoadingCategories}
       onSelect={(value) => setParams({ category: value })}
       value={categoryId}
     />

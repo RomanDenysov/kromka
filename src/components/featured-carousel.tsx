@@ -10,9 +10,10 @@ import {
 import { Skeleton } from "./ui/skeleton";
 
 export async function FeaturedCarousels() {
+  "use cache";
   const categories = await db.query.categories.findMany({
-    where: (cat, { eq, and: andFn }) =>
-      andFn(
+    where: (cat, { eq, and }) =>
+      and(
         eq(cat.isFeatured, true),
         eq(cat.isActive, true),
         eq(cat.showInMenu, true)

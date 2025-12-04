@@ -1,28 +1,21 @@
 import type { Route } from "next";
+import { GridCard, type GridItemConfig } from "@/components/grid-card";
 import { Container } from "@/components/shared/container";
 import { featureFlags } from "@/config/features";
 import { homepageConfig } from "@/config/homepage";
-import { GridCard, type GridCardProps } from "./grid-card";
 
-// Helper to combine props with feature flag check
-type GridItemConfig = GridCardProps & {
-  id: string;
-  requiresFlag?: keyof typeof featureFlags;
-};
-
-// Define the entire homepage grid layout here
+// Define the entire homepage grid layout
 const gridItems: GridItemConfig[] = [
-  // --- HERO (Large) ---
+  // Hero
   {
     id: "hero-main",
     title: homepageConfig.hero.main.title || "S láskou ku kvásku",
     subtitle: "V Kromke to vonia čerstvým kváskovým chlebom",
     image: homepageConfig.hero.main.image,
     size: "hero",
-    // Can override spans via className if needed, but 'hero' size handles defaults
   },
 
-  // --- CTA / Action (Medium) ---
+  // CTA
   {
     id: "hero-cta",
     title: homepageConfig.hero.cta.link?.label || "Prejsť na eshop",
@@ -32,7 +25,7 @@ const gridItems: GridItemConfig[] = [
     size: "medium",
   },
 
-  // --- Seasonal (Medium) ---
+  // Seasonal
   {
     id: "seasonal",
     title: "Vianočná ponuka",
@@ -42,18 +35,18 @@ const gridItems: GridItemConfig[] = [
     size: "medium",
   },
 
-  // --- B2B (Medium with carousel potential) ---
+  // B2B (with carousel)
   {
     id: "b2b",
     requiresFlag: "b2b",
     title: "B2B Spolupráca",
     subtitle: "Dodávame pre kaviarne a hotely",
     href: "/b2b",
-    images: ["/images/b2b-1.webp", "/images/breads.jpg"], // Example carousel
+    images: ["/images/b2b-1.webp", "/images/breads.jpg"],
     size: "medium",
   },
 
-  // --- Blog (Medium) ---
+  // Blog
   {
     id: "blog",
     requiresFlag: "blog",
@@ -64,7 +57,7 @@ const gridItems: GridItemConfig[] = [
     size: "medium",
   },
 
-  // --- Stores (Medium) ---
+  // Stores
   {
     id: "stores",
     requiresFlag: "stores",
@@ -75,7 +68,7 @@ const gridItems: GridItemConfig[] = [
     size: "medium",
   },
 
-  // --- Statistics (Small/Medium Cards) ---
+  // Statistics
   {
     id: "stat-1",
     title: "12,000+",
@@ -104,7 +97,7 @@ const gridItems: GridItemConfig[] = [
     textColor: "text-foreground",
   },
 
-  // --- Join Us (Medium/Large) ---
+  // Join Us
   {
     id: "join-us",
     title: "Pridajte sa",
@@ -116,13 +109,18 @@ const gridItems: GridItemConfig[] = [
   },
 ];
 
-export function HomeGrid() {
-  const visibleItems = gridItems.filter((item) => {
+// Filter items based on feature flags - happens on server
+function getVisibleItems(): GridItemConfig[] {
+  return gridItems.filter((item) => {
     if (item.requiresFlag) {
-      return featureFlags[item.requiresFlag];
+      return featureFlags[item.requiresFlag as keyof typeof featureFlags];
     }
     return true;
   });
+}
+
+export function HomeGrid() {
+  const visibleItems = getVisibleItems();
 
   return (
     <section className="w-full pt-5 pb-6 md:pb-10">
