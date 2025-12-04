@@ -11,7 +11,6 @@ import {
 
 export const adminStoresRouter = createTRPCRouter({
   // QUERIES
-  list: protectedProcedure.query(async () => await QUERIES.ADMIN.GET_STORES()),
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => await QUERIES.ADMIN.GET_STORE_BY_ID(input.id)),

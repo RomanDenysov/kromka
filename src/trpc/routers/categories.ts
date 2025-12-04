@@ -5,9 +5,6 @@ import { updateCategorySchema } from "@/validation/categories";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const adminCategoriesRouter = createTRPCRouter({
-  list: protectedProcedure.query(
-    async () => await QUERIES.ADMIN.GET_CATEGORIES()
-  ),
   toggleFeatured: protectedProcedure
     .input(z.object({ categoryId: z.string() }))
     .mutation(

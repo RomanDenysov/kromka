@@ -7,23 +7,6 @@ const FEATURED_PRODUCTS_LIMIT = 12;
 
 export const QUERIES = {
   ADMIN: {
-    GET_CATEGORIES: async () => {
-      const categories = await db.query.categories.findMany({
-        with: {
-          products: true,
-        },
-        orderBy: (category, { asc, desc }) => [
-          asc(category.sortOrder),
-          desc(category.createdAt),
-        ],
-      });
-
-      return categories.map((category) => ({
-        ...category,
-        products: category.products,
-        productsCount: category.products.length,
-      }));
-    },
     GET_CATEGORY_BY_ID: async (id: string) =>
       await db.query.categories.findFirst({
         where: (category, { eq: eqFn }) => eqFn(category.id, id),

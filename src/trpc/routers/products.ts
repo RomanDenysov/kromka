@@ -6,9 +6,6 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from "../init";
 
 export const adminProductsRouter = createTRPCRouter({
   // QUERIES
-  list: protectedProcedure
-    .output(z.array(outputProductSchema))
-    .query(async () => await QUERIES.ADMIN.GET_PRODUCTS()),
   byId: protectedProcedure
     .input(z.object({ id: z.string() }))
     .output(outputProductSchema.nullable())

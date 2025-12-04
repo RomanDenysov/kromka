@@ -5,7 +5,6 @@ import { createTRPCRouter, roleProcedure } from "../init";
 
 // TODO: Move to constants
 const ORDER_STATUSES = [
-  "cart",
   "new",
   "in_progress",
   "ready_for_pickup",
