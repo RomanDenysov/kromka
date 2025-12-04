@@ -19,23 +19,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useGetUser } from "@/hooks/use-get-user";
 import { signOut } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
+import type { User } from "@/types/users";
 import { Icons } from "../icons";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Skeleton } from "../ui/skeleton";
 
-export function UserButton() {
+export function UserButton({ user }: { user: User | null }) {
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
-  const { data: user, isLoading } = useGetUser();
   const router = useRouter();
   const selectedStore: string | null = null;
 
-  if (isLoading) {
-    return <Skeleton className="hidden size-8 rounded-md md:block" />;
-  }
   if (!user) {
     return (
       <Link

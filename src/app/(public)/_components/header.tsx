@@ -9,6 +9,7 @@ import { UserButton } from "@/components/landing/user-button";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getAuth } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { MobileNavigation } from "./mobile-navigation";
 import { OpenStoreModalButton } from "./open-store-modal-button";
@@ -20,7 +21,8 @@ const navigation: { name: string; href: Route }[] = [
   { name: "Blog", href: "/blog" },
 ] as const;
 
-export function Header() {
+export async function Header() {
+  const { user } = await getAuth();
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <Container>
@@ -65,7 +67,7 @@ export function Header() {
                   <Skeleton className="hidden size-8 rounded-md md:block" />
                 }
               >
-                <UserButton />
+                <UserButton user={user} />
               </Suspense>
             </ErrorBoundary>
             <ErrorBoundary fallback={<div>Error loading cart drawer</div>}>

@@ -5,11 +5,13 @@ import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { StoresMap } from "@/components/stores-map";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getStores } from "@/lib/queries/stores";
 import { HydrateClient } from "@/trpc/server";
 import { QuickStoreSelector } from "./quick-store-selector";
 import { StoresGrid, StoresGridSkeleton } from "./stores-grid";
 
-export default function StoresPage() {
+export default async function StoresPage() {
+  const stores = await getStores();
   return (
     <PageWrapper>
       <AppBreadcrumbs items={[{ label: "Predajne" }]} />
@@ -67,7 +69,7 @@ export default function StoresPage() {
           {/* Stores Grid - Bento style */}
           <ErrorBoundary fallback={<StoresGridSkeleton />}>
             <Suspense fallback={<StoresGridSkeleton />}>
-              <StoresGrid />
+              <StoresGrid stores={stores} />
             </Suspense>
           </ErrorBoundary>
 

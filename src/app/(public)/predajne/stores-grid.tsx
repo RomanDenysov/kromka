@@ -1,26 +1,14 @@
 "use client";
 
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import type { Route } from "next";
 import { StoreCard } from "@/components/cards/store-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTRPC } from "@/trpc/client";
-import type { User } from "@/types/users";
+import type { Store } from "@/lib/queries/stores";
+import { useSelectedStore } from "@/stores/selected-store";
 
-export function StoresGrid({ user }: { user?: User }) {
-  const trpc = useTRPC();
-  const { data: stores } = useSuspenseQuery(
-    trpc.public.stores.list.queryOptions()
-  );
-  const { data: userData } = useQuery(
-    trpc.public.users.me.queryOptions(undefined, {
-      initialData: user,
-    })
-  );
-  const userDefaultStoreId = userData?.storeMembers?.[0]?.storeId ?? null;
-  const userStore = userDefaultStoreId
-    ? (stores?.find((store) => store.id === userDefaultStoreId) ?? null)
-    : null;
+export function StoresGrid({ stores }: { stores: Store[] }) {
+  const selectedStore = useSelectedStore((state) => state.store);
+
   return (
     <section>
       <div className="mb-8 flex items-end justify-between">
@@ -35,7 +23,7 @@ export function StoresGrid({ user }: { user?: User }) {
         {stores?.map((store, index) => (
           <StoreCard
             href={`/predajne/${store.slug}` as Route}
-            isSelected={userStore?.id === store.id}
+            isSelected={selectedStore?.id === store.id}
             key={store.id}
             store={store}
             variant={index === 0 ? "featured" : "default"}

@@ -7,10 +7,8 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { DaySchedule } from "@/db/types";
+import type { Store } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/routers";
-
-export type Store = RouterOutputs["public"]["stores"]["list"][number];
 
 type StoreCardProps = {
   store: Store;

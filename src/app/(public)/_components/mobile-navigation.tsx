@@ -15,13 +15,15 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
+import type { User } from "@/types/users";
 import { MobileUserButton } from "./mobile-user-button";
 
 type Props = {
   navigation: { name: string; href: Route }[];
+  user: User | null;
 };
 
-export function MobileNavigation({ navigation }: Props) {
+export function MobileNavigation({ navigation, user }: Props) {
   const [open, setOpen] = useState(false);
   return (
     <Drawer direction="left" onOpenChange={setOpen} open={open}>
@@ -59,7 +61,7 @@ export function MobileNavigation({ navigation }: Props) {
           </div>
         </div>
         <DrawerFooter>
-          <MobileUserButton />
+          <MobileUserButton user={user} />
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

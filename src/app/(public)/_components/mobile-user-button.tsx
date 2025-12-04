@@ -20,19 +20,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useGetUser } from "@/hooks/use-get-user";
 import { signOut } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
+import { useSelectedStore } from "@/stores/selected-store";
+import type { User } from "@/types/users";
 
-export function MobileUserButton() {
+export function MobileUserButton({ user }: { user: User | null }) {
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
-  const { data: user, isLoading } = useGetUser();
   const router = useRouter();
-  if (isLoading) {
-    return <Skeleton className="h-8 w-full rounded-md" />;
-  }
+  const _selectedStore = useSelectedStore((state) => state.store);
 
   if (!user) {
     return (
