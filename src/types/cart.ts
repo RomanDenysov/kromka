@@ -1,9 +1,3 @@
-import type { RouterOutputs } from "@/trpc/routers";
-
-export type Cart = RouterOutputs["public"]["cart"]["getCart"];
-export type CartItems = NonNullable<Cart>["items"];
-export type CartItem = NonNullable<CartItems>[number];
-
 /** Minimal product data needed for optimistic cart updates */
 export type ProductMeta = {
   id: string;
@@ -21,3 +15,31 @@ export type AddToCartParams = {
   /** Optional callback fired on successful add */
   onSuccess?: () => void;
 };
+
+export type CartProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  priceCents: number;
+  showInB2b: boolean;
+  images: Array<{ url: string }>;
+};
+
+export type CartItem = {
+  cartId: string;
+  productId: string;
+  quantity: number;
+  priceCents: number;
+  product: CartProduct;
+};
+
+export type Cart = {
+  id: string;
+  userId: string;
+  companyId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  items: CartItem[];
+};
+
+export type CartItems = Cart["items"];

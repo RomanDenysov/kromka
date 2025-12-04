@@ -10,6 +10,7 @@ import {
   text,
   time,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
 import { createPrefixedId } from "@/lib/ids";
@@ -436,6 +437,62 @@ export const promoCodeUsagesRelations = relations(
 
 // #endregion Promo codes
 
+// #region Carts
+
+export const carts = pgTable(
+  "carts",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("cart")),
+
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    companyId: text("company_id").references(() => organizations.id, {
+      onDelete: "cascade",
+    }),
+
+    shareToken: text("share_token").unique(),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("uniq_cart_user_company").on(table.userId, table.companyId),
+  ]
+);
+
+export const cartItems = pgTable(
+  "cart_items",
+  {
+    cartId: text("cart_id")
+      .notNull()
+      .references(() => carts.id, { onDelete: "cascade" }),
+
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+
+    quantity: integer("quantity").notNull().default(1),
+  },
+  (table) => [primaryKey({ columns: [table.cartId, table.productId] })]
+);
+
+export const cartsRelations = relations(carts, ({ one, many }) => ({
+  user: one(users, {
+    fields: [carts.userId],
+    references: [users.id],
+  }),
+  items: many(cartItems),
+}));
+
+// #endregion Carts
+
 // #region Orders
 
 export const invoices = pgTable(
@@ -483,21 +540,24 @@ export const orders = pgTable(
     id: text("id")
       .primaryKey()
       .$defaultFn(() => createPrefixedId("ord")),
-    orderNumber: text("order_number").unique(),
+
+    orderNumber: text("order_number").unique().notNull(),
 
     createdBy: text("created_by").references(() => users.id, {
       onDelete: "set null",
     }),
+
     storeId: text("store_id").references(() => stores.id, {
       onDelete: "set null",
     }),
+
     companyId: text("company_id").references(() => organizations.id, {
       onDelete: "set null",
     }),
 
     orderStatus: text("order_status")
       .$type<OrderStatus>()
-      .default("cart")
+      .default("new")
       .notNull(),
 
     paymentStatus: text("payment_status")
@@ -509,7 +569,7 @@ export const orders = pgTable(
       .default("in_store")
       .notNull(),
 
-    totalCents: integer("total_cents"),
+    totalCents: integer("total_cents").notNull(),
 
     pickupDate: timestamp("pickup_date"),
     pickupTime: time("pickup_time"),
@@ -523,7 +583,7 @@ export const orders = pgTable(
     promoCodeId: text("promo_code_id").references(() => promoCodes.id, {
       onDelete: "set null",
     }),
-    discountCents: integer("discount_cents").default(0),
+    discountCents: integer("discount_cents").default(0).notNull(),
 
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -554,7 +614,7 @@ export const orderStatusEvents = pgTable(
     createdBy: text("created_by").references(() => users.id, {
       onDelete: "set null",
     }),
-    status: text("status").$type<OrderStatus>().default("cart").notNull(),
+    status: text("status").$type<OrderStatus>().default("new").notNull(),
     note: text("note"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -572,7 +632,7 @@ export const orderItems = pgTable(
     productId: text("product_id")
       .notNull()
       .references(() => products.id, {
-        onDelete: "cascade",
+        onDelete: "set null",
       }),
     productSnapshot: jsonb("product_snapshot").$type<ProductSnapshot>(),
     quantity: integer("quantity").notNull().default(1),

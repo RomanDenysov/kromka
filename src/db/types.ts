@@ -5,7 +5,6 @@ export const USER_ROLES = ["admin", "manager", "user"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 export const ORDER_STATUSES = [
-  "cart",
   "new",
   "in_progress",
   "ready_for_pickup",
