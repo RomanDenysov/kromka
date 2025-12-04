@@ -2,9 +2,9 @@
 
 import { useTransition } from "react";
 import { setUserStore } from "@/lib/actions/stores";
+import type { Store } from "@/lib/queries/stores";
 import { useCustomerDataStore } from "@/store/customer-data-store";
 import { useSelectedModalStore } from "@/store/selecte-store-modal";
-import type { Store } from "@/types/store";
 import { Button } from "../ui/button";
 import {
   Dialog,

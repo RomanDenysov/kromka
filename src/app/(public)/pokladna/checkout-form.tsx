@@ -30,13 +30,13 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useGetCart } from "@/hooks/use-get-cart";
 import { useSelectStore } from "@/hooks/use-select-store";
+import type { User } from "@/lib/auth/session";
 import {
   getFirstAvailableDate,
   getFirstAvailableTime,
   getTimeRangeForDate,
 } from "@/lib/checkout-utils";
 import { formatPrice } from "@/lib/utils";
-import type { User } from "@/types/users";
 
 const checkoutFormSchema = z.object({
   name: z.string().min(1),
@@ -50,7 +50,7 @@ const checkoutFormSchema = z.object({
   storeId: z.string().min(1),
 });
 
-export function CheckoutForm({ user }: { user?: User | null }) {
+export function CheckoutForm({ user }: { user?: User }) {
   const { stores } = useSelectStore();
   const { data: cart } = useGetCart();
 

@@ -34,3 +34,5 @@ export const getAuth = cache(async () => {
     organization: user?.members?.[0]?.organization ?? null,
   } as const;
 });
+
+export type User = Awaited<ReturnType<typeof getAuth>>["user"];

@@ -14,13 +14,13 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import type { User } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
-import type { User } from "@/types/users";
 import { MobileUserButton } from "./mobile-user-button";
 
 type Props = {
   navigation: { name: string; href: Route }[];
-  user?: User | null;
+  user?: User;
 };
 
 export function MobileNavigation({ navigation, user }: Props) {

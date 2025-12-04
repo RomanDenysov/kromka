@@ -104,10 +104,10 @@ export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
       />
     ),
     enableSorting: true,
-    accessorKey: "members",
+    accessorKey: "users",
     cell: ({ row }) => (
       <span className="font-medium font-mono text-xs tracking-tighter">
-        {row.original.members.length}
+        {row.original.users?.length}
       </span>
     ),
   },

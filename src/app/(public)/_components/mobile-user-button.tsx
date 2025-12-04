@@ -21,10 +21,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth/client";
+import type { User } from "@/lib/auth/session";
 import { cn, getInitials } from "@/lib/utils";
-import type { User } from "@/types/users";
 
-export function MobileUserButton({ user }: { user?: User | null }) {
+export function MobileUserButton({ user }: { user?: User }) {
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
   const router = useRouter();

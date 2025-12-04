@@ -8,11 +8,7 @@ export const QUERIES = {
         where: (u, { eq }) => eq(u.id, userId),
         with: {
           orders: true,
-          storeMembers: {
-            with: {
-              store: true,
-            },
-          },
+          store: true,
           members: {
             with: {
               organization: true,
@@ -36,11 +32,7 @@ export const QUERIES = {
         orderBy: (user, { desc }) => [desc(user.createdAt)],
         with: {
           orders: true,
-          storeMembers: {
-            with: {
-              store: true,
-            },
-          },
+          store: true,
           members: {
             with: {
               organization: true,
@@ -59,16 +51,7 @@ export const QUERIES = {
         where: (user, { eq }) => eq(user.id, id),
         with: {
           orders: true,
-          storeMembers: {
-            with: {
-              store: true,
-            },
-          },
-          members: {
-            with: {
-              organization: true,
-            },
-          },
+          store: true,
           postComments: true,
           postLikes: true,
           posts: true,

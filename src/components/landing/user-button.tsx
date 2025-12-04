@@ -20,13 +20,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth/client";
+import type { User } from "@/lib/auth/session";
 import { cn, getInitials } from "@/lib/utils";
 import { useCustomerDataStore } from "@/store/customer-data-store";
-import type { User } from "@/types/users";
 import { Icons } from "../icons";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-export function UserButton({ user }: { user?: User | null }) {
+export function UserButton({ user }: { user?: User }) {
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
   const router = useRouter();

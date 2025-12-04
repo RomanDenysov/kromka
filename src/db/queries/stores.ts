@@ -12,6 +12,7 @@ export const QUERIES = {
             where: (order, { not, eq: eqFn }) =>
               not(eqFn(order.orderStatus, "cart")),
           },
+          users: true,
         },
         orderBy: (store, { asc }) => [asc(store.name)],
       }),
@@ -20,6 +21,7 @@ export const QUERIES = {
         where: (store, { eq: eqFn }) => eqFn(store.id, id),
         with: {
           image: true,
+          users: true,
         },
       }),
   },
@@ -29,6 +31,7 @@ export const QUERIES = {
         where: (store, { eq: eqFn }) => eqFn(store.isActive, true),
         with: {
           image: true,
+          users: true,
         },
       }),
 
@@ -37,6 +40,7 @@ export const QUERIES = {
         where: (store, { eq: eqFn }) => eqFn(store.slug, slug),
         with: {
           image: true,
+          users: true,
         },
       }),
   },
