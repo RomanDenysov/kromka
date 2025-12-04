@@ -4,17 +4,13 @@ import { publicCartRouter } from "./cart";
 import { publicCategoriesRouter } from "./categories";
 import { adminMediaRouter } from "./media";
 import { adminOrdersRouter } from "./orders";
-import { adminOrganizationsRouter } from "./organizations";
 import { adminProductsRouter, publicProductsRouter } from "./products";
-import { adminStoresRouter, publicStoresRouter } from "./stores";
-import { adminUsersRouter, publicUsersRouter } from "./users";
+import { publicStoresRouter } from "./stores";
+import { publicUsersRouter } from "./users";
 
 const adminRouter = createTRPCRouter({
   products: adminProductsRouter,
-  users: adminUsersRouter,
   media: adminMediaRouter,
-  stores: adminStoresRouter,
-  organizations: adminOrganizationsRouter,
   orders: adminOrdersRouter,
 });
 

@@ -26,39 +26,4 @@ export const QUERIES = {
       return user;
     },
   },
-  ADMIN: {
-    GET_USERS: async () =>
-      await db.query.users.findMany({
-        orderBy: (user, { desc }) => [desc(user.createdAt)],
-        with: {
-          orders: true,
-          store: true,
-          members: {
-            with: {
-              organization: true,
-            },
-          },
-          postComments: true,
-          postLikes: true,
-          posts: true,
-          reviews: true,
-          favorites: true,
-          promoCodeUsages: true,
-        },
-      }),
-    GET_USER_BY_ID: async (id: string) =>
-      await db.query.users.findFirst({
-        where: (user, { eq }) => eq(user.id, id),
-        with: {
-          orders: true,
-          store: true,
-          postComments: true,
-          postLikes: true,
-          posts: true,
-          reviews: true,
-          favorites: true,
-          promoCodeUsages: true,
-        },
-      }),
-  },
 };

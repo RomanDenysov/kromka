@@ -1,6 +1,5 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -38,7 +37,6 @@ import {
   exportAsXlsx,
 } from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import type { User } from "@/types/users";
 import { columns } from "./columns";
 
@@ -68,12 +66,16 @@ const userExportColumns: ExportColumnConfig<User>[] = [
   },
 ];
 
-export function UsersTable({ className }: { className?: string }) {
-  const trpc = useTRPC();
+export function UsersTable({
+  users,
+  className,
+}: {
+  users: User[];
+  className?: string;
+}) {
   const { setParams } = useCustomerParams();
-  const { data } = useSuspenseQuery(trpc.admin.users.list.queryOptions());
 
-  const processedUsers = useMemo(() => data ?? [], [data]);
+  const processedUsers = useMemo(() => users ?? [], [users]);
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
