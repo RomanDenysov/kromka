@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -12,7 +11,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowDownIcon, FileIcon, TablePropertiesIcon } from "lucide-react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useState } from "react";
 import { fuzzyFilter } from "@/components/data-table/data-table-search";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +34,6 @@ import {
   exportAsXlsx,
 } from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import type { RouterOutputs } from "@/trpc/routers";
 import { columns } from "./columns";
 
@@ -73,18 +71,13 @@ const orderExportColumns: ExportColumnConfig<TableOrder>[] = [
   },
 ];
 
-export function OrdersTable() {
-  const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.admin.orders.list.queryOptions());
-
-  const processedOrders = useMemo(() => data ?? [], [data]);
-
+export function OrdersTable({ orders }: { orders: TableOrder[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable<TableOrder>({
-    data: processedOrders,
+    data: orders,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter,

@@ -1,6 +1,5 @@
 "use client";
 
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import type { LucideIcon } from "lucide-react";
@@ -63,8 +62,8 @@ import {
   PAYMENT_STATUS_VARIANTS,
   WORKFLOW_STATUSES,
 } from "@/lib/constants";
+import type { Order } from "@/lib/queries/orders";
 import { formatPrice, getInitials } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import type { OrderStatus } from "@/types/orders";
 
 const ORDER_ID_LENGTH = 8;
@@ -597,17 +596,10 @@ function StatusHistoryCard({ events }: { events: StatusEventData[] }) {
 // Main Component
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function OrderDetail({ orderId }: { orderId: string }) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-
+export function OrderDetail({ order }: { order: Order }) {
   const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const validationResolverRef = useRef<((value: boolean) => void) | null>(null);
-
-  const { data: order } = useSuspenseQuery(
-    trpc.admin.orders.byId.queryOptions({ id: orderId })
-  );
 
   const [isPending, startTransition] = useTransition();
 
@@ -623,10 +615,6 @@ export function OrderDetail({ orderId }: { orderId: string }) {
     startTransition(async () => {
       try {
         await updateOrderStatusAction({ orderId: id, status, note });
-        await queryClient.invalidateQueries({
-          queryKey: trpc.admin.orders.byId.queryOptions({ id: orderId })
-            .queryKey,
-        });
         toast.success("Stav objednávky bol aktualizovaný");
       } catch (err) {
         toast.error(
@@ -658,7 +646,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
   };
 
   const handleStatusChange = (status: OrderStatus) => {
-    updateStatus({ id: orderId, status });
+    updateStatus({ id: order.id, status });
   };
 
   const handleStatusChangeConfirm = () => {

@@ -1,15 +1,14 @@
 import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { OrdersTable } from "@/components/tables/orders/table";
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { getAllOrders } from "@/lib/queries/orders";
 
-export default function B2COrdersPage() {
-  prefetch(trpc.admin.orders.list.queryOptions());
+export default async function B2COrdersPage() {
+  const fetchedOrders = await getAllOrders();
 
   return (
-    <HydrateClient>
+    <>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
@@ -17,14 +16,10 @@ export default function B2COrdersPage() {
         ]}
       />
       <section className="h-full flex-1">
-        <ErrorBoundary fallback={<div>Error loading orders</div>}>
-          <Suspense
-            fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}
-          >
-            <OrdersTable />
-          </Suspense>
-        </ErrorBoundary>
+        <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
+          <OrdersTable orders={fetchedOrders} />
+        </Suspense>
       </section>
-    </HydrateClient>
+    </>
   );
 }
