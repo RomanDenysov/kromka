@@ -1,6 +1,5 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -50,7 +49,6 @@ import {
   exportAsXlsx,
 } from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import type { RouterOutputs } from "@/trpc/routers";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
@@ -89,10 +87,7 @@ const storeExportColumns: ExportColumnConfig<TableStore>[] = [
   },
 ];
 
-export function StoresTable() {
-  const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.admin.stores.list.queryOptions());
-
+export function StoresTable({ stores }: { stores: TableStore[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -102,7 +97,7 @@ export function StoresTable() {
   const { mutate: toggleActive } = useToggleStore();
   const { mutate: deleteStore } = useDeleteStore();
 
-  const processedStores = useMemo(() => data.map((store) => store), [data]);
+  const processedStores = useMemo(() => stores.map((store) => store), [stores]);
 
   const table = useReactTable({
     data: processedStores,

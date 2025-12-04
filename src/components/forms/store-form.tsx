@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
@@ -17,12 +13,12 @@ import {
 } from "@/components/ui/field";
 import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { getSlug } from "@/lib/get-slug";
+import type { Store } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { storeSchema } from "@/validation/stores";
 import { SingleImageUpload } from "../image-upload/single-image-upload";
 import { useAppForm } from "../shared/form";
-import { FormSkeleton } from "../shared/form/form-skeleton";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -37,17 +33,14 @@ const IMAGE_ASPECT_RATIO = 16 / 9;
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Component is slightly complex due to form fields
 export function StoreForm({
-  id,
+  store,
   className,
 }: {
-  id: string;
+  store: Store;
   className?: string;
 }) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { data: store, isLoading: isLoadingStore } = useSuspenseQuery(
-    trpc.admin.stores.byId.queryOptions({ id })
-  );
   const { mutate: updateStore, isPending: isPendingUpdateStore } = useMutation(
     trpc.admin.stores.update.mutationOptions({
       onSuccess: async (updatedStore) => {
@@ -100,16 +93,12 @@ export function StoreForm({
     validators: {
       onSubmit: storeSchema,
     },
-    onSubmit: ({ value }) => updateStore({ id, store: value }),
+    onSubmit: ({ value }) => updateStore({ id: store.id, store: value }),
   });
 
   const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form, {
     blurDelay: 1000,
   });
-
-  if (isLoadingStore) {
-    return <FormSkeleton className="@md/page:max-w-md" />;
-  }
 
   return (
     <div className={cn(className)}>
@@ -131,10 +120,10 @@ export function StoreForm({
               <div>
                 <FieldLegend>Nastavenie obchodu</FieldLegend>
                 <FieldDescription className="text-[10px]">
-                  {isPendingUpdateStore || isLoadingStore
+                  {isPendingUpdateStore
                     ? "Ukladá sa..."
                     : `Naposledy uložené ${format(
-                        store?.updatedAt ?? new Date(),
+                        store.updatedAt ?? new Date(),
                         "dd.MM.yyyy HH:mm"
                       )}`}
                 </FieldDescription>

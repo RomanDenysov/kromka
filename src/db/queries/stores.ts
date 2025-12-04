@@ -8,10 +8,7 @@ export const QUERIES = {
       await db.query.stores.findMany({
         with: {
           image: true,
-          orders: {
-            where: (order, { not, eq: eqFn }) =>
-              not(eqFn(order.orderStatus, "cart")),
-          },
+          orders: true,
           users: true,
         },
         orderBy: (store, { asc }) => [asc(store.name)],

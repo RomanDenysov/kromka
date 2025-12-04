@@ -1,6 +1,5 @@
-"use client";
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Store } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -15,11 +14,11 @@ const tabs = [
 ];
 
 type Props = {
-  id: string;
+  store: Store;
   className?: string;
 };
 
-export function StoreDetails({ id, className }: Props) {
+export function StoreDetails({ store, className }: Props) {
   return (
     <div className={cn("flex w-full flex-0 flex-col gap-4", className)}>
       <div>
@@ -27,7 +26,7 @@ export function StoreDetails({ id, className }: Props) {
           Detaily obchodu
         </h2>
         <p className="text-muted-foreground text-sm">
-          Zobrazujú sa detaily obchodu s ID {id}.
+          Zobrazujú sa detaily obchodu s ID {store.id}.
         </p>
       </div>
       <Tabs defaultValue="orders">
@@ -39,10 +38,10 @@ export function StoreDetails({ id, className }: Props) {
           ))}
         </TabsList>
         <TabsContent value="orders">
-          <OrdersTable id={id} />
+          <OrdersTable id={store.id} />
         </TabsContent>
         <TabsContent value="members">
-          <MembersTable id={id} />
+          <MembersTable id={store.id} />
         </TabsContent>
       </Tabs>
     </div>
