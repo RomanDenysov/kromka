@@ -20,7 +20,7 @@ import { MobileUserButton } from "./mobile-user-button";
 
 type Props = {
   navigation: { name: string; href: Route }[];
-  user: User | null;
+  user?: User | null;
 };
 
 export function MobileNavigation({ navigation, user }: Props) {
@@ -61,7 +61,7 @@ export function MobileNavigation({ navigation, user }: Props) {
           </div>
         </div>
         <DrawerFooter>
-          <MobileUserButton user={user} />
+          <MobileUserButton user={user ?? null} />
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

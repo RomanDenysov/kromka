@@ -24,12 +24,12 @@ import { signOut } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
 import type { User } from "@/types/users";
 
-export function MobileUserButton({ user }: { user: User | null }) {
+export function MobileUserButton({ user }: { user?: User | null }) {
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
   const router = useRouter();
 
-  if (!user || user.isAnonymous) {
+  if (!user || user?.isAnonymous) {
     return (
       <Link
         className={cn(

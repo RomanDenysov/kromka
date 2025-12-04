@@ -26,13 +26,13 @@ import type { User } from "@/types/users";
 import { Icons } from "../icons";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
-export function UserButton({ user }: { user: User | null }) {
+export function UserButton({ user }: { user?: User | null }) {
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
   const router = useRouter();
   const selectedStore = useCustomerDataStore((state) => state.customerStore);
 
-  if (!user || user.isAnonymous) {
+  if (!user || user?.isAnonymous) {
     return (
       <Link
         className={cn(

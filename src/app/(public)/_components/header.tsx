@@ -27,7 +27,7 @@ export async function Header() {
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <Container>
         <div className="flex h-14 w-full items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-5">
-          <MobileNavigation navigation={navigation} />
+          <MobileNavigation navigation={navigation} user={user} />
           {/* Navigation */}
           <nav className="hidden grow items-center justify-start gap-2 md:flex">
             {navigation.map((item) => (
