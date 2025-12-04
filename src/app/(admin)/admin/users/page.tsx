@@ -1,8 +1,13 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { UsersTable } from "@/components/tables/users/users-table";
 import { getUsers } from "@/lib/queries/users";
 
 export default async function SettingsUsersPage() {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("admin-users-page");
+
   const users = await getUsers();
 
   return (
