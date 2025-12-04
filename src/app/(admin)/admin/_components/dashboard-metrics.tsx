@@ -1,22 +1,18 @@
-"use client";
-
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   CreditCardIcon,
   PackageIcon,
   ShoppingCartIcon,
   StoreIcon,
 } from "lucide-react";
+import type { DashboardMetrics as DashboardMetricsType } from "@/lib/queries/dashboard";
 import { formatPrice } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import { MetricCard } from "./metric-card";
 
-export function DashboardMetrics() {
-  const trpc = useTRPC();
-  const { data: metrics } = useSuspenseQuery(
-    trpc.admin.dashboard.metrics.queryOptions()
-  );
+type DashboardMetricsProps = {
+  metrics: DashboardMetricsType;
+};
 
+export function DashboardMetrics({ metrics }: DashboardMetricsProps) {
   return (
     <div className="grid gap-0.5 bg-muted p-0.5 sm:grid-cols-2 lg:grid-cols-4">
       <MetricCard

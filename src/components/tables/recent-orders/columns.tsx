@@ -19,10 +19,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { getRecentOrders } from "@/db/queries/dashboard";
+import type { RecentOrder } from "@/lib/queries/dashboard";
 import { formatPrice } from "@/lib/utils";
-
-type RecentOrder = Awaited<ReturnType<typeof getRecentOrders>>[number];
 
 const ORDER_ID_DISPLAY_LENGTH = 8;
 

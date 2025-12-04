@@ -1,7 +1,11 @@
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { batchPrefetch, HydrateClient, trpc } from "@/trpc/server";
+import {
+  getActiveCarts,
+  getDashboardMetrics,
+  getRecentOrders,
+} from "@/lib/queries/dashboard";
 import { DashboardMetrics } from "./_components/dashboard-metrics";
 import {
   DashboardMetricsSkeleton,
@@ -9,32 +13,37 @@ import {
 } from "./_components/dashboard-skeletons";
 import { RecentOrders } from "./_components/recent-orders";
 
-export default function AdminPage() {
-  batchPrefetch([
-    trpc.admin.dashboard.metrics.queryOptions(),
-    trpc.admin.dashboard.recentOrders.queryOptions(),
-    trpc.admin.dashboard.activeCarts.queryOptions(),
-  ]);
+async function DashboardMetricsData() {
+  const metrics = await getDashboardMetrics();
+  return <DashboardMetrics metrics={metrics} />;
+}
 
+async function RecentOrdersData() {
+  const [orders, carts] = await Promise.all([
+    getRecentOrders(),
+    getActiveCarts(),
+  ]);
+  return <RecentOrders carts={carts} orders={orders} />;
+}
+
+export default function AdminPage() {
   return (
     <>
       <AdminHeader breadcrumbs={[{ label: "Prehľad", href: "/admin" }]} />
       <div className="flex flex-1 flex-col">
-        <HydrateClient>
-          <ErrorBoundary fallback={<div>Error loading dashboard metrics</div>}>
-            <Suspense fallback={<DashboardMetricsSkeleton />}>
-              <DashboardMetrics />
+        <ErrorBoundary fallback={<div>Error loading dashboard metrics</div>}>
+          <Suspense fallback={<DashboardMetricsSkeleton />}>
+            <DashboardMetricsData />
+          </Suspense>
+        </ErrorBoundary>
+
+        <div className="grid lg:grid-cols-1">
+          <ErrorBoundary fallback={<div>Error loading recent orders</div>}>
+            <Suspense fallback={<RecentOrdersSkeleton />}>
+              <RecentOrdersData />
             </Suspense>
           </ErrorBoundary>
-
-          <div className="grid lg:grid-cols-1">
-            <ErrorBoundary fallback={<div>Error loading recent orders</div>}>
-              <Suspense fallback={<RecentOrdersSkeleton />}>
-                <RecentOrders />
-              </Suspense>
-            </ErrorBoundary>
-          </div>
-        </HydrateClient>
+        </div>
       </div>
     </>
   );

@@ -1,20 +1,16 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { RecentOrdersTable } from "@/components/tables/recent-orders/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useTRPC } from "@/trpc/client";
 import { CurrentCarts } from "./current-carts";
+import type { ActiveCartsData, RecentOrdersData } from "./dashboard-types";
 
-export function RecentOrders() {
-  const trpc = useTRPC();
-  const { data: orders } = useSuspenseQuery(
-    trpc.admin.dashboard.recentOrders.queryOptions()
-  );
-  const { data: carts } = useSuspenseQuery(
-    trpc.admin.dashboard.activeCarts.queryOptions()
-  );
+type RecentOrdersProps = {
+  orders: RecentOrdersData;
+  carts: ActiveCartsData;
+};
 
+export function RecentOrders({ orders, carts }: RecentOrdersProps) {
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between p-2">
