@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useGetCart } from "@/hooks/use-get-cart";
-import { useGetUser } from "@/hooks/use-get-user";
 import { useSelectStore } from "@/hooks/use-select-store";
 import {
   getFirstAvailableDate,
@@ -37,6 +36,7 @@ import {
   getTimeRangeForDate,
 } from "@/lib/checkout-utils";
 import { formatPrice } from "@/lib/utils";
+import type { User } from "@/types/users";
 
 const checkoutFormSchema = z.object({
   name: z.string().min(1),
@@ -50,8 +50,7 @@ const checkoutFormSchema = z.object({
   storeId: z.string().min(1),
 });
 
-export function CheckoutForm() {
-  const { data: user } = useGetUser();
+export function CheckoutForm({ user }: { user?: User | null }) {
   const { stores } = useSelectStore();
   const { data: cart } = useGetCart();
 
@@ -66,13 +65,14 @@ export function CheckoutForm() {
     [stores]
   );
 
-  const userData = user?.isAnonymous
-    ? null
-    : {
-        name: user?.name ?? "",
-        email: user?.email ?? "",
-        phone: user?.phone ?? "",
-      };
+  const userData =
+    user && !user.isAnonymous
+      ? null
+      : {
+          name: user?.name ?? "",
+          email: user?.email ?? "",
+          phone: user?.phone ?? "",
+        };
 
   const form = useAppForm({
     defaultValues: {
@@ -82,7 +82,7 @@ export function CheckoutForm() {
       paymentMethod: "in_store",
       pickupDate: undefined as Date | undefined,
       pickupTime: "",
-      storeId: user?.storeMembers?.[0]?.storeId ?? "",
+      storeId: user?.storeId ?? "",
     },
     validators: {
       onSubmit: checkoutFormSchema,
@@ -105,7 +105,7 @@ export function CheckoutForm() {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we want to memoize by all values
   useEffect(() => {
-    const defaultStoreId = user?.storeMembers?.[0]?.storeId;
+    const defaultStoreId = user?.storeId;
     if (!(defaultStoreId && storeOptions.length)) {
       return;
     }
@@ -123,7 +123,7 @@ export function CheckoutForm() {
       const range = getTimeRangeForDate(firstDate, schedule);
       form.setFieldValue("pickupTime", getFirstAvailableTime(range));
     }
-  }, [user?.storeMembers, storeOptions]);
+  }, [user?.storeId, storeOptions]);
 
   return (
     <div className="sticky top-14 size-full">

@@ -1,9 +1,12 @@
 import { CheckoutList } from "@/components/lists/checkout-list";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { getAuth } from "@/lib/auth/session";
 import { CheckoutForm } from "./checkout-form";
 
-export default function CheckoutPage() {
+export default async function CheckoutPage() {
+  const { user } = await getAuth();
+
   return (
     <PageWrapper>
       <AppBreadcrumbs
@@ -19,7 +22,7 @@ export default function CheckoutPage() {
         </section>
 
         <section className="size-full sm:col-span-3 md:col-span-3 lg:col-span-4">
-          <CheckoutForm />
+          <CheckoutForm user={user} />
         </section>
       </div>
     </PageWrapper>
