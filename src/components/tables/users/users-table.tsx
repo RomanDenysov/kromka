@@ -36,11 +36,11 @@ import {
   exportAsCsv,
   exportAsXlsx,
 } from "@/lib/export-utils";
+import type { UserList } from "@/lib/queries/users";
 import { cn } from "@/lib/utils";
-import type { User } from "@/types/users";
 import { columns } from "./columns";
 
-const userExportColumns: ExportColumnConfig<User>[] = [
+const userExportColumns: ExportColumnConfig<UserList[number]>[] = [
   {
     key: "email",
     header: "Email",
@@ -70,18 +70,18 @@ export function UsersTable({
   users,
   className,
 }: {
-  users: User[];
+  users: UserList;
   className?: string;
 }) {
   const { setParams } = useCustomerParams();
 
-  const processedUsers = useMemo(() => users ?? [], [users]);
+  const processedUsers = useMemo(() => users, [users]);
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const table = useReactTable<User>({
+  const table = useReactTable<UserList[number]>({
     data: processedUsers,
     columns,
     filterFns: {

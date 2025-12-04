@@ -1,4 +1,3 @@
-import { cacheLife, cacheTag } from "next/cache";
 import { cache, Suspense } from "react";
 import { ProductForm } from "@/app/(admin)/admin/products/[id]/product-form";
 import { AdminHeader } from "@/components/admin-header/admin-header";
@@ -12,9 +11,6 @@ type Props = {
 };
 
 const getProduct = cache(async (id: string) => {
-  "use cache";
-  cacheLife("hours");
-  cacheTag(`product-${id}`);
   const product = await db.query.products.findFirst({
     where: (p, { eq }) => eq(p.id, id),
     with: {

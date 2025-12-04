@@ -3,15 +3,15 @@
 import { HeartIcon } from "lucide-react";
 import Link from "next/link";
 import { ViewTransition } from "react";
+import type { Product } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/routers";
 import { ImageSlider } from "../image-slider";
 import { AddToCartButton } from "../shared/add-to-cart-button";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 
 type Props = {
-  product: RouterOutputs["public"]["products"]["list"][number];
+  product: Product;
   className?: string;
   /** Delay in ms before animation starts. 0 = no animation (already rendered). */
   animationDelay?: number;

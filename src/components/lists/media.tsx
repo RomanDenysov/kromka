@@ -1,12 +1,8 @@
-import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import { getMedia } from "@/lib/queries/media";
 import { AspectRatio } from "../ui/aspect-ratio";
 
 export async function MediaList() {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("media");
   const media = await getMedia();
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-6">

@@ -15,16 +15,21 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ChangeEvent, useCallback, useState, useTransition } from "react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 import {
   deleteProductImageAction,
+  getProductImagesAction,
   updateImageSortOrderAction,
   uploadProductImageAction,
 } from "@/lib/actions/products";
 import { uploadImage } from "@/lib/upload";
-import { useTRPC } from "@/trpc/client";
 import { ImageCrop } from "./image-crop";
 import { ImageInput } from "./image-input";
 import { SortableImageItem } from "./sortable-image-item";
@@ -50,19 +55,34 @@ const MB = 4;
 const IMAGE_SIZE_MB = MB * KB * KB;
 
 function useProductImages(productId: string) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-  const queryKey = trpc.admin.products.images.queryKey({ productId });
+  const [images, setImages] = useState<ProductImageType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isUploading, startUploadTransition] = useTransition();
   const [isSorting, startSortTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
 
-  const { data: images, isLoading } = useQuery(
-    trpc.admin.products.images.queryOptions(
-      { productId },
-      { enabled: !!productId }
-    )
-  );
+  // Fetch images on mount and when productId changes
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    getProductImagesAction({ productId })
+      .then((data) => {
+        if (!cancelled) {
+          setImages(data as ProductImageType[]);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          toast.error("Nepodarilo sa načítať obrázky");
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [productId]);
 
   const uploadImageFn = useCallback(
     ({
@@ -89,13 +109,11 @@ function useProductImages(productId: string) {
             });
             toast.success("Obrázok úspešne nahraný");
             if (newImage) {
-              queryClient.setQueryData<ProductImageType[]>(queryKey, (old) =>
-                old
-                  ? [...old, newImage as unknown as ProductImageType]
-                  : [newImage as unknown as ProductImageType]
-              );
+              setImages((old) => [
+                ...old,
+                newImage as unknown as ProductImageType,
+              ]);
             }
-            queryClient.invalidateQueries({ queryKey });
             resolve(newImage as unknown as ProductImageType);
           } catch (err) {
             toast.error(
@@ -107,7 +125,7 @@ function useProductImages(productId: string) {
           }
         });
       }),
-    [queryClient, queryKey]
+    []
   );
 
   const updateSortOrder = useCallback(
@@ -119,11 +137,10 @@ function useProductImages(productId: string) {
       mediaIds: string[];
     }) => {
       // Snapshot the previous value for rollback
-      const previousImages =
-        queryClient.getQueryData<ProductImageType[]>(queryKey);
+      const previousImages = images;
 
       // Optimistically update to the new value
-      queryClient.setQueryData<ProductImageType[]>(queryKey, (old) => {
+      setImages((old) => {
         if (!old) {
           return [];
         }
@@ -136,35 +153,28 @@ function useProductImages(productId: string) {
 
       startSortTransition(async () => {
         try {
-          await updateImageSortOrderAction({
+          const updatedImages = await updateImageSortOrderAction({
             productId: pid,
             mediaIds,
           });
-
-          queryClient.invalidateQueries({ queryKey });
+          setImages(updatedImages as ProductImageType[]);
         } catch {
           toast.error("Nepodarilo sa aktualizovať poradie");
           // Rollback on error
-          if (previousImages) {
-            queryClient.setQueryData<ProductImageType[]>(
-              queryKey,
-              previousImages
-            );
-          }
+          setImages(previousImages);
         }
       });
     },
-    [queryClient, queryKey]
+    [images]
   );
 
   const deleteImage = useCallback(
     ({ productId: pid, mediaId }: { productId: string; mediaId: string }) => {
       // Snapshot the previous value for rollback
-      const previousImages =
-        queryClient.getQueryData<ProductImageType[]>(queryKey);
+      const previousImages = images;
 
       // Optimistically remove the image
-      queryClient.setQueryData<ProductImageType[]>(queryKey, (old) =>
+      setImages((old) =>
         old ? old.filter((img) => img.mediaId !== mediaId) : []
       );
 
@@ -176,7 +186,6 @@ function useProductImages(productId: string) {
           });
 
           toast.success("Obrázok odstránený");
-          queryClient.invalidateQueries({ queryKey });
         } catch (err) {
           toast.error(
             `Chyba pri odstraňovaní: ${
@@ -184,16 +193,11 @@ function useProductImages(productId: string) {
             }`
           );
           // Rollback on error
-          if (previousImages) {
-            queryClient.setQueryData<ProductImageType[]>(
-              queryKey,
-              previousImages
-            );
-          }
+          setImages(previousImages);
         }
       });
     },
-    [queryClient, queryKey]
+    [images]
   );
 
   return {

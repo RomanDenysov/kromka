@@ -1,12 +1,6 @@
-import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 
 export async function getUsers() {
-  "use cache";
-
-  cacheLife("hours");
-  cacheTag("users");
-
   return await db.query.users.findMany({
     orderBy: (user, { desc }) => [desc(user.createdAt)],
     with: {
@@ -28,11 +22,6 @@ export async function getUsers() {
 }
 
 export async function getUserById(id: string) {
-  "use cache";
-
-  cacheLife("hours");
-  cacheTag(`user-${id}`);
-
   return await db.query.users.findFirst({
     where: (user, { eq }) => eq(user.id, id),
     with: {
@@ -47,3 +36,6 @@ export async function getUserById(id: string) {
     },
   });
 }
+
+export type User = Awaited<ReturnType<typeof getUserById>>;
+export type UserList = Awaited<ReturnType<typeof getUsers>>;

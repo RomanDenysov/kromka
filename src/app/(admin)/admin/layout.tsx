@@ -1,6 +1,7 @@
-"use cache";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
-import AppSidebar from "@/components/admin-sidebar/app-sidebar";
+import AppSidebar, {
+  AppSidebarSkeleton,
+} from "@/components/admin-sidebar/app-sidebar";
 import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getNewOrdersCount } from "@/lib/queries/orders";
@@ -9,9 +10,12 @@ type Props = {
   readonly children: ReactNode;
 };
 
-export default async function AdminLayout({ children }: Props) {
+async function AdminSidebarLoader() {
   const newOrdersCount = await getNewOrdersCount();
+  return <AppSidebar collapsible="icon" newOrdersCount={newOrdersCount} />;
+}
 
+export default function AdminLayout({ children }: Props) {
   return (
     <SidebarProvider
       style={
@@ -21,7 +25,9 @@ export default async function AdminLayout({ children }: Props) {
         } as CSSProperties
       }
     >
-      <AppSidebar collapsible="icon" newOrdersCount={newOrdersCount} />
+      <Suspense fallback={<AppSidebarSkeleton />}>
+        <AdminSidebarLoader />
+      </Suspense>
       <SidebarInset>
         <div className="relative size-full min-h-svh flex-1">{children}</div>
       </SidebarInset>

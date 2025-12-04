@@ -271,6 +271,29 @@ export async function deleteProductImageAction({
   return { success: true };
 }
 
+export async function getProductImagesAction({
+  productId,
+}: {
+  productId: string;
+}) {
+  const { user } = await getAuth();
+  if (!user || user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  const images = await db.query.productImages.findMany({
+    where: (image, { eq: eqFn }) => eqFn(image.productId, productId),
+    orderBy: (productImagesTable, { asc }) => [
+      asc(productImagesTable.sortOrder),
+    ],
+    with: {
+      media: true,
+    },
+  });
+
+  return images;
+}
+
 export async function deleteProductsAction({ ids }: { ids: string[] }) {
   const { user } = await getAuth();
   if (!user || user.role !== "admin") {

@@ -19,15 +19,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { UserList } from "@/lib/queries/users";
 import { cn, getInitials } from "@/lib/utils";
-import type { User } from "@/types/users";
 
 type UserTableMeta = {
   onOpen: (id: string) => void;
   onLock: (id: string) => void;
 };
 
-export const columns: ColumnDef<User, UserTableMeta>[] = [
+export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
   {
     id: "select",
     enableSorting: false,
@@ -59,10 +59,10 @@ export const columns: ColumnDef<User, UserTableMeta>[] = [
       <Avatar className="relative size-8 rounded-md">
         <AvatarImage
           className="rounded-md object-cover"
-          src={row.original.image ?? ""}
+          src={row.original?.image ?? ""}
         />
         <AvatarFallback className="rounded-md" delayMs={300}>
-          {getInitials(row.original.name || row.original.email)}
+          {getInitials(row.original?.name || row.original?.email)}
         </AvatarFallback>
       </Avatar>
     ),
@@ -89,7 +89,7 @@ export const columns: ColumnDef<User, UserTableMeta>[] = [
         )}
       >
         {row.original.email}
-        {row.original.emailVerified && (
+        {row.original?.emailVerified && (
           <CheckCircleIcon className="size-3 text-green-800" />
         )}
       </span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useEshopParams } from "@/hooks/use-eshop-params";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import {
@@ -11,22 +12,20 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
-import { Skeleton } from "../ui/skeleton";
 
 type Props = {
-  value?: string | null;
-  isLoading?: boolean;
-  onSelect: (value: string | null) => void;
   data: {
     value: string;
     label: string;
   }[];
 };
 
-export function FilterCarousel({ value, isLoading, onSelect, data }: Props) {
+export function FilterCarousel({ data }: Props) {
   const [api, setAPi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+
+  const { category: categoryId, setParams } = useEshopParams();
 
   useEffect(() => {
     if (!api) {
@@ -68,34 +67,20 @@ export function FilterCarousel({ value, isLoading, onSelect, data }: Props) {
           <CarouselItem className="basis-auto pl-3">
             <Button
               className="cursor-pointer whitespace-nowrap rounded-full"
-              onClick={() => onSelect(null)}
+              onClick={() => setParams({ category: null })}
               size="sm"
-              variant={value === null ? "default" : "secondary"}
+              variant={categoryId === null ? "default" : "secondary"}
             >
               Vsetky
             </Button>
           </CarouselItem>
-          {isLoading &&
-            Array.from({ length: 12 }).map((_, index) => (
-              <CarouselItem
-                className="basis-auto pl-3"
-                key={`skeleton-${index.toString()}`}
-              >
-                <Skeleton
-                  className={cn(
-                    "h-8 w-24 rounded-full px-3",
-                    index % 2 === 0 ? "w-18" : "w-20"
-                  )}
-                />
-              </CarouselItem>
-            ))}
           {data.map((item) => (
             <CarouselItem className="basis-auto pl-3" key={item.value}>
               <Button
                 className="cursor-pointer whitespace-nowrap rounded-full"
-                onClick={() => onSelect(item.value)}
+                onClick={() => setParams({ category: item.value })}
                 size="sm"
-                variant={value === item.value ? "default" : "secondary"}
+                variant={categoryId === item.value ? "default" : "secondary"}
               >
                 {item.label}
               </Button>

@@ -1,13 +1,18 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { ImageIcon, Loader2, X } from "lucide-react";
-import { type ChangeEvent, useCallback, useState } from "react";
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { getMediaByIdAction, uploadMediaAction } from "@/lib/actions/media";
 import { uploadImage } from "@/lib/upload";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import { ImageCrop } from "./image-crop";
 
 type SingleImageUploadProps = {
@@ -29,33 +34,44 @@ export function SingleImageUpload({
   className,
   aspect = 1,
 }: SingleImageUploadProps) {
-  const trpc = useTRPC();
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [media, setMedia] = useState<{
+    id: string;
+    name: string;
+    url: string;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingMedia, startUploadTransition] = useTransition();
 
   // Fetch current image details if ID is present
-  const { data: media, isLoading } = useQuery(
-    trpc.admin.media.byId.queryOptions(
-      { id: value ?? "" },
-      { enabled: !!value }
-    )
-  );
+  useEffect(() => {
+    if (!value) {
+      setMedia(null);
+      return;
+    }
 
-  // Mutation to save metadata to DB
-  const { mutateAsync: uploadMedia, isPending: isUploadingMedia } = useMutation(
-    trpc.admin.media.upload.mutationOptions({
-      onSuccess: (data) => {
-        toast.success("Obrázok úspešne nahraný");
-        setFileToUpload(null);
-        // Update the form with the new media ID
-        if (data?.[0]?.id) {
-          onChange(data[0].id);
+    let cancelled = false;
+    setIsLoading(true);
+    getMediaByIdAction({ id: value })
+      .then((data) => {
+        if (!cancelled && data) {
+          setMedia(data);
+          setIsLoading(false);
+        } else if (!cancelled) {
+          setIsLoading(false);
         }
-      },
-      onError: () => {
-        toast.error("Nepodarilo sa nahrať obrázok");
-      },
-    })
-  );
+      })
+      .catch(() => {
+        if (!cancelled) {
+          toast.error("Nepodarilo sa načítať obrázok");
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [value]);
 
   const handleFileSelect = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -79,27 +95,36 @@ export function SingleImageUpload({
   }, []);
 
   const handleApply = useCallback(
-    async (croppedFile: File) => {
-      try {
-        // 1. Upload to storage (R2/S3)
-        const result = await uploadImage(croppedFile, "general");
-        const { url, pathname, size, type } = result.data;
+    (croppedFile: File) => {
+      startUploadTransition(async () => {
+        try {
+          // 1. Upload to storage (R2/S3)
+          const result = await uploadImage(croppedFile, "general");
+          const { url, pathname, size, type } = result.data;
 
-        // 2. Save metadata to DB
-        await uploadMedia({
-          name: croppedFile.name,
-          path: pathname,
-          type,
-          url,
-          size,
-        });
-      } catch (error) {
-        // biome-ignore lint/suspicious/noConsole: Logging error for debugging
-        console.error(error);
-        toast.error("Chyba pri nahrávaní súboru");
-      }
+          // 2. Save metadata to DB
+          const uploadedMedia = await uploadMediaAction({
+            name: croppedFile.name,
+            path: pathname,
+            type,
+            url,
+            size,
+          });
+
+          toast.success("Obrázok úspešne nahraný");
+          setFileToUpload(null);
+          // Update the form with the new media ID
+          if (uploadedMedia?.[0]?.id) {
+            onChange(uploadedMedia[0].id);
+          }
+        } catch (error) {
+          // biome-ignore lint/suspicious/noConsole: Logging error for debugging
+          console.error(error);
+          toast.error("Chyba pri nahrávaní súboru");
+        }
+      });
     },
-    [uploadMedia]
+    [onChange]
   );
 
   const handleRemove = useCallback(

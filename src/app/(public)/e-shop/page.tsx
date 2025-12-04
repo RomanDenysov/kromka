@@ -1,32 +1,27 @@
+import { Suspense } from "react";
 import { FeaturedCarousels } from "@/components/featured-carousel";
 import { CategoriesReel } from "@/components/lists/categories-reel";
-import { ProductsReel } from "@/components/lists/products-reel";
+import {
+  ProductsReel,
+  ProductsReelSkeleton,
+} from "@/components/lists/products-reel";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
-import { db } from "@/db";
 
 export const DEFAULT_PRODUCTS_LIMIT = 12;
 
-export default async function EshopPage() {
-  "use cache";
-  const categories = await db.query.categories.findMany({
-    where: (category, { eq, and }) =>
-      and(
-        eq(category.isActive, true),
-        eq(category.showInMenu, true),
-        eq(category.isFeatured, false)
-      ),
-  });
-
+export default function EshopPage() {
   return (
     <PageWrapper>
       <AppBreadcrumbs items={[{ label: "E-shop", href: "/e-shop" }]} />
 
       <FeaturedCarousels />
 
-      <CategoriesReel categories={categories} />
+      <CategoriesReel />
 
-      <ProductsReel className="grow" limit={DEFAULT_PRODUCTS_LIMIT} />
+      <Suspense fallback={<ProductsReelSkeleton />}>
+        <ProductsReel className="grow" limit={DEFAULT_PRODUCTS_LIMIT} />
+      </Suspense>
     </PageWrapper>
   );
 }

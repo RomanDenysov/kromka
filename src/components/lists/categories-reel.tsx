@@ -1,26 +1,26 @@
-"use client";
-
+import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEshopParams } from "@/hooks/use-eshop-params";
-import type { Category } from "@/types/categories";
+import { db } from "@/db";
 import { FilterCarousel } from "./filter-carousel";
 
-export function CategoriesReel({ categories }: { categories: Category[] }) {
-  const { category: categoryId, setParams } = useEshopParams();
-
-  if (!categories?.length) {
-    return null;
-  }
-
+export async function CategoriesReel() {
+  const categories = await db.query.categories.findMany({
+    where: (category, { eq, and }) =>
+      and(
+        eq(category.isActive, true),
+        eq(category.showInMenu, true),
+        eq(category.isFeatured, false)
+      ),
+  });
   return (
-    <FilterCarousel
-      data={categories.map((category) => ({
-        value: category.id,
-        label: category.name,
-      }))}
-      onSelect={(value) => setParams({ category: value })}
-      value={categoryId}
-    />
+    <Suspense fallback={<CategoriesReelSkeleton />}>
+      <FilterCarousel
+        data={categories.map((category) => ({
+          value: category.id,
+          label: category.name,
+        }))}
+      />
+    </Suspense>
   );
 }
 
