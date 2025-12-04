@@ -35,7 +35,7 @@ export const priceSchema = z.object({
 });
 
 export const outputProductSchema = productSchema.extend({
-  categories: z.array(categorySchema),
+  category: categorySchema.nullable(),
   images: z.array(z.string()),
   prices: z.array(priceSchema),
 
@@ -44,7 +44,7 @@ export const outputProductSchema = productSchema.extend({
 });
 
 export const productWithRelationsSchema = outputProductSchema.extend({
-  categories: z.array(categorySchema),
+  category: categorySchema.nullable(),
   images: z.array(mediaSchema),
 });
 

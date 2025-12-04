@@ -2,18 +2,14 @@ import "server-only";
 
 import { and, count, eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
-import { productCategories, products } from "@/db/schema";
+import { products } from "@/db/schema";
 
 export const QUERIES = {
   ADMIN: {
     GET_PRODUCTS: async () => {
       const fetchedProducts = await db.query.products.findMany({
         with: {
-          categories: {
-            with: {
-              category: true,
-            },
-          },
+          category: true,
           prices: {
             with: {
               priceTier: true,
@@ -30,14 +26,13 @@ export const QUERIES = {
 
       for (const p of fetchedProducts) {
         p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
-        p.categories = p.categories.sort((a, b) => a.sortOrder - b.sortOrder);
         p.prices = p.prices.sort((a, b) => a.minQty - b.minQty);
       }
 
       const processedProducts = fetchedProducts.map((p) => ({
         ...p,
-        categories: p.categories.map((c) => c.category),
         images: p.images.map((img) => img.media.url),
+        category: p.category,
         prices: p.prices.map((pt) => ({
           minQty: pt.minQty,
           priceCents: pt.priceCents,
@@ -51,11 +46,7 @@ export const QUERIES = {
       const product = await db.query.products.findFirst({
         where: (p, { eq: eqFn }) => eqFn(p.id, id),
         with: {
-          categories: {
-            with: {
-              category: true,
-            },
-          },
+          category: true,
           images: {
             with: {
               media: true,
@@ -73,15 +64,12 @@ export const QUERIES = {
         product.images = product.images.sort(
           (a, b) => a.sortOrder - b.sortOrder
         );
-        product.categories = product.categories.sort(
-          (a, b) => a.sortOrder - b.sortOrder
-        );
         product.prices = product.prices.sort((a, b) => a.minQty - b.minQty);
 
         return {
           ...product,
-          categories: product.categories.map((c) => c.category),
           images: product.images.map((img) => img.media.url),
+          category: product.category,
           prices: product.prices.map((p) => ({
             minQty: p.minQty,
             priceCents: p.priceCents,
@@ -94,20 +82,9 @@ export const QUERIES = {
     },
     GET_PRODUCTS_BY_CATEGORY: async (categoryId: string) => {
       const fetchedProducts = await db.query.products.findMany({
-        where: (product, { inArray: inArrayFn }) =>
-          inArray(
-            product.id,
-            db
-              .select({ productId: productCategories.productId })
-              .from(productCategories)
-              .where(inArrayFn(productCategories.categoryId, [categoryId]))
-          ),
+        where: (product, { eq: eqFn }) => eqFn(product.categoryId, categoryId),
         with: {
-          categories: {
-            with: {
-              category: true,
-            },
-          },
+          category: true,
           images: {
             with: {
               media: true,
@@ -123,14 +100,13 @@ export const QUERIES = {
 
       for (const p of fetchedProducts) {
         p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
-        p.categories = p.categories.sort((a, b) => a.sortOrder - b.sortOrder);
         p.prices = p.prices.sort((a, b) => a.minQty - b.minQty);
       }
 
       const processedProducts = fetchedProducts.map((p) => ({
         ...p,
-        categories: p.categories.map((c) => c.category),
         images: p.images.map((img) => img.media.url),
+        category: p.category,
         prices: p.prices.map((pt) => ({
           minQty: pt.minQty,
           priceCents: pt.priceCents,
@@ -161,24 +137,19 @@ export const QUERIES = {
               media: true,
             },
           },
-          categories: {
-            with: {
-              category: true,
-            },
-          },
+          category: true,
         },
         orderBy: (product, { desc }) => desc(product.createdAt),
       });
 
       for (const p of fetchedProducts) {
         p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
-        p.categories = p.categories.sort((a, b) => a.sortOrder - b.sortOrder);
       }
 
       const processedProducts = fetchedProducts.map((p) => ({
         ...p,
-        categories: p.categories.map((c) => c.category),
         images: p.images.map((img) => img.media.url),
+        category: p.category,
       }));
 
       return processedProducts;
@@ -197,11 +168,7 @@ export const QUERIES = {
               media: true,
             },
           },
-          categories: {
-            with: {
-              category: true,
-            },
-          },
+          category: true,
         },
       });
 
@@ -209,14 +176,11 @@ export const QUERIES = {
         product.images = product.images.sort(
           (a, b) => a.sortOrder - b.sortOrder
         );
-        product.categories = product.categories.sort(
-          (a, b) => a.sortOrder - b.sortOrder
-        );
 
         return {
           ...product,
-          categories: product.categories.map((c) => c.category),
           images: product.images.map((img) => img.media.url),
+          category: product.category,
         };
       }
 
@@ -241,9 +205,9 @@ export const QUERIES = {
               ? inArrayFn(
                   product.id,
                   db
-                    .select({ productId: productCategories.productId })
-                    .from(productCategories)
-                    .where(eqFn(productCategories.categoryId, categoryId))
+                    .select({ productId: products.id })
+                    .from(products)
+                    .where(eqFn(products.categoryId, categoryId))
                 )
               : undefined
           ),
@@ -255,11 +219,7 @@ export const QUERIES = {
               media: true,
             },
           },
-          categories: {
-            with: {
-              category: true,
-            },
-          },
+          category: true,
         },
         orderBy: (product, { asc: ascFn, desc: descFn }) => [
           ascFn(product.sortOrder),
@@ -276,9 +236,9 @@ export const QUERIES = {
           ? inArray(
               products.id,
               db
-                .select({ productId: productCategories.productId })
-                .from(productCategories)
-                .where(eq(productCategories.categoryId, categoryId))
+                .select({ productId: products.id })
+                .from(products)
+                .where(eq(products.categoryId, categoryId))
             )
           : undefined
       );
@@ -302,13 +262,12 @@ export const QUERIES = {
 
       for (const p of fetchedProducts) {
         p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
-        p.categories = p.categories.sort((a, b) => a.sortOrder - b.sortOrder);
       }
 
       const processedProducts = fetchedProducts.map((p) => ({
         ...p,
-        categories: p.categories.map((c) => c.category),
         images: p.images.map((img) => img.media.url),
+        category: p.category,
       }));
 
       const result = {

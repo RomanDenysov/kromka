@@ -273,49 +273,13 @@ export const categories = pgTable(
   ]
 );
 
-export const productCategories = pgTable(
-  "product_categories",
-  {
-    productId: text("product_id")
-      .notNull()
-      .references(() => products.id, { onDelete: "cascade" }),
-    categoryId: text("category_id")
-      .notNull()
-      .references(() => categories.id, { onDelete: "cascade" }),
-    sortOrder: integer("sort_order").default(0).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
-  },
-  (table) => [
-    primaryKey({ columns: [table.productId, table.categoryId] }),
-    index("product_category_sort_idx").on(table.categoryId, table.sortOrder),
-  ]
-);
-
 export const categoriesRelations = relations(categories, ({ many, one }) => ({
-  products: many(productCategories),
   image: one(media, {
     fields: [categories.imageId],
     references: [media.id],
   }),
+  products: many(products),
 }));
-
-export const productCategoriesRelations = relations(
-  productCategories,
-  ({ one }) => ({
-    product: one(products, {
-      fields: [productCategories.productId],
-      references: [products.id],
-    }),
-    category: one(categories, {
-      fields: [productCategories.categoryId],
-      references: [categories.id],
-    }),
-  })
-);
 
 // #endregion Categories
 
@@ -777,6 +741,10 @@ export const products = pgTable("products", {
       ],
     }),
 
+  categoryId: text("category_id").references(() => categories.id, {
+    onDelete: "set null",
+  }),
+
   priceCents: integer("price_cents").notNull().default(0),
 
   showInB2c: boolean("show_in_b2c").default(true).notNull(),
@@ -810,11 +778,15 @@ export const productImages = pgTable(
   ]
 );
 
-export const productsRelations = relations(products, ({ many }) => ({
+export const productsRelations = relations(products, ({ many, one }) => ({
   images: many(productImages),
-  categories: many(productCategories),
+  category: one(categories, {
+    fields: [products.categoryId],
+    references: [categories.id],
+  }),
   prices: many(prices),
   orderItems: many(orderItems),
+  cartItems: many(cartItems),
   favorites: many(favorites),
   reviews: many(reviews),
 }));
