@@ -1,6 +1,5 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   type ColumnFiltersState,
   flexRender,
@@ -11,13 +10,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowDownIcon,
-  FileIcon,
-  PlusIcon,
-  TablePropertiesIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   DataTableSearch,
@@ -35,12 +28,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
@@ -58,57 +45,16 @@ import {
   useToggleCategories,
   useToggleFeaturedCategory,
 } from "@/hooks/use-admin-categories-mutations";
-import {
-  type ExportColumnConfig,
-  exportAsCsv,
-  exportAsXlsx,
-} from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
-import type { RouterOutputs } from "@/trpc/routers";
+import type { TableCategory } from "@/types/categories";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
-export type TableCategory =
-  RouterOutputs["admin"]["categories"]["list"][number];
-
-const categoryExportColumns: ExportColumnConfig<TableCategory>[] = [
-  {
-    key: "name",
-    header: "Názov",
-  },
-  {
-    key: "isActive",
-    header: "Aktívna",
-    format: (value) => (value ? "Áno" : "Nie"),
-  },
-  {
-    key: "showInMenu",
-    header: "Viditeľná v menu",
-    format: (value) => (value ? "Áno" : "Nie"),
-  },
-  {
-    key: "productsCount",
-    header: "Počet produktov",
-  },
-  {
-    key: "createdAt",
-    header: "Vytvorené",
-    format: (value) =>
-      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
-  },
-  {
-    key: "updatedAt",
-    header: "Upravené",
-    format: (value) =>
-      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
-  },
-];
-
-export function CategoriesTable() {
-  const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.admin.categories.list.queryOptions());
-
+export function CategoriesTable({
+  categories,
+}: {
+  categories: TableCategory[];
+}) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -124,8 +70,8 @@ export function CategoriesTable() {
   const { mutate: toggleFeatured } = useToggleFeaturedCategory();
 
   const processedCategories = useMemo(
-    () => data.map((category) => category),
-    [data]
+    () => categories.map((category) => category),
+    [categories]
   );
 
   const table = useReactTable({
@@ -164,24 +110,6 @@ export function CategoriesTable() {
       },
     },
   });
-
-  const handleExport = async (format: "csv" | "xlsx") => {
-    const selectedRows = table.getSelectedRowModel().rows;
-    const exportData = selectedRows.length
-      ? selectedRows.map((r) => r.original)
-      : table.getFilteredRowModel().rows.map((r) => r.original);
-
-    if (!exportData.length) {
-      return;
-    }
-
-    if (format === "csv") {
-      exportAsCsv(exportData, categoryExportColumns, "categories");
-    } else {
-      await exportAsXlsx(exportData, categoryExportColumns, "categories");
-    }
-  };
-
   // biome-ignore lint/correctness/useExhaustiveDependencies: Need to ignore this
   useEffect(() => {
     if (
@@ -239,24 +167,6 @@ export function CategoriesTable() {
               </AlertDialogContent>
             </AlertDialog>
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline">
-                <ArrowDownIcon />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleExport("csv")}>
-                <FileIcon />
-                CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
-                <TablePropertiesIcon />
-                XLSX
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
       <Table>
