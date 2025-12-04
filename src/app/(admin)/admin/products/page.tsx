@@ -1,3 +1,4 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { cache, Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
@@ -5,6 +6,9 @@ import { ProductsTable } from "@/components/tables/products/table";
 import { db } from "@/db";
 
 const getProducts = cache(async () => {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products");
   const fetchedProducts = await db.query.products.findMany({
     with: {
       category: true,

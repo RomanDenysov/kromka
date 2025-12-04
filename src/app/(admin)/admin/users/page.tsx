@@ -1,13 +1,10 @@
-import { cacheLife, cacheTag } from "next/cache";
+import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { UsersTable } from "@/components/tables/users/users-table";
 import { getUsers } from "@/lib/queries/users";
 
 export default async function SettingsUsersPage() {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag("admin-users-page");
-
   const users = await getUsers();
 
   return (
@@ -19,7 +16,9 @@ export default async function SettingsUsersPage() {
         ]}
       />
       <section className="h-full flex-1">
-        <UsersTable users={users} />
+        <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
+          <UsersTable users={users} />
+        </Suspense>
       </section>
     </>
   );

@@ -1,3 +1,4 @@
+"use cache";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
 import AppSidebar from "@/components/admin-sidebar/app-sidebar";
 import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";

@@ -1,3 +1,5 @@
+"use cache";
+
 import { desc } from "drizzle-orm";
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";

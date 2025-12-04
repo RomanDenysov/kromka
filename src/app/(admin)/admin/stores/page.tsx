@@ -1,4 +1,5 @@
 import { asc } from "drizzle-orm";
+import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
@@ -7,6 +8,9 @@ import { db } from "@/db";
 import { stores } from "@/db/schema";
 
 export default async function StoresPage() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("stores");
   const fetchedStores = await db.query.stores.findMany({
     with: {
       image: true,
