@@ -85,7 +85,7 @@ export default async function StoresPage() {
             <div className="absolute inset-0">
               <ErrorBoundary fallback={<Skeleton className="size-full" />}>
                 <Suspense fallback={<Skeleton className="size-full" />}>
-                  <StoresMap />
+                  <StoresMap stores={stores} />
                 </Suspense>
               </ErrorBoundary>
             </div>

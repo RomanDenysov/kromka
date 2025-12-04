@@ -62,8 +62,8 @@ import {
   exportAsCsv,
   exportAsXlsx,
 } from "@/lib/export-utils";
+import type { Product } from "@/lib/queries/products";
 import { cn } from "@/lib/utils";
-import type { Product } from "@/types/products";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 

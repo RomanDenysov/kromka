@@ -100,7 +100,7 @@ export type ActiveCart = Awaited<ReturnType<typeof getActiveCarts>>[number];
 
 export const getActiveCarts = async (limit = 6) =>
   await db.query.orders.findMany({
-    where: (order, { eq: eqFn }) => eqFn(order.orderStatus, "cart"),
+    where: (order, { eq: eqFn }) => eqFn(order.orderStatus, "new"),
     orderBy: [desc(orders.updatedAt)],
     limit,
     with: {

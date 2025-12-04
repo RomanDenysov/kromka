@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { TableColumnHeader } from "@/components/data-table/table-column-header";
-import { Hint } from "@/components/shared/hint";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,8 +34,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Product } from "@/lib/queries/products";
 import { formatPrice } from "@/lib/utils";
-import type { Product } from "@/types/products";
 
 type ProductTableMeta = {
   onEdit: (id: string) => void;
@@ -156,26 +155,11 @@ export const columns: ColumnDef<Product, ProductTableMeta>[] = [
       />
     ),
     accessorKey: "priceCents",
-    cell: ({ row }) => {
-      const prices = row.original.prices;
-      return prices.length > 0 ? (
-        <Hint
-          text={prices
-            .map((price: { priceCents: number }) =>
-              formatPrice(price.priceCents)
-            )
-            .join(", ")}
-        >
-          <span className="font-medium text-xs">
-            {formatPrice(row.original.priceCents)}
-          </span>
-        </Hint>
-      ) : (
-        <span className="font-medium text-xs">
-          {formatPrice(row.original.priceCents)}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <span className="font-medium text-xs">
+        {formatPrice(row.original.priceCents)}
+      </span>
+    ),
   },
   {
     header: ({ column, table }) => (

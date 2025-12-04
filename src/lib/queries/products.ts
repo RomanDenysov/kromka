@@ -31,3 +31,5 @@ export const getProductBySlug = cache(async (slug: string) => {
 
   return null;
 });
+
+export type Product = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;

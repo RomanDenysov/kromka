@@ -3,8 +3,8 @@
 import { ShoppingCartIcon } from "lucide-react";
 import Link from "next/link";
 import { useCartActions } from "@/hooks/use-cart-actions";
+import type { Product } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
-import type { Product } from "@/types/products";
 import { ProductImage } from "../shared/product-image";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
@@ -16,7 +16,7 @@ type Props = {
 
 export function FeaturedProductCard({ product, className }: Props) {
   const { addToCart, isAddingToCart } = useCartActions();
-  const isActive = product.status === "active";
+  const isActive = product?.status === "active";
 
   return (
     <Link
@@ -24,17 +24,17 @@ export function FeaturedProductCard({ product, className }: Props) {
         "group relative block aspect-square overflow-hidden rounded-sm bg-muted shadow-sm",
         className
       )}
-      href={`/e-shop/${product.slug}`}
-      title={product.name}
+      href={`/e-shop/${product?.slug}`}
+      title={product?.name}
     >
       <ProductImage
-        alt={product.name}
+        alt={product?.name}
         className={cn(
           "size-full object-cover transition-transform duration-500 group-hover:scale-105",
           !isActive && "opacity-60 grayscale"
         )}
         height={600}
-        src={product.images[0] || ""}
+        src={product?.images[0] || ""}
         width={600}
       />
 
@@ -43,7 +43,7 @@ export function FeaturedProductCard({ product, className }: Props) {
         <div className="flex items-end justify-between gap-3">
           <div className="flex-1 overflow-hidden">
             <h3 className="mb-1 truncate font-semibold text-base leading-tight">
-              {product.name}
+              {product?.name}
             </h3>
             <p className="font-semibold text-lg">
               {formatPrice(product.priceCents)}

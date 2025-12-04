@@ -2,7 +2,6 @@
 /** biome-ignore-all lint/style/useNumericSeparators: TODO: fix later */
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
 import type { LatLngExpression } from "leaflet";
 import {
   Map as MapComponent,
@@ -11,7 +10,7 @@ import {
   MapTileLayer,
   MapZoomControl,
 } from "@/components/ui/map";
-import { useTRPC } from "@/trpc/client";
+import type { Store } from "@/lib/queries/stores";
 
 const CENTER_POSITION: LatLngExpression = [
   48.87668321440078, 21.256777795334994,
@@ -30,11 +29,7 @@ const KROMKA_KUZMANYHO: LatLngExpression = [
   48.726252854393714, 21.249413055790967,
 ];
 
-export function StoresMap() {
-  const trpc = useTRPC();
-  const { data: stores } = useSuspenseQuery(
-    trpc.public.stores.list.queryOptions()
-  );
+export function StoresMap({ stores }: { stores: Store[] }) {
   if (stores.length === 0) {
     return null;
   }
