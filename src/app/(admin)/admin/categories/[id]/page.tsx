@@ -1,9 +1,8 @@
 import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { CategoryForm } from "@/components/forms/category-form";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
-import { HydrateClient, prefetch, trpc } from "@/trpc/server";
+import { db } from "@/db";
 
 type Props = {
   params: Promise<{
@@ -13,9 +12,16 @@ type Props = {
 
 export default async function CategoryPage({ params }: Props) {
   const { id } = await params;
-  prefetch(trpc.admin.categories.byId.queryOptions({ id }));
+
+  const category = await db.query.categories.findFirst({
+    where: (c, { eq }) => eq(c.id, id),
+    with: {
+      products: true,
+      image: true,
+    },
+  });
   return (
-    <HydrateClient>
+    <>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
@@ -23,13 +29,11 @@ export default async function CategoryPage({ params }: Props) {
           { label: "Upraviť kategóriu" },
         ]}
       />
-      <ErrorBoundary fallback={<div>Error</div>}>
-        <section className="@container/page h-full flex-1 p-4">
-          <Suspense fallback={<FormSkeleton className="@md/page:max-w-md" />}>
-            <CategoryForm id={id} />
-          </Suspense>
-        </section>
-      </ErrorBoundary>
-    </HydrateClient>
+      <section className="@container/page h-full flex-1 p-4">
+        <Suspense fallback={<FormSkeleton className="@md/page:max-w-md" />}>
+          <CategoryForm category={category} />
+        </Suspense>
+      </section>
+    </>
   );
 }

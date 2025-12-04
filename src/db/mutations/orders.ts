@@ -2,10 +2,8 @@ import "server-only";
 
 import { and, eq, sql, sum } from "drizzle-orm";
 import { db } from "@/db";
-import { orderItems, orderStatusEvents, orders, products } from "@/db/schema";
-
-type InsertOrder = typeof orders.$inferInsert;
-type OrderStatus = InsertOrder["orderStatus"];
+import { orderItems, orders, products } from "@/db/schema";
+import { createPrefixedShortId } from "@/lib/ids";
 
 /**
  * Recalculates and updates the order total from its items
@@ -24,31 +22,6 @@ async function recalculateOrderTotal(orderId: string) {
 }
 
 export const MUTATIONS = {
-  ADMIN: {
-    UPDATE_ORDER_STATUS: async (
-      orderId: string,
-      status: OrderStatus,
-      userId: string,
-      note?: string
-    ) => {
-      // Update the order status
-      const [updatedOrder] = await db
-        .update(orders)
-        .set({ orderStatus: status })
-        .where(eq(orders.id, orderId))
-        .returning();
-
-      // Create a status event
-      await db.insert(orderStatusEvents).values({
-        orderId,
-        status,
-        createdBy: userId,
-        note: note ?? null,
-      });
-
-      return updatedOrder;
-    },
-  },
   PUBLIC: {
     ADD_TO_CART: async (
       productId: string,
@@ -59,10 +32,7 @@ export const MUTATIONS = {
 
       orderId = (
         await db.query.orders.findFirst({
-          where: and(
-            eq(orders.orderStatus, "cart"),
-            eq(orders.createdBy, userId)
-          ),
+          where: eq(orders.createdBy, userId),
           columns: {
             id: true,
           },
@@ -73,8 +43,9 @@ export const MUTATIONS = {
           await db
             .insert(orders)
             .values({
-              orderStatus: "cart",
+              orderNumber: createPrefixedShortId("ord"),
               createdBy: userId,
+              totalCents: 0,
             })
             .returning({ id: orders.id })
         )[0].id;
@@ -110,10 +81,7 @@ export const MUTATIONS = {
     },
     REMOVE_FROM_CART: async (productId: string, userId: string) => {
       const order = await db.query.orders.findFirst({
-        where: and(
-          eq(orders.orderStatus, "cart"),
-          eq(orders.createdBy, userId)
-        ),
+        where: and(eq(orders.createdBy, userId)),
         columns: {
           id: true,
         },
@@ -140,10 +108,7 @@ export const MUTATIONS = {
       quantity: number
     ) => {
       const order = await db.query.orders.findFirst({
-        where: and(
-          eq(orders.orderStatus, "cart"),
-          eq(orders.createdBy, userId)
-        ),
+        where: and(eq(orders.createdBy, userId)),
         columns: {
           id: true,
         },

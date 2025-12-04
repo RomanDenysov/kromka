@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
 import { useTransition } from "react";
 import type { AdminProduct } from "@/app/(admin)/admin/products/[id]/page";
+import { ImageUpload } from "@/components/image-upload";
 import { useAppForm } from "@/components/shared/form";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,10 +23,16 @@ import {
 } from "@/components/ui/field";
 import { updateProductAction } from "@/lib/actions/products";
 import { getSlug } from "@/lib/get-slug";
+import type { Category } from "@/types/categories";
 import { updateProductSchema } from "@/validation/products";
-import { ImageUpload } from "../image-upload";
 
-export function ProductForm({ product }: { product: AdminProduct }) {
+export function ProductForm({
+  product,
+  categories,
+}: {
+  product: AdminProduct;
+  categories: Category[];
+}) {
   const [isPendingUpdateProduct, startTransition] = useTransition();
 
   const form = useAppForm({
@@ -153,7 +160,7 @@ export function ProductForm({ product }: { product: AdminProduct }) {
 
           <FieldGroup className="gap-4">
             <form.AppField name="categoryId">
-              {(field) => <field.CategorySelectField />}
+              {(field) => <field.CategorySelectField categories={categories} />}
             </form.AppField>
           </FieldGroup>
 

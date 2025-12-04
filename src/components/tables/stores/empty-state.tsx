@@ -1,6 +1,7 @@
 "use client";
 
 import { PlusIcon, StoreIcon } from "lucide-react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -11,10 +12,15 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateDraftStore } from "@/hooks/use-admin-store-mutations";
+import { createDraftStoreAction } from "@/lib/actions/stores";
 
 export function EmptyState() {
-  const { mutate: createDraftStore, isPending } = useCreateDraftStore();
+  const [isPending, startTransition] = useTransition();
+
+  const handleCreateDraftStore = () =>
+    startTransition(async () => {
+      await createDraftStoreAction();
+    });
 
   return (
     <Empty>
@@ -30,7 +36,7 @@ export function EmptyState() {
       <EmptyContent>
         <Button
           disabled={isPending}
-          onClick={() => createDraftStore()}
+          onClick={handleCreateDraftStore}
           size="sm"
           variant="outline"
         >

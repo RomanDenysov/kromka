@@ -36,9 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatPrice } from "@/lib/utils";
-import type { TableProduct } from "./table";
-
-const _MAX_CATEGORIES_DISPLAY = 3;
+import type { Product } from "@/types/products";
 
 type ProductTableMeta = {
   onEdit: (id: string) => void;
@@ -47,7 +45,7 @@ type ProductTableMeta = {
   onToggleActive: (id: string) => void;
 };
 
-export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
+export const columns: ColumnDef<Product, ProductTableMeta>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -161,7 +159,13 @@ export const columns: ColumnDef<TableProduct, ProductTableMeta>[] = [
     cell: ({ row }) => {
       const prices = row.original.prices;
       return prices.length > 0 ? (
-        <Hint text={prices.map((price) => price.priceTier.name).join(", ")}>
+        <Hint
+          text={prices
+            .map((price: { priceCents: number }) =>
+              formatPrice(price.priceCents)
+            )
+            .join(", ")}
+        >
           <span className="font-medium text-xs">
             {formatPrice(row.original.priceCents)}
           </span>

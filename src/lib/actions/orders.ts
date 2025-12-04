@@ -253,17 +253,19 @@ export async function createB2BOrderFromCart(data: {
 /**
  * Update order status (admin)
  */
-export async function updateOrderStatus(
-  orderId: string,
-  status: OrderStatus,
-  note?: string
-) {
+export async function updateOrderStatusAction({
+  orderId,
+  status,
+  note,
+}: {
+  orderId: string;
+  status: OrderStatus;
+  note?: string;
+}) {
   const { user } = await getAuth();
-  if (!user) {
+  if (!user || user.role !== "admin") {
     throw new Error("Unauthorized");
   }
-
-  // TODO: Check admin permissions
 
   const [updatedOrder] = await db
     .update(orders)

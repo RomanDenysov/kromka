@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import type { LucideIcon } from "lucide-react";
@@ -16,7 +12,7 @@ import {
   UserIcon,
   XCircleIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -58,6 +54,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { updateOrderStatusAction } from "@/lib/actions/orders";
 import {
   ORDER_STATUS_ICONS,
   ORDER_STATUS_LABELS,
@@ -612,20 +609,32 @@ export function OrderDetail({ orderId }: { orderId: string }) {
     trpc.admin.orders.byId.queryOptions({ id: orderId })
   );
 
-  const { mutate: updateStatus, isPending: isUpdating } = useMutation(
-    trpc.admin.orders.updateStatus.mutationOptions({
-      onSuccess: async () => {
+  const [isPending, startTransition] = useTransition();
+
+  const updateStatus = ({
+    id,
+    status,
+    note,
+  }: {
+    id: string;
+    status: OrderStatus;
+    note?: string;
+  }) => {
+    startTransition(async () => {
+      try {
+        await updateOrderStatusAction({ orderId: id, status, note });
         await queryClient.invalidateQueries({
           queryKey: trpc.admin.orders.byId.queryOptions({ id: orderId })
             .queryKey,
         });
         toast.success("Stav objednávky bol aktualizovaný");
-      },
-      onError: (err) => {
-        toast.error(err.message);
-      },
-    })
-  );
+      } catch (err) {
+        toast.error(
+          err instanceof Error ? err.message : "Chyba pri aktualizácii"
+        );
+      }
+    });
+  };
 
   if (!order) {
     return (
@@ -708,7 +717,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       />
 
       <StatusStepperCard
-        isUpdating={isUpdating}
+        isUpdating={isPending}
         onStatusChange={handleStatusChange}
         onValidate={handleValidate}
         orderStatus={order.orderStatus}

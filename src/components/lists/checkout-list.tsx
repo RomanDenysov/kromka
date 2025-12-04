@@ -62,7 +62,7 @@ function CheckoutListItem({ item }: { item: CartItem }) {
           <Button
             aria-label="Odstrániť z košíka"
             disabled={isRemovingFromCart}
-            onClick={() => removeFromCart({ productId: product.id })}
+            onClick={() => removeFromCart(product.id)}
             size={"icon-sm"}
             type="button"
             variant="ghost"

@@ -93,23 +93,21 @@ export function SingleProduct({ slug }: { slug: string }) {
       </div>
       <div className="col-span-1 flex flex-col gap-6 sm:col-span-2 md:col-span-3">
         {/* Product Title and Categories*/}
-        {product.categories.length > 0 && (
+        {product.category && (
           <div className="flex flex-wrap items-center justify-start gap-1">
             <Hint side="top" text="Kategórie">
               <TagsIcon className="size-4 text-muted-foreground" />
             </Hint>
-            {product.categories.map((cat) => (
-              <Link
-                className={cn(
-                  buttonVariants({ variant: "secondary", size: "xs" }),
-                  "rounded-full"
-                )}
-                href={`/e-shop?category=${cat.slug}`}
-                key={cat.id}
-              >
-                {cat.name}
-              </Link>
-            ))}
+            <Link
+              className={cn(
+                buttonVariants({ variant: "secondary", size: "xs" }),
+                "rounded-full"
+              )}
+              href={`/e-shop?category=${product.category.slug}`}
+              key={product.category.id}
+            >
+              {product.category.name}
+            </Link>
           </div>
         )}
         <ViewTransition name={`${product.slug}-name`}>

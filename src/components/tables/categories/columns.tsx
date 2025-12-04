@@ -33,7 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { TableCategory } from "./table";
+import type { TableCategory } from "@/types/categories";
 
 type CategoryTableMeta = {
   toggleActive: (id: string) => void;
@@ -189,10 +189,10 @@ export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
         title="Produktov"
       />
     ),
-    accessorKey: "productsCount",
+    accessorKey: "products",
     cell: ({ row }) => (
       <span className="font-medium text-xs">
-        {row.original.productsCount}ks
+        {row.original.products.length}ks
       </span>
     ),
     size: 16,

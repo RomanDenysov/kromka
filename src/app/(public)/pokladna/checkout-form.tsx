@@ -74,6 +74,15 @@ export function CheckoutForm({ user }: { user?: User }) {
           phone: user?.phone ?? "",
         };
 
+  const totalCents = useMemo(
+    () =>
+      cart?.items.reduce(
+        (acc, item) => acc + item.priceCents * item.quantity,
+        0
+      ) ?? 0,
+    [cart]
+  );
+
   const form = useAppForm({
     defaultValues: {
       name: userData?.name,
@@ -320,7 +329,7 @@ export function CheckoutForm({ user }: { user?: User }) {
             <div className="flex flex-row items-center justify-between">
               <span className="font-medium text-lg">Spolu</span>
               <span className="font-semibold text-lg">
-                {formatPrice(cart?.totalCents ?? 0)}
+                {formatPrice(totalCents)}
               </span>
             </div>
 

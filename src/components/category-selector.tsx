@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { CheckIcon, PlusCircleIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,25 +14,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
+import type { Category } from "@/types/categories";
 import { Badge } from "./ui/badge";
-import { Skeleton } from "./ui/skeleton";
 
 type Props = {
   value: string[];
   onChange: (value: string[]) => void;
+  categories: Category[];
 };
 
-export function CategorySelector({ value, onChange }: Props) {
-  const trpc = useTRPC();
-  const { data: categories, isLoading: isLoadingCategories } = useQuery(
-    trpc.admin.categories.list.queryOptions()
-  );
-
-  if (isLoadingCategories) {
-    return <Skeleton className="h-12 w-full rounded-md" />;
-  }
-
+export function CategorySelector({ value, onChange, categories }: Props) {
   return (
     <div className="flex items-start justify-start gap-2 rounded-md border p-3">
       <div className="flex flex-1 flex-wrap items-center gap-2">

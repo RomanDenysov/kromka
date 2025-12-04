@@ -1,4 +1,5 @@
 import { FolderOpenIcon, PlusIcon } from "lucide-react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -9,10 +10,15 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateDraftCategory } from "@/hooks/use-admin-categories-mutations";
+import { createDraftCategoryAction } from "@/lib/actions/categories";
 
 export function EmptyState() {
-  const { mutate: createDraftCategory, isPending } = useCreateDraftCategory();
+  const [isPending, startTransition] = useTransition();
+
+  const handleCreateDraftCategory = () =>
+    startTransition(async () => {
+      await createDraftCategoryAction();
+    });
 
   return (
     <Empty>
@@ -28,7 +34,7 @@ export function EmptyState() {
       <EmptyContent>
         <Button
           disabled={isPending}
-          onClick={() => createDraftCategory()}
+          onClick={handleCreateDraftCategory}
           size="sm"
           variant="outline"
         >

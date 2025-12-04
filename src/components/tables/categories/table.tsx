@@ -11,7 +11,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -39,12 +39,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  useCopyCategory,
-  useCreateDraftCategory,
-  useDeleteCategories,
-  useToggleCategories,
-  useToggleFeaturedCategory,
-} from "@/hooks/use-admin-categories-mutations";
+  copyCategoryAction,
+  createDraftCategoryAction,
+  deleteCategoriesAction,
+  toggleIsActiveCategoryAction,
+  toggleIsFeaturedCategoryAction,
+} from "@/lib/actions/categories";
 import { cn } from "@/lib/utils";
 import type { TableCategory } from "@/types/categories";
 import { columns } from "./columns";
@@ -60,14 +60,7 @@ export function CategoriesTable({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const { mutate: createDraft, isPending: isCreatingDraft } =
-    useCreateDraftCategory();
-
-  const { mutate: copyCategory } = useCopyCategory();
-  const { mutate: toggleActive } = useToggleCategories();
-  const { mutate: deleteCategories, isPending: isDeletingCategories } =
-    useDeleteCategories();
-  const { mutate: toggleFeatured } = useToggleFeaturedCategory();
+  const [isPending, startTransition] = useTransition();
 
   const processedCategories = useMemo(
     () => categories.map((category) => category),
@@ -96,17 +89,17 @@ export function CategoriesTable({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
-      toggleActive: (id: string) => {
-        toggleActive({ ids: [id] });
+      toggleActive: async (id: string) => {
+        await toggleIsActiveCategoryAction({ id });
       },
-      onCopy: (id: string) => {
-        copyCategory({ categoryId: id });
+      onCopy: async (id: string) => {
+        await copyCategoryAction({ id });
       },
-      onDelete: (id: string) => {
-        deleteCategories({ ids: [id] });
+      onDelete: async (id: string) => {
+        await deleteCategoriesAction({ ids: [id] });
       },
-      toggleFeatured: (id: string) => {
-        toggleFeatured({ categoryId: id });
+      toggleFeatured: async (id: string) => {
+        await toggleIsFeaturedCategoryAction({ id });
       },
     },
   });
@@ -133,10 +126,7 @@ export function CategoriesTable({
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
-                  disabled={
-                    isDeletingCategories ||
-                    Object.keys(rowSelection).length === 0
-                  }
+                  disabled={Object.keys(rowSelection).length === 0}
                   size="sm"
                   variant="destructive"
                 >
@@ -156,7 +146,7 @@ export function CategoriesTable({
                   <AlertDialogCancel size="sm">Zrušiť</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() =>
-                      deleteCategories({ ids: Object.keys(rowSelection) })
+                      deleteCategoriesAction({ ids: Object.keys(rowSelection) })
                     }
                     size="sm"
                     variant="destructive"
@@ -230,12 +220,16 @@ export function CategoriesTable({
               <TableCell className="p-0" colSpan={columns.length}>
                 <Button
                   className="w-full rounded-none"
-                  disabled={isCreatingDraft}
-                  onClick={() => createDraft()}
+                  disabled={isPending}
+                  onClick={() =>
+                    startTransition(async () => {
+                      await createDraftCategoryAction();
+                    })
+                  }
                   size="sm"
                   variant="ghost"
                 >
-                  {isCreatingDraft ? (
+                  {isPending ? (
                     <>
                       <Spinner />
                       Pridávame kategóriu...

@@ -16,23 +16,15 @@ export const getProductBySlug = cache(async (slug: string) => {
         },
       },
       // TODO: update later when we will remove multiple categories
-      categories: {
-        with: {
-          category: true,
-        },
-      },
+      category: true,
     },
   });
 
   if (product) {
     product.images = product.images.sort((a, b) => a.sortOrder - b.sortOrder);
-    product.categories = product.categories.sort(
-      (a, b) => a.sortOrder - b.sortOrder
-    );
 
     return {
       ...product,
-      categories: product.categories.map((c) => c.category),
       images: product.images.map((img) => img.media.url),
     };
   }

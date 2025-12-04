@@ -15,7 +15,7 @@ import {
   PlusIcon,
   TablePropertiesIcon,
 } from "lucide-react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -38,24 +38,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  useCopyStore,
-  useCreateDraftStore,
-  useDeleteStore,
-  useToggleStore,
-} from "@/hooks/use-admin-store-mutations";
+  copyStoreAction,
+  createDraftStoreAction,
+  deleteStoresAction,
+  toggleIsActiveStoresAction,
+} from "@/lib/actions/stores";
 import {
   type ExportColumnConfig,
   exportAsCsv,
   exportAsXlsx,
 } from "@/lib/export-utils";
+import type { Store } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/routers";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
-export type TableStore = RouterOutputs["admin"]["stores"]["list"][number];
-
-const storeExportColumns: ExportColumnConfig<TableStore>[] = [
+const storeExportColumns: ExportColumnConfig<Store>[] = [
   {
     key: "name",
     header: "Názov",
@@ -87,19 +85,21 @@ const storeExportColumns: ExportColumnConfig<TableStore>[] = [
   },
 ];
 
-export function StoresTable({ stores }: { stores: TableStore[] }) {
+export function StoresTable({ stores }: { stores: Store[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
-  const { mutate: createDraft, isPending: isCreatingDraft } =
-    useCreateDraftStore();
-  const { mutate: copyStore } = useCopyStore();
-  const { mutate: toggleActive } = useToggleStore();
-  const { mutate: deleteStore } = useDeleteStore();
+
+  const [isPending, startTransition] = useTransition();
+
+  const handleCreateDraft = () =>
+    startTransition(async () => {
+      await createDraftStoreAction();
+    });
 
   const processedStores = useMemo(() => stores.map((store) => store), [stores]);
 
-  const table = useReactTable({
+  const table = useReactTable<Store>({
     data: processedStores,
     columns,
     filterFns: {
@@ -119,14 +119,14 @@ export function StoresTable({ stores }: { stores: TableStore[] }) {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     meta: {
-      toggleActive: (id: string) => {
-        toggleActive({ ids: [id] });
+      toggleActive: async (id: string) => {
+        await toggleIsActiveStoresAction({ ids: [id] });
       },
-      onCopy: (id: string) => {
-        copyStore({ storeId: id });
+      onCopy: async (id: string) => {
+        await copyStoreAction({ storeId: id });
       },
-      onDelete: (id: string) => {
-        deleteStore({ ids: [id] });
+      onDelete: async (id: string) => {
+        await deleteStoresAction({ ids: [id] });
       },
     },
   });
@@ -231,12 +231,12 @@ export function StoresTable({ stores }: { stores: TableStore[] }) {
               <TableCell className="p-0" colSpan={columns.length}>
                 <Button
                   className="w-full rounded-none"
-                  disabled={isCreatingDraft}
-                  onClick={() => createDraft()}
+                  disabled={isPending}
+                  onClick={handleCreateDraft}
                   size="sm"
                   variant="ghost"
                 >
-                  {isCreatingDraft ? (
+                  {isPending ? (
                     <>
                       <Spinner />
                       Pridávame obchod...

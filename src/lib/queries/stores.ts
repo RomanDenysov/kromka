@@ -10,6 +10,8 @@ export const getStores = cache(
       orderBy: desc(stores.createdAt),
       with: {
         image: true,
+        users: true,
+        orders: true,
       },
     })
 );

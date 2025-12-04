@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
-import { toast } from "sonner";
+import { useTransition } from "react";
 import { SingleImageUpload } from "@/components/image-upload/single-image-upload";
 import {
   Field,
@@ -16,12 +11,11 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-import { useFormAutoSave } from "@/hooks/use-form-auto-save";
+import { updateCategoryAction } from "@/lib/actions/categories";
 import { getSlug } from "@/lib/get-slug";
-import { useTRPC } from "@/trpc/client";
+import type { AdminCategory } from "@/types/categories";
 import { updateCategorySchema } from "@/validation/categories";
 import { useAppForm } from "../shared/form";
-import { FormSkeleton } from "../shared/form/form-skeleton";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -33,30 +27,16 @@ import {
 // biome-ignore lint/style/noMagicNumbers: Image aspect ratio
 const IMAGE_ASPECT_RATIO = 16 / 9;
 
-export function CategoryForm({ id }: { id: string }) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-  const { data: category, isLoading: isLoadingCategory } = useSuspenseQuery(
-    trpc.admin.categories.byId.queryOptions({ id })
-  );
-  const { mutate: updateCategory, isPending: isPendingUpdateCategory } =
-    useMutation(
-      trpc.admin.categories.update.mutationOptions({
-        onSuccess: async (updatedCategory) => {
-          await queryClient.invalidateQueries({
-            queryKey: trpc.admin.categories.byId.queryOptions({
-              id: updatedCategory.id,
-            }).queryKey,
-          });
-        },
-        onError: (error) => {
-          toast.error(error.message);
-        },
-      })
-    );
+export function CategoryForm({
+  category,
+}: {
+  category?: AdminCategory | null;
+}) {
+  const [isPending, startTransition] = useTransition();
 
   const form = useAppForm({
     defaultValues: {
+      id: category?.id ?? "",
       name: category?.name ?? "",
       slug: category?.slug ?? "",
       description: category?.description ?? "",
@@ -79,35 +59,34 @@ export function CategoryForm({ id }: { id: string }) {
     validators: {
       onSubmit: updateCategorySchema,
     },
-    onSubmit: ({ value }) => updateCategory({ id, category: value }),
+    onSubmit: ({ value }) => {
+      startTransition(async () => {
+        await updateCategoryAction({ id: value.id, category: value });
+      });
+    },
   });
 
-  const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
-
-  if (isLoadingCategory) {
-    return <FormSkeleton className="@md/page:max-w-md" />;
+  if (!category) {
+    return <div>Kategória nebola nájdená</div>;
   }
 
   return (
     <form.AppForm>
       <form
-        aria-disabled={isPendingUpdateCategory}
+        aria-disabled={isPending}
         id="category-form"
-        onBlurCapture={onBlurCapture}
-        onFocusCapture={onFocusCapture}
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
         }}
-        ref={formRef}
       >
         <FieldSet className="@md/page:max-w-md max-w-full gap-5">
           <div className="flex flex-row items-start justify-between">
             <div>
               <FieldLegend>Nastavenie kategórie</FieldLegend>
               <FieldDescription className="text-[10px]">
-                {isPendingUpdateCategory || isLoadingCategory
+                {isPending
                   ? "Ukladá sa..."
                   : `Naposledy uložené ${format(
                       category?.updatedAt ?? new Date(),
@@ -138,7 +117,7 @@ export function CategoryForm({ id }: { id: string }) {
                   <SingleImageUpload
                     aspect={IMAGE_ASPECT_RATIO}
                     className="w-full"
-                    disabled={isPendingUpdateCategory}
+                    disabled={isPending}
                     onChange={(val) => field.handleChange(val)}
                     value={field.state.value}
                   />

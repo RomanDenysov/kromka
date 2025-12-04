@@ -1,9 +1,12 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { eq, inArray, not } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { stores, users } from "@/db/schema";
+import { draftSlug } from "@/db/utils";
+import type { StoreSchema } from "@/validation/stores";
 import { getAuth } from "../auth/session";
 
 export async function setUserStore(
@@ -20,4 +23,127 @@ export async function setUserStore(
   revalidatePath("/", "layout");
 
   return { success: true };
+}
+
+export async function createDraftStoreAction() {
+  const { user } = await getAuth();
+  if (!user || user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  const [newDraftStore] = await db
+    .insert(stores)
+    .values({})
+    .returning({ id: stores.id });
+
+  revalidatePath(`/admin/stores/${newDraftStore.id}`);
+  revalidatePath("/admin/stores");
+
+  redirect(`/admin/stores/${newDraftStore.id}`);
+}
+
+export async function updateStoreAction({
+  id,
+  store,
+}: {
+  id: string;
+  store: StoreSchema;
+}) {
+  const { user } = await getAuth();
+  if (!user || user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  const [updatedStore] = await db
+    .update(stores)
+    .set(store)
+    .where(eq(stores.id, id))
+    .returning();
+
+  revalidatePath(`/admin/stores/${updatedStore.id}`);
+  revalidatePath("/admin/stores");
+
+  return updatedStore;
+}
+
+export async function copyStoreAction({ storeId }: { storeId: string }) {
+  const { user } = await getAuth();
+  if (!user || user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  const referenceStore = await db.query.stores.findFirst({
+    where: (store, { eq: eqFn }) => eqFn(store.id, storeId),
+  });
+
+  if (!referenceStore) {
+    throw new Error("Store not found");
+  }
+
+  const newStoreData = {
+    ...referenceStore,
+    id: undefined, // We don't want to copy the id
+    slug: draftSlug(referenceStore.name),
+  };
+
+  const [newStore] = await db
+    .insert(stores)
+    .values(newStoreData)
+    .returning({ id: stores.id });
+
+  revalidatePath(`/admin/stores/${newStore.id}`);
+  revalidatePath("/admin/stores");
+
+  return { id: newStore.id };
+}
+
+export async function toggleIsActiveStoresAction({ ids }: { ids: string[] }) {
+  const { user } = await getAuth();
+  if (!user || user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  const updatedStores = await db
+    .update(stores)
+    .set({ isActive: not(stores.isActive) })
+    .where(inArray(stores.id, ids))
+    .returning({ id: stores.id });
+
+  // TODO: DELETE IT AFTER RELEASE
+  // biome-ignore lint/complexity/noForEach: We need to revalidate the paths for each store
+  updatedStores.forEach((store) => {
+    revalidatePath(`/admin/stores/${store.id}`);
+  });
+
+  revalidatePath("/admin/stores");
+
+  return {
+    success: true,
+    ids: updatedStores.map((store) => store.id),
+  };
+}
+
+export async function deleteStoresAction({ ids }: { ids: string[] }) {
+  const { user } = await getAuth();
+  if (!user || user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  const deletedStores = await db
+    .delete(stores)
+    .where(inArray(stores.id, ids))
+    .returning({ id: stores.id });
+
+  // TODO: DELETE IT AFTER RELEASE
+  // biome-ignore lint/complexity/noForEach: We need to revalidate the paths for each store
+  deletedStores.forEach((store) => {
+    revalidatePath(`/admin/stores/${store.id}`);
+  });
+
+  revalidatePath("/admin/stores");
+
+  return {
+    success: true,
+    ids: deletedStores.map((store) => store.id),
+  };
 }

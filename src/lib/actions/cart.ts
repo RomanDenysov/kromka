@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { cartItems, carts, organizations, prices, products } from "@/db/schema";
 import { getAuth } from "../auth/session";
@@ -11,7 +11,7 @@ import { getAuth } from "../auth/session";
 export async function getProductPrice(
   productId: string,
   companyId: string | null,
-  quantity: number
+  _quantity: number
 ): Promise<number> {
   if (!companyId) {
     // B2C: use product's default price
@@ -41,26 +41,14 @@ export async function getProductPrice(
   }
 
   // Find the best matching price tier (highest minQty <= quantity)
-  const tierPrices = await db.query.prices.findMany({
+  const price = await db.query.prices.findFirst({
     where: and(
       eq(prices.productId, productId),
-      eq(prices.priceTierId, org.priceTierId),
-      sql`${prices.minQty} <= ${quantity}`
+      eq(prices.priceTierId, org.priceTierId)
     ),
-    orderBy: [desc(prices.minQty)],
-    limit: 1,
-  });
-
-  if (tierPrices.length > 0 && tierPrices[0]) {
-    return tierPrices[0].priceCents;
-  }
-
-  // Fallback to default price
-  const product = await db.query.products.findFirst({
-    where: eq(products.id, productId),
     columns: { priceCents: true },
   });
-  return product?.priceCents ?? 0;
+  return price?.priceCents ?? 0;
 }
 
 /**
@@ -104,10 +92,6 @@ export async function getCart() {
                 with: {
                   media: true,
                 },
-                orderBy: (
-                  image: { sortOrder: number },
-                  { asc: AscFn }: { asc: (column: number) => number }
-                ) => [asc(image.sortOrder)],
               },
             },
           },
@@ -134,9 +118,11 @@ export async function getCart() {
       }
 
       const product = item.product;
-      const productImages = product.images.map((img) => ({
-        url: img.media.url,
-      }));
+      const productImages = product.images.map(
+        (img: { media: { url: string } }) => ({
+          url: img.media.url,
+        })
+      );
 
       return {
         cartId: item.cartId,
@@ -144,11 +130,11 @@ export async function getCart() {
         quantity: item.quantity,
         priceCents,
         product: {
-          id: product.id,
-          name: product.name,
-          slug: product.slug,
-          priceCents: product.priceCents,
-          showInB2b: product.showInB2b,
+          id: product?.id,
+          name: product?.name,
+          slug: product?.slug,
+          priceCents: product?.priceCents,
+          showInB2b: product?.showInB2b,
           images: productImages,
         },
       };

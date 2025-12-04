@@ -2,6 +2,7 @@ import z from "zod";
 import { MAX_DESCRIPTION_LENGTH, MAX_STRING_LENGTH } from "./constants";
 
 export const updateCategorySchema = z.object({
+  id: z.string(),
   name: z.string().min(1).max(MAX_STRING_LENGTH),
   slug: z.string().min(1).max(MAX_STRING_LENGTH),
   description: z.string().min(1).max(MAX_DESCRIPTION_LENGTH),
@@ -29,3 +30,5 @@ export const categorySchema = z.object({
   imageId: z.string().nullable(),
   sortOrder: z.number(),
 });
+
+export type CategorySchema = z.infer<typeof categorySchema>;

@@ -27,7 +27,7 @@ export function CartDrawer() {
   const items = cart?.items ?? [];
   const cartItemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const totalCents = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) => acc + item.priceCents * item.quantity,
     0
   );
 
@@ -73,7 +73,11 @@ export function CartDrawer() {
           <ScrollArea className="w-full flex-1 px-4 py-4">
             <div className="space-y-4">
               {items.map((item) => (
-                <ProductCartListItem item={item} key={item.product.id} />
+                <ProductCartListItem
+                  key={item.product.id}
+                  product={item.product}
+                  quantity={item.quantity}
+                />
               ))}
             </div>
           </ScrollArea>

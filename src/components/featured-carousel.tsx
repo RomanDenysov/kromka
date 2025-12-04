@@ -20,18 +20,14 @@ export async function FeaturedCarousels() {
     with: {
       products: {
         with: {
-          product: {
+          images: {
             with: {
-              images: {
-                with: {
-                  media: true,
-                },
-              },
-              categories: {
-                with: {
-                  category: true,
-                },
-              },
+              media: true,
+            },
+          },
+          prices: {
+            with: {
+              priceTier: true,
             },
           },
         },
@@ -65,17 +61,13 @@ export async function FeaturedCarousels() {
                 {category.products.map((product) => (
                   <CarouselItem
                     className="basis-1/2 pl-4 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
-                    key={product.product.id}
+                    key={product.id}
                   >
                     <FeaturedProductCard
                       product={{
-                        ...product.product,
-                        categories: product.product.categories.map(
-                          (c) => c.category
-                        ),
-                        images: product.product.images.map(
-                          (img) => img.media.url
-                        ),
+                        ...product,
+                        images: product.images.map((img) => img.media.url),
+                        category,
                       }}
                     />
                   </CarouselItem>

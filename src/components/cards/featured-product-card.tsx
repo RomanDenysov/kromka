@@ -4,13 +4,13 @@ import { ShoppingCartIcon } from "lucide-react";
 import Link from "next/link";
 import { useCartActions } from "@/hooks/use-cart-actions";
 import { cn, formatPrice } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/routers";
+import type { Product } from "@/types/products";
 import { ProductImage } from "../shared/product-image";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 
 type Props = {
-  product: RouterOutputs["public"]["products"]["list"][number];
+  product: Product;
   className?: string;
 };
 

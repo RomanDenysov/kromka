@@ -1,9 +1,8 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
-import { toast } from "sonner";
+import { useTransition } from "react";
 import {
   Field,
   FieldDescription,
@@ -12,10 +11,10 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { useFormAutoSave } from "@/hooks/use-form-auto-save";
+import { updateStoreAction } from "@/lib/actions/stores";
 import { getSlug } from "@/lib/get-slug";
 import type { Store } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import { storeSchema } from "@/validation/stores";
 import { SingleImageUpload } from "../image-upload/single-image-upload";
 import { useAppForm } from "../shared/form";
@@ -39,21 +38,7 @@ export function StoreForm({
   store: Store;
   className?: string;
 }) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-  const { mutate: updateStore, isPending: isPendingUpdateStore } = useMutation(
-    trpc.admin.stores.update.mutationOptions({
-      onSuccess: async (updatedStore) => {
-        await queryClient.invalidateQueries({
-          queryKey: trpc.admin.stores.byId.queryOptions({ id: updatedStore.id })
-            .queryKey,
-        });
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    })
-  );
+  const [isPending, startTransition] = useTransition();
 
   const form = useAppForm({
     defaultValues: {
@@ -93,7 +78,10 @@ export function StoreForm({
     validators: {
       onSubmit: storeSchema,
     },
-    onSubmit: ({ value }) => updateStore({ id: store.id, store: value }),
+    onSubmit: ({ value }) =>
+      startTransition(async () => {
+        await updateStoreAction({ id: store.id, store: value });
+      }),
   });
 
   const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form, {
@@ -104,7 +92,7 @@ export function StoreForm({
     <div className={cn(className)}>
       <form.AppForm>
         <form
-          aria-disabled={isPendingUpdateStore}
+          aria-disabled={isPending}
           id="store-form"
           onBlurCapture={onBlurCapture}
           onFocusCapture={onFocusCapture}
@@ -120,7 +108,7 @@ export function StoreForm({
               <div>
                 <FieldLegend>Nastavenie obchodu</FieldLegend>
                 <FieldDescription className="text-[10px]">
-                  {isPendingUpdateStore
+                  {isPending
                     ? "Ukladá sa..."
                     : `Naposledy uložené ${format(
                         store.updatedAt ?? new Date(),
@@ -151,7 +139,7 @@ export function StoreForm({
                     <SingleImageUpload
                       aspect={IMAGE_ASPECT_RATIO}
                       className="w-full"
-                      disabled={isPendingUpdateStore}
+                      disabled={isPending}
                       onChange={(val) => field.handleChange(val)}
                       value={field.state.value}
                     />

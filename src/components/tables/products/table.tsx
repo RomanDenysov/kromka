@@ -17,7 +17,7 @@ import {
   TablePropertiesIcon,
   Trash2Icon,
 } from "lucide-react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -50,26 +50,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  useCopyProduct,
-  useCreateDraftProduct,
-  useDeleteProduct,
-  useToggleProducts,
-} from "@/hooks/use-admin-products-mutations";
 import { useProductParams } from "@/hooks/use-product-params";
+import {
+  copyProductAction,
+  createDraftProductAction,
+  deleteProductsAction,
+  toggleIsActiveProductAction,
+} from "@/lib/actions/products";
 import {
   type ExportColumnConfig,
   exportAsCsv,
   exportAsXlsx,
 } from "@/lib/export-utils";
 import { cn } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/routers";
+import type { Product } from "@/types/products";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
-export type TableProduct = RouterOutputs["admin"]["products"]["list"][number];
-
-const productExportColumns: ExportColumnConfig<TableProduct>[] = [
+const productExportColumns: ExportColumnConfig<Product>[] = [
   {
     key: "name",
     header: "Názov",
@@ -81,7 +79,7 @@ const productExportColumns: ExportColumnConfig<TableProduct>[] = [
   {
     key: "priceCents",
     header: "Cena (EUR)",
-    format: (value) =>
+    format: (value: number) =>
       // biome-ignore lint/style/noMagicNumbers: Ignore it for now
       typeof value === "number" ? (value / 100).toFixed(2) : "",
   },
@@ -104,25 +102,19 @@ const productExportColumns: ExportColumnConfig<TableProduct>[] = [
   },
 ];
 
-export function ProductsTable({ products }: { products: TableProduct[] }) {
+export function ProductsTable({ products }: { products: Product[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const { mutate: createDraftProduct, isPending: isCreatingDraftProduct } =
-    useCreateDraftProduct();
+  const [isPending, startTransition] = useTransition();
 
-  const { mutate: toggleActive } = useToggleProducts();
-
-  const { mutate: copyProduct } = useCopyProduct();
-  const { mutate: deleteProduct, isPending: isDeletingProducts } =
-    useDeleteProduct();
   const { setParams } = useProductParams();
 
   const processedProducts = useMemo(() => products ?? [], [products]);
 
-  const table = useReactTable<TableProduct>({
+  const table = useReactTable<Product>({
     filterFns: {
       fuzzy: fuzzyFilter,
     },
@@ -149,17 +141,21 @@ export function ProductsTable({ products }: { products: TableProduct[] }) {
       onEdit: (id: string) => {
         setParams({ productId: id });
       },
-      onToggleActive: (id: string) => {
-        toggleActive({ id });
+      onToggleActive: async (id: string) => {
+        await toggleIsActiveProductAction({ id });
       },
-      onCopy: (id: string) => {
-        copyProduct({ productId: id });
+      onCopy: async (id: string) => {
+        await copyProductAction({ productId: id });
       },
-      onDelete: (id: string) => {
-        deleteProduct({ ids: [id] });
+      onDelete: async (id: string) => {
+        await deleteProductsAction({ ids: [id] });
       },
     },
   });
+
+  const handleBulkDelete = useCallback(async () => {
+    await deleteProductsAction({ ids: Object.keys(rowSelection) });
+  }, [rowSelection]);
 
   const handleExport = async (format: "csv" | "xlsx") => {
     const selectedRows = table.getSelectedRowModel().rows;
@@ -191,9 +187,7 @@ export function ProductsTable({ products }: { products: TableProduct[] }) {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
-                  disabled={
-                    isDeletingProducts || Object.keys(rowSelection).length === 0
-                  }
+                  disabled={Object.keys(rowSelection).length === 0}
                   size="sm"
                   variant="destructive"
                 >
@@ -212,9 +206,7 @@ export function ProductsTable({ products }: { products: TableProduct[] }) {
                 <AlertDialogFooter>
                   <AlertDialogCancel size="sm">Zrušiť</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={() =>
-                      deleteProduct({ ids: Object.keys(rowSelection) })
-                    }
+                    onClick={handleBulkDelete}
                     size="sm"
                     variant="destructive"
                   >
@@ -298,12 +290,16 @@ export function ProductsTable({ products }: { products: TableProduct[] }) {
               <TableCell className="p-0" colSpan={columns.length}>
                 <Button
                   className="w-full rounded-none"
-                  disabled={isCreatingDraftProduct}
-                  onClick={() => createDraftProduct()}
+                  disabled={isPending}
+                  onClick={() =>
+                    startTransition(async () => {
+                      await createDraftProductAction();
+                    })
+                  }
                   size="sm"
                   variant="ghost"
                 >
-                  {isCreatingDraftProduct ? (
+                  {isPending ? (
                     <>
                       <Spinner />
                       Pridávame produkt...

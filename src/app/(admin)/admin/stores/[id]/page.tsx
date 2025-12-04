@@ -22,6 +22,7 @@ export default async function StorePage({ params }: Props) {
     with: {
       image: true,
       users: true,
+      orders: true,
     },
   });
 

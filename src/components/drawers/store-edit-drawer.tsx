@@ -10,7 +10,6 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
-import { StoreForm } from "@/components/forms/store-form";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useStoreParams } from "@/hooks/use-store-params";
 import {
@@ -117,7 +116,7 @@ export function StoreEditDrawer() {
 
               <div className="flex size-full flex-1 flex-col px-4 py-2">
                 <TabsContent value="form">
-                  <StoreForm id={storeId} />
+                  <div>Obchod</div>
                 </TabsContent>
                 <TabsContent value="members">
                   <div>Zakazníci</div>

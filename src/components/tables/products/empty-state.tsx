@@ -1,6 +1,7 @@
 "use client";
 
 import { PackageOpenIcon, PlusIcon } from "lucide-react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -11,11 +12,15 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import { useCreateDraftProduct } from "@/hooks/use-admin-products-mutations";
+import { createDraftProductAction } from "@/lib/actions/products";
 
 export function EmptyState() {
-  const { mutate: createDraftProduct, isPending: isCreatingDraftProduct } =
-    useCreateDraftProduct();
+  const [isPending, startTransition] = useTransition();
+
+  const handleCreateDraftProduct = () =>
+    startTransition(async () => {
+      await createDraftProductAction();
+    });
 
   return (
     <Empty>
@@ -30,12 +35,12 @@ export function EmptyState() {
       </EmptyHeader>
       <EmptyContent>
         <Button
-          disabled={isCreatingDraftProduct}
-          onClick={() => createDraftProduct()}
+          disabled={isPending}
+          onClick={handleCreateDraftProduct}
           size="sm"
           variant="outline"
         >
-          {isCreatingDraftProduct ? (
+          {isPending ? (
             <>
               <Spinner />
               Pridávame produkt...

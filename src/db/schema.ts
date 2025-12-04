@@ -452,7 +452,22 @@ export const cartsRelations = relations(carts, ({ one, many }) => ({
     fields: [carts.userId],
     references: [users.id],
   }),
+  company: one(organizations, {
+    fields: [carts.companyId],
+    references: [organizations.id],
+  }),
   items: many(cartItems),
+}));
+
+export const cartItemsRelations = relations(cartItems, ({ one }) => ({
+  cart: one(carts, {
+    fields: [cartItems.cartId],
+    references: [carts.id],
+  }),
+  product: one(products, {
+    fields: [cartItems.productId],
+    references: [products.id],
+  }),
 }));
 
 // #endregion Carts

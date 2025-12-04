@@ -15,9 +15,14 @@ import {
   SortableContext,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type ChangeEvent, useCallback, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { type ChangeEvent, useCallback, useState, useTransition } from "react";
 import { toast } from "sonner";
+import {
+  deleteProductImageAction,
+  updateImageSortOrderAction,
+  uploadProductImageAction,
+} from "@/lib/actions/products";
 import { uploadImage } from "@/lib/upload";
 import { useTRPC } from "@/trpc/client";
 import { ImageCrop } from "./image-crop";
@@ -48,6 +53,9 @@ function useProductImages(productId: string) {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const queryKey = trpc.admin.products.images.queryKey({ productId });
+  const [isUploading, startUploadTransition] = useTransition();
+  const [isSorting, startSortTransition] = useTransition();
+  const [isDeleting, startDeleteTransition] = useTransition();
 
   const { data: images, isLoading } = useQuery(
     trpc.admin.products.images.queryOptions(
@@ -56,99 +64,146 @@ function useProductImages(productId: string) {
     )
   );
 
-  const uploadMutation = useMutation(
-    trpc.admin.products.createImageRecord.mutationOptions({
-      onSuccess: (newImage) => {
-        toast.success("Obrázok úspešne nahraný");
-        if (newImage) {
-          queryClient.setQueryData<ProductImageType[]>(queryKey, (old) =>
-            old
-              ? [...old, newImage as unknown as ProductImageType]
-              : [newImage as unknown as ProductImageType]
-          );
-        }
-        queryClient.invalidateQueries({ queryKey });
-      },
-      onError: (error) => toast.error(`Chyba pri nahrávaní: ${error.message}`),
-    })
-  );
-
-  const sortMutation = useMutation(
-    trpc.admin.products.updateImageSortOrder.mutationOptions({
-      onMutate: async ({ mediaIds }) => {
-        // Cancel outgoing refetches
-        await queryClient.cancelQueries({ queryKey });
-
-        // Snapshot the previous value
-        const previousImages =
-          queryClient.getQueryData<ProductImageType[]>(queryKey);
-
-        // Optimistically update to the new value
-        queryClient.setQueryData<ProductImageType[]>(queryKey, (old) => {
-          if (!old) {
-            return [];
+  const uploadImageFn = useCallback(
+    ({
+      productId: pid,
+      blobUrl,
+      metadata,
+    }: {
+      productId: string;
+      blobUrl: string;
+      metadata: {
+        filename: string;
+        size: number;
+        width: number;
+        height: number;
+      };
+    }) =>
+      new Promise<ProductImageType>((resolve, reject) => {
+        startUploadTransition(async () => {
+          try {
+            const newImage = await uploadProductImageAction({
+              productId: pid,
+              blobUrl,
+              metadata,
+            });
+            toast.success("Obrázok úspešne nahraný");
+            if (newImage) {
+              queryClient.setQueryData<ProductImageType[]>(queryKey, (old) =>
+                old
+                  ? [...old, newImage as unknown as ProductImageType]
+                  : [newImage as unknown as ProductImageType]
+              );
+            }
+            queryClient.invalidateQueries({ queryKey });
+            resolve(newImage as unknown as ProductImageType);
+          } catch (err) {
+            toast.error(
+              `Chyba pri nahrávaní: ${
+                err instanceof Error ? err.message : "Neznáma chyba"
+              }`
+            );
+            reject(err);
           }
-
-          const itemMap = new Map(old.map((item) => [item.mediaId, item]));
-          return mediaIds
-            .map((id) => itemMap.get(id))
-            .filter((item): item is ProductImageType => item !== undefined);
         });
-
-        return { previousImages };
-      },
-      onError: (_, __, context) => {
-        toast.error("Nepodarilo sa aktualizovať poradie");
-        // Rollback on error
-        if (context?.previousImages) {
-          queryClient.setQueryData<ProductImageType[]>(
-            queryKey,
-            context.previousImages
-          );
-        }
-      },
-      onSettled: () => {
-        // Always refetch after error or success
-        queryClient.invalidateQueries({ queryKey });
-      },
-    })
+      }),
+    [queryClient, queryKey]
   );
 
-  const deleteMutation = useMutation(
-    trpc.admin.products.deleteImage.mutationOptions({
-      onMutate: async ({ mediaId }) => {
-        await queryClient.cancelQueries({ queryKey });
-        const previousImages =
-          queryClient.getQueryData<ProductImageType[]>(queryKey);
+  const updateSortOrder = useCallback(
+    ({
+      productId: pid,
+      mediaIds,
+    }: {
+      productId: string;
+      mediaIds: string[];
+    }) => {
+      // Snapshot the previous value for rollback
+      const previousImages =
+        queryClient.getQueryData<ProductImageType[]>(queryKey);
 
-        queryClient.setQueryData<ProductImageType[]>(queryKey, (old) =>
-          old ? old.filter((img) => img.mediaId !== mediaId) : []
-        );
-
-        return { previousImages };
-      },
-      onSuccess: () => toast.success("Obrázok odstránený"),
-      onError: (error, _, context) => {
-        toast.error(`Chyba pri odstraňovaní: ${error.message}`);
-        if (context?.previousImages) {
-          queryClient.setQueryData<ProductImageType[]>(
-            queryKey,
-            context.previousImages
-          );
+      // Optimistically update to the new value
+      queryClient.setQueryData<ProductImageType[]>(queryKey, (old) => {
+        if (!old) {
+          return [];
         }
-      },
-      onSettled: () => queryClient.invalidateQueries({ queryKey }),
-    })
+
+        const itemMap = new Map(old.map((item) => [item.mediaId, item]));
+        return mediaIds
+          .map((id) => itemMap.get(id))
+          .filter((item): item is ProductImageType => item !== undefined);
+      });
+
+      startSortTransition(async () => {
+        try {
+          await updateImageSortOrderAction({
+            productId: pid,
+            mediaIds,
+          });
+
+          queryClient.invalidateQueries({ queryKey });
+        } catch {
+          toast.error("Nepodarilo sa aktualizovať poradie");
+          // Rollback on error
+          if (previousImages) {
+            queryClient.setQueryData<ProductImageType[]>(
+              queryKey,
+              previousImages
+            );
+          }
+        }
+      });
+    },
+    [queryClient, queryKey]
+  );
+
+  const deleteImage = useCallback(
+    ({ productId: pid, mediaId }: { productId: string; mediaId: string }) => {
+      // Snapshot the previous value for rollback
+      const previousImages =
+        queryClient.getQueryData<ProductImageType[]>(queryKey);
+
+      // Optimistically remove the image
+      queryClient.setQueryData<ProductImageType[]>(queryKey, (old) =>
+        old ? old.filter((img) => img.mediaId !== mediaId) : []
+      );
+
+      startDeleteTransition(async () => {
+        try {
+          await deleteProductImageAction({
+            productId: pid,
+            mediaId,
+          });
+
+          toast.success("Obrázok odstránený");
+          queryClient.invalidateQueries({ queryKey });
+        } catch (err) {
+          toast.error(
+            `Chyba pri odstraňovaní: ${
+              err instanceof Error ? err.message : "Neznáma chyba"
+            }`
+          );
+          // Rollback on error
+          if (previousImages) {
+            queryClient.setQueryData<ProductImageType[]>(
+              queryKey,
+              previousImages
+            );
+          }
+        }
+      });
+    },
+    [queryClient, queryKey]
   );
 
   return {
     images: images ?? [],
     isLoading,
-    uploadImage: uploadMutation.mutateAsync,
-    isUploading: uploadMutation.isPending,
-    updateSortOrder: sortMutation.mutate,
-    isSorting: sortMutation.isPending,
-    deleteImage: deleteMutation.mutate,
+    uploadImage: uploadImageFn,
+    isUploading,
+    updateSortOrder,
+    isSorting: isSorting || isDeleting,
+    deleteImage,
   };
 }
 
@@ -189,12 +244,11 @@ export function ImageUpload({ productId }: { productId: string }) {
     async (croppedFile: File) => {
       try {
         const result = await uploadImage(croppedFile, "products");
-        const { url, pathname, size } = result.data;
+        const { url, size } = result.data;
 
         await uploadMedia({
           productId,
           blobUrl: url,
-          blobPath: pathname,
           metadata: {
             filename: croppedFile.name,
             size,

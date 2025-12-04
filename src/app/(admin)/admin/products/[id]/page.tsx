@@ -1,6 +1,6 @@
 import { cache, Suspense } from "react";
+import { ProductForm } from "@/app/(admin)/admin/products/[id]/product-form";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { ProductForm } from "@/components/forms/product-form";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { db } from "@/db";
 
@@ -29,14 +29,12 @@ const getProduct = cache(async (id: string) => {
   });
   if (product) {
     product.images = product.images.sort((a, b) => a.sortOrder - b.sortOrder);
-    product.prices = product.prices.sort((a, b) => a.minQty - b.minQty);
 
     return {
       ...product,
       images: product.images.map((img) => img.media.url),
       category: product.category,
       prices: product.prices.map((p) => ({
-        minQty: p.minQty,
         priceCents: p.priceCents,
         priceTier: p.priceTier,
       })),
@@ -51,7 +49,7 @@ export type AdminProduct = Awaited<ReturnType<typeof getProduct>>;
 export default async function B2CProductPage({ params }: Props) {
   const { id } = await params;
   const product = await getProduct(id);
-
+  const categories = await db.query.categories.findMany();
   if (!product) {
     return <div>Produkt nebol nájdený</div>;
   }
@@ -68,7 +66,7 @@ export default async function B2CProductPage({ params }: Props) {
 
       <section className="@container/page h-full flex-1 p-4">
         <Suspense fallback={<FormSkeleton />}>
-          <ProductForm product={product} />
+          <ProductForm categories={categories} product={product} />
         </Suspense>
       </section>
     </>

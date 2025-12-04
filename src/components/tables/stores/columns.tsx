@@ -29,7 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { TableStore } from "./table";
+import type { Store } from "@/lib/queries/stores";
 
 type StoreTableMeta = {
   toggleActive: (id: string) => void;
@@ -37,7 +37,7 @@ type StoreTableMeta = {
   onCopy: (id: string) => void;
 };
 
-export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
+export const columns: ColumnDef<Store, StoreTableMeta>[] = [
   {
     id: "name",
     header: ({ column, table }) => (
@@ -104,10 +104,10 @@ export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
       />
     ),
     enableSorting: true,
-    accessorKey: "users",
+    accessorKey: "usersCount",
     cell: ({ row }) => (
       <span className="font-medium font-mono text-xs tracking-tighter">
-        {row.original.users?.length}
+        {row.original.users.length}
       </span>
     ),
   },
@@ -121,7 +121,7 @@ export const columns: ColumnDef<TableStore, StoreTableMeta>[] = [
       />
     ),
     enableSorting: true,
-    accessorKey: "orders",
+    accessorKey: "ordersCount",
     cell: ({ row }) => (
       <span className="font-medium font-mono text-xs tracking-tighter">
         {row.original.orders.length}

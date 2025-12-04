@@ -7,11 +7,8 @@ import { cn, formatPrice } from "@/lib/utils";
 import type { RouterOutputs } from "@/trpc/routers";
 import { ImageSlider } from "../image-slider";
 import { AddToCartButton } from "../shared/add-to-cart-button";
-import { Hint } from "../shared/hint";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-
-const MAX_CATEGORIES_DISPLAY = 3;
 
 type Props = {
   product: RouterOutputs["public"]["products"]["list"][number];
@@ -21,8 +18,6 @@ type Props = {
 };
 
 export function ProductCard({ product, className, animationDelay = 0 }: Props) {
-  const totalCategories = product.categories.length;
-  const showingCategories = product.categories.slice(0, MAX_CATEGORIES_DISPLAY);
   const isActive = product.status === "active";
 
   const shouldAnimate = animationDelay > 0;
@@ -60,23 +55,11 @@ export function ProductCard({ product, className, animationDelay = 0 }: Props) {
       <div className="flex size-full flex-col justify-between gap-2 px-1 pb-1">
         {/* Categories */}
         <div className="flex flex-wrap items-center gap-0.5">
-          {showingCategories.map((category) => (
-            <Badge key={category.id} size="xs" variant="outline">
-              {category.name}
+          {product.category ? (
+            <Badge size="xs" variant="outline">
+              {product.category.name}
             </Badge>
-          ))}
-          {showingCategories.length < product.categories.length && (
-            <Hint
-              text={product.categories
-                .slice(MAX_CATEGORIES_DISPLAY)
-                .map((category) => category.name)
-                .join(", ")}
-            >
-              <Badge size="xs" variant="outline">
-                +{totalCategories - showingCategories.length}
-              </Badge>
-            </Hint>
-          )}
+          ) : null}
         </div>
 
         {/* Name */}

@@ -2,20 +2,15 @@
 
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/routers";
+import type { CartProduct } from "@/types/cart";
 import { QuantitySetter } from "./quantity-setter";
 
-type CartItem = NonNullable<
-  NonNullable<RouterOutputs["public"]["cart"]["getCart"]>["items"]
->[number];
-
 type Props = {
-  item: CartItem;
+  product: CartProduct;
+  quantity: number;
 };
 
-export function ProductCartListItem({ item }: Props) {
-  const { product, quantity } = item;
-
+export function ProductCartListItem({ product, quantity }: Props) {
   return (
     <div className="flex w-full items-center justify-between gap-4">
       <div className="flex items-center gap-2">
