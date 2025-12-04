@@ -691,12 +691,10 @@ export const prices = pgTable(
       .notNull()
       .references(() => priceTiers.id, { onDelete: "cascade" }),
     priceCents: integer("price_cents").notNull().default(0),
-
-    minQty: integer("min_qty").default(1).notNull(),
   },
   (table) => [
     primaryKey({
-      columns: [table.productId, table.priceTierId, table.minQty],
+      columns: [table.productId, table.priceTierId],
     }),
   ]
 );

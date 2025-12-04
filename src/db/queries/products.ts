@@ -2,7 +2,7 @@ import "server-only";
 
 import { and, count, eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
-import { products } from "@/db/schema";
+import { productImages, products } from "@/db/schema";
 
 export const QUERIES = {
   ADMIN: {
@@ -26,7 +26,6 @@ export const QUERIES = {
 
       for (const p of fetchedProducts) {
         p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
-        p.prices = p.prices.sort((a, b) => a.minQty - b.minQty);
       }
 
       const processedProducts = fetchedProducts.map((p) => ({
@@ -34,7 +33,6 @@ export const QUERIES = {
         images: p.images.map((img) => img.media.url),
         category: p.category,
         prices: p.prices.map((pt) => ({
-          minQty: pt.minQty,
           priceCents: pt.priceCents,
           priceTier: pt.priceTier,
         })),
@@ -44,7 +42,7 @@ export const QUERIES = {
     },
     GET_PRODUCT_BY_ID: async (id: string) => {
       const product = await db.query.products.findFirst({
-        where: (p, { eq: eqFn }) => eqFn(p.id, id),
+        where: eq(products.id, id),
         with: {
           category: true,
           images: {
@@ -64,14 +62,12 @@ export const QUERIES = {
         product.images = product.images.sort(
           (a, b) => a.sortOrder - b.sortOrder
         );
-        product.prices = product.prices.sort((a, b) => a.minQty - b.minQty);
 
         return {
           ...product,
           images: product.images.map((img) => img.media.url),
           category: product.category,
           prices: product.prices.map((p) => ({
-            minQty: p.minQty,
             priceCents: p.priceCents,
             priceTier: p.priceTier,
           })),
@@ -82,7 +78,7 @@ export const QUERIES = {
     },
     GET_PRODUCTS_BY_CATEGORY: async (categoryId: string) => {
       const fetchedProducts = await db.query.products.findMany({
-        where: (product, { eq: eqFn }) => eqFn(product.categoryId, categoryId),
+        where: eq(products.categoryId, categoryId),
         with: {
           category: true,
           images: {
@@ -100,7 +96,6 @@ export const QUERIES = {
 
       for (const p of fetchedProducts) {
         p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
-        p.prices = p.prices.sort((a, b) => a.minQty - b.minQty);
       }
 
       const processedProducts = fetchedProducts.map((p) => ({
@@ -108,7 +103,6 @@ export const QUERIES = {
         images: p.images.map((img) => img.media.url),
         category: p.category,
         prices: p.prices.map((pt) => ({
-          minQty: pt.minQty,
           priceCents: pt.priceCents,
           priceTier: pt.priceTier,
         })),
@@ -118,8 +112,7 @@ export const QUERIES = {
     },
     GET_PRODUCT_IMAGES: async (productId: string) =>
       await db.query.productImages.findMany({
-        where: (productImage, { eq: eqFn }) =>
-          eqFn(productImage.productId, productId),
+        where: eq(productImages.productId, productId),
         with: {
           media: true,
         },
@@ -129,8 +122,7 @@ export const QUERIES = {
   PUBLIC: {
     GET_PRODUCTS: async () => {
       const fetchedProducts = await db.query.products.findMany({
-        where: (product, { eq: eqFn, and: andFn }) =>
-          andFn(eqFn(product.isActive, true), eqFn(product.status, "active")),
+        where: and(eq(products.isActive, true), eq(products.status, "active")),
         with: {
           images: {
             with: {
@@ -156,12 +148,11 @@ export const QUERIES = {
     },
     GET_PRODUCT_BY_SLUG: async (slug: string) => {
       const product = await db.query.products.findFirst({
-        where: (p, { eq: eqFn, and: andFn, inArray: inArrayFn }) =>
-          andFn(
-            eqFn(p.slug, slug),
-            eqFn(p.isActive, true),
-            inArrayFn(p.status, ["active", "sold"])
-          ),
+        where: and(
+          eq(products.slug, slug),
+          eq(products.isActive, true),
+          inArray(products.status, ["active", "sold"])
+        ),
         with: {
           images: {
             with: {
@@ -193,24 +184,20 @@ export const QUERIES = {
     }) => {
       const { limit = 12, cursor = 0, categoryId } = input;
       const fetchedProducts = await db.query.products.findMany({
-        where: (
-          product,
-          { eq: eqFn, not: notFn, and: andFn, inArray: inArrayFn }
-        ) =>
-          andFn(
-            eqFn(product.isActive, true),
-            notFn(eqFn(product.status, "archived")),
-            notFn(eqFn(product.status, "draft")),
-            categoryId
-              ? inArrayFn(
-                  product.id,
-                  db
-                    .select({ productId: products.id })
-                    .from(products)
-                    .where(eqFn(products.categoryId, categoryId))
-                )
-              : undefined
-          ),
+        where: and(
+          eq(products.isActive, true),
+          not(eq(products.status, "archived")),
+          not(eq(products.status, "draft")),
+          categoryId
+            ? inArray(
+                products.id,
+                db
+                  .select({ productId: products.id })
+                  .from(products)
+                  .where(eq(products.categoryId, categoryId))
+              )
+            : undefined
+        ),
         limit: limit + 1,
         offset: cursor,
         with: {
@@ -221,10 +208,10 @@ export const QUERIES = {
           },
           category: true,
         },
-        orderBy: (product, { asc: ascFn, desc: descFn }) => [
-          ascFn(product.sortOrder),
-          descFn(product.createdAt),
-          ascFn(product.id),
+        orderBy: (product, { asc, desc }) => [
+          asc(product.sortOrder),
+          desc(product.createdAt),
+          asc(product.id),
         ],
       });
 

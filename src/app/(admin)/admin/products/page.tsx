@@ -24,7 +24,6 @@ const getProducts = cache(async () => {
 
   for (const p of fetchedProducts) {
     p.images = p.images.sort((a, b) => a.sortOrder - b.sortOrder);
-    p.prices = p.prices.sort((a, b) => a.minQty - b.minQty);
   }
 
   const processedProducts = fetchedProducts.map((p) => ({
@@ -32,7 +31,6 @@ const getProducts = cache(async () => {
     images: p.images.map((img) => img.media.url),
     category: p.category,
     prices: p.prices.map((pt) => ({
-      minQty: pt.minQty,
       priceCents: pt.priceCents,
       priceTier: pt.priceTier,
     })),

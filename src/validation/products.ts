@@ -27,7 +27,6 @@ export const updateProductSchema = z.object({
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>;
 
 export const priceSchema = z.object({
-  minQty: z.number(),
   priceCents: z.number(),
   priceTier: z.object({
     id: z.string(),

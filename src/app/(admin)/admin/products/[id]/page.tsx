@@ -1,10 +1,8 @@
 import { cache, Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { ProductForm } from "@/components/forms/product-form";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { db } from "@/db";
-import { HydrateClient } from "@/trpc/server";
 
 type Props = {
   params: Promise<{
@@ -14,7 +12,7 @@ type Props = {
 
 const getProduct = cache(async (id: string) => {
   const product = await db.query.products.findFirst({
-    where: (p, { eq: eqFn }) => eqFn(p.id, id),
+    where: (p, { eq }) => eq(p.id, id),
     with: {
       category: true,
       images: {
@@ -59,7 +57,7 @@ export default async function B2CProductPage({ params }: Props) {
   }
 
   return (
-    <HydrateClient>
+    <>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
@@ -68,13 +66,11 @@ export default async function B2CProductPage({ params }: Props) {
         ]}
       />
 
-      <ErrorBoundary fallback={<div>Error</div>}>
-        <section className="@container/page h-full flex-1 p-4">
-          <Suspense fallback={<FormSkeleton />}>
-            <ProductForm product={product} />
-          </Suspense>
-        </section>
-      </ErrorBoundary>
-    </HydrateClient>
+      <section className="@container/page h-full flex-1 p-4">
+        <Suspense fallback={<FormSkeleton />}>
+          <ProductForm product={product} />
+        </Suspense>
+      </section>
+    </>
   );
 }
