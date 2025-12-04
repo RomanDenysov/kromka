@@ -2,20 +2,21 @@
 
 import { StoreIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useSelectedStore } from "@/stores/selected-store";
+import { useCustomerDataStore } from "@/store/customer-data-store";
+import { useSelectedModalStore } from "@/store/selecte-store-modal";
 
 export function OpenStoreModalButton() {
-  const selectedStore = useSelectedStore((state) => state.store);
-  const setModalOpen = useSelectedStore((state) => state.setModalOpen);
+  const setIsOpen = useSelectedModalStore((state) => state.setIsOpen);
+  const customerStore = useCustomerDataStore((state) => state.customerStore);
 
   const handleClick = () => {
-    setModalOpen(true);
+    setIsOpen(true);
   };
 
   return (
     <Button onClick={handleClick} type="button" variant="outline">
       <StoreIcon />
-      {selectedStore ? selectedStore.name : "Vybrať predajňu"}
+      {customerStore ? customerStore.name : "Vybrať predajňu"}
     </Button>
   );
 }

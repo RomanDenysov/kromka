@@ -4,7 +4,7 @@ import type { Route } from "next";
 import { StoreCard } from "@/components/cards/store-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Store } from "@/lib/queries/stores";
-import { useSelectedStore } from "@/stores/selected-store";
+import { useSelectedStore } from "@/store/selecte-store-modal";
 
 export function StoresGrid({ stores }: { stores: Store[] }) {
   const selectedStore = useSelectedStore((state) => state.store);

@@ -12,7 +12,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
@@ -168,13 +167,6 @@ export default async function StorePage({
 
           {/* Quick Actions */}
           <div className="mt-8 flex flex-wrap gap-3">
-            {!isSelected && (
-              <StoreSelectModal>
-                <Button className="rounded-full" size="lg" variant="secondary">
-                  Nastaviť ako moju predajňu
-                </Button>
-              </StoreSelectModal>
-            )}
             {googleMapsUrl && (
               <Button
                 asChild

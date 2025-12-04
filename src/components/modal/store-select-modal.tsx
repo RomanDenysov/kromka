@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useTransition } from "react";
+import { useTransition } from "react";
 import { setUserStore } from "@/lib/actions/stores";
-import { useSelectedStore } from "@/stores/selected-store";
+import { useCustomerDataStore } from "@/store/customer-data-store";
+import { useSelectedModalStore } from "@/store/selecte-store-modal";
 import type { Store } from "@/types/store";
 import { Button } from "../ui/button";
 import {
@@ -28,30 +29,16 @@ import { ScrollArea } from "../ui/scroll-area";
 
 type StoreSelectModalProps = {
   stores: Store[];
-  currentStoreId: string | null;
 };
 
-export function StoreSelectModal({
-  stores,
-  currentStoreId,
-}: StoreSelectModalProps) {
-  const [_isPending, startTransition] = useTransition();
+export function StoreSelectModal({ stores }: StoreSelectModalProps) {
+  const [isPending, startTransition] = useTransition();
+  const { isOpen, setIsOpen } = useSelectedModalStore();
 
-  const {
-    store: selectedStore,
-    setStore,
-    isModalOpen,
-    setModalOpen,
-  } = useSelectedStore();
-
-  useEffect(() => {
-    if (currentStoreId && !selectedStore) {
-      const serverStore = stores.find((s) => s.id === currentStoreId);
-      if (serverStore) {
-        setStore({ id: serverStore.id, name: serverStore.name });
-      }
-    }
-  }, [currentStoreId, stores, selectedStore, setStore]);
+  const setCustomerStore = useCustomerDataStore(
+    (state) => state.actions.setCustomerStore
+  );
+  const customerStore = useCustomerDataStore((state) => state.customerStore);
 
   const handleSelect = (storeId: string) => {
     const store = stores.find((s) => s.id === storeId);
@@ -60,18 +47,19 @@ export function StoreSelectModal({
     }
 
     // Optimistic — сразу обновляем UI
-    setStore({ id: store.id, name: store.name });
-    setModalOpen(false);
+    setCustomerStore({ id: store.id, name: store.name });
+    setIsOpen(false);
 
     startTransition(async () => {
       try {
         await setUserStore(storeId);
       } catch (error) {
         // Rollback
-        const prevStore = currentStoreId
-          ? stores.find((s) => s.id === currentStoreId)
-          : null;
-        setStore(prevStore ? { id: prevStore.id, name: prevStore.name } : null);
+        setCustomerStore(
+          customerStore
+            ? { id: customerStore.id, name: customerStore.name }
+            : null
+        );
         // biome-ignore lint/suspicious/noConsole: <explanation>
         console.error(error);
       }
@@ -79,7 +67,7 @@ export function StoreSelectModal({
   };
 
   return (
-    <Dialog onOpenChange={setModalOpen} open={isModalOpen}>
+    <Dialog onOpenChange={setIsOpen} open={isOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Vyberte predajňu</DialogTitle>
@@ -92,8 +80,9 @@ export function StoreSelectModal({
             <FieldGroup>
               <FieldSet>
                 <RadioGroup
+                  disabled={isPending}
                   onValueChange={(value) => handleSelect(value)}
-                  value={selectedStore?.id ?? ""}
+                  value={customerStore?.id ?? null}
                 >
                   {stores.map((store) => (
                     <FieldLabel key={store.id}>
