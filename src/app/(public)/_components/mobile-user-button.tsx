@@ -22,16 +22,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
-import { useCustomerDataStore } from "@/store/customer-data-store";
 import type { User } from "@/types/users";
 
 export function MobileUserButton({ user }: { user: User | null }) {
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
   const router = useRouter();
-  const _selectedStore = useCustomerDataStore((state) => state.customerStore);
 
-  if (!user) {
+  if (!user || user.isAnonymous) {
     return (
       <Link
         className={cn(
