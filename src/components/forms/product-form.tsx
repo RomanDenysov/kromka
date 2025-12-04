@@ -1,14 +1,9 @@
 "use client";
 
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
 import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
-import { useRef } from "react";
-import { toast } from "sonner";
+import { useTransition } from "react";
+import type { AdminProduct } from "@/app/(admin)/admin/products/[id]/page";
 import { useAppForm } from "@/components/shared/form";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,55 +20,20 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
+import { updateProductAction } from "@/lib/actions/products";
 import { getSlug } from "@/lib/get-slug";
-import { useTRPC } from "@/trpc/client";
 import { updateProductSchema } from "@/validation/products";
 import { ImageUpload } from "../image-upload";
 
-export function ProductForm({ id }: { id: string }) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-
-  const { data: product } = useSuspenseQuery(
-    trpc.admin.products.byId.queryOptions({ id })
-  );
-
-  const requestIdRef = useRef(0);
-
-  const { mutateAsync: updateProduct, isPending: isPendingUpdateProduct } =
-    useMutation(
-      trpc.admin.products.update.mutationOptions({
-        onMutate: () => {
-          requestIdRef.current += 1;
-          return { requestId: requestIdRef.current };
-        },
-        onSuccess: async (updatedProduct, _variables, context) => {
-          if (context?.requestId !== requestIdRef.current) {
-            return;
-          }
-          await queryClient.invalidateQueries(
-            trpc.admin.products.byId.queryFilter({
-              id: updatedProduct.id,
-            })
-          );
-        },
-        onError: (error, _variables, context) => {
-          if (context?.requestId !== requestIdRef.current) {
-            return;
-          }
-          // biome-ignore lint/suspicious/noConsole: Error reporting
-          console.error(error);
-          toast.error(error.message);
-        },
-      })
-    );
+export function ProductForm({ product }: { product: AdminProduct }) {
+  const [isPendingUpdateProduct, startTransition] = useTransition();
 
   const form = useAppForm({
     validators: {
       onSubmit: updateProductSchema,
     },
     defaultValues: {
-      id,
+      id: product?.id ?? "",
       name: product?.name ?? "",
       slug: product?.slug ?? "",
       description: product?.description ?? null,
@@ -83,7 +43,7 @@ export function ProductForm({ id }: { id: string }) {
       showInB2c: product?.showInB2c ?? true,
       showInB2b: product?.showInB2b ?? false,
       priceCents: product?.priceCents ?? 0,
-      categoryIds: product?.categories.map((category) => category.id) ?? [],
+      categoryId: product?.category?.id ?? null,
     },
     listeners: {
       onChangeDebounceMs: 2000,
@@ -97,10 +57,18 @@ export function ProductForm({ id }: { id: string }) {
         }
       },
     },
-    onSubmit: ({ value }) => updateProduct({ id, product: value }),
+    onSubmit: ({ value }) => {
+      startTransition(async () => {
+        await updateProductAction({ id: value.id, product: value });
+      });
+    },
   });
 
   // const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
+
+  if (!product) {
+    return <div>Produkt nebol nájdený</div>;
+  }
 
   return (
     <form.AppForm>
@@ -148,7 +116,7 @@ export function ProductForm({ id }: { id: string }) {
           <FieldGroup className="gap-4">
             <Field className="flex flex-col gap-2">
               <FieldLabel>Galéria</FieldLabel>
-              <ImageUpload productId={id} />
+              <ImageUpload productId={product.id} />
             </Field>
             <form.AppField
               listeners={{
@@ -184,7 +152,7 @@ export function ProductForm({ id }: { id: string }) {
           </FieldGroup>
 
           <FieldGroup className="gap-4">
-            <form.AppField name="categoryIds">
+            <form.AppField name="categoryId">
               {(field) => <field.CategorySelectField />}
             </form.AppField>
           </FieldGroup>
