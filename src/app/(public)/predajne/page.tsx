@@ -5,27 +5,11 @@ import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { StoresMap } from "@/components/stores-map";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  batchPrefetch,
-  getQueryClient,
-  HydrateClient,
-  trpc,
-} from "@/trpc/server";
-import type { User } from "@/types/users";
+import { HydrateClient } from "@/trpc/server";
 import { QuickStoreSelector } from "./quick-store-selector";
 import { StoresGrid, StoresGridSkeleton } from "./stores-grid";
 
-export default async function StoresPage() {
-  const queryClient = getQueryClient();
-
-  const user = await queryClient.fetchQuery(
-    trpc.public.users.me.queryOptions()
-  );
-  batchPrefetch([
-    trpc.public.users.me.queryOptions(),
-    trpc.public.stores.list.queryOptions(),
-  ]);
-
+export default function StoresPage() {
   return (
     <PageWrapper>
       <AppBreadcrumbs items={[{ label: "Predajne" }]} />
@@ -73,7 +57,7 @@ export default async function StoresPage() {
                       </div>
                     }
                   >
-                    <QuickStoreSelector user={user as unknown as User} />
+                    <QuickStoreSelector />
                   </Suspense>
                 </ErrorBoundary>
               </div>
@@ -83,7 +67,7 @@ export default async function StoresPage() {
           {/* Stores Grid - Bento style */}
           <ErrorBoundary fallback={<StoresGridSkeleton />}>
             <Suspense fallback={<StoresGridSkeleton />}>
-              <StoresGrid user={user as unknown as User} />
+              <StoresGrid />
             </Suspense>
           </ErrorBoundary>
 

@@ -1,28 +1,36 @@
-"use server";
-
 import { headers } from "next/headers";
+import { cache } from "react";
+import { db } from "@/db";
 import { auth } from "@/lib/auth/server";
 
-export async function getSession() {
-  return auth.api.getSession({
+export const getAuth = cache(async () => {
+  const session = await auth.api.getSession({
     headers: await headers(),
   });
-}
-
-export async function getRequiredSession() {
-  const session = await getSession();
-  if (!session || session.user.isAnonymous) {
-    throw new Error("Unauthorized");
+  if (!session) {
+    return {
+      session: null,
+      user: null,
+      isAuthenticated: false,
+      isAnonymous: true,
+    } as const;
   }
-  return session;
-}
+  const user = await db.query.users.findFirst({
+    where: (u, { eq }) => eq(u.id, session.user.id),
+    with: {
+      store: true,
+      members: {
+        with: { organization: true },
+      },
+    },
+  });
 
-export async function getUser() {
-  const session = await getSession();
-  return session?.user ?? null;
-}
-
-export async function getRequiredUser() {
-  const session = await getRequiredSession();
-  return session.user;
-}
+  return {
+    session,
+    user,
+    isAuthenticated: !session.user.isAnonymous,
+    isAnonymous: !!session.user.isAnonymous,
+    store: user?.store ?? null,
+    organization: user?.members?.[0]?.organization ?? null,
+  } as const;
+});

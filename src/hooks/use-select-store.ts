@@ -15,9 +15,7 @@ export function useSelectStore() {
   const { data: user, isLoading: isLoadingUser } = useQuery(
     trpc.public.users.me.queryOptions()
   );
-  const userDefaultStoreId = isLoadingUser
-    ? null
-    : (user?.storeMembers?.[0]?.storeId ?? null);
+  const userDefaultStoreId = isLoadingUser ? null : (user?.storeId ?? null);
 
   const [selectedStore, setSelectedStore] = useState<Store | null>(
     userDefaultStoreId

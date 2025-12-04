@@ -6,12 +6,12 @@ import { ErrorBoundary } from "react-error-boundary";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { UserButton } from "@/components/landing/user-button";
-import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { MobileNavigation } from "./mobile-navigation";
+import { OpenStoreModalButton } from "./open-store-modal-button";
 
 const navigation: { name: string; href: Route }[] = [
   { name: "E-shop", href: "/e-shop" },
@@ -56,7 +56,7 @@ export function Header() {
                   <Skeleton className="hidden h-8 w-20 rounded-md md:block" />
                 }
               >
-                <StoreSelectModal />
+                <OpenStoreModalButton />
               </Suspense>
             </ErrorBoundary>
             <ErrorBoundary fallback={<div>Error loading user button</div>}>

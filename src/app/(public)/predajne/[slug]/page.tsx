@@ -17,7 +17,7 @@ import { PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
 import type { DaySchedule, StoreSchedule } from "@/db/types";
-import { getUser } from "@/lib/auth/session";
+import { getAuth } from "@/lib/auth/session";
 
 const DAYS_ORDER = [
   "monday",
@@ -37,16 +37,6 @@ const DAYS_MAP: Record<string, string> = {
   friday: "Piatok",
   saturday: "Sobota",
   sunday: "Nedeľa",
-};
-
-const _DAYS_SHORT: Record<string, string> = {
-  monday: "Po",
-  tuesday: "Ut",
-  wednesday: "St",
-  thursday: "Št",
-  friday: "Pi",
-  saturday: "So",
-  sunday: "Ne",
 };
 
 const formatTimeRange = (schedule: DaySchedule) => {
@@ -89,14 +79,10 @@ export default async function StorePage({
     where: (s, { eq, and }) => and(eq(s.slug, slug), eq(s.isActive, true)),
     with: {
       image: true,
-      users: true,
     },
   });
 
-  const user = await getUser();
-  const userStore = user?.storeId
-    ? store?.users.find((u) => u.id === user?.storeId)
-    : null;
+  const { store: userStore } = await getAuth();
 
   if (!store) {
     notFound();

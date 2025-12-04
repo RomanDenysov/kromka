@@ -2,22 +2,14 @@ import "server-only";
 
 import { eq, inArray, not } from "drizzle-orm";
 import { db } from "@/db";
-import { storeMembers, stores } from "@/db/schema";
+import { stores, users } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
 import type { StoreSchema } from "@/validation/stores";
 
 export const MUTATIONS = {
   PUBLIC: {
     SET_USER_STORE: async (storeId: string, userId: string): Promise<void> => {
-      await db
-        .insert(storeMembers)
-        .values({ storeId, userId })
-        .onConflictDoUpdate({
-          target: storeMembers.userId,
-          set: {
-            storeId,
-          },
-        });
+      await db.update(users).set({ storeId }).where(eq(users.id, userId));
     },
   },
   ADMIN: {
