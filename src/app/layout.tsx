@@ -1,3 +1,5 @@
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Providers } from "@/app/providers";
@@ -23,7 +25,7 @@ type Props = {
 
 export default function RootLayout({ children }: Props) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="sk" suppressHydrationWarning>
       <body className={cn(fonts, "relative h-full min-h-screen scroll-smooth")}>
         <Providers>
           <NuqsAdapter>
@@ -31,6 +33,8 @@ export default function RootLayout({ children }: Props) {
             <Toaster richColors />
           </NuqsAdapter>
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
