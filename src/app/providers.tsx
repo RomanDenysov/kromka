@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 import { PageTracker } from "react-page-tracker";
+import { ReactQueryProvider } from "@/components/react-query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AnonymousProvider } from "@/lib/auth/anonymous-provider";
-import { TRPCReactProvider } from "@/trpc/client";
 
 type Props = {
   readonly children: ReactNode;
@@ -12,7 +12,7 @@ type Props = {
 
 export function Providers({ children }: Props) {
   return (
-    <TRPCReactProvider>
+    <ReactQueryProvider>
       <PageTracker enableStrictModeHandler={false} />
       <ThemeProvider
         attribute="class"
@@ -23,6 +23,6 @@ export function Providers({ children }: Props) {
         {children}
       </ThemeProvider>
       <AnonymousProvider />
-    </TRPCReactProvider>
+    </ReactQueryProvider>
   );
 }

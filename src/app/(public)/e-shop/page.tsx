@@ -7,8 +7,22 @@ import {
 } from "@/components/lists/products-reel";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { getProductsInfinite } from "@/lib/queries/products";
 
 export const DEFAULT_PRODUCTS_LIMIT = 12;
+
+async function InitialProductsReelLoader() {
+  const products = await getProductsInfinite({
+    limit: DEFAULT_PRODUCTS_LIMIT,
+  });
+  return (
+    <ProductsReel
+      className="grow"
+      initialData={products}
+      limit={DEFAULT_PRODUCTS_LIMIT}
+    />
+  );
+}
 
 export default function EshopPage() {
   return (
@@ -20,7 +34,7 @@ export default function EshopPage() {
       <CategoriesReel />
 
       <Suspense fallback={<ProductsReelSkeleton />}>
-        <ProductsReel className="grow" limit={DEFAULT_PRODUCTS_LIMIT} />
+        <InitialProductsReelLoader />
       </Suspense>
     </PageWrapper>
   );

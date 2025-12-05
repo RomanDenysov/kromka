@@ -33,13 +33,11 @@ import {
   exportAsCsv,
   exportAsXlsx,
 } from "@/lib/export-utils";
+import type { AllOrdersList } from "@/lib/queries/orders";
 import { cn } from "@/lib/utils";
-import type { RouterOutputs } from "@/trpc/routers";
 import { columns } from "./columns";
 
-export type TableOrder = RouterOutputs["admin"]["orders"]["list"][number];
-
-const orderExportColumns: ExportColumnConfig<TableOrder>[] = [
+const orderExportColumns: ExportColumnConfig<AllOrdersList[number]>[] = [
   {
     key: "orderNumber",
     header: "Objednávka",
@@ -71,12 +69,12 @@ const orderExportColumns: ExportColumnConfig<TableOrder>[] = [
   },
 ];
 
-export function OrdersTable({ orders }: { orders: TableOrder[] }) {
+export function OrdersTable({ orders }: { orders: AllOrdersList }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const table = useReactTable<TableOrder>({
+  const table = useReactTable<AllOrdersList[number]>({
     data: orders,
     columns,
     filterFns: {

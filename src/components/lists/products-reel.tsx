@@ -1,11 +1,11 @@
 "use client";
 
-import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef } from "react";
 import { useInView } from "react-intersection-observer";
 import { useEshopParams } from "@/hooks/use-eshop-params";
+import { useInfiniteProductsQuery } from "@/hooks/use-infinite-products-query";
+import type { ProductsInfinite } from "@/lib/queries/products";
 import { cn } from "@/lib/utils";
-import { useTRPC } from "@/trpc/client";
 import { ProductCard } from "../cards/product-card";
 import { ProductCardSkeleton } from "../cards/product-card-skeleton";
 import { LoadMore } from "../shared/load-more";
@@ -15,11 +15,11 @@ const STAGGER_DELAY_MS = 75;
 type Props = {
   limit: number;
   className?: string;
+  initialData?: ProductsInfinite;
 };
 
-export function ProductsReel({ limit, className }: Props) {
+export function ProductsReel({ limit, className, initialData }: Props) {
   const { category: categoryId } = useEshopParams();
-  const trpc = useTRPC();
 
   // Track rendered products to only animate newly loaded ones
   const prevCategoryRef = useRef(categoryId);
@@ -32,13 +32,10 @@ export function ProductsReel({ limit, className }: Props) {
   }
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSuspenseInfiniteQuery({
-      ...trpc.public.products.infinite.infiniteQueryOptions(
-        { limit, categoryId: categoryId || undefined },
-        { getNextPageParam: ({ nextCursor }) => nextCursor }
-      ),
-      initialPageParam: 0,
-    });
+    useInfiniteProductsQuery(
+      { limit, categoryId: categoryId || undefined },
+      initialData
+    );
 
   const { ref, inView } = useInView({ threshold: 0 });
 
@@ -49,8 +46,8 @@ export function ProductsReel({ limit, className }: Props) {
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const products = useMemo(
-    () => data.pages.flatMap((page) => page.data),
-    [data.pages]
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data?.pages]
   );
 
   // Capture count before render for animation calculation

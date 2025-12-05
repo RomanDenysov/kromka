@@ -22,10 +22,10 @@ import {
   PAYMENT_STATUS_LABELS,
   PAYMENT_STATUS_VARIANTS,
 } from "@/lib/constants";
+import type { AllOrdersList } from "@/lib/queries/orders";
 import { formatPrice } from "@/lib/utils";
-import type { TableOrder } from "./table";
 
-export const columns: ColumnDef<TableOrder>[] = [
+export const columns: ColumnDef<AllOrdersList[number]>[] = [
   {
     id: "select",
     enableSorting: false,
