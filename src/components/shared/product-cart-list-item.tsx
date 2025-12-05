@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import type { CartProduct } from "@/types/cart";
+import { Badge } from "../ui/badge";
 import { QuantitySetter } from "./quantity-setter";
 
 type Props = {
@@ -13,17 +15,28 @@ type Props = {
 export function ProductCartListItem({ product, quantity }: Props) {
   return (
     <div className="flex w-full items-center justify-between gap-4">
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2">
         <Image
           alt={product.name}
-          className="aspect-square rounded-sm object-cover"
+          className="rounded-sm bg-muted object-cover object-center"
           height={60}
-          quality={65}
-          src={product.images[0]?.url || "/images/doors.jpg"}
+          quality={75}
+          src={product.images[0]?.url || "/images/sec.webp"}
           width={60}
         />
-        <div className="flex flex-1 flex-col gap-1">
-          <span className="font-medium text-sm">{product.name}</span>
+
+        <div className="flex grow flex-col items-start justify-between gap-1">
+          <Link
+            className="font-medium text-sm hover:underline"
+            href={`/e-shop/${product.slug}`}
+          >
+            {product.name}
+          </Link>
+          {product.category && (
+            <Badge size="xs" variant="secondary">
+              {product.category}
+            </Badge>
+          )}
           <span className="text-muted-foreground text-xs">
             {formatPrice(product.priceCents)}
           </span>

@@ -22,6 +22,7 @@ export type CartProduct = {
   slug: string;
   priceCents: number;
   showInB2b: boolean;
+  category: string;
   images: Array<{ url: string }>;
 };
 

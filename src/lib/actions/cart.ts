@@ -93,6 +93,7 @@ export async function getCart() {
                   media: true,
                 },
               },
+              category: true,
             },
           },
         },
@@ -135,6 +136,7 @@ export async function getCart() {
           slug: product?.slug,
           priceCents: product?.priceCents,
           showInB2b: product?.showInB2b,
+          category: product?.category?.name ?? "",
           images: productImages,
         },
       };
