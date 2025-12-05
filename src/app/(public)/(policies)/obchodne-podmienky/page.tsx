@@ -28,7 +28,7 @@ export default function ObchodnePodmienkyPage() {
           <p className="font-normal text-base">
             1.2. Kontaktné údaje predávajúceho:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>
               <span className="font-semibold text-muted-foreground italic">
                 Email:
@@ -56,7 +56,7 @@ export default function ObchodnePodmienkyPage() {
           <p className="font-normal text-base">
             2.1. Prístup k používateľskému účtu je zabezpečený prostredníctvom:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>
               Magic-link prihlásenia (jednorázový prihlasovací odkaz zaslaný na
               email)
@@ -87,7 +87,7 @@ export default function ObchodnePodmienkyPage() {
         </h2>
         <div className="font-normal text-base">
           <p className="font-normal text-base">3.1. Používateľ sa zaväzuje:</p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>Používať webovú stránku v súlade s právnymi predpismi</li>
             <li>Nezasahovať do technického obsahu stránky</li>
             <li>Neuvádzať nepravdivé, zavádzajúce alebo urážlivé informácie</li>
@@ -96,7 +96,7 @@ export default function ObchodnePodmienkyPage() {
         </div>
         <div className="font-normal text-base">
           <p className="font-normal text-base">3.2. Komentáre a hodnotenia:</p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>
               Používateľ môže pridávať komentáre a označovať obsah ako "Páči sa
               mi"
@@ -112,7 +112,7 @@ export default function ObchodnePodmienkyPage() {
         </div>
         <div className="font-normal text-base">
           <p className="font-normal text-base">3.3. Autorské práva:</p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>
               Všetok obsah na webovej stránke (texty, fotografie, logá) je
               chránený autorským právom
@@ -133,7 +133,7 @@ export default function ObchodnePodmienkyPage() {
             4.1. Cenu tovaru a prípadné náklady spojené s dodaním tovaru môže
             kupujúci uhradiť nasledovnými spôsobmi:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>Platba kartou online prostredníctvom služby Stripe</li>
             <li>Platba v hotovosti pri osobnom odbere</li>
             <li>Platba kartou pri osobnom odbere</li>
@@ -176,7 +176,7 @@ export default function ObchodnePodmienkyPage() {
           <p className="font-normal text-base">
             5.5. Neoddeliteľnou súčasťou týchto obchodných podmienok sú aj:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>Zásady ochrany osobných údajov</li>
             <li>Zásady používania súborov cookies</li>
           </ul>

@@ -27,7 +27,7 @@ export default function OchranaOsobnychUdajovPage() {
           <p className="font-normal text-base">
             1.2. Kontaktné údaje prevádzkovateľa:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>
               <span className="font-semibold text-muted-foreground italic">
                 Email:
@@ -52,7 +52,7 @@ export default function OchranaOsobnychUdajovPage() {
           <p className="font-normal text-base">
             2.1. Pred registráciou spracúvame:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>Technické údaje o zariadení používateľa</li>
             <li>
               Identifikátor zariadenia pre účely poskytovania personalizovaných
@@ -64,7 +64,7 @@ export default function OchranaOsobnychUdajovPage() {
           <p className="font-normal text-base">
             2.2. Po registrácii spracúvame:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>Meno a priezvisko</li>
             <li>E-mailovú adresu</li>
             <li>Telefónne číslo</li>
@@ -74,7 +74,7 @@ export default function OchranaOsobnychUdajovPage() {
           <p className="font-normal text-base">
             2.3. Pri platbe cez Stripe spracúvame:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>Platobné údaje v rozsahu nevyhnutnom pre realizáciu platby</li>
             <li>
               Platobné údaje nie sú ukladané na našich serveroch, ale sú
@@ -92,7 +92,7 @@ export default function OchranaOsobnychUdajovPage() {
           <p className="font-normal text-base">
             3.1. Osobné údaje spracúvame na tieto účely:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>Vytvorenie a správa používateľského účtu</li>
             <li>Poskytovanie personalizovaných služieb</li>
             <li>Spracovanie objednávok a platieb</li>
@@ -108,7 +108,7 @@ export default function OchranaOsobnychUdajovPage() {
           <p className="font-normal text-base">
             4.1. Osobné údaje spracúvame a uchovávame:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>Po dobu používania účtu</li>
             <li>Po dobu nevyhnutnú na plnenie zákonných povinností</li>
             <li>Do odvolania súhlasu používateľom</li>
@@ -140,7 +140,7 @@ export default function OchranaOsobnychUdajovPage() {
           <p className="font-normal text-base">
             6.1. Za podmienok stanovených v GDPR máte:
           </p>
-          <ul className="list-disc space-y-1">
+          <ul className="ml-6 list-disc space-y-1">
             <li>Právo na prístup k svojim osobným údajom</li>
             <li>Právo na opravu osobných údajov</li>
             <li>Právo na vymazanie osobných údajov</li>
