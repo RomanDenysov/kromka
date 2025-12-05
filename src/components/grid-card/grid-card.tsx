@@ -4,7 +4,7 @@ import { CardContent } from "./card-content";
 import { CardWrapper } from "./card-wrapper";
 import { GridCardCarousel } from "./grid-card-carousel";
 import type { GridCardProps } from "./types";
-import { getCardSizeClasses, getImageSizes } from "./utils";
+import { getCardSizeClasses, getExtraSpanClass, getImageSizes } from "./utils";
 
 export function GridCard({
   title,
@@ -19,6 +19,7 @@ export function GridCard({
   textColor,
   autoplay = true,
   autoplayDelay = 3000,
+  extraSpan = 0,
 }: GridCardProps) {
   const allImages = images || (image ? [image] : []);
   const hasCarousel = allImages.length > 1;
@@ -32,6 +33,7 @@ export function GridCard({
         autoplay={autoplay}
         autoplayDelay={autoplayDelay}
         className={className}
+        extraSpan={extraSpan}
         href={href}
         images={allImages}
         preload={preload}
@@ -49,6 +51,7 @@ export function GridCard({
       className={cn(
         "group relative flex flex-col overflow-hidden rounded-lg transition-transform",
         getCardSizeClasses(size),
+        getExtraSpanClass(size, extraSpan),
         className
       )}
       href={href}

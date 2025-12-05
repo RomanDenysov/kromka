@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/noMagicNumbers: Ignore it for now */
 import type { GridCardSize } from "./types";
 
 export function getCardSizeClasses(size: GridCardSize): string {
@@ -23,5 +24,40 @@ export function getImageSizes(size: GridCardSize): string {
       return "(max-width: 768px) 100vw, 50vw";
     default:
       return "(max-width: 768px) 100vw, 33vw";
+  }
+}
+
+/** Returns total span class at lg breakpoint (base + extra) */
+export function getExtraSpanClass(
+  size: GridCardSize,
+  extraSpan: number
+): string {
+  if (extraSpan <= 0) {
+    return "";
+  }
+
+  const baseSpan: Record<GridCardSize, number> = {
+    hero: 4,
+    large: 3,
+    medium: 2,
+    small: 1,
+  };
+
+  const totalSpan = baseSpan[size] + extraSpan;
+
+  // Static classes for Tailwind detection
+  switch (totalSpan) {
+    case 2:
+      return "lg:col-span-2";
+    case 3:
+      return "lg:col-span-3";
+    case 4:
+      return "lg:col-span-4";
+    case 5:
+      return "lg:col-span-5";
+    case 6:
+      return "lg:col-span-6";
+    default:
+      return "";
   }
 }

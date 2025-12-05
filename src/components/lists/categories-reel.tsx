@@ -18,6 +18,7 @@ export async function CategoriesReel() {
         data={categories.map((category) => ({
           value: category.id,
           label: category.name,
+          slug: category.slug,
         }))}
       />
     </Suspense>

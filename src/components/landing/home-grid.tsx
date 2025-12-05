@@ -1,7 +1,11 @@
 /** biome-ignore-all lint/nursery/noIncrementDecrement: <explanation> */
 /** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
 import type { Route } from "next";
-import { GridCard, type GridItemConfig } from "@/components/grid-card";
+import {
+  GridCard,
+  type GridCardSize,
+  type GridItemConfig,
+} from "@/components/grid-card";
 import { Container } from "@/components/shared/container";
 import { featureFlags } from "@/config/features";
 import { homepageConfig } from "@/config/homepage";
@@ -26,27 +30,27 @@ const gridItems: GridItemConfig[] = [
     image: homepageConfig.hero.cta.image,
     size: "medium",
   },
-
-  // Seasonal
-  {
-    id: "seasonal",
-    title: "Vianočná ponuka",
-    subtitle: "Tradičné koláče na váš stôl",
-    href: "/eshop" as Route,
-    image: "/images/christmas-compain.jpg",
-    size: "medium",
-  },
-
-  // B2B (with carousel)
   {
     id: "b2b",
     requiresFlag: "b2b",
     title: "B2B Spolupráca",
     subtitle: "Dodávame pre kaviarne a hotely",
     href: "/b2b",
-    images: ["/images/b2b-1.webp", "/images/breads.jpg"],
+    images: ["/images/b2b-1.webp", "/images/cooperation.jpg"],
     size: "medium",
   },
+
+  // Seasonal
+  {
+    id: "seasonal",
+    title: "Vianočná ponuka",
+    subtitle: "Tradičné koláče na váš stôl",
+    href: "/e-shop?category=vianocna-ponuka" as Route,
+    image: "/images/christmas-compain.jpg",
+    size: "medium",
+  },
+
+  // B2B (with carousel)
 
   // Blog
   {
@@ -67,36 +71,55 @@ const gridItems: GridItemConfig[] = [
     subtitle: "Kde nás nájdete v Košiciach a Prešove",
     href: "/predajne",
     image: "/images/stores.jpg",
-    size: "medium",
+    size: "large",
   },
 
-  // Statistics
+  // // Statistics
+  // {
+  //   id: "stat-1",
+  //   title: "12,000+",
+  //   subtitle: "Upečených chlebov mesačne",
+  //   href: "/eshop" as Route,
+  //   color: "bg-muted",
+  //   size: "small",
+  //   textColor: "text-foreground",
+  // },
+  // {
+  //   id: "stat-2",
+  //   title: "5,000+",
+  //   subtitle: "Spokojných zákazníkov",
+  //   href: "/eshop" as Route,
+  //   color: "bg-muted",
+  //   size: "small",
+  //   textColor: "text-foreground",
+  // },
+  // {
+  //   id: "stat-3",
+  //   title: "8",
+  //   subtitle: "Rokov na trhu",
+  //   href: "/eshop" as Route,
+  //   color: "bg-muted",
+  //   size: "small",
+  //   textColor: "text-foreground",
+  // },
+
+  // E-shop
   {
-    id: "stat-1",
-    title: "12,000+",
-    subtitle: "Upečených chlebov mesačne",
-    href: "/eshop" as Route,
-    color: "bg-muted",
-    size: "small",
-    textColor: "text-foreground",
+    id: "e-shop",
+    title: "Naše pečivo",
+    subtitle: "Čerstvé pečivo na každý deň",
+    href: "/e-shop?category=nase-pecivo",
+    images: ["/images/breads-3.jpg", "/images/breads-1.jpg"],
+    autoplayDelay: 5000,
+    size: "medium",
   },
   {
-    id: "stat-2",
-    title: "5,000+",
-    subtitle: "Spokojných zákazníkov",
-    href: "/eshop" as Route,
-    color: "bg-muted",
-    size: "small",
-    textColor: "text-foreground",
-  },
-  {
-    id: "stat-3",
-    title: "8",
-    subtitle: "Rokov na trhu",
-    href: "/eshop" as Route,
-    color: "bg-muted",
-    size: "small",
-    textColor: "text-foreground",
+    id: "e-shop-meat",
+    title: "Maso a udeniny",
+    subtitle: "Kvalitné maso a udeniny pre váš stôl",
+    href: "/e-shop?category=maso-a-udeniny",
+    image: "/images/meat-trznica.jpg",
+    size: "medium",
   },
 
   // Join Us
@@ -106,7 +129,7 @@ const gridItems: GridItemConfig[] = [
     subtitle: "Staňte sa súčasťou nášho tímu",
     href: "/kontakt" as Route,
     color: "bg-zinc-900",
-    size: "medium",
+    size: "small",
     textColor: "text-white",
   },
 ];
@@ -124,13 +147,41 @@ function getVisibleItems(): GridItemConfig[] {
 export function HomeGrid() {
   const visibleItems = getVisibleItems();
 
+  const COLS = 6;
+  const sizeToSpan: Record<GridCardSize, number> = {
+    hero: 4,
+    large: 3,
+    medium: 2,
+    small: 1,
+  };
+
+  // Порахувати remainder
+  let usedInLastRow = 0;
+  for (const item of visibleItems) {
+    const span = sizeToSpan[item.size || "medium"];
+    usedInLastRow = (usedInLastRow + span) % COLS || COLS;
+  }
+  const remainder = usedInLastRow === COLS ? 0 : COLS - usedInLastRow;
+
   return (
     <section className="w-full pt-5 pb-6 md:pb-10">
       <Container>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4 lg:grid-cols-6">
-          {visibleItems.map((item, index) => (
-            <GridCard key={item.id} {...item} preload={index < 6} />
-          ))}
+        <div className="grid grid-cols-1 gap-4 md:grid-flow-dense md:grid-cols-4 lg:grid-cols-6">
+          {visibleItems.map((item, index) => {
+            const isLast = index === visibleItems.length - 1;
+            // Якщо останній і є remainder — розтягнути
+            const extraSpan =
+              isLast && remainder > 0 && remainder <= 2 ? remainder : 0;
+
+            return (
+              <GridCard
+                key={item.id}
+                {...item}
+                extraSpan={extraSpan}
+                preload={index < 6}
+              />
+            );
+          })}
         </div>
       </Container>
     </section>

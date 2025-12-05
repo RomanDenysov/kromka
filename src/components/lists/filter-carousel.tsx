@@ -17,6 +17,7 @@ type Props = {
   data: {
     value: string;
     label: string;
+    slug: string;
   }[];
 };
 
@@ -75,12 +76,12 @@ export function FilterCarousel({ data }: Props) {
             </Button>
           </CarouselItem>
           {data.map((item) => (
-            <CarouselItem className="basis-auto pl-3" key={item.value}>
+            <CarouselItem className="basis-auto pl-3" key={item.slug}>
               <Button
                 className="cursor-pointer whitespace-nowrap rounded-full"
-                onClick={() => setParams({ category: item.value })}
+                onClick={() => setParams({ category: item.slug })}
                 size="sm"
-                variant={categoryId === item.value ? "default" : "secondary"}
+                variant={categoryId === item.slug ? "default" : "secondary"}
               >
                 {item.label}
               </Button>
