@@ -8,7 +8,6 @@ import {
   pgTable,
   primaryKey,
   text,
-  time,
   timestamp,
   unique,
 } from "drizzle-orm/pg-core";
@@ -551,7 +550,7 @@ export const orders = pgTable(
     totalCents: integer("total_cents").notNull(),
 
     pickupDate: timestamp("pickup_date"),
-    pickupTime: time("pickup_time"),
+    pickupTime: text("pickup_time").notNull(),
 
     paymentId: text("payment_id"),
 

@@ -100,7 +100,7 @@ export async function createOrderFromCart(data: {
         paymentStatus: "pending",
         paymentMethod: isB2B ? "invoice" : data.paymentMethod,
         pickupDate: data.pickupDate,
-        pickupTime: data.pickupTime as `${number}:${number}:${number}`,
+        pickupTime: data.pickupTime,
         totalCents,
       })
       .returning();
