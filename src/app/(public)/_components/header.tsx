@@ -5,13 +5,13 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
-import { UserButton } from "@/components/landing/user-button";
+import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAuth } from "@/lib/auth/session";
+import { UserButton } from "@/components/user-button";
+import { MobileUserButton } from "@/components/user-button/mobile-user-button";
 import { cn } from "@/lib/utils";
-import { MobileNavigation } from "./mobile-navigation";
 import { OpenStoreModalButton } from "./open-store-modal-button";
 
 const navigation: { name: string; href: Route }[] = [
@@ -21,13 +21,17 @@ const navigation: { name: string; href: Route }[] = [
   { name: "Blog", href: "/blog" },
 ] as const;
 
-export async function Header() {
-  const { user } = await getAuth();
+export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <Container>
         <div className="flex h-14 w-full items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-5">
-          <MobileNavigation navigation={navigation} user={user} />
+          <MobileNavigation navigation={navigation}>
+            <OpenStoreModalButton mobile />
+            <Suspense>
+              <MobileUserButton />
+            </Suspense>
+          </MobileNavigation>
           {/* Navigation */}
           <nav className="hidden grow items-center justify-start gap-2 md:flex">
             {navigation.map((item) => (
@@ -67,7 +71,7 @@ export async function Header() {
                   <Skeleton className="hidden size-8 rounded-md md:block" />
                 }
               >
-                <UserButton user={user} />
+                <UserButton />
               </Suspense>
             </ErrorBoundary>
             <ErrorBoundary fallback={<div>Error loading cart drawer</div>}>

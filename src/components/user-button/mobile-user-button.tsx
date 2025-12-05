@@ -1,18 +1,8 @@
-"use client";
-
-import {
-  LogInIcon,
-  LogOutIcon,
-  PackageIcon,
-  SettingsIcon,
-  UserIcon,
-} from "lucide-react";
+import { PackageIcon, SettingsIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,31 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut } from "@/lib/auth/client";
-import type { User } from "@/lib/auth/session";
+import { getAuth } from "@/lib/auth/session";
 import { cn, getInitials } from "@/lib/utils";
+import { SignInLink } from "./sign-in-link";
+import { SignOutButton } from "./sign-out-button";
 
-export function MobileUserButton({ user }: { user?: User }) {
-  const pathname = usePathname();
-  const callbackURL = pathname === "/" ? undefined : pathname;
-  const router = useRouter();
-
+export async function MobileUserButton() {
+  const { user } = await getAuth();
   if (!user || user?.isAnonymous) {
-    return (
-      <Link
-        className={cn(
-          buttonVariants({ variant: "outline", size: "xl" }),
-          "w-full"
-        )}
-        href={{
-          pathname: "/prihlasenie",
-          query: callbackURL ? { origin: callbackURL } : undefined,
-        }}
-      >
-        <LogInIcon />
-        Prihlásiť sa
-      </Link>
-    );
+    return <SignInLink mobile />;
   }
 
   return (
@@ -106,23 +80,7 @@ export function MobileUserButton({ user }: { user?: User }) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() =>
-            signOut({
-              fetchOptions: {
-                onSuccess: () => {
-                  router.push("/");
-                },
-                onError: () => {
-                  toast.error("Odhlásenie sa nepodarilo");
-                },
-              },
-            })
-          }
-        >
-          <LogOutIcon />
-          Odhlásiť sa
-        </DropdownMenuItem>
+        <SignOutButton />
       </DropdownMenuContent>
     </DropdownMenu>
   );

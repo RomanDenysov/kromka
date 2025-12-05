@@ -3,7 +3,7 @@
 import { MenuIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { Icons } from "@/components/icons";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -14,16 +14,14 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import type { User } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
-import { MobileUserButton } from "./mobile-user-button";
 
 type Props = {
   navigation: { name: string; href: Route }[];
-  user?: User;
+  children: ReactNode;
 };
 
-export function MobileNavigation({ navigation, user }: Props) {
+export function MobileNavigation({ navigation, children }: Props) {
   const [open, setOpen] = useState(false);
   return (
     <Drawer direction="left" onOpenChange={setOpen} open={open}>
@@ -60,9 +58,7 @@ export function MobileNavigation({ navigation, user }: Props) {
             ))}
           </div>
         </div>
-        <DrawerFooter>
-          <MobileUserButton user={user ?? null} />
-        </DrawerFooter>
+        <DrawerFooter>{children}</DrawerFooter>
       </DrawerContent>
     </Drawer>
   );
