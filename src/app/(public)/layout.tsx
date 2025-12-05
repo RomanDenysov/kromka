@@ -9,8 +9,16 @@ type Props = {
   readonly children: ReactNode;
 };
 
-export default async function PublicLayout({ children }: Props) {
+async function StoreSelectModalLoader() {
   const stores = await getStores();
+  return (
+    <Activity mode={stores.length > 1 ? "visible" : "hidden"}>
+      <StoreSelectModal stores={stores} />
+    </Activity>
+  );
+}
+
+export default function PublicLayout({ children }: Props) {
   return (
     <>
       <Suspense>
@@ -21,9 +29,9 @@ export default async function PublicLayout({ children }: Props) {
         <main className="relative min-h-screen flex-1 grow">{children}</main>
         <Footer />
       </div>
-      <Activity mode={stores.length > 1 ? "visible" : "hidden"}>
-        <StoreSelectModal stores={stores} />
-      </Activity>
+      <Suspense>
+        <StoreSelectModalLoader />
+      </Suspense>
     </>
   );
 }
