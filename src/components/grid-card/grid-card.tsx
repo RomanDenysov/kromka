@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { CardContent } from "./card-content";
 import { CardWrapper } from "./card-wrapper";
 import { GridCardCarousel } from "./grid-card-carousel";
+import { GridCardVideo } from "./grid-card-video";
 import type { GridCardProps } from "./types";
 import { getCardSizeClasses, getExtraSpanClass, getImageSizes } from "./utils";
 
@@ -12,6 +13,7 @@ export function GridCard({
   href,
   image,
   images,
+  video,
   color,
   size = "medium",
   preload = false,
@@ -23,10 +25,29 @@ export function GridCard({
 }: GridCardProps) {
   const allImages = images || (image ? [image] : []);
   const hasCarousel = allImages.length > 1;
+  const hasVideo = !!video;
   const hasImage = allImages.length > 0;
-  const hasSolidColor = !!color && !hasImage;
+  const hasSolidColor = !!color && !hasImage && !hasVideo;
 
-  // Delegate to client component only for carousels
+  // Delegate to client component for video
+  if (hasVideo) {
+    return (
+      <GridCardVideo
+        className={className}
+        extraSpan={extraSpan}
+        href={href}
+        poster={allImages[0]}
+        preload={preload}
+        size={size}
+        subtitle={subtitle}
+        textColor={textColor}
+        title={title}
+        video={video}
+      />
+    );
+  }
+
+  // Delegate to client component for carousels
   if (hasCarousel) {
     return (
       <GridCardCarousel
@@ -76,7 +97,7 @@ export function GridCard({
 
       {/* Content */}
       <CardContent
-        hasImage={hasImage}
+        hasImage={hasImage || hasVideo}
         href={href}
         size={size}
         subtitle={subtitle}

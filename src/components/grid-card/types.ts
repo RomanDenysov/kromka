@@ -1,6 +1,6 @@
 import type { Route } from "next";
 
-export type GridCardSize = "small" | "medium" | "large" | "hero";
+export type GridCardSize = "small" | "medium" | "large" | "hero" | "banner";
 
 export type GridCardProps = {
   preload: boolean;
@@ -9,12 +9,14 @@ export type GridCardProps = {
   href?: Route | null;
   image?: string;
   images?: string[];
+  video?: string;
   color?: string;
   size?: GridCardSize;
   className?: string;
   textColor?: string;
   autoplay?: boolean;
   autoplayDelay?: number;
+  extraSpan?: number;
 };
 
 export type GridItemConfig = Omit<GridCardProps, "preload"> & {

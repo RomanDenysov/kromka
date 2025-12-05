@@ -11,6 +11,8 @@ export function getCardSizeClasses(size: GridCardSize): string {
       return "col-span-1 min-h-[320px] md:col-span-2 lg:col-span-3";
     case "hero":
       return "col-span-1 min-h-[500px] md:col-span-2 lg:col-span-4 lg:min-h-[600px]";
+    case "banner":
+      return "col-span-1 min-h-[500px] md:col-span-4 md:min-h-[600px] lg:col-span-6 lg:min-h-[700px]";
     default:
       return "";
   }
@@ -18,6 +20,8 @@ export function getCardSizeClasses(size: GridCardSize): string {
 
 export function getImageSizes(size: GridCardSize): string {
   switch (size) {
+    case "banner":
+      return "100vw";
     case "hero":
       return "(max-width: 768px) 100vw, 66vw";
     case "large":
@@ -37,6 +41,7 @@ export function getExtraSpanClass(
   }
 
   const baseSpan: Record<GridCardSize, number> = {
+    banner: 6,
     hero: 4,
     large: 3,
     medium: 2,

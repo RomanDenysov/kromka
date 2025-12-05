@@ -71,7 +71,7 @@ const gridItems: GridItemConfig[] = [
     subtitle: "Kde nás nájdete v Košiciach a Prešove",
     href: "/predajne",
     image: "/images/stores.jpg",
-    size: "large",
+    size: "banner",
   },
 
   // // Statistics
@@ -121,6 +121,14 @@ const gridItems: GridItemConfig[] = [
     image: "/images/meat-trznica.jpg",
     size: "medium",
   },
+  // {
+  //   id: "all-shops",
+  //   title: "Naše predajne",
+  //   subtitle: "Kde nás nájdete v Košiciach a Prešove",
+  //   href: "/predajne",
+  //   video: "/video/video-web-kromka.mp4",
+  //   size: "banner",
+  // },
 
   // Join Us
   {
@@ -149,13 +157,14 @@ export function HomeGrid() {
 
   const COLS = 6;
   const sizeToSpan: Record<GridCardSize, number> = {
+    banner: 6,
     hero: 4,
     large: 3,
     medium: 2,
     small: 1,
   };
 
-  // Порахувати remainder
+  // Calculate remainder
   let usedInLastRow = 0;
   for (const item of visibleItems) {
     const span = sizeToSpan[item.size || "medium"];
@@ -169,7 +178,7 @@ export function HomeGrid() {
         <div className="grid grid-cols-1 gap-4 md:grid-flow-dense md:grid-cols-4 lg:grid-cols-6">
           {visibleItems.map((item, index) => {
             const isLast = index === visibleItems.length - 1;
-            // Якщо останній і є remainder — розтягнути
+            // If the last item and there is remainder, stretch it
             const extraSpan =
               isLast && remainder > 0 && remainder <= 2 ? remainder : 0;
 
