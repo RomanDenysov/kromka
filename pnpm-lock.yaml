@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@consentify/core':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@dnd-kit/core':
         specifier: ^6.3.1
         version: 6.3.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -673,6 +676,10 @@ packages:
 
   '@clack/prompts@0.11.0':
     resolution: {integrity: sha512-pMN5FcrEw9hUkZA4f+zLlzivQSeQf5dRGJjSUbvVYDLvpKCdQx5OaknvKzgbtXOizhP+SJJJjqEbOe55uKKfAw==}
+
+  '@consentify/core@0.1.0':
+    resolution: {integrity: sha512-o2Z2WvlMHmNG8X7zAYI/xzwk7Plu0OA+4ztJ5leaD+4MQhtcaGWXhyh1xbrjDF7nGcdlaxj5Ur4kPSdNfTpA3Q==}
+    engines: {node: '>=20.0.0', pnpm: '>=9'}
 
   '@date-fns/tz@1.4.1':
     resolution: {integrity: sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==}
@@ -5947,6 +5954,8 @@ snapshots:
       '@clack/core': 0.5.0
       picocolors: 1.1.1
       sisteransi: 1.0.5
+
+  '@consentify/core@0.1.0': {}
 
   '@date-fns/tz@1.4.1': {}
 
