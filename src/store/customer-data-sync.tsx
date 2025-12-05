@@ -32,6 +32,7 @@ export function CustomerDataSync() {
         name: serverUser.name,
         email: serverUser.email,
         image: serverUser.image ?? null,
+        isAnonymous: !!serverUser.isAnonymous,
       });
     }
   }, [isPending, customer, setCustomer]);

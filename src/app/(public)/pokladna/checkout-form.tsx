@@ -3,7 +3,10 @@
 
 import { useStore } from "@tanstack/react-form";
 import { CreditCardIcon, StoreIcon } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useTransition } from "react";
+import { toast } from "sonner";
 import z from "zod";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
@@ -28,7 +31,10 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Spinner } from "@/components/ui/spinner";
+import { PAYMENT_METHODS, type PaymentMethod } from "@/db/types";
 import { useGetCart } from "@/hooks/use-get-cart";
+import { createOrderFromCart } from "@/lib/actions/orders";
 import type { User } from "@/lib/auth/session";
 import {
   getFirstAvailableDate,
@@ -37,13 +43,14 @@ import {
 } from "@/lib/checkout-utils";
 import type { Store } from "@/lib/queries/stores";
 import { formatPrice } from "@/lib/utils";
+import { useCustomerDataStore } from "@/store/customer-data-store";
 
 const checkoutFormSchema = z.object({
   name: z.string().min(1),
   email: z.email(),
   phone: z.string().min(1),
 
-  paymentMethod: z.enum(["in_store", "card"]),
+  paymentMethod: z.enum(PAYMENT_METHODS),
   pickupDate: z.date(),
   pickupTime: z.string().min(1),
 
@@ -58,6 +65,10 @@ export function CheckoutForm({
   stores: Store[];
 }) {
   const { data: cart } = useGetCart();
+  const { customer } = useCustomerDataStore();
+  const router = useRouter();
+
+  const [isPending, startTransition] = useTransition();
 
   // Map stores to StoreOption format
   const storeOptions: StoreOption[] = useMemo(
@@ -70,14 +81,20 @@ export function CheckoutForm({
     [stores]
   );
 
-  const userData =
-    user && !user.isAnonymous
-      ? null
-      : {
-          name: user?.name ?? "",
-          email: user?.email ?? "",
-          phone: user?.phone ?? "",
-        };
+  const customerData = customer?.isAnonymous
+    ? null
+    : {
+        name: customer?.name ?? "",
+        email: customer?.email ?? "",
+      };
+
+  const userData = user?.isAnonymous
+    ? null
+    : {
+        name: user?.name ?? customerData?.name ?? "",
+        email: user?.email ?? customerData?.email ?? "",
+        phone: user?.phone ?? "",
+      };
 
   const totalCents = useMemo(
     () =>
@@ -93,18 +110,39 @@ export function CheckoutForm({
       name: userData?.name,
       email: userData?.email,
       phone: userData?.phone,
-      paymentMethod: "in_store",
-      pickupDate: undefined as Date | undefined,
+      paymentMethod: "in_store" as PaymentMethod,
+      pickupDate: new Date(),
       pickupTime: "",
       storeId: user?.storeId ?? "",
     },
     validators: {
       onSubmit: checkoutFormSchema,
     },
-    onSubmit: ({ value }) => {
-      // biome-ignore lint/suspicious/noConsole: debug logging for form submission
-      console.log(value);
-    },
+    onSubmit: ({ value }) =>
+      startTransition(async () => {
+        // biome-ignore lint/suspicious/noConsole: debug logging for form submission
+        console.log(value);
+
+        try {
+          const result = await createOrderFromCart({
+            storeId: value.storeId,
+            pickupDate: value.pickupDate,
+            pickupTime: value.pickupTime,
+            paymentMethod: value.paymentMethod,
+          });
+
+          if (result.success) {
+            toast.success("Vaša objednávka bola vytvorená");
+            router.push(`/pokladna/${result.orderId}` as Route);
+          } else {
+            toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
+          }
+        } catch (error) {
+          // biome-ignore lint/suspicious/noConsole: <explanation>
+          console.error("Checkout failed:", error);
+          toast.error("Nepodarilo sa vytvoriť objednávku");
+        }
+      }),
   });
 
   const pickupDate = useStore(form.store, (state) => state.values.pickupDate);
@@ -194,7 +232,7 @@ export function CheckoutForm({
 
                       // Set first available date
                       const firstDate = getFirstAvailableDate(schedule);
-                      form.setFieldValue("pickupDate", firstDate ?? undefined);
+                      form.setFieldValue("pickupDate", firstDate ?? new Date());
 
                       // Set first available time
                       if (firstDate) {
@@ -295,13 +333,20 @@ export function CheckoutForm({
                           <RadioGroup
                             aria-label="Spôsob platby"
                             className="md:grid-cols-2"
-                            onValueChange={(value) => field.handleChange(value)}
+                            onValueChange={(value) =>
+                              field.handleChange(value as PaymentMethod)
+                            }
                             value={field.state.value}
                           >
                             <FieldLabel htmlFor="in_store">
-                              <Field orientation="horizontal">
-                                <StoreIcon />
-                                <FieldTitle>Na odberovom mieste</FieldTitle>
+                              <Field
+                                className="gap-2 p-2.5!"
+                                orientation="horizontal"
+                              >
+                                <StoreIcon className="size-5 shrink-0" />
+                                <FieldTitle className="text-wrap">
+                                  Pri vyzdvihnutí
+                                </FieldTitle>
 
                                 <RadioGroupItem
                                   className="peer sr-only"
@@ -312,9 +357,14 @@ export function CheckoutForm({
                             </FieldLabel>
 
                             <FieldLabel htmlFor="card">
-                              <Field orientation="horizontal">
-                                <CreditCardIcon />
-                                <FieldTitle>Kartou online</FieldTitle>
+                              <Field
+                                className="gap-2 p-2.5!"
+                                orientation="horizontal"
+                              >
+                                <CreditCardIcon className="size-5 shrink-0" />
+                                <FieldTitle className="text-wrap">
+                                  Kartou online
+                                </FieldTitle>
                                 <RadioGroupItem
                                   className="peer sr-only"
                                   id="card"
@@ -344,10 +394,11 @@ export function CheckoutForm({
               {([canSubmit, isSubmitting]) => (
                 <Button
                   className="w-full text-base"
-                  disabled={isSubmitting || !canSubmit}
+                  disabled={isSubmitting || !canSubmit || isPending}
                   size="xl"
                   type="submit"
                 >
+                  {isPending && <Spinner />}
                   Objednať
                 </Button>
               )}

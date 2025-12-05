@@ -7,6 +7,7 @@ type CustomerData = {
   name: string | null;
   email: string;
   image: string | null;
+  isAnonymous: boolean;
 } | null;
 
 type SelectedStore = Pick<Store, "id" | "name"> | null;

@@ -12,6 +12,7 @@ import { Badge } from "../ui/badge";
 import { Button, buttonVariants } from "../ui/button";
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
@@ -91,15 +92,17 @@ export function CartDrawer() {
                 <span>Spolu</span>
                 <span>{formatPrice(totalCents)}</span>
               </div>
-              <Link
-                className={cn(
-                  buttonVariants({ size: "lg", className: "w-full" }),
-                  "text-base"
-                )}
-                href={"/pokladna" as Route}
-              >
-                Pokračovať do pokladne
-              </Link>
+              <DrawerClose asChild>
+                <Link
+                  className={cn(
+                    buttonVariants({ size: "lg", className: "w-full" }),
+                    "text-base"
+                  )}
+                  href={"/pokladna" as Route}
+                >
+                  Pokračovať do pokladne
+                </Link>
+              </DrawerClose>
             </DrawerFooter>
           </>
         )}

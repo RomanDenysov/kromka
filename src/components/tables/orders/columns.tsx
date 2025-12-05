@@ -204,9 +204,7 @@ export const columns: ColumnDef<TableOrder>[] = [
             : "Neurčený"}
         </span>
         <span className="font-medium font-mono text-xs tracking-tighter">
-          {row.original.pickupTime
-            ? format(row.original.pickupTime, "HH:mm")
-            : "Neurčený"}
+          {row.original.pickupTime ? row.original.pickupTime : "Neurčený"}
         </span>
       </div>
     ),
