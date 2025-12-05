@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { use, useTransition } from "react";
 import { setUserStore } from "@/lib/actions/stores";
 import type { Store } from "@/lib/queries/stores";
 import { useCustomerDataStore } from "@/store/customer-data-store";
@@ -28,10 +28,11 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { ScrollArea } from "../ui/scroll-area";
 
 type StoreSelectModalProps = {
-  stores: Store[];
+  storesPromise: Promise<Store[]>;
 };
 
-export function StoreSelectModal({ stores }: StoreSelectModalProps) {
+export function StoreSelectModal({ storesPromise }: StoreSelectModalProps) {
+  const stores = use(storesPromise);
   const [isPending, startTransition] = useTransition();
   const { isOpen, setIsOpen } = useSelectedModalStore();
 

@@ -2,6 +2,7 @@
 
 import { StoreIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useCustomerDataStore } from "@/store/customer-data-store";
 import { useSelectedModalStore } from "@/store/selecte-store-modal";
@@ -14,10 +15,22 @@ type Props = {
 export function OpenStoreModalButton({ mobile = false, className }: Props) {
   const setIsOpen = useSelectedModalStore((state) => state.setIsOpen);
   const customerStore = useCustomerDataStore((state) => state.customerStore);
+  const hasHydrated = useCustomerDataStore((state) => state._hasHydrated);
 
   const handleClick = () => {
     setIsOpen(true);
   };
+
+  if (!hasHydrated) {
+    return (
+      <Skeleton
+        className={cn(
+          mobile ? "h-12 w-full" : "hidden h-8 w-28 md:block",
+          className
+        )}
+      />
+    );
+  }
 
   return (
     <Button

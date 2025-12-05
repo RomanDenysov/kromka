@@ -24,11 +24,17 @@ type CustomerDataActions = {
 
 type CustomerDataStore = CustomerDataState & {
   actions: CustomerDataActions;
+  _hasHydrated: boolean;
 };
 
 const persistOptions: PersistOptions<CustomerDataStore, CustomerDataState> = {
   name: "kromka-customer-data",
   partialize: ({ actions, ...state }) => state,
+  onRehydrateStorage: () => (state) => {
+    if (state) {
+      state._hasHydrated = true;
+    }
+  },
 };
 
 export const useCustomerDataStore = create<CustomerDataStore>()(
@@ -36,6 +42,7 @@ export const useCustomerDataStore = create<CustomerDataStore>()(
     (set) => ({
       customer: null,
       customerStore: null,
+      _hasHydrated: false,
       actions: {
         setCustomer: (customer) => set({ customer }),
         setCustomerStore: (customerStore) => set({ customerStore }),

@@ -3,6 +3,7 @@ import type { Route } from "next";
 export type GridCardSize = "small" | "medium" | "large" | "hero";
 
 export type GridCardProps = {
+  preload: boolean;
   title: string;
   subtitle?: string;
   href?: Route | null;
@@ -16,7 +17,7 @@ export type GridCardProps = {
   autoplayDelay?: number;
 };
 
-export type GridItemConfig = GridCardProps & {
+export type GridItemConfig = Omit<GridCardProps, "preload"> & {
   id: string;
   requiresFlag?: string;
 };

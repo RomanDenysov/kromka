@@ -14,6 +14,7 @@ export function GridCard({
   images,
   color,
   size = "medium",
+  preload = false,
   className,
   textColor,
   autoplay = true,
@@ -33,6 +34,7 @@ export function GridCard({
         className={className}
         href={href}
         images={allImages}
+        preload={preload}
         size={size}
         subtitle={subtitle}
         textColor={textColor}
@@ -58,6 +60,7 @@ export function GridCard({
             alt={title}
             className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             fill
+            preload={preload}
             sizes={getImageSizes(size)}
             src={allImages[0]}
           />

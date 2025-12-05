@@ -1,16 +1,11 @@
-import { ShoppingCartIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
-import { ErrorBoundary } from "react-error-boundary";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { buttonVariants } from "@/components/ui/button";
 import { UserButton } from "@/components/user-button";
-import { MobileUserButton } from "@/components/user-button/mobile-user-button";
 import { cn } from "@/lib/utils";
 import { OpenStoreModalButton } from "./open-store-modal-button";
 
@@ -26,13 +21,8 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <Container>
         <div className="flex h-14 w-full items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-5">
-          <MobileNavigation navigation={navigation}>
-            <OpenStoreModalButton mobile />
-            <Suspense>
-              <MobileUserButton />
-            </Suspense>
-          </MobileNavigation>
           {/* Navigation */}
+          <MobileNavigation navigation={navigation} />
           <nav className="hidden grow items-center justify-start gap-2 md:flex">
             {navigation.map((item) => (
               <Link
@@ -54,43 +44,9 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3">
-            <ErrorBoundary
-              fallback={<div>Error loading store select modal</div>}
-            >
-              <Suspense
-                fallback={
-                  <Skeleton className="hidden h-8 w-20 rounded-md md:block" />
-                }
-              >
-                <OpenStoreModalButton />
-              </Suspense>
-            </ErrorBoundary>
-            <ErrorBoundary fallback={<div>Error loading user button</div>}>
-              <Suspense
-                fallback={
-                  <Skeleton className="hidden size-8 rounded-md md:block" />
-                }
-              >
-                <UserButton />
-              </Suspense>
-            </ErrorBoundary>
-            <ErrorBoundary fallback={<div>Error loading cart drawer</div>}>
-              <Suspense
-                fallback={
-                  <Button
-                    className="relative"
-                    disabled
-                    size="icon-sm"
-                    variant="ghost"
-                  >
-                    <ShoppingCartIcon className="size-5" />
-                    <span className="sr-only">Košík</span>
-                  </Button>
-                }
-              >
-                <CartDrawer />
-              </Suspense>
-            </ErrorBoundary>
+            <OpenStoreModalButton />
+            <UserButton />
+            <CartDrawer />
           </div>
         </div>
       </Container>

@@ -3,7 +3,8 @@
 import { MenuIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { type ReactNode, useState } from "react";
+import { useState } from "react";
+import { OpenStoreModalButton } from "@/app/(public)/_components/open-store-modal-button";
 import { Icons } from "@/components/icons";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -18,10 +19,9 @@ import { cn } from "@/lib/utils";
 
 type Props = {
   navigation: { name: string; href: Route }[];
-  children: ReactNode;
 };
 
-export function MobileNavigation({ navigation, children }: Props) {
+export function MobileNavigation({ navigation }: Props) {
   const [open, setOpen] = useState(false);
   return (
     <Drawer direction="left" onOpenChange={setOpen} open={open}>
@@ -58,7 +58,9 @@ export function MobileNavigation({ navigation, children }: Props) {
             ))}
           </div>
         </div>
-        <DrawerFooter>{children}</DrawerFooter>
+        <DrawerFooter>
+          <OpenStoreModalButton mobile />
+        </DrawerFooter>
       </DrawerContent>
     </Drawer>
   );

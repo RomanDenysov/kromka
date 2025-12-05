@@ -61,6 +61,7 @@ function CarouselControls({
 
 type GridCardCarouselProps = Omit<GridCardProps, "image"> & {
   images: string[];
+  preload: boolean;
 };
 
 export function GridCardCarousel({
@@ -73,6 +74,7 @@ export function GridCardCarousel({
   textColor,
   autoplay = true,
   autoplayDelay = 3000,
+  preload = false,
 }: GridCardCarouselProps) {
   const plugins = autoplay
     ? [
@@ -133,6 +135,8 @@ export function GridCardCarousel({
                 alt={`${title} - Slide ${index + 1}`}
                 className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                 fill
+                loading={preload ? "eager" : "lazy"}
+                preload={preload}
                 sizes={imageSizes}
                 src={img}
               />

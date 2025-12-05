@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/style/noNestedTernary: Ignore it */
-/** biome-ignore-all lint/style/noMagicNumbers: Ignore it */
 "use client";
 
 import { ShoppingCartIcon } from "lucide-react";

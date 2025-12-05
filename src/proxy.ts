@@ -13,5 +13,7 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  return response;
 }
