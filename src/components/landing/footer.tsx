@@ -1,6 +1,7 @@
 import { Facebook, Instagram, MailIcon, PhoneIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { POLICY_LINKS } from "@/app/(public)/(policies)/policies-config";
 import { cn } from "@/lib/utils";
 import { Icons } from "../icons";
 import { Container } from "../shared/container";
@@ -19,13 +20,10 @@ const footerLinks: Record<"company" | "legal", FooterLinkItem[]> = {
     { name: "Predajne", href: "/predajne" },
     { name: "Blog", href: "/blog" },
   ],
-  legal: [
-    { name: "Podmienky používania", href: "/podmienky-pouzivania" },
-    {
-      name: "Ochrana osobných údajov",
-      href: "/zasady-ochrany-osobnych-udajov",
-    },
-  ],
+  legal: Object.values(POLICY_LINKS).map((link) => ({
+    name: link.label,
+    href: link.href,
+  })),
 } as const;
 
 export function Footer() {

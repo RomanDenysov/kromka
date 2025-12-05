@@ -1,16 +1,11 @@
-import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { POLICY_LINKS } from "@/app/(public)/(policies)/policies-config";
 import { MagicLinkForm } from "@/app/prihlasenie/magic-link-form";
 import { ProvidersForm } from "@/app/prihlasenie/providers-form";
 import { BackButton } from "@/components/shared/back-button";
 import { Spinner } from "@/components/ui/spinner";
-
-const POLICY_LINKS = {
-  podmienkyPouzivania: "/podmienky-pouzivania" as Route,
-  zasadyOchranySukromia: "/zasady-ochrany-osobnych-udajov" as Route,
-} as const;
 
 export default function LoginPage() {
   return (
@@ -52,16 +47,16 @@ export default function LoginPage() {
             <br />
             <Link
               className="text-primary underline"
-              href={POLICY_LINKS.podmienkyPouzivania}
+              href={POLICY_LINKS.obchodnePodmienky.href}
             >
-              Podmienkami používania
+              {POLICY_LINKS.obchodnePodmienky.label}
             </Link>{" "}
             a{" "}
             <Link
               className="text-primary underline"
-              href={POLICY_LINKS.zasadyOchranySukromia}
+              href={POLICY_LINKS.ochranaOsobnychUdajov.href}
             >
-              Zásadami ochrany súkromia
+              {POLICY_LINKS.ochranaOsobnychUdajov.label}
             </Link>
             .
           </p>
