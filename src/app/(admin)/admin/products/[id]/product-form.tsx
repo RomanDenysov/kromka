@@ -2,11 +2,19 @@
 
 import { format } from "date-fns";
 import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import type { AdminProduct } from "@/app/(admin)/admin/products/[id]/page";
 import { ImageUpload } from "@/components/image-upload";
 import { useAppForm } from "@/components/shared/form";
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,14 +23,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Field,
+  FieldContent,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { updateProductAction } from "@/lib/actions/products";
 import { getSlug } from "@/lib/get-slug";
+import { cn } from "@/lib/utils";
 import type { Category } from "@/types/categories";
 import { updateProductSchema } from "@/validation/products";
 
@@ -34,7 +49,7 @@ export function ProductForm({
   categories: Category[];
 }) {
   const [isPendingUpdateProduct, startTransition] = useTransition();
-
+  const [open, setOpen] = useState(false);
   const form = useAppForm({
     validators: {
       onSubmit: updateProductSchema,
@@ -159,9 +174,65 @@ export function ProductForm({
           </FieldGroup>
 
           <FieldGroup className="gap-4">
-            <form.AppField name="categoryId">
-              {(field) => <field.CategorySelectField categories={categories} />}
-            </form.AppField>
+            <form.Field name="categoryId">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field
+                    className={cn("rounded-md border bg-card p-3")}
+                    data-invalid={isInvalid}
+                    orientation="horizontal"
+                  >
+                    <FieldContent>
+                      <FieldLabel>Kategória</FieldLabel>
+                    </FieldContent>
+                    <Popover onOpenChange={setOpen} open={open}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          className="justify-start"
+                          size="sm"
+                          variant="outline"
+                        >
+                          {field.state.value ? (
+                            categories.find(
+                              (category) => category.id === field.state.value
+                            )?.name
+                          ) : (
+                            <>+ Vyberte kategóriu</>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="start"
+                        className="p-0"
+                        side="right"
+                      >
+                        <Command>
+                          <CommandInput placeholder="Vyberte kategóriu..." />
+                          <CommandList>
+                            <CommandEmpty>No results found.</CommandEmpty>
+                            <CommandGroup>
+                              {categories.map((category) => (
+                                <CommandItem
+                                  key={category.id}
+                                  onSelect={() => {
+                                    field.handleChange(category.id);
+                                  }}
+                                  value={category.id}
+                                >
+                                  {category.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </Field>
+                );
+              }}
+            </form.Field>
           </FieldGroup>
 
           <FieldGroup className="gap-4">
