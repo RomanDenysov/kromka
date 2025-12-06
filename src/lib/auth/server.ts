@@ -89,7 +89,7 @@ export const auth = betterAuth({
     },
     crossSubDomainCookies: {
       enabled: true,
-      domain: ".pekarenkromka.sk",
+      domain: "pekarenkromka.sk",
     },
   },
 });
