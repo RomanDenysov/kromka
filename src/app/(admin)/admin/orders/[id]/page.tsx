@@ -11,7 +11,7 @@ type Props = {
   }>;
 };
 
-export default async function AdminOrderPage({ params }: Props) {
+async function AdminOrderPageContent({ params }: Props) {
   const { id } = await params;
 
   const fetchedOrder = await getOrderById(id);
@@ -35,5 +35,13 @@ export default async function AdminOrderPage({ params }: Props) {
         </Suspense>
       </section>
     </>
+  );
+}
+
+export default function AdminOrderPage({ params }: Props) {
+  return (
+    <Suspense fallback={<FormSkeleton />}>
+      <AdminOrderPageContent params={params} />
+    </Suspense>
   );
 }

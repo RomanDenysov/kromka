@@ -74,18 +74,25 @@ async function OrderConfirmationPageContent({ orderId }: { orderId: string }) {
   );
 }
 
-export default async function OrderConfirmationPage({
+export default function OrderConfirmationPage({
+  params,
+}: {
+  params: Promise<{ orderId: string }>;
+}) {
+  return (
+    <Suspense
+      fallback={<div className="container mx-auto py-12">Loading...</div>}
+    >
+      <OrderConfirmationPageWrapper params={params} />
+    </Suspense>
+  );
+}
+
+async function OrderConfirmationPageWrapper({
   params,
 }: {
   params: Promise<{ orderId: string }>;
 }) {
   const { orderId } = await params;
-
-  return (
-    <Suspense
-      fallback={<div className="container mx-auto py-12">Loading...</div>}
-    >
-      <OrderConfirmationPageContent orderId={orderId} />
-    </Suspense>
-  );
+  return <OrderConfirmationPageContent orderId={orderId} />;
 }

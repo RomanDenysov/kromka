@@ -15,6 +15,8 @@ export async function getNewOrdersCount() {
 }
 
 export async function getAllOrders() {
+  "use cache";
+  cacheLife("minutes");
   return await db.query.orders.findMany({
     with: {
       createdBy: {
@@ -61,6 +63,8 @@ export async function getAllOrders() {
 }
 
 export async function getOrderById(id: string) {
+  "use cache";
+  cacheLife("minutes");
   return await db.query.orders.findFirst({
     where: (order, { eq: eqFn }) => eqFn(order.id, id),
     with: {

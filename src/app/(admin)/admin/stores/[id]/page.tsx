@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { Suspense } from "react";
+import { cacheLife } from "next/cache";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { StoreForm } from "@/components/forms/store-form";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
@@ -25,11 +26,10 @@ const tabs = [
   },
 ];
 
-export default async function StorePage({ params }: Props) {
+async function getStoreById(id: string) {
   "use cache";
-  const { id } = await params;
-
-  const store = await db.query.stores.findFirst({
+  cacheLife("minutes");
+  return await db.query.stores.findFirst({
     where: eq(stores.id, id),
     with: {
       image: true,
@@ -37,6 +37,11 @@ export default async function StorePage({ params }: Props) {
       orders: true,
     },
   });
+}
+
+async function StorePageContent({ params }: Props) {
+  const { id } = await params;
+  const store = await getStoreById(id);
 
   if (!store) {
     return <div>Store not found</div>;
@@ -91,5 +96,13 @@ export default async function StorePage({ params }: Props) {
         </div>
       </section>
     </>
+  );
+}
+
+export default function StorePage({ params }: Props) {
+  return (
+    <Suspense fallback={<FormSkeleton className="w-full p-4" />}>
+      <StorePageContent params={params} />
+    </Suspense>
   );
 }

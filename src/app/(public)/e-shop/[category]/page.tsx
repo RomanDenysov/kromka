@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { ProductsGrid } from "@/components/products-grid";
 import {
   getAllCategories,
@@ -15,7 +16,7 @@ export async function generateStaticParams() {
   return categories.map((cat) => ({ category: cat.slug }));
 }
 
-export default async function CategoryPage({ params }: Props) {
+async function CategoryPageContent({ params }: Props) {
   const { category } = await params;
   const products = await getProductsByCategory(category);
 
@@ -24,4 +25,12 @@ export default async function CategoryPage({ params }: Props) {
   }
 
   return <ProductsGrid products={products} />;
+}
+
+export default function CategoryPage({ params }: Props) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CategoryPageContent params={params} />
+    </Suspense>
+  );
 }

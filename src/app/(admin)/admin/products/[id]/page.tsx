@@ -56,7 +56,7 @@ async function getCategories() {
 
 export type AdminProduct = Awaited<ReturnType<typeof getProduct>>;
 
-export default async function B2CProductPage({ params }: Props) {
+async function B2CProductPageContent({ params }: Props) {
   const { id } = await params;
   const product = await getProduct(id);
   const categories = await getCategories();
@@ -80,5 +80,13 @@ export default async function B2CProductPage({ params }: Props) {
         </Suspense>
       </section>
     </>
+  );
+}
+
+export default function B2CProductPage({ params }: Props) {
+  return (
+    <Suspense fallback={<FormSkeleton />}>
+      <B2CProductPageContent params={params} />
+    </Suspense>
   );
 }

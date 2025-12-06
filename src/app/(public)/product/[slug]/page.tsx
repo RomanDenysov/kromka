@@ -3,6 +3,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { CheckCircleIcon, ClockIcon, TagsIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { ViewTransition } from "react";
 import { AddToCartSingleProductButton } from "@/components/add-to-cart-signle-product-button";
 import { ImageSlider } from "@/components/image-slider";
@@ -21,7 +22,7 @@ type Props = {
   }>;
 };
 
-export default async function ProductPage({ params }: Props) {
+async function ProductPageContent({ params }: Props) {
   const { product } = await params;
 
   const result = await getProductBySlug(product);
@@ -121,5 +122,13 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </section>
     </PageWrapper>
+  );
+}
+
+export default function ProductPage({ params }: Props) {
+  return (
+    <Suspense fallback={<PageWrapper>Loading...</PageWrapper>}>
+      <ProductPageContent params={params} />
+    </Suspense>
   );
 }
