@@ -15,9 +15,15 @@ type Props = {
   className?: string;
   /** Delay in ms before animation starts. 0 = no animation (already rendered). */
   animationDelay?: number;
+  preload?: boolean;
 };
 
-export function ProductCard({ product, className, animationDelay = 0 }: Props) {
+export function ProductCard({
+  product,
+  className,
+  animationDelay = 0,
+  preload = false,
+}: Props) {
   const isActive = product.status === "active";
 
   const shouldAnimate = animationDelay > 0;
@@ -50,7 +56,11 @@ export function ProductCard({ product, className, animationDelay = 0 }: Props) {
             <HeartIcon className="size-5" />
           </Button>
         </div>
-        <ImageSlider disabled={!isActive} urls={product.images} />
+        <ImageSlider
+          disabled={!isActive}
+          preload={preload}
+          urls={product.images}
+        />
       </div>
       <div className="flex size-full flex-col justify-between gap-2 px-1 pb-1">
         {/* Categories */}

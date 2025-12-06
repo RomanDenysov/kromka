@@ -85,6 +85,7 @@ export function GridCard({
             className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             fill
             loading={preload ? "eager" : "lazy"}
+            priority={preload}
             sizes={getImageSizes(size)}
             src={allImages[0]}
           />

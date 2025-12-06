@@ -14,12 +14,14 @@ type Props = {
   urls: string[];
   brightness?: boolean;
   disabled?: boolean;
+  preload?: boolean;
 };
 
 export function ImageSlider({
   urls,
   brightness = true,
   disabled = false,
+  preload = false,
 }: Props) {
   const [swiper, setSwiper] = useState<null | SwiperType>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -115,7 +117,8 @@ export function ImageSlider({
               )}
               decoding="sync"
               height={500}
-              loading={index === 0 ? "eager" : "lazy"}
+              loading={index === 0 && preload ? "eager" : "lazy"}
+              priority={preload}
               quality={80}
               src={url}
               width={500}

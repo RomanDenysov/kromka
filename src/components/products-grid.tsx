@@ -4,6 +4,8 @@ import type { Product } from "@/lib/queries/products";
 import { ProductCard } from "./cards/product-card";
 import { ProductCardSkeleton } from "./cards/product-card-skeleton";
 
+const PRELOAD_LIMIT = 15;
+
 type Props = {
   products: Product[];
 };
@@ -11,8 +13,12 @@ type Props = {
 export function ProductsGrid({ products }: Props) {
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {products.map((product, index) => (
+        <ProductCard
+          key={product.id}
+          preload={index < PRELOAD_LIMIT}
+          product={product}
+        />
       ))}
       {products.length === 0 && (
         <p className="col-span-full text-center text-muted-foreground">
