@@ -144,9 +144,20 @@ export async function getAllCategories() {
         eq(cat.showInMenu, true),
         eq(cat.isFeatured, false)
       ),
+    with: {
+      products: {
+        where: (product, { eq, and, notInArray }) =>
+          and(
+            eq(product.isActive, true),
+            notInArray(product.status, ["archived", "draft"])
+          ),
+        columns: { id: true },
+      },
+    },
   });
 
-  return data;
+  // Filter out categories without any active products
+  return data.filter((cat) => cat.products.length > 0);
 }
 
 export async function getFeaturedCategories() {
