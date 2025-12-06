@@ -1,44 +1,70 @@
-import {
-  CreditCardIcon,
-  PackageIcon,
-  ShoppingCartIcon,
-  StoreIcon,
-} from "lucide-react";
-import type { DashboardMetrics as DashboardMetricsType } from "@/lib/queries/dashboard";
+import { Building2, CreditCard, Package, ShoppingCart } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getDashboardMetrics } from "@/lib/queries/dashboard";
 import { formatPrice } from "@/lib/utils";
-import { MetricCard } from "./metric-card";
 
-type DashboardMetricsProps = {
-  metrics: DashboardMetricsType;
-};
-
-export function DashboardMetrics({ metrics }: DashboardMetricsProps) {
+export async function DashboardMetrics() {
+  const metrics = await getDashboardMetrics();
   return (
-    <div className="grid gap-0.5 bg-muted p-0.5 sm:grid-cols-2 lg:grid-cols-4">
-      <MetricCard
-        description="Za dnešné uhradené objednávky"
-        icon={CreditCardIcon}
-        title="Celkové tržby (dnes)"
-        value={formatPrice(metrics.todaysRevenue)}
-      />
-      <MetricCard
-        description='Objednávky so stavom "nová"'
-        icon={ShoppingCartIcon}
-        title="Nové objednávky"
-        value={metrics.newOrdersCount}
-      />
-      <MetricCard
-        description="Produkty, ktoré sú momentálne aktívne"
-        icon={PackageIcon}
-        title="Aktívne produkty"
-        value={metrics.activeProductsCount}
-      />
-      <MetricCard
-        description="Predajne, ktoré sú momentálne aktívne"
-        icon={StoreIcon}
-        title="Aktívne predajne"
-        value={metrics.activeStoresCount}
-      />
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="font-medium text-sm">
+            Celkové tržby (dnes)
+          </CardTitle>
+          <CreditCard className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="font-bold text-2xl">
+            {formatPrice(metrics.todaysRevenue)}
+          </div>
+          <p className="text-muted-foreground text-xs">
+            Za dnešné uhradené objednávky
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="font-medium text-sm">Nové objednávky</CardTitle>
+          <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="font-bold text-2xl">{metrics.newOrdersCount}</div>
+          <p className="text-muted-foreground text-xs">
+            Objednávky so stavom "nová"
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="font-medium text-sm">Aktívne firmy</CardTitle>
+          <Building2 className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="font-bold text-2xl">
+            {metrics.activeCompaniesCount}
+          </div>
+          <p className="text-muted-foreground text-xs">
+            Registrované B2B spoločnosti
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="font-medium text-sm">
+            Aktívne produkty
+          </CardTitle>
+          <Package className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="font-bold text-2xl">
+            {metrics.activeProductsCount}
+          </div>
+          <p className="text-muted-foreground text-xs">
+            Produkty momentálne v predaji
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
