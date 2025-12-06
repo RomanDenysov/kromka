@@ -11,5 +11,6 @@ export function useGetCart() {
     queryKey: ["cart"],
     queryFn: getCart,
     enabled: !!session && !isPending,
+    staleTime: 0,
   });
 }
