@@ -9,6 +9,7 @@ type UpdateCurrentUserProfileInput = {
   name: string;
   email: string;
   phone: string;
+  storeId?: string;
 };
 
 type UpdateCurrentUserProfileResult =
@@ -17,7 +18,7 @@ type UpdateCurrentUserProfileResult =
 
 /**
  * Update current user's profile with checkout customer data.
- * For authenticated users we update name + phone.
+ * For authenticated users we update name + phone + storeId.
  * For anonymous users we additionally update email so we can contact them.
  */
 export async function updateCurrentUserProfile(
@@ -38,6 +39,11 @@ export async function updateCurrentUserProfile(
 
   if (isAnonymous) {
     updateData.email = input.email;
+  }
+
+  // Update storeId if provided and user doesn't have one set
+  if (input.storeId && !user.storeId) {
+    updateData.storeId = input.storeId;
   }
 
   try {

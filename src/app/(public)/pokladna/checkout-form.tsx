@@ -68,6 +68,9 @@ export function CheckoutForm({
 }) {
   const { data: cart } = useGetCart();
   const { customer } = useCustomerDataStore();
+  const setCustomerStore = useCustomerDataStore(
+    (state) => state.actions.setCustomerStore
+  );
   const router = useRouter();
 
   const [isPending, startTransition] = useTransition();
@@ -114,12 +117,21 @@ export function CheckoutForm({
     },
     onSubmit: ({ value }) =>
       startTransition(async () => {
-        // Save customer profile to DB (CustomerDataSync will auto-sync to local store)
+        // Save customer profile + storeId to DB
         await updateCurrentUserProfile({
           name: value.name,
           email: value.email,
           phone: value.phone,
+          storeId: value.storeId,
         });
+
+        // Sync selected store to local state if user didn't have one
+        if (!user?.storeId && value.storeId) {
+          const selectedStore = stores.find((s) => s.id === value.storeId);
+          if (selectedStore) {
+            setCustomerStore({ id: selectedStore.id, name: selectedStore.name });
+          }
+        }
 
         const result = await createOrderFromCart({
           storeId: value.storeId,
