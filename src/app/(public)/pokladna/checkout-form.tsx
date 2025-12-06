@@ -2,7 +2,7 @@
 "use client";
 
 import { useStore } from "@tanstack/react-form";
-import { CreditCardIcon, StoreIcon } from "lucide-react";
+import { AlertCircleIcon, CreditCardIcon, StoreIcon } from "lucide-react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useTransition } from "react";
@@ -15,6 +15,7 @@ import {
   type StoreOption,
 } from "@/components/order-store-picker";
 import { useAppForm } from "@/components/shared/form";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -310,7 +311,13 @@ export function CheckoutForm({
                   objednávku.
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                <Alert variant="default">
+                  <AlertCircleIcon className="size-5 shrink-0" />
+                  <AlertTitle>
+                    Platba online skutočne nie je dostupná
+                  </AlertTitle>
+                </Alert>
                 <FieldGroup>
                   <form.Field name="paymentMethod">
                     {(field) => (
@@ -358,6 +365,7 @@ export function CheckoutForm({
                                 </FieldTitle>
                                 <RadioGroupItem
                                   className="peer sr-only"
+                                  disabled={true}
                                   id="card"
                                   value="card"
                                 />
