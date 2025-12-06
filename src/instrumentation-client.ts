@@ -30,10 +30,16 @@ Sentry.init({
   sendDefaultPii: true,
 });
 
-// biome-ignore lint/style/noNonNullAssertion: <explanation>
+// biome-ignore lint/style/noNonNullAssertion: we need to use the namespace import for PostHog
 posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
   api_host: "/ph",
   ui_host: "https://eu.posthog.com",
+  person_profiles: "identified_only",
+  persistence: "localStorage+cookie",
+  capture_pageview: false,
+  capture_pageleave: true,
+  // Ключова настройка:
+  cookieless_mode: "on_reject",
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

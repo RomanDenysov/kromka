@@ -1,4 +1,7 @@
-import { createConsentify } from "@consentify/core";
+import {
+  type ConsentState as BaseConsentState,
+  createConsentify,
+} from "@consentify/core";
 
 export const consent = createConsentify({
   policy: {
@@ -12,4 +15,4 @@ export const consent = createConsentify({
   },
 });
 
-export type ConsentCategory = "analytics";
+export type ConsentState = BaseConsentState<"analytics">;

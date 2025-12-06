@@ -1,44 +1,42 @@
 "use client";
 
+import posthog from "posthog-js";
 import { useCallback, useSyncExternalStore } from "react";
 import { consent } from "@/lib/consent";
 
-function subscribe(callback: () => void) {
-  window.addEventListener("consent-change", callback);
-  return () => window.removeEventListener("consent-change", callback);
-}
-
-function getSnapshot() {
-  return consent.client.get();
-}
-
-function getServerSnapshot() {
-  return { decision: "unset" as const };
-}
+const getSnapshot = () => consent.client.get();
 
 export function useConsent() {
-  const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const state = useSyncExternalStore(
+    consent.client.subscribe,
+    getSnapshot,
+    consent.client.getServerSnapshot
+  );
+
+  const consentGiven = state.decision === "decided";
+  const analytics =
+    state.decision === "decided" ? state.snapshot.choices.analytics : false;
 
   const acceptAll = useCallback(() => {
     consent.client.set({ analytics: true });
-    window.dispatchEvent(new Event("consent-change"));
+    posthog.set_config({ persistence: "localStorage+cookie" });
+    posthog.opt_in_capturing();
   }, []);
 
   const acceptNecessary = useCallback(() => {
     consent.client.set({ analytics: false });
-    window.dispatchEvent(new Event("consent-change"));
+    posthog.opt_out_capturing();
   }, []);
 
   const reset = useCallback(() => {
     consent.client.clear();
-    window.dispatchEvent(new Event("consent-change"));
+    posthog.reset();
   }, []);
 
   return {
     state,
-    consentGiven: state.decision === "decided",
-    analytics:
-      state.decision === "decided" ? state.snapshot.choices.analytics : false,
+    consentGiven,
+    analytics,
     acceptAll,
     acceptNecessary,
     reset,

@@ -66,9 +66,30 @@ export const auth = betterAuth({
       }),
     },
   },
+  trustedOrigins: [
+    // Production
+    "https://pekarenkromka.sk",
+    "https://www.pekarenkromka.sk",
+    "https://shop.pekarenkromka.sk",
+
+    // Vercel
+    "https://kromka.vercel.app",
+
+    // Vercel preview deployments (динамічно)
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+
+    // Development
+    ...(process.env.NODE_ENV === "development"
+      ? ["http://localhost:3000"]
+      : []),
+  ],
   advanced: {
     database: {
       generateId: createId,
+    },
+    crossSubDomainCookies: {
+      enabled: true,
+      domain: ".pekarenkromka.sk",
     },
   },
 });
