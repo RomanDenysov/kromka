@@ -1,8 +1,11 @@
 import { count, eq } from "drizzle-orm";
+import { cacheLife } from "next/cache";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 
 export async function getNewOrdersCount() {
+  "use cache";
+  cacheLife("minutes");
   const [{ count: newOrdersCount }] = await db
     .select({ count: count() })
     .from(orders)

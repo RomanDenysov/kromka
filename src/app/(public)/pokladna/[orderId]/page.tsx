@@ -2,18 +2,17 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { eq } from "drizzle-orm";
 import { CheckCircleIcon } from "lucide-react";
+import { cacheLife } from "next/cache";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { formatPrice } from "@/lib/utils";
 
-export default async function OrderConfirmationPage({
-  params,
-}: {
-  params: Promise<{ orderId: string }>;
-}) {
-  const { orderId } = await params;
-  const order = await db.query.orders.findFirst({
+async function getOrderById(orderId: string) {
+  "use cache";
+  cacheLife("minutes");
+  return await db.query.orders.findFirst({
     where: eq(orders.id, orderId),
     with: {
       store: true,
@@ -24,6 +23,10 @@ export default async function OrderConfirmationPage({
       },
     },
   });
+}
+
+async function OrderConfirmationPageContent({ orderId }: { orderId: string }) {
+  const order = await getOrderById(orderId);
 
   if (!order) {
     notFound();
@@ -68,5 +71,21 @@ export default async function OrderConfirmationPage({
         </div>
       </div>
     </div>
+  );
+}
+
+export default async function OrderConfirmationPage({
+  params,
+}: {
+  params: Promise<{ orderId: string }>;
+}) {
+  const { orderId } = await params;
+
+  return (
+    <Suspense
+      fallback={<div className="container mx-auto py-12">Loading...</div>}
+    >
+      <OrderConfirmationPageContent orderId={orderId} />
+    </Suspense>
   );
 }

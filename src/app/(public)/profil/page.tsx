@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -21,7 +22,7 @@ import { formatPrice } from "@/lib/utils";
 
 const RECENT_ORDERS_COUNT = 3;
 
-export default async function ProfilPage() {
+async function ProfilPageContent() {
   const { user } = await getAuth();
 
   if (!user) {
@@ -193,5 +194,13 @@ export default async function ProfilPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function ProfilPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProfilPageContent />
+    </Suspense>
   );
 }

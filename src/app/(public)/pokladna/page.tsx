@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { CheckoutList } from "@/components/lists/checkout-list";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
@@ -5,7 +6,7 @@ import { getAuth } from "@/lib/auth/session";
 import { getStores } from "@/lib/queries/stores";
 import { CheckoutForm } from "./checkout-form";
 
-export default async function CheckoutPage() {
+async function CheckoutPageContent() {
   const { user } = await getAuth();
   const stores = await getStores();
   return (
@@ -27,5 +28,13 @@ export default async function CheckoutPage() {
         </section>
       </div>
     </PageWrapper>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<PageWrapper>Loading...</PageWrapper>}>
+      <CheckoutPageContent />
+    </Suspense>
   );
 }

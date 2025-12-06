@@ -1,8 +1,11 @@
 import { eq } from "drizzle-orm";
+import { cacheLife } from "next/cache";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 
 export async function getUserOrders(userId: string) {
+  "use cache";
+  cacheLife("minutes");
   return await db.query.orders.findMany({
     where: eq(orders.createdBy, userId),
     with: {

@@ -1,8 +1,11 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { cache } from "react";
 import { db } from "@/db";
 
-export const getProductBySlug = cache(async (slug: string) => {
+export async function getProductBySlug(slug: string) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products", `product-${slug}`);
+
   const product = await db.query.products.findFirst({
     where: (p, { eq, and, notInArray }) =>
       and(
@@ -31,17 +34,21 @@ export const getProductBySlug = cache(async (slug: string) => {
   }
 
   return null;
-});
+}
 
 export type Product = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
 
-const getCategoryIdBySlug = cache(async (slug: string) => {
+async function getCategoryIdBySlug(slug: string) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("categories", `category-${slug}`);
+
   const cat = await db.query.categories.findFirst({
     where: (c, { eq }) => eq(c.slug, slug),
     columns: { id: true },
   });
   return cat?.id;
-});
+}
 
 type GetProductsInfiniteInput = {
   limit?: number;

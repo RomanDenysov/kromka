@@ -1,10 +1,14 @@
-import { cache, Suspense } from "react";
+import { cacheLife } from "next/cache";
+import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { ProductsTable } from "@/components/tables/products/table";
 import { db } from "@/db";
 
-const getProducts = cache(async () => {
+async function getProducts() {
+  "use cache";
+  cacheLife("minutes");
+
   const fetchedProducts = await db.query.products.findMany({
     with: {
       category: true,
@@ -37,7 +41,7 @@ const getProducts = cache(async () => {
   }));
 
   return processedProducts;
-});
+}
 
 export default function ProductsPage() {
   const productsPromise = getProducts();

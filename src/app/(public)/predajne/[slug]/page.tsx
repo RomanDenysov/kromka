@@ -9,9 +9,11 @@ import {
   Navigation,
   Phone,
 } from "lucide-react";
+import { cacheLife } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
@@ -66,26 +68,12 @@ const isStoreOpen = (regularHours: StoreSchedule["regularHours"]) => {
   return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
 };
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: <explanation>
-export default async function StorePage({
-  params,
+async function StorePageContent({
+  store,
 }: {
-  params: Promise<{ slug: string }>;
+  store: NonNullable<Awaited<ReturnType<typeof getStoreBySlug>>>;
 }) {
-  const { slug } = await params;
-
-  const store = await db.query.stores.findFirst({
-    where: (s, { eq, and }) => and(eq(s.slug, slug), eq(s.isActive, true)),
-    with: {
-      image: true,
-    },
-  });
-
   const { store: userStore } = await getAuth();
-
-  if (!store) {
-    notFound();
-  }
 
   const { regularHours } = store.openingHours || {};
   const todayKey = format(new Date(), "EEEE", { locale: sk }).toLowerCase();
@@ -307,5 +295,36 @@ export default async function StorePage({
         </div>
       </section>
     </PageWrapper>
+  );
+}
+
+async function getStoreBySlug(slug: string) {
+  "use cache";
+  cacheLife("hours");
+  return await db.query.stores.findFirst({
+    where: (s, { eq, and }) => and(eq(s.slug, slug), eq(s.isActive, true)),
+    with: {
+      image: true,
+    },
+  });
+}
+
+export default async function StorePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+
+  const store = await getStoreBySlug(slug);
+
+  if (!store) {
+    notFound();
+  }
+
+  return (
+    <Suspense fallback={<PageWrapper>Loading...</PageWrapper>}>
+      <StorePageContent store={store} />
+    </Suspense>
   );
 }

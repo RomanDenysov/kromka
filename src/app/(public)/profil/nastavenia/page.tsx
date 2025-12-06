@@ -1,7 +1,8 @@
+import { Suspense } from "react";
 import { getAuth } from "@/lib/auth/session";
 import { ProfileSettingsForm } from "./_components/profile-settings-form";
 
-export default async function NastaveniaPage() {
+async function NastaveniaPageContent() {
   const { user } = await getAuth();
 
   if (!user) {
@@ -19,5 +20,13 @@ export default async function NastaveniaPage() {
 
       <ProfileSettingsForm user={user} />
     </div>
+  );
+}
+
+export default function NastaveniaPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NastaveniaPageContent />
+    </Suspense>
   );
 }

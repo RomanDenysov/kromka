@@ -1,4 +1,5 @@
-import { cache, Suspense } from "react";
+import { cacheLife } from "next/cache";
+import { Suspense } from "react";
 import { ProductForm } from "@/app/(admin)/admin/products/[id]/product-form";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
@@ -10,7 +11,10 @@ type Props = {
   }>;
 };
 
-const getProduct = cache(async (id: string) => {
+async function getProduct(id: string) {
+  "use cache";
+  cacheLife("minutes");
+
   const product = await db.query.products.findFirst({
     where: (p, { eq }) => eq(p.id, id),
     with: {
@@ -42,14 +46,20 @@ const getProduct = cache(async (id: string) => {
   }
 
   return null;
-});
+}
+
+async function getCategories() {
+  "use cache";
+  cacheLife("hours");
+  return await db.query.categories.findMany();
+}
 
 export type AdminProduct = Awaited<ReturnType<typeof getProduct>>;
 
 export default async function B2CProductPage({ params }: Props) {
   const { id } = await params;
   const product = await getProduct(id);
-  const categories = await db.query.categories.findMany();
+  const categories = await getCategories();
   if (!product) {
     return <div>Produkt nebol nájdený</div>;
   }

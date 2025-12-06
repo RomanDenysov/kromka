@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { MapPinIcon, PackageIcon } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -16,7 +17,7 @@ import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
 import { getUserOrders } from "@/lib/queries/profile";
 import { formatPrice } from "@/lib/utils";
 
-export default async function ObjednavkyPage() {
+async function ObjednavkyPageContent() {
   const { user } = await getAuth();
 
   if (!user) {
@@ -135,5 +136,13 @@ export default async function ObjednavkyPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ObjednavkyPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ObjednavkyPageContent />
+    </Suspense>
   );
 }

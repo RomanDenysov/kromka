@@ -1,6 +1,6 @@
 import { PackageIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { redirect } from "next/navigation";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,7 +12,7 @@ type Props = {
   readonly children: ReactNode;
 };
 
-export default async function ProfileLayout({ children }: Props) {
+async function ProfileLayoutContent({ children }: Props) {
   const { user, isAuthenticated } = await getAuth();
 
   if (!(isAuthenticated && user)) {
@@ -69,5 +69,13 @@ export default async function ProfileLayout({ children }: Props) {
         <main className="min-w-0 flex-1">{children}</main>
       </div>
     </PageWrapper>
+  );
+}
+
+export default function ProfileLayout({ children }: Props) {
+  return (
+    <Suspense fallback={<PageWrapper>Loading...</PageWrapper>}>
+      <ProfileLayoutContent>{children}</ProfileLayoutContent>
+    </Suspense>
   );
 }
