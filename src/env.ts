@@ -4,6 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
   client: {
     NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1),
+    NEXT_PUBLIC_POSTHOG_HOST: z.url().min(1),
   },
   server: {
     AUTH_GOOGLE_ID: z.string().min(1),
@@ -38,5 +39,6 @@ export const env = createEnv({
     EMAIL_PORT: process.env.EMAIL_PORT ?? "465",
 
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   },
 });

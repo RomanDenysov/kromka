@@ -2,15 +2,15 @@
 // The added config here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
+// biome-ignore lint/performance/noNamespaceImport: we need to use the namespace import for Sentry
 import * as Sentry from "@sentry/nextjs";
+import posthog from "posthog-js";
 
 Sentry.init({
   dsn: "https://0a918fed514ab792dc4891aa89d01d55@o4510481398038528.ingest.de.sentry.io/4510481537761361",
 
   // Add optional integrations for additional features
-  integrations: [
-    Sentry.replayIntegration(),
-  ],
+  integrations: [Sentry.replayIntegration()],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: 1,
@@ -28,6 +28,12 @@ Sentry.init({
   // Enable sending user PII (Personally Identifiable Information)
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: true,
+});
+
+// biome-ignore lint/style/noNonNullAssertion: <explanation>
+posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+  api_host: "/ph",
+  ui_host: "https://eu.posthog.com",
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
