@@ -15,7 +15,7 @@ import {
   PlusIcon,
   TablePropertiesIcon,
 } from "lucide-react";
-import { Fragment, useMemo, useState, useTransition } from "react";
+import { Fragment, use, useMemo, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -85,7 +85,12 @@ const storeExportColumns: ExportColumnConfig<Store>[] = [
   },
 ];
 
-export function StoresTable({ stores }: { stores: Store[] }) {
+export function StoresTable({
+  storesPromise,
+}: {
+  storesPromise: Promise<Store[]>;
+}) {
+  const stores = use(storesPromise);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);

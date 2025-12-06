@@ -39,8 +39,8 @@ const getProducts = cache(async () => {
   return processedProducts;
 });
 
-export default async function ProductsPage() {
-  const products = await getProducts();
+export default function ProductsPage() {
+  const productsPromise = getProducts();
   return (
     <>
       <AdminHeader
@@ -51,7 +51,7 @@ export default async function ProductsPage() {
       />
       <section className="h-full flex-1">
         <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-          <ProductsTable products={products} />
+          <ProductsTable productsPromise={productsPromise} />
         </Suspense>
       </section>
     </>

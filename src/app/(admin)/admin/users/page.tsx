@@ -4,8 +4,8 @@ import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { UsersTable } from "@/components/tables/users/users-table";
 import { getUsers } from "@/lib/queries/users";
 
-export default async function SettingsUsersPage() {
-  const users = await getUsers();
+export default function SettingsUsersPage() {
+  const usersPromise = getUsers();
 
   return (
     <>
@@ -17,7 +17,7 @@ export default async function SettingsUsersPage() {
       />
       <section className="h-full flex-1">
         <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-          <UsersTable users={users} />
+          <UsersTable usersPromise={usersPromise} />
         </Suspense>
       </section>
     </>

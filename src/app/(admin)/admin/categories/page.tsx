@@ -6,8 +6,8 @@ import { CategoriesTable } from "@/components/tables/categories/table";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
 
-export default async function CategoriesPage() {
-  const data = await db.query.categories.findMany({
+export default function CategoriesPage() {
+  const categoriesPromise = db.query.categories.findMany({
     with: {
       products: true,
       image: true,
@@ -23,7 +23,7 @@ export default async function CategoriesPage() {
         ]}
       />
       <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-        <CategoriesTable categories={data} />
+        <CategoriesTable categoriesPromise={categoriesPromise} />
       </Suspense>
     </>
   );

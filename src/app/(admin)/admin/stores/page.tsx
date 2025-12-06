@@ -6,8 +6,8 @@ import { StoresTable } from "@/components/tables/stores/table";
 import { db } from "@/db";
 import { stores } from "@/db/schema";
 
-export default async function StoresPage() {
-  const fetchedStores = await db.query.stores.findMany({
+export default function StoresPage() {
+  const storesPromise = db.query.stores.findMany({
     with: {
       image: true,
       orders: true,
@@ -26,7 +26,7 @@ export default async function StoresPage() {
       />
 
       <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-        <StoresTable stores={fetchedStores} />
+        <StoresTable storesPromise={storesPromise} />
       </Suspense>
     </>
   );

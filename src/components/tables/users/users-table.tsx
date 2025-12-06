@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowDownIcon, FileIcon, TablePropertiesIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { use, useMemo, useState } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -67,12 +67,13 @@ const userExportColumns: ExportColumnConfig<UserList[number]>[] = [
 ];
 
 export function UsersTable({
-  users,
+  usersPromise,
   className,
 }: {
-  users: UserList;
+  usersPromise: Promise<UserList>;
   className?: string;
 }) {
+  const users = use(usersPromise);
   const { setParams } = useCustomerParams();
 
   const processedUsers = useMemo(() => users, [users]);

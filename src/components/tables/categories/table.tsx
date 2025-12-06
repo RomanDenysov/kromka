@@ -11,7 +11,14 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import { Fragment, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  Fragment,
+  use,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -51,10 +58,11 @@ import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
 export function CategoriesTable({
-  categories,
+  categoriesPromise,
 }: {
-  categories: TableCategory[];
+  categoriesPromise: Promise<TableCategory[]>;
 }) {
+  const categories = use(categoriesPromise);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
