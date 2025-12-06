@@ -17,23 +17,23 @@ import { cn, formatPrice } from "@/lib/utils";
 
 type Props = {
   params: Promise<{
-    slug: string;
+    product: string;
   }>;
 };
 
 export default async function ProductPage({ params }: Props) {
-  const { slug } = await params;
+  const { product } = await params;
 
-  const product = await getProductBySlug(slug);
+  const result = await getProductBySlug(product);
 
-  if (!product) {
+  if (!result) {
     notFound();
   }
-  const validUrls = product.images;
-  const isInStock = product.status === "active";
+  const validUrls = result.images;
+  const isInStock = result.status === "active";
 
   const descriptionHtml = generateHTML(
-    product?.description ?? {
+    result?.description ?? {
       type: "doc",
       content: [{ type: "paragraph", content: [{ type: "text", text: "" }] }],
     },
@@ -45,7 +45,7 @@ export default async function ProductPage({ params }: Props) {
       <AppBreadcrumbs
         items={[
           { label: "E-shop", href: "/e-shop" },
-          { label: product.name, href: `/e-shop/${slug}` },
+          { label: result.name, href: `/e-shop/${result.slug}` },
         ]}
       />
       <section className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-x-12 md:grid-cols-5">
@@ -56,7 +56,7 @@ export default async function ProductPage({ params }: Props) {
         </div>
         <div className="col-span-1 flex flex-col gap-6 sm:col-span-2 md:col-span-3">
           {/* Product Title and Categories*/}
-          {product.category ? (
+          {result.category ? (
             <div className="flex flex-wrap items-center justify-start gap-1">
               <Hint side="top" text="Kategórie">
                 <TagsIcon className="size-4 text-muted-foreground" />
@@ -66,23 +66,23 @@ export default async function ProductPage({ params }: Props) {
                   buttonVariants({ variant: "secondary", size: "xs" }),
                   "rounded-full"
                 )}
-                href={`/e-shop?category=${product.category.slug}`}
-                key={product.category.id}
+                href={`/e-shop?category=${result.category.slug}`}
+                key={result.category.id}
               >
-                {product.category.name}
+                {result.category.name}
               </Link>
             </div>
           ) : null}
-          <ViewTransition name={`${product.slug}-name`}>
+          <ViewTransition name={`${result.slug}-name`}>
             <h1 className="line-clamp-2 font-semibold text-2xl leading-tight tracking-tight md:text-3xl">
-              {product.name}
+              {result.name}
             </h1>
           </ViewTransition>
 
           {/* Product Price and Features */}
-          <ViewTransition name={`${product.slug}-price`}>
+          <ViewTransition name={`${result.slug}-price`}>
             <h2 className="font-semibold text-2xl tracking-tight md:text-4xl">
-              {formatPrice(product.priceCents)}
+              {formatPrice(result.priceCents)}
             </h2>
           </ViewTransition>
           <div className="flex flex-col items-start justify-start gap-2 md:flex-row">
@@ -110,10 +110,10 @@ export default async function ProductPage({ params }: Props) {
             <AddToCartSingleProductButton
               disabled={!isInStock}
               product={{
-                id: product.id,
-                name: product.name,
-                priceCents: product.priceCents,
-                slug: product.slug,
+                id: result.id,
+                name: result.name,
+                priceCents: result.priceCents,
+                slug: result.slug,
                 imageUrl: validUrls[0],
               }}
             />

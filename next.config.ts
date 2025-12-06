@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
     },
     viewTransition: true,
   },
-  cacheComponents: false,
+  cacheComponents: true,
   images: {
     remotePatterns: [BLOB_STORE_URL],
   },

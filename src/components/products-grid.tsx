@@ -1,0 +1,34 @@
+"use client";
+
+import type { Product } from "@/lib/queries/products";
+import { ProductCard } from "./cards/product-card";
+import { ProductCardSkeleton } from "./cards/product-card-skeleton";
+
+type Props = {
+  products: Product[];
+};
+
+export function ProductsGrid({ products }: Props) {
+  return (
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
+      {products.length === 0 && (
+        <p className="col-span-full text-center text-muted-foreground">
+          Žiadne produkty
+        </p>
+      )}
+    </div>
+  );
+}
+
+export function ProductsGridSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <ProductCardSkeleton key={`skeleton-${i.toString()}`} />
+      ))}
+    </div>
+  );
+}

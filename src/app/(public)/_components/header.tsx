@@ -1,5 +1,6 @@
 import type { Route } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
@@ -44,9 +45,11 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3">
-            <OpenStoreModalButton />
-            <UserButton />
-            <CartDrawer />
+            <Suspense>
+              <OpenStoreModalButton />
+              <UserButton />
+              <CartDrawer />
+            </Suspense>
           </div>
         </div>
       </Container>

@@ -6,16 +6,19 @@ import {
   type ProductsInfinite,
 } from "@/lib/queries/products";
 
+type UseInfiniteProductsInput = {
+  limit?: number;
+  categorySlug?: string;
+};
+
 export function useInfiniteProductsQuery(
-  input: {
-    limit?: number;
-    cursor?: number;
-    categoryId?: string;
-  },
+  input: UseInfiniteProductsInput,
   initialData?: ProductsInfinite
 ) {
+  const { categorySlug } = input;
+
   return useInfiniteQuery({
-    queryKey: ["products"],
+    queryKey: ["products", { categorySlug }],
     queryFn: ({ pageParam = 0 }) =>
       getProductsInfinite({ ...input, cursor: pageParam }),
     getNextPageParam: (lastPage) => lastPage.nextCursor,

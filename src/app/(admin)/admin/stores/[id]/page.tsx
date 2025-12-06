@@ -26,6 +26,7 @@ const tabs = [
 ];
 
 export default async function StorePage({ params }: Props) {
+  "use cache";
   const { id } = await params;
 
   const store = await db.query.stores.findFirst({
@@ -62,33 +63,32 @@ export default async function StorePage({ params }: Props) {
           />
         </Suspense>
         <Separator className="h-full" orientation="vertical" />
-        <Suspense>
-          <div className="flex w-full @md/page:max-w-full flex-0 grow flex-col gap-4 p-4">
-            <div>
-              <h2 className="font-semibold text-lg tracking-tight">
-                Detaily obchodu
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                Zobrazujú sa detaily obchodu s ID {store.id}.
-              </p>
-            </div>
-            <Tabs defaultValue="orders">
-              <TabsList>
-                {tabs.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-              <TabsContent value="orders">
-                <div>Orders</div>
-              </TabsContent>
-              <TabsContent value="members">
-                <div>Members</div>
-              </TabsContent>
-            </Tabs>
+
+        <div className="flex w-full @md/page:max-w-full flex-0 grow flex-col gap-4 p-4">
+          <div>
+            <h2 className="font-semibold text-lg tracking-tight">
+              Detaily obchodu
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              Zobrazujú sa detaily obchodu s ID {store.id}.
+            </p>
           </div>
-        </Suspense>
+          <Tabs defaultValue="orders">
+            <TabsList>
+              {tabs.map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value}>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            <TabsContent value="orders">
+              <div>Orders</div>
+            </TabsContent>
+            <TabsContent value="members">
+              <div>Members</div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </section>
     </>
   );

@@ -3,14 +3,14 @@
 import { ShoppingCartIcon } from "lucide-react";
 import Link from "next/link";
 import { useCartActions } from "@/hooks/use-cart-actions";
-import type { Product } from "@/lib/queries/products";
+import type { FeaturedProduct } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
 import { ProductImage } from "../shared/product-image";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 
 type Props = {
-  product: Product;
+  product: FeaturedProduct;
   className?: string;
 };
 

@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useEshopParams } from "@/hooks/use-eshop-params";
 import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
+import type { Category } from "@/types/categories";
+import { buttonVariants } from "../ui/button";
 import {
   Carousel,
   type CarouselApi,
@@ -14,19 +16,16 @@ import {
 } from "../ui/carousel";
 
 type Props = {
-  data: {
-    value: string;
-    label: string;
-    slug: string;
-  }[];
+  categories: Category[];
 };
 
-export function FilterCarousel({ data }: Props) {
-  const [api, setAPi] = useState<CarouselApi>();
+export function FilterCarousel({ categories }: Props) {
+  const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
 
-  const { category: categoryId, setParams } = useEshopParams();
+  const params = useParams<{ category?: string }>();
+  const activeCategory = params.category ?? null;
 
   useEffect(() => {
     if (!api) {
@@ -62,29 +61,40 @@ export function FilterCarousel({ data }: Props) {
           align: "start",
           dragFree: true,
         }}
-        setApi={setAPi}
+        setApi={setApi}
       >
         <CarouselContent className="-ml-3">
           <CarouselItem className="basis-auto pl-3">
-            <Button
-              className="cursor-pointer whitespace-nowrap rounded-full"
-              onClick={() => setParams({ category: null })}
-              size="sm"
-              variant={categoryId === null ? "default" : "secondary"}
+            <Link
+              className={cn(
+                buttonVariants({
+                  variant: activeCategory === null ? "default" : "secondary",
+                  size: "sm",
+                }),
+                "cursor-pointer whitespace-nowrap rounded-full"
+              )}
+              href="/e-shop"
             >
-              Vsetky
-            </Button>
+              Všetky
+            </Link>
           </CarouselItem>
-          {data.map((item) => (
-            <CarouselItem className="basis-auto pl-3" key={item.slug}>
-              <Button
-                className="cursor-pointer whitespace-nowrap rounded-full"
-                onClick={() => setParams({ category: item.slug })}
-                size="sm"
-                variant={categoryId === item.slug ? "default" : "secondary"}
+          {categories.map((category) => (
+            <CarouselItem className="basis-auto pl-3" key={category.slug}>
+              <Link
+                className={cn(
+                  buttonVariants({
+                    variant:
+                      activeCategory === category.slug
+                        ? "default"
+                        : "secondary",
+                    size: "sm",
+                  }),
+                  "cursor-pointer whitespace-nowrap rounded-full"
+                )}
+                href={`/e-shop/${category.slug}`}
               >
-                {item.label}
-              </Button>
+                {category.name}
+              </Link>
             </CarouselItem>
           ))}
         </CarouselContent>

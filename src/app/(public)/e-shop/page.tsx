@@ -1,43 +1,10 @@
-import { Suspense } from "react";
-import { FeaturedCarousels } from "@/components/featured-carousel";
-import { CategoriesReel } from "@/components/lists/categories-reel";
-import {
-  ProductsReel,
-  ProductsReelSkeleton,
-} from "@/components/lists/products-reel";
-import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
-import { PageWrapper } from "@/components/shared/container";
-import { getProductsInfinite } from "@/lib/queries/products";
+import { ProductsGrid } from "@/components/products-grid";
+import { getAllProducts } from "@/lib/queries/products";
 
-export const DEFAULT_PRODUCTS_LIMIT = 12;
+export default async function EshopPage() {
+  const products = await getAllProducts();
 
-async function InitialProductsReelLoader() {
-  const products = await getProductsInfinite({
-    limit: DEFAULT_PRODUCTS_LIMIT,
-  });
-  return (
-    <ProductsReel
-      className="grow"
-      initialData={products}
-      limit={DEFAULT_PRODUCTS_LIMIT}
-    />
-  );
-}
-
-export default function EshopPage() {
-  return (
-    <PageWrapper>
-      <AppBreadcrumbs items={[{ label: "E-shop", href: "/e-shop" }]} />
-
-      <FeaturedCarousels />
-
-      <CategoriesReel />
-
-      <Suspense fallback={<ProductsReelSkeleton />}>
-        <InitialProductsReelLoader />
-      </Suspense>
-    </PageWrapper>
-  );
+  return <ProductsGrid products={products} />;
 }
 
 /* We will call the endpoint to get the: */

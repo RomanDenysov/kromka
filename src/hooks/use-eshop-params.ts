@@ -6,7 +6,7 @@ export function useEshopParams() {
   });
 
   return {
-    category: params.category,
+    categorySlug: params.category,
     setParams,
   };
 }

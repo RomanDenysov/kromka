@@ -30,7 +30,7 @@ export function ProductCard({ product, className, animationDelay = 0 }: Props) {
           "fade-in slide-in-from-bottom-4 animate-in fill-mode-backwards duration-300",
         className
       )}
-      href={`/e-shop/${product.slug}`}
+      href={`/product/${product.slug}`}
       prefetch
       style={
         shouldAnimate ? { animationDelay: `${animationDelay}ms` } : undefined
