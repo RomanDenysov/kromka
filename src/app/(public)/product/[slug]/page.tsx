@@ -12,6 +12,8 @@ import { Hint } from "@/components/shared/hint";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { db } from "@/db";
+import { products } from "@/db/schema";
 import { getProductBySlug } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
 
@@ -21,10 +23,14 @@ type Props = {
   }>;
 };
 
+export async function generateStaticParams() {
+  return await db.select({ slug: products.slug }).from(products);
+}
+
 async function ProductPageContent({ params }: Props) {
   const { slug } = await params;
-
-  const result = await getProductBySlug(slug);
+  const urlDecoded = decodeURIComponent(slug);
+  const result = await getProductBySlug(urlDecoded);
 
   if (!result) {
     notFound();
@@ -43,10 +49,7 @@ async function ProductPageContent({ params }: Props) {
   return (
     <PageWrapper>
       <AppBreadcrumbs
-        items={[
-          { label: "E-shop", href: "/e-shop" },
-          { label: result.name, href: `/e-shop/${result.slug}` },
-        ]}
+        items={[{ label: "E-shop", href: "/e-shop" }, { label: result.name }]}
       />
       <section className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-x-12 md:grid-cols-5">
         <div className="col-span-1 md:col-span-2">

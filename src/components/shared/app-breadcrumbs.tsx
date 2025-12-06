@@ -1,3 +1,5 @@
+import type { Route } from "next";
+import Link from "next/link";
 import React from "react";
 import {
   Breadcrumb,
@@ -10,7 +12,7 @@ import {
 
 export type BreadcrumbItemType = {
   label: string;
-  href?: string;
+  href?: Route;
 };
 
 type Props = {
@@ -22,7 +24,9 @@ export function AppBreadcrumbs({ items }: Props) {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/">Domov</BreadcrumbLink>
+          <BreadcrumbLink asChild>
+            <Link href="/">Domov</Link>
+          </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         {items.map((item, index) => {
@@ -34,7 +38,9 @@ export function AppBreadcrumbs({ items }: Props) {
                 {isLast || !item.href ? (
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+                  <BreadcrumbLink asChild>
+                    <Link href={item.href}>{item.label}</Link>
+                  </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
               {!isLast && <BreadcrumbSeparator />}
