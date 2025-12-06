@@ -732,45 +732,54 @@ export const pricesRelations = relations(prices, ({ one }) => ({
 
 // #region Products
 
-export const products = pgTable("products", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => createPrefixedId("prod")),
-  name: text("name").notNull().default("Nový produkt"),
-  slug: text("slug")
-    .notNull()
-    .unique()
-    .$defaultFn(() => draftSlug("Nový produkt")),
-  description: jsonb("description")
-    .$type<JSONContent>()
-    .default({
-      type: "doc",
-      content: [
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "Popis nového produktu..." }],
-        },
-      ],
+export const products = pgTable(
+  "products",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("prod")),
+    name: text("name").notNull().default("Nový produkt"),
+    slug: text("slug")
+      .notNull()
+      .unique()
+      .$defaultFn(() => draftSlug("Nový produkt")),
+    description: jsonb("description")
+      .$type<JSONContent>()
+      .default({
+        type: "doc",
+        content: [
+          {
+            type: "paragraph",
+            content: [{ type: "text", text: "Popis nového produktu..." }],
+          },
+        ],
+      }),
+
+    categoryId: text("category_id").references(() => categories.id, {
+      onDelete: "set null",
     }),
 
-  categoryId: text("category_id").references(() => categories.id, {
-    onDelete: "set null",
-  }),
+    priceCents: integer("price_cents").notNull().default(0),
 
-  priceCents: integer("price_cents").notNull().default(0),
+    showInB2c: boolean("show_in_b2c").default(true).notNull(),
+    showInB2b: boolean("show_in_b2b").default(false).notNull(),
 
-  showInB2c: boolean("show_in_b2c").default(true).notNull(),
-  showInB2b: boolean("show_in_b2b").default(false).notNull(),
-
-  isActive: boolean("is_active").default(true).notNull(),
-  sortOrder: integer("sort_order").default(0).notNull(),
-  status: text("status").$type<ProductStatus>().default("draft").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-});
+    isActive: boolean("is_active").default(true).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    status: text("status").$type<ProductStatus>().default("draft").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (t) => [
+    index("idx_products_slug").on(t.slug),
+    index("idx_products_category_id").on(t.categoryId),
+    index("idx_products_active_status").on(t.isActive, t.status),
+    index("idx_products_sort").on(t.sortOrder, t.createdAt),
+  ]
+);
 
 export const productImages = pgTable(
   "product_images",

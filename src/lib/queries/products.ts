@@ -1,114 +1,8 @@
 import { cacheLife, cacheTag } from "next/cache";
+import { cache } from "react";
 import { db } from "@/db";
 
-export async function getProductBySlug(slug: string) {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("products", `product-${slug}`);
-
-  const product = await db.query.products.findFirst({
-    where: (p, { eq, and, notInArray }) =>
-      and(
-        and(
-          eq(p.slug, slug),
-          eq(p.isActive, true),
-          notInArray(p.status, ["archived", "draft"])
-        )
-        // notInArray(p.status, ["archived", "draft"])
-      ),
-    with: {
-      images: {
-        with: {
-          media: true,
-        },
-      },
-      category: true,
-    },
-  });
-
-  if (product) {
-    product.images = product.images.sort((a, b) => a.sortOrder - b.sortOrder);
-
-    return {
-      ...product,
-      images: product.images.map((img) => img.media.url),
-    };
-  }
-
-  return null;
-}
-
-export type Product = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
-
-async function getCategoryIdBySlug(slug: string) {
-  "use cache";
-  cacheLife("days");
-  cacheTag("categories", `category-${slug}`);
-
-  const cat = await db.query.categories.findFirst({
-    where: (c, { eq }) => eq(c.slug, slug),
-    columns: { id: true },
-  });
-  return cat?.id;
-}
-
-type GetProductsInfiniteInput = {
-  limit?: number;
-  cursor?: number;
-  categorySlug?: string;
-};
-
-export const getProductsInfinite = async (input: GetProductsInfiniteInput) => {
-  const { limit = 12, cursor = 0, categorySlug } = input;
-
-  const categoryId = categorySlug
-    ? await getCategoryIdBySlug(categorySlug)
-    : undefined;
-
-  // If slug is provided but category is not found, return empty array
-  if (categorySlug && !categoryId) {
-    return { data: [], hasMore: false, nextCursor: undefined };
-  }
-
-  const fetchedProducts = await db.query.products.findMany({
-    where: (p, { eq, and, notInArray }) =>
-      and(
-        eq(p.isActive, true),
-        notInArray(p.status, ["archived", "draft"]),
-        categoryId ? eq(p.categoryId, categoryId) : undefined
-      ),
-    limit: limit + 1,
-    offset: cursor,
-    with: {
-      images: {
-        with: { media: true },
-        orderBy: (image, { asc }) => [asc(image.sortOrder)],
-      },
-      category: true,
-    },
-    orderBy: (p, { asc, desc }) => [
-      asc(p.sortOrder),
-      desc(p.createdAt),
-      asc(p.id),
-    ],
-  });
-
-  const hasMore = fetchedProducts.length > limit;
-  const data = hasMore ? fetchedProducts.slice(0, limit) : fetchedProducts;
-
-  return {
-    data: data.map((p) => ({
-      ...p,
-      images: p.images.map((img) => img.media.url),
-    })),
-    hasMore,
-    nextCursor: hasMore ? cursor + limit : undefined,
-  };
-};
-
-export type ProductsInfinite = Awaited<ReturnType<typeof getProductsInfinite>>;
-
-export async function getAllProducts() {
+export const getProducts = cache(async () => {
   "use cache";
   cacheLife("hours");
   cacheTag("products");
@@ -121,7 +15,9 @@ export async function getAllProducts() {
         with: { media: true },
         orderBy: (image, { asc }) => [asc(image.sortOrder)],
       },
-      category: true,
+      category: {
+        columns: { id: true, name: true, slug: true },
+      },
     },
     orderBy: (p, { asc, desc }) => [asc(p.sortOrder), desc(p.createdAt)],
   });
@@ -130,12 +26,29 @@ export async function getAllProducts() {
     ...p,
     images: p.images.map((img) => img.media.url),
   }));
-}
+});
 
-export async function getAllCategories() {
+// biome-ignore lint/complexity/noVoid: we need to preload the products
+export const preloadProducts = () => void getProducts();
+
+export const getProductBySlug = cache(async (slug: string) => {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products", `product-${slug}`);
+
+  const allProducts = await getProducts();
+  return allProducts.find((p) => p.slug === slug) ?? null;
+});
+
+export type Product = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
+
+export const getCategories = cache(async () => {
   "use cache";
   cacheLife("days");
   cacheTag("categories");
+
+  // Reuse products to count the number of products in each category
+  const allProducts = await getProducts();
 
   const data = await db.query.categories.findMany({
     where: (cat, { eq, and }) =>
@@ -144,26 +57,22 @@ export async function getAllCategories() {
         eq(cat.showInMenu, true),
         eq(cat.isFeatured, false)
       ),
-    with: {
-      products: {
-        where: (product, { eq, and, notInArray }) =>
-          and(
-            eq(product.isActive, true),
-            notInArray(product.status, ["archived", "draft"])
-          ),
-        columns: { id: true },
-      },
-    },
   });
 
-  // Filter out categories without any active products
-  return data.filter((cat) => cat.products.length > 0);
-}
+  // Filter categories that have active products
+  const categoryIdsWithProducts = new Set(
+    allProducts.map((p) => p.categoryId).filter(Boolean)
+  );
 
-export async function getFeaturedCategories() {
+  return data.filter((cat) => categoryIdsWithProducts.has(cat.id));
+});
+
+export const getFeaturedCategories = cache(async () => {
   "use cache";
   cacheLife("hours");
   cacheTag("featured", "products");
+
+  const allProducts = await getProducts();
 
   const categories = await db.query.categories.findMany({
     where: (cat, { eq, and }) =>
@@ -172,73 +81,39 @@ export async function getFeaturedCategories() {
         eq(cat.isActive, true),
         eq(cat.showInMenu, true)
       ),
-    with: {
-      products: {
-        where: (product, { eq, and, notInArray }) =>
-          and(
-            eq(product.isActive, true),
-            notInArray(product.status, ["archived", "draft"])
-          ),
-        with: {
-          images: {
-            with: { media: true },
-            orderBy: (img, { asc }) => asc(img.sortOrder),
-          },
-        },
-        orderBy: (p, { asc }) => asc(p.sortOrder),
-      },
-    },
     orderBy: (cat, { asc }) => asc(cat.sortOrder),
   });
 
-  // Трансформація тут — компонент отримує готові дані
-  return categories.map((cat) => ({
-    ...cat,
-    products: cat.products.map((product) => ({
-      ...product,
-      images: product.images.map((img) => img.media.url),
-      category: { name: cat.name, slug: cat.slug },
-    })),
-  }));
-}
+  return categories
+    .map((cat) => ({
+      ...cat,
+      products: allProducts
+        .filter((p) => p.categoryId === cat.id)
+        .sort((a, b) => a.sortOrder - b.sortOrder),
+    }))
+    .filter((cat) => cat.products.length > 0); // only with products
+});
 
 export type FeaturedCategory = Awaited<
   ReturnType<typeof getFeaturedCategories>
 >[number];
 
 export type FeaturedProduct = FeaturedCategory["products"][number];
-export async function getProductsByCategory(slug: string) {
+
+export const getProductsByCategory = cache(async (slug: string) => {
   "use cache";
   cacheLife("hours");
   cacheTag("products", `category-${slug}`);
 
-  const category = await db.query.categories.findFirst({
-    where: (cat, { eq }) => eq(cat.slug, slug),
-  });
+  // Reuse existing cached function
+  const allProducts = await getProducts();
+  const filtered = allProducts.filter((p) => p.category?.slug === slug);
 
-  if (!category) {
-    return null;
-  }
+  // Will work fine if we have less than ~100 products in the category
 
-  const data = await db.query.products.findMany({
-    where: (p, { eq, and, notInArray }) =>
-      and(
-        eq(p.isActive, true),
-        eq(p.categoryId, category.id),
-        notInArray(p.status, ["archived", "draft"])
-      ),
-    with: {
-      images: {
-        with: { media: true },
-        orderBy: (img, { asc }) => [asc(img.sortOrder)],
-      },
-      category: true,
-    },
-    orderBy: (p, { asc, desc }) => [asc(p.sortOrder), desc(p.createdAt)],
-  });
+  return filtered.length > 0 ? filtered : null;
+});
 
-  return data.map((p) => ({
-    ...p,
-    images: p.images.map((img) => img.media.url),
-  }));
-}
+export const preloadProductsByCategory = (slug: string) =>
+  // biome-ignore lint/complexity/noVoid: we need to preload the products by category
+  void getProductsByCategory(slug);

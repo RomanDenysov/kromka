@@ -3,10 +3,7 @@ import { FeaturedCarousel } from "@/components/featured-carousel";
 import { FilterCarousel } from "@/components/lists/filter-carousel";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
-import {
-  getAllCategories,
-  getFeaturedCategories,
-} from "@/lib/queries/products";
+import { getCategories, getFeaturedCategories } from "@/lib/queries/products";
 
 type Props = {
   readonly children: ReactNode;
@@ -14,7 +11,7 @@ type Props = {
 
 export default async function EshopLayout({ children }: Props) {
   const [categories, featuredCategories] = await Promise.all([
-    getAllCategories(),
+    getCategories(),
     getFeaturedCategories(),
   ]);
   return (

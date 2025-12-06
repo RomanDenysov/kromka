@@ -3,9 +3,7 @@ import { Suspense } from "react";
 import { ProductsGrid } from "@/components/products-grid";
 import { PageWrapper } from "@/components/shared/container";
 import { Spinner } from "@/components/ui/spinner";
-import { db } from "@/db";
-import { categories } from "@/db/schema";
-import { getProductsByCategory } from "@/lib/queries/products";
+import { getCategories, getProductsByCategory } from "@/lib/queries/products";
 
 type Props = {
   params: Promise<{ category: string }>;
@@ -13,7 +11,8 @@ type Props = {
 
 // Pre-generate all categories
 export async function generateStaticParams() {
-  return await db.select({ category: categories.slug }).from(categories);
+  const allCategories = await getCategories();
+  return allCategories.map((c) => ({ category: c.slug }));
 }
 
 async function CategoryPageContent({ params }: Props) {

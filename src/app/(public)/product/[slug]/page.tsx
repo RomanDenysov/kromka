@@ -12,9 +12,7 @@ import { Hint } from "@/components/shared/hint";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { db } from "@/db";
-import { products } from "@/db/schema";
-import { getProductBySlug } from "@/lib/queries/products";
+import { getProductBySlug, getProducts } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
 
 type Props = {
@@ -24,7 +22,8 @@ type Props = {
 };
 
 export async function generateStaticParams() {
-  return await db.select({ slug: products.slug }).from(products);
+  const allProducts = await getProducts();
+  return allProducts.map((p) => ({ slug: p.slug }));
 }
 
 async function ProductPageContent({ params }: Props) {

@@ -1,7 +1,7 @@
 "use server";
 
 import { and, eq, inArray, not } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { db } from "@/db";
 import { media, prices, productImages, products } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
@@ -28,6 +28,9 @@ export async function updateProductAction({
   revalidatePath(`/admin/products/${id}`);
   revalidatePath("/admin/products");
 
+  updateTag("products");
+  updateTag(`product-${product.slug}`);
+
   return { success: true };
 }
 
@@ -44,6 +47,8 @@ export async function createDraftProductAction() {
 
   revalidatePath(`/admin/products/${newDraftProduct.id}`);
   revalidatePath("/admin/products");
+
+  updateTag("products");
 
   return { id: newDraftProduct.id };
 }
