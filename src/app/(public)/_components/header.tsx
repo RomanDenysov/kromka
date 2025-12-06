@@ -14,7 +14,8 @@ const navigation: { name: string; href: Route }[] = [
   { name: "E-shop", href: "/e-shop" },
   { name: "B2B", href: "/b2b" },
   { name: "Predajne", href: "/predajne" },
-  { name: "Blog", href: "/blog" },
+  // TODO: add blog back when it's ready
+  // { name: "Blog", href: "/blog" },
 ] as const;
 
 export function Header() {

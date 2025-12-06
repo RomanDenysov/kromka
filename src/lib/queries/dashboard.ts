@@ -2,7 +2,7 @@ import "server-only";
 
 import { and, count, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { orders, products, stores } from "@/db/schema";
+import { carts, orders, products, stores } from "@/db/schema";
 
 export type DashboardMetrics = {
   newOrdersCount: number;
@@ -96,23 +96,11 @@ export const getRecentOrders = async (limit = 5) =>
     },
   });
 
-export type ActiveCart = Awaited<ReturnType<typeof getActiveCarts>>[number];
-
-export const getActiveCarts = async (limit = 6) =>
-  await db.query.orders.findMany({
-    where: (order, { eq: eqFn }) => eqFn(order.orderStatus, "new"),
-    orderBy: [desc(orders.updatedAt)],
-    limit,
+export const getActiveCarts = async () =>
+  await db.query.carts.findMany({
+    orderBy: desc(carts.updatedAt),
     with: {
-      createdBy: {
-        columns: {
-          name: true,
-          email: true,
-          image: true,
-        },
-      },
       items: {
-        limit: 3,
         with: {
           product: {
             columns: {
@@ -121,6 +109,8 @@ export const getActiveCarts = async (limit = 6) =>
           },
         },
       },
+      user: true,
+      company: true,
     },
   });
 
