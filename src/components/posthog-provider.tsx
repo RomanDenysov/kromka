@@ -5,6 +5,7 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
 import { consent } from "@/lib/consent";
+import { AuthIdentitySync } from "./auth-identity-sync";
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   // Synchronize state on load
@@ -26,6 +27,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
       <Suspense fallback={null}>
         <PostHogPageView />
       </Suspense>
+      <AuthIdentitySync />
       {children}
     </PHProvider>
   );
