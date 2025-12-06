@@ -10,9 +10,10 @@ import { QuantitySetter } from "./quantity-setter";
 type Props = {
   product: CartProduct;
   quantity: number;
+  onClick?: () => void;
 };
 
-export function ProductCartListItem({ product, quantity }: Props) {
+export function ProductCartListItem({ product, quantity, onClick }: Props) {
   return (
     <div className="flex w-full items-center justify-between gap-4">
       <div className="flex gap-2">
@@ -28,7 +29,8 @@ export function ProductCartListItem({ product, quantity }: Props) {
         <div className="flex grow flex-col items-start justify-between gap-1">
           <Link
             className="font-medium text-sm hover:underline"
-            href={`/e-shop/${product.slug}`}
+            href={`/product/${product.slug}`}
+            onClick={onClick}
           >
             {product.name}
           </Link>

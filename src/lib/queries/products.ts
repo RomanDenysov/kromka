@@ -9,9 +9,12 @@ export async function getProductBySlug(slug: string) {
   const product = await db.query.products.findFirst({
     where: (p, { eq, and, notInArray }) =>
       and(
-        eq(p.slug, slug),
-        and(eq(p.isActive, true), notInArray(p.status, ["archived", "draft"])),
-        notInArray(p.status, ["archived", "draft"])
+        and(
+          eq(p.slug, slug),
+          eq(p.isActive, true),
+          notInArray(p.status, ["archived", "draft"])
+        )
+        // notInArray(p.status, ["archived", "draft"])
       ),
     with: {
       images: {
@@ -19,7 +22,6 @@ export async function getProductBySlug(slug: string) {
           media: true,
         },
       },
-      // TODO: update later when we will remove multiple categories
       category: true,
     },
   });

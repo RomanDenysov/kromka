@@ -3,6 +3,7 @@
 import { ShoppingCartIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
+import { useState } from "react";
 import { useGetCart } from "@/hooks/use-get-cart";
 import { cn, formatPrice } from "@/lib/utils";
 import { ProductCartListItem } from "../shared/product-cart-list-item";
@@ -21,6 +22,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 
 export function CartDrawer() {
+  const [open, setOpen] = useState(false);
   const { data: cart, isLoading } = useGetCart();
 
   const items = cart?.items ?? [];
@@ -31,7 +33,7 @@ export function CartDrawer() {
   );
 
   return (
-    <Drawer direction={"right"}>
+    <Drawer direction={"right"} onOpenChange={setOpen} open={open}>
       <DrawerTrigger asChild>
         <Button
           className="relative"
@@ -69,24 +71,27 @@ export function CartDrawer() {
             </span>
           </div>
         ) : (
-          <ScrollArea className="w-full flex-1 px-4 py-4">
-            <div className="space-y-4">
-              {items.map((item) => (
-                <ProductCartListItem
-                  key={item.product.id}
-                  product={item.product}
-                  quantity={item.quantity}
-                />
-              ))}
-            </div>
-          </ScrollArea>
+          <div className="size-full flex-1 overflow-y-auto">
+            <ScrollArea className="w-full flex-1 px-4 py-4">
+              <div className="flex size-full flex-col gap-4">
+                {items.map((item) => (
+                  <ProductCartListItem
+                    key={item.product.id}
+                    onClick={() => setOpen(false)}
+                    product={item.product}
+                    quantity={item.quantity}
+                  />
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         )}
 
         {items.length > 0 && (
           <>
             <Separator />
             <DrawerFooter>
-              <div className="mb-4 flex items-center justify-between font-medium">
+              <div className="mb-2 flex items-center justify-between font-medium sm:mb-4">
                 <span>Spolu</span>
                 <span>{formatPrice(totalCents)}</span>
               </div>

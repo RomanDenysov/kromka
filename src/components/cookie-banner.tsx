@@ -40,6 +40,10 @@ export function CookieBanner() {
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-4 opacity-0"
       )}
+      style={{
+        WebkitTapHighlightColor: "transparent",
+        touchAction: "manipulation",
+      }}
     >
       <Card className="max-w-sm shadow-lg">
         <CardHeader className="pb-3">
@@ -65,13 +69,35 @@ export function CookieBanner() {
         <CardFooter className="gap-2">
           <Button
             className="flex-1"
-            onClick={acceptNecessary}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              acceptNecessary();
+            }}
             size="sm"
+            style={{
+              WebkitTapHighlightColor: "transparent",
+              touchAction: "manipulation",
+            }}
+            type="button"
             variant="outline"
           >
             Len nevyhnutné
           </Button>
-          <Button className="flex-1" onClick={acceptAll} size="sm">
+          <Button
+            className="flex-1"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              acceptAll();
+            }}
+            size="sm"
+            style={{
+              WebkitTapHighlightColor: "transparent",
+              touchAction: "manipulation",
+            }}
+            type="button"
+          >
             Prijať všetky
           </Button>
         </CardFooter>

@@ -3,8 +3,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { CheckCircleIcon, ClockIcon, TagsIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
-import { ViewTransition } from "react";
+import { Suspense, ViewTransition } from "react";
 import { AddToCartSingleProductButton } from "@/components/add-to-cart-signle-product-button";
 import { ImageSlider } from "@/components/image-slider";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
@@ -18,14 +17,14 @@ import { cn, formatPrice } from "@/lib/utils";
 
 type Props = {
   params: Promise<{
-    product: string;
+    slug: string;
   }>;
 };
 
 async function ProductPageContent({ params }: Props) {
-  const { product } = await params;
+  const { slug } = await params;
 
-  const result = await getProductBySlug(product);
+  const result = await getProductBySlug(slug);
 
   if (!result) {
     notFound();
