@@ -309,7 +309,7 @@ async function getStoreBySlug(slug: string) {
   });
 }
 
-export default async function StorePage({
+async function StorePageWrapper({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -322,9 +322,17 @@ export default async function StorePage({
     notFound();
   }
 
+  return <StorePageContent store={store} />;
+}
+
+export default function StorePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   return (
     <Suspense fallback={<PageWrapper>Loading...</PageWrapper>}>
-      <StorePageContent store={store} />
+      <StorePageWrapper params={params} />
     </Suspense>
   );
 }
