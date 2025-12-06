@@ -35,6 +35,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { PAYMENT_METHODS, type PaymentMethod } from "@/db/types";
 import { useGetCart } from "@/hooks/use-get-cart";
 import { createOrderFromCart } from "@/lib/actions/orders";
+import { updateCurrentUserProfile } from "@/lib/actions/user-profile";
 import type { User } from "@/lib/auth/session";
 import {
   getFirstAvailableDate,
@@ -70,7 +71,6 @@ export function CheckoutForm({
 
   const [isPending, startTransition] = useTransition();
 
-  // Map stores to StoreOption format
   const storeOptions: StoreOption[] = useMemo(
     () =>
       stores?.map((store) => ({
@@ -81,20 +81,21 @@ export function CheckoutForm({
     [stores]
   );
 
-  const customerData = customer?.isAnonymous
-    ? null
-    : {
-        name: customer?.name ?? "",
-        email: customer?.email ?? "",
-      };
+  // Derive initial values from user (DB) or local customer store fallback
+  const initialValues = useMemo(() => {
+    const fallbackData = customer?.isAnonymous ? null : customer;
+    const userData = user?.isAnonymous ? null : user;
 
-  const userData = user?.isAnonymous
-    ? null
-    : {
-        name: user?.name ?? customerData?.name ?? "",
-        email: user?.email ?? customerData?.email ?? "",
-        phone: user?.phone ?? "",
-      };
+    return {
+      name: userData?.name ?? fallbackData?.name ?? "",
+      email: userData?.email ?? fallbackData?.email ?? "",
+      phone: userData?.phone ?? "",
+      paymentMethod: "in_store" as PaymentMethod,
+      pickupDate: new Date(),
+      pickupTime: "",
+      storeId: user?.storeId ?? "",
+    };
+  }, [user, customer]);
 
   const totalCents = useMemo(
     () =>
@@ -106,41 +107,31 @@ export function CheckoutForm({
   );
 
   const form = useAppForm({
-    defaultValues: {
-      name: userData?.name,
-      email: userData?.email,
-      phone: userData?.phone,
-      paymentMethod: "in_store" as PaymentMethod,
-      pickupDate: new Date(),
-      pickupTime: "",
-      storeId: user?.storeId ?? "",
-    },
+    defaultValues: initialValues,
     validators: {
       onSubmit: checkoutFormSchema,
     },
     onSubmit: ({ value }) =>
       startTransition(async () => {
-        // biome-ignore lint/suspicious/noConsole: debug logging for form submission
-        console.log(value);
+        // Save customer profile to DB (CustomerDataSync will auto-sync to local store)
+        await updateCurrentUserProfile({
+          name: value.name,
+          email: value.email,
+          phone: value.phone,
+        });
 
-        try {
-          const result = await createOrderFromCart({
-            storeId: value.storeId,
-            pickupDate: value.pickupDate,
-            pickupTime: value.pickupTime,
-            paymentMethod: value.paymentMethod,
-          });
+        const result = await createOrderFromCart({
+          storeId: value.storeId,
+          pickupDate: value.pickupDate,
+          pickupTime: value.pickupTime,
+          paymentMethod: value.paymentMethod,
+        });
 
-          if (result.success) {
-            toast.success("Vaša objednávka bola vytvorená");
-            router.push(`/pokladna/${result.orderId}` as Route);
-          } else {
-            toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
-          }
-        } catch (error) {
-          // biome-ignore lint/suspicious/noConsole: <explanation>
-          console.error("Checkout failed:", error);
-          toast.error("Nepodarilo sa vytvoriť objednávku");
+        if (result.success) {
+          toast.success("Vaša objednávka bola vytvorená");
+          router.push(`/pokladna/${result.orderId}` as Route);
+        } else {
+          toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
         }
       }),
   });
