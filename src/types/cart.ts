@@ -5,6 +5,7 @@ export type ProductMeta = {
   priceCents: number;
   slug: string;
   imageUrl?: string;
+  category?: string;
 };
 
 export type AddToCartParams = {

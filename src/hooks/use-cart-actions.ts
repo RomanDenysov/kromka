@@ -73,6 +73,7 @@ export function useCartActions() {
           cartId: previousCart.id ?? "",
           product: {
             id: product.id,
+            category: product.category ?? "",
             name: product.name,
             slug: product.slug,
             priceCents: product.priceCents,
