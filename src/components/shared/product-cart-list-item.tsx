@@ -19,7 +19,7 @@ export function ProductCartListItem({ product, quantity, onClick }: Props) {
       <div className="flex gap-2">
         <Image
           alt={product.name}
-          className="rounded-sm bg-muted object-cover object-center"
+          className="aspect-square rounded-sm bg-muted object-cover object-center"
           height={60}
           quality={75}
           src={product.images[0] || "/images/sec.webp"}
