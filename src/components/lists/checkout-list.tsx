@@ -57,7 +57,7 @@ function CheckoutListItem({ item }: { item: CartItem }) {
           <div className="flex flex-1 grow flex-col items-start gap-2">
             <Link
               className="flex flex-row items-center gap-1 font-medium text-base hover:underline"
-              href={`/e-shop/${product.slug}`}
+              href={`/product/${product.slug}`}
             >
               {product.name}
             </Link>
