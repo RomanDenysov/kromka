@@ -137,6 +137,7 @@ export function GridCardCarousel({
               <Image
                 alt={`${title} - Slide ${index + 1}`}
                 className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                decoding="sync"
                 fill
                 loading={index === 0 && preload ? "eager" : "lazy"}
                 sizes={imageSizes}
