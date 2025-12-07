@@ -1,6 +1,8 @@
 /** biome-ignore-all lint/style/noMagicNumbers: Date calculation constants */
+/** biome-ignore-all lint/nursery/noIncrementDecrement: <explanation> */
 import { addDays, format, getDay, isAfter, startOfToday } from "date-fns";
 import type { StoreSchedule, TimeRange } from "@/db/types";
+import type { CartItem } from "@/types/cart";
 
 export const DAY_KEYS = [
   "sunday",
@@ -152,4 +154,87 @@ export function filterTimeSlots(
     const slotMinutes = parseTimeToMinutes(slot);
     return slotMinutes >= startMinutes && slotMinutes < endMinutes;
   });
+}
+
+/**
+ * Computes the restricted pickup dates based on cart items.
+ * Returns null if there are no restrictions (all dates allowed).
+ * Returns Set of allowed date strings (yyyy-MM-dd) if restrictions exist.
+ *
+ * Logic:
+ * - Items with categoryPickupDates restrict to only those dates
+ * - Multiple restricted items: intersection of all allowed dates
+ * - Items without restrictions don't affect the result
+ */
+export function getRestrictedPickupDates(
+  cartItems: CartItem[]
+): Set<string> | null {
+  const restrictedSets: Set<string>[] = [];
+
+  for (const item of cartItems) {
+    const pickupDates = item.product.categoryPickupDates;
+    if (pickupDates && pickupDates.length > 0) {
+      restrictedSets.push(new Set(pickupDates));
+    }
+  }
+
+  // No restrictions from any item
+  if (restrictedSets.length === 0) {
+    return null;
+  }
+
+  // Start with first restricted set, then intersect with others
+  let result = restrictedSets[0];
+  for (let i = 1; i < restrictedSets.length; i++) {
+    const nextSet = restrictedSets[i];
+    result = new Set([...result].filter((date) => nextSet.has(date)));
+  }
+
+  return result;
+}
+
+/**
+ * Checks if a date is allowed based on cart category restrictions.
+ * If restrictedDates is null, all dates are allowed.
+ */
+export function isDateAllowedByCart(
+  date: Date,
+  restrictedDates: Set<string> | null
+): boolean {
+  if (!restrictedDates) {
+    return true;
+  }
+  const dateKey = format(date, "yyyy-MM-dd");
+  return restrictedDates.has(dateKey);
+}
+
+/**
+ * Finds the first available pickup date considering both store schedule
+ * and cart category restrictions.
+ */
+export function getFirstAvailableDateWithRestrictions(
+  schedule: StoreSchedule | null,
+  restrictedDates: Set<string> | null
+): Date | null {
+  const today = startOfToday();
+  const now = new Date();
+  const isBeforeNoon = now.getHours() < 12;
+
+  // Start from tomorrow, or day after if past noon
+  const startDate = isBeforeNoon ? addDays(today, 1) : addDays(today, 2);
+  const maxDate = addDays(today, 30);
+
+  let currentDate = startDate;
+
+  while (!isAfter(currentDate, maxDate)) {
+    const isStoreOpen = !isStoreClosed(currentDate, schedule);
+    const isAllowedByCart = isDateAllowedByCart(currentDate, restrictedDates);
+
+    if (isStoreOpen && isAllowedByCart) {
+      return currentDate;
+    }
+    currentDate = addDays(currentDate, 1);
+  }
+
+  return null;
 }

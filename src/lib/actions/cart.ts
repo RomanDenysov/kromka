@@ -137,6 +137,7 @@ export async function getCart() {
           priceCents: product?.priceCents,
           showInB2b: product?.showInB2b,
           category: product?.category?.name ?? "",
+          categoryPickupDates: product?.category?.pickupDates ?? null,
           images: productImages,
         },
       };

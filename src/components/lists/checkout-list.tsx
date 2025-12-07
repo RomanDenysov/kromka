@@ -1,14 +1,18 @@
 "use client";
 
-import { XIcon } from "lucide-react";
+import { format } from "date-fns";
+import { sk } from "date-fns/locale/sk";
+import { CalendarIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 import { useCartActions } from "@/hooks/use-cart-actions";
 import { useGetCart } from "@/hooks/use-get-cart";
 import { formatPrice } from "@/lib/utils";
 import type { CartItem, CartItems } from "@/types/cart";
+import { Hint } from "../shared/hint";
 import { ProductImage } from "../shared/product-image";
 import { QuantitySetter } from "../shared/quantity-setter";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
@@ -34,6 +38,10 @@ export function CheckoutList() {
 function CheckoutListItem({ item }: { item: CartItem }) {
   const { product, quantity } = item;
   const { removeFromCart, isRemovingFromCart } = useCartActions();
+
+  const pickupDates = product.categoryPickupDates;
+  const hasPickupRestriction = pickupDates && pickupDates.length > 0;
+
   return (
     <div className="flex flex-row gap-2 rounded-md border p-3 shadow sm:gap-5">
       <ProductImage
@@ -52,11 +60,22 @@ function CheckoutListItem({ item }: { item: CartItem }) {
               href={`/e-shop/${product.slug}`}
             >
               {product.name}
-              {/* <SquareArrowOutUpRight className="size-4" /> */}
             </Link>
             <span className="text-muted-foreground text-sm">
               {formatPrice(product.priceCents)}
             </span>
+            {hasPickupRestriction && (
+              <div className="flex flex-row flex-wrap items-center gap-1">
+                <Hint text="Dostupné len v týchto dňoch">
+                  <CalendarIcon className="size-3" />
+                </Hint>
+                {pickupDates.map((date) => (
+                  <Badge key={date} size="xs" variant="secondary">
+                    {format(new Date(date), "dd. MMM", { locale: sk })}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
 
           <Button

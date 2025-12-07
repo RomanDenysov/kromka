@@ -13,7 +13,7 @@ import { sk } from "date-fns/locale/sk";
 import { Calendar1Icon, ChevronDownIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { StoreSchedule } from "@/db/types";
-import { isStoreClosed } from "@/lib/checkout-utils";
+import { isDateAllowedByCart, isStoreClosed } from "@/lib/checkout-utils";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -22,12 +22,15 @@ type OrderPickupDatePickerProps = {
   selectedDate: Date | undefined;
   onDateSelect: (date: Date) => void;
   storeSchedule: StoreSchedule | null;
+  /** Restricted dates from cart categories. Null = no restrictions */
+  restrictedDates?: Set<string> | null;
 };
 
 export function OrderPickupDatePicker({
   selectedDate,
   onDateSelect,
   storeSchedule,
+  restrictedDates = null,
 }: OrderPickupDatePickerProps) {
   const [open, setOpen] = useState(false);
 
@@ -73,10 +76,15 @@ export function OrderPickupDatePicker({
         return;
       }
 
+      // Check category pickup date restrictions
+      if (!isDateAllowedByCart(newDate, restrictedDates)) {
+        return;
+      }
+
       onDateSelect(newDate);
       setOpen(false);
     },
-    [isBeforeNoon, storeSchedule, onDateSelect]
+    [isBeforeNoon, storeSchedule, restrictedDates, onDateSelect]
   );
 
   const disabledDays = useCallback(
@@ -90,10 +98,11 @@ export function OrderPickupDatePicker({
         isSameDay(d, today) ||
         (isSameDay(d, tomorrow) && !isBeforeNoon) ||
         isAfter(d, maxDate) ||
-        isStoreClosed(d, storeSchedule)
+        isStoreClosed(d, storeSchedule) ||
+        !isDateAllowedByCart(d, restrictedDates)
       );
     },
-    [isBeforeNoon, storeSchedule]
+    [isBeforeNoon, storeSchedule, restrictedDates]
   );
 
   return (

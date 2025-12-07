@@ -15,7 +15,7 @@ import {
   type StoreOption,
 } from "@/components/order-store-picker";
 import { useAppForm } from "@/components/shared/form";
-import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -39,8 +39,9 @@ import { createOrderFromCart } from "@/lib/actions/orders";
 import { updateCurrentUserProfile } from "@/lib/actions/user-profile";
 import type { User } from "@/lib/auth/session";
 import {
-  getFirstAvailableDate,
+  getFirstAvailableDateWithRestrictions,
   getFirstAvailableTime,
+  getRestrictedPickupDates,
   getTimeRangeForDate,
 } from "@/lib/checkout-utils";
 import type { Store } from "@/lib/queries/stores";
@@ -162,6 +163,12 @@ export function CheckoutForm({
   const storeSchedule = selectedStoreInForm?.openingHours ?? null;
   const timeRange = getTimeRangeForDate(pickupDate, storeSchedule);
 
+  // Compute restricted pickup dates from cart items' categories
+  const restrictedPickupDates = useMemo(
+    () => getRestrictedPickupDates(cart?.items ?? []),
+    [cart?.items]
+  );
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: we want to memoize by all values
   useEffect(() => {
     const defaultStoreId = user?.storeId;
@@ -175,14 +182,17 @@ export function CheckoutForm({
     }
 
     const schedule = store.openingHours;
-    const firstDate = getFirstAvailableDate(schedule);
+    const firstDate = getFirstAvailableDateWithRestrictions(
+      schedule,
+      restrictedPickupDates
+    );
 
     if (firstDate) {
       form.setFieldValue("pickupDate", firstDate);
       const range = getTimeRangeForDate(firstDate, schedule);
       form.setFieldValue("pickupTime", getFirstAvailableTime(range));
     }
-  }, [user?.storeId, storeOptions]);
+  }, [user?.storeId, storeOptions, restrictedPickupDates]);
 
   return (
     <div className="sticky top-14 size-full">
@@ -237,8 +247,11 @@ export function CheckoutForm({
                       const store = storeOptions.find((s) => s.id === value);
                       const schedule = store?.openingHours ?? null;
 
-                      // Set first available date
-                      const firstDate = getFirstAvailableDate(schedule);
+                      // Set first available date (considering cart restrictions)
+                      const firstDate = getFirstAvailableDateWithRestrictions(
+                        schedule,
+                        restrictedPickupDates
+                      );
                       form.setFieldValue("pickupDate", firstDate ?? new Date());
 
                       // Set first available time
@@ -261,6 +274,16 @@ export function CheckoutForm({
                     />
                   )}
                 </form.Field>
+                {restrictedPickupDates && restrictedPickupDates.size > 0 && (
+                  <Alert variant="default">
+                    <AlertCircleIcon className="size-4" />
+                    <AlertTitle>Obmedzené dátumy vyzdvihnutia</AlertTitle>
+                    <AlertDescription className="text-xs">
+                      Niektoré produkty v košíku sú dostupné len v určité dni.
+                      Zobrazia sa vám len dostupné dátumy.
+                    </AlertDescription>
+                  </Alert>
+                )}
                 <FieldGroup className="grid w-full gap-2 md:grid-cols-5">
                   <form.Field
                     listeners={{
@@ -288,6 +311,7 @@ export function CheckoutForm({
                         >
                           <OrderPickupDatePicker
                             onDateSelect={(date) => field.handleChange(date)}
+                            restrictedDates={restrictedPickupDates}
                             selectedDate={field.state.value}
                             storeSchedule={storeSchedule}
                           />

@@ -24,6 +24,7 @@ export type CartProduct = {
   priceCents: number;
   showInB2b: boolean;
   category: string;
+  categoryPickupDates: string[] | null;
   images: Array<{ url: string }>;
 };
 
