@@ -1,5 +1,9 @@
 // Re-export cart types for backward compatibility
-export type { Cart as Order, CartItem, CartItems } from "./cart";
+export type {
+  Cart as Order,
+  CartItem,
+  CartProduct as OrderProduct,
+} from "./cart";
 
 export type OrderStatus =
   | "new"

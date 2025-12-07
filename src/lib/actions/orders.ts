@@ -1,12 +1,65 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { carts, orderItems, orderStatusEvents, orders } from "@/db/schema";
+import {
+  carts,
+  orderItems,
+  orderStatusEvents,
+  orders,
+  organizations,
+  prices,
+  products,
+} from "@/db/schema";
 import type { OrderStatus, PaymentMethod } from "@/db/types";
 import { getAuth } from "../auth/session";
 import { createPrefixedNumericId } from "../ids";
-import { getProductPrice } from "./cart";
+
+/**
+ * Get the price for a product based on company's price tier and quantity
+ */
+export async function getProductPrice(
+  productId: string,
+  companyId: string | null,
+  _quantity: number
+): Promise<number> {
+  if (!companyId) {
+    // B2C: use product's default price
+    const product = await db.query.products.findFirst({
+      where: eq(products.id, productId),
+      columns: { priceCents: true },
+    });
+    return product?.priceCents ?? 0;
+  }
+
+  // B2B: get organization's price tier
+  const org = await db.query.organizations.findFirst({
+    where: eq(organizations.id, companyId),
+    columns: { priceTierId: true },
+    with: {
+      priceTier: true,
+    },
+  });
+
+  if (!org?.priceTierId) {
+    // No price tier: fallback to default price
+    const product = await db.query.products.findFirst({
+      where: eq(products.id, productId),
+      columns: { priceCents: true },
+    });
+    return product?.priceCents ?? 0;
+  }
+
+  // Find the best matching price tier (highest minQty <= quantity)
+  const price = await db.query.prices.findFirst({
+    where: and(
+      eq(prices.productId, productId),
+      eq(prices.priceTierId, org.priceTierId)
+    ),
+    columns: { priceCents: true },
+  });
+  return price?.priceCents ?? 0;
+}
 
 type CreateOrderResult =
   | { success: true; orderId: string; orderNumber: string }

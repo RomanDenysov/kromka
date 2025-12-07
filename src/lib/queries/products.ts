@@ -16,7 +16,7 @@ export const getProducts = cache(async () => {
         orderBy: (image, { asc }) => [asc(image.sortOrder)],
       },
       category: {
-        columns: { id: true, name: true, slug: true },
+        columns: { id: true, name: true, slug: true, pickupDates: true },
       },
     },
     orderBy: (p, { asc, desc }) => [asc(p.sortOrder), desc(p.createdAt)],
@@ -39,8 +39,6 @@ export const getProductBySlug = cache(async (slug: string) => {
   const allProducts = await getProducts();
   return allProducts.find((p) => p.slug === slug) ?? null;
 });
-
-export type Product = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
 
 export const getCategories = cache(async () => {
   "use cache";
@@ -94,12 +92,6 @@ export const getFeaturedCategories = cache(async () => {
     .filter((cat) => cat.products.length > 0); // only with products
 });
 
-export type FeaturedCategory = Awaited<
-  ReturnType<typeof getFeaturedCategories>
->[number];
-
-export type FeaturedProduct = FeaturedCategory["products"][number];
-
 export const getProductsByCategory = cache(async (slug: string) => {
   "use cache";
   cacheLife("hours");
@@ -117,3 +109,9 @@ export const getProductsByCategory = cache(async (slug: string) => {
 export const preloadProductsByCategory = (slug: string) =>
   // biome-ignore lint/complexity/noVoid: we need to preload the products by category
   void getProductsByCategory(slug);
+
+export type Product = Awaited<ReturnType<typeof getProducts>>[number];
+export type Category = Awaited<ReturnType<typeof getCategories>>[number];
+export type FeaturedCategory = Awaited<
+  ReturnType<typeof getFeaturedCategories>
+>[number];

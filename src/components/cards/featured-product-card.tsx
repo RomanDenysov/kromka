@@ -2,20 +2,27 @@
 
 import { ShoppingCartIcon } from "lucide-react";
 import Link from "next/link";
-import { useCartActions } from "@/hooks/use-cart-actions";
-import type { FeaturedProduct } from "@/lib/queries/products";
+import { useTransition } from "react";
+import type { Product } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
+import { useCart } from "../cart/cart-context";
 import { ProductImage } from "../shared/product-image";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 
 type Props = {
-  product: FeaturedProduct;
+  product: Product;
   className?: string;
 };
 
 export function FeaturedProductCard({ product, className }: Props) {
-  const { addToCart, isAddingToCart } = useCartActions();
+  const { addToCart } = useCart();
+  const [isPending, startTransition] = useTransition();
+  const handleAddToCart = () => {
+    startTransition(() => {
+      addToCart(product.id, 1, product);
+    });
+  };
   const isActive = product?.status === "active";
 
   return (
@@ -52,25 +59,15 @@ export function FeaturedProductCard({ product, className }: Props) {
 
           <Button
             className="h-10 w-10 shrink-0 rounded-full bg-white text-black shadow-md transition-all hover:scale-105 hover:bg-white/90"
-            disabled={isAddingToCart || !isActive}
+            disabled={isPending || !isActive}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              addToCart({
-                productId: product.id,
-                quantity: 1,
-                product: {
-                  id: product.id,
-                  name: product.name,
-                  priceCents: product.priceCents,
-                  slug: product.slug,
-                  imageUrl: product.images[0],
-                },
-              });
+              handleAddToCart();
             }}
             size="icon"
           >
-            {isAddingToCart ? (
+            {isPending ? (
               <Spinner className="size-5" />
             ) : (
               <ShoppingCartIcon className="size-5" />

@@ -1,6 +1,13 @@
 import { generateHTML } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
-import { CheckCircleIcon, ClockIcon, TagsIcon } from "lucide-react";
+import { format } from "date-fns";
+import { sk } from "date-fns/locale/sk";
+import {
+  CalendarIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  TagsIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, ViewTransition } from "react";
@@ -36,6 +43,8 @@ async function ProductPageContent({ params }: Props) {
   }
   const validUrls = result.images;
   const isInStock = result.status === "active";
+  const pickupDates = result.category?.pickupDates;
+  const hasPickupRestriction = pickupDates && pickupDates.length > 0;
 
   const descriptionHtml = generateHTML(
     result?.description ?? {
@@ -87,7 +96,7 @@ async function ProductPageContent({ params }: Props) {
               {formatPrice(result.priceCents)}
             </h2>
           </ViewTransition>
-          <div className="flex flex-col items-start justify-start gap-2 md:flex-row">
+          <div className="flex flex-col items-start justify-start gap-2 md:flex-row md:items-center">
             {isInStock ? (
               <Badge className="w-fit" variant="success">
                 <CheckCircleIcon />
@@ -98,6 +107,18 @@ async function ProductPageContent({ params }: Props) {
                 <ClockIcon />
                 Nie je skladom
               </Badge>
+            )}
+            {hasPickupRestriction && (
+              <div className="flex flex-row flex-wrap items-center gap-1">
+                <Hint text="Dostupné len v týchto dňoch">
+                  <CalendarIcon className="size-4 text-muted-foreground" />
+                </Hint>
+                {pickupDates.map((date) => (
+                  <Badge key={date} size="xs" variant="secondary">
+                    {format(new Date(date), "dd. MMM", { locale: sk })}
+                  </Badge>
+                ))}
+              </div>
             )}
           </div>
           <div className="grow">
@@ -111,13 +132,7 @@ async function ProductPageContent({ params }: Props) {
           <div className="flex w-full items-center justify-between gap-2">
             <AddToCartSingleProductButton
               disabled={!isInStock}
-              product={{
-                id: result.id,
-                name: result.name,
-                priceCents: result.priceCents,
-                slug: result.slug,
-                imageUrl: validUrls[0],
-              }}
+              product={result}
             />
           </div>
         </div>

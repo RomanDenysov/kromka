@@ -4,11 +4,10 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import { CalendarIcon, XIcon } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
-import { useCartActions } from "@/hooks/use-cart-actions";
-import { useGetCart } from "@/hooks/use-get-cart";
+import { useTransition } from "react";
 import { formatPrice } from "@/lib/utils";
-import type { CartItem, CartItems } from "@/types/cart";
+import type { CartItem } from "@/types/cart";
+import { useCart } from "../cart/cart-context";
 import { Hint } from "../shared/hint";
 import { ProductImage } from "../shared/product-image";
 import { QuantitySetter } from "../shared/quantity-setter";
@@ -17,12 +16,8 @@ import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
 export function CheckoutList() {
-  const { data: cart, isLoading } = useGetCart();
-  const items = useMemo<CartItems>(() => cart?.items ?? [], [cart]);
-
-  if (isLoading) {
-    return <CheckoutListSkeleton />;
-  }
+  const { cart } = useCart();
+  const items = cart?.items ?? [];
 
   return (
     <div>
@@ -37,9 +32,14 @@ export function CheckoutList() {
 
 function CheckoutListItem({ item }: { item: CartItem }) {
   const { product, quantity } = item;
-  const { removeFromCart, isRemovingFromCart } = useCartActions();
-
-  const pickupDates = product.categoryPickupDates;
+  const { removeFromCart } = useCart();
+  const [isPending, startTransition] = useTransition();
+  const handleRemoveFromCart = () => {
+    startTransition(() => {
+      removeFromCart(product.id);
+    });
+  };
+  const pickupDates = product.category?.pickupDates ?? [];
   const hasPickupRestriction = pickupDates && pickupDates.length > 0;
 
   return (
@@ -48,7 +48,7 @@ function CheckoutListItem({ item }: { item: CartItem }) {
         alt={product.name}
         className="aspect-square rounded-sm object-cover"
         height={100}
-        src={product.images[0]?.url || ""}
+        src={product.images[0] || ""}
         width={100}
       />
 
@@ -80,8 +80,8 @@ function CheckoutListItem({ item }: { item: CartItem }) {
 
           <Button
             aria-label="Odstrániť z košíka"
-            disabled={isRemovingFromCart}
-            onClick={() => removeFromCart(product.id)}
+            disabled={isPending}
+            onClick={handleRemoveFromCart}
             size={"icon-sm"}
             type="button"
             variant="ghost"
@@ -106,7 +106,7 @@ function CheckoutListItem({ item }: { item: CartItem }) {
   );
 }
 
-function CheckoutListSkeleton() {
+export function CheckoutListSkeleton() {
   return (
     <div>
       <div className="flex flex-col gap-2">

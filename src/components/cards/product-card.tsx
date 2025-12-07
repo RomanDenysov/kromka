@@ -29,39 +29,39 @@ export function ProductCard({
   const shouldAnimate = animationDelay > 0;
 
   return (
-    <Link
+    <article
       className={cn(
         "relative flex flex-col gap-3 overflow-hidden rounded-md p-0.5",
         shouldAnimate &&
           "fade-in slide-in-from-bottom-4 animate-in fill-mode-backwards duration-300",
         className
       )}
-      href={`/product/${product.slug}`}
-      prefetch
       style={
         shouldAnimate ? { animationDelay: `${animationDelay}ms` } : undefined
       }
       title={isActive ? product.name : `${product.name} (neaktívny produkt)`}
     >
-      <div className="relative">
-        <div className="absolute top-2 right-2 z-20">
-          <Button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            size="icon-sm"
-            variant="ghost"
-          >
-            <HeartIcon className="size-5" />
-          </Button>
+      <Link href={`/product/${product.slug}`} prefetch>
+        <div className="relative">
+          <div className="absolute top-2 right-2 z-20">
+            <Button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              size="icon-sm"
+              variant="ghost"
+            >
+              <HeartIcon className="size-5" />
+            </Button>
+          </div>
+          <ImageSlider
+            disabled={!isActive}
+            preload={preload}
+            urls={product.images}
+          />
         </div>
-        <ImageSlider
-          disabled={!isActive}
-          preload={preload}
-          urls={product.images}
-        />
-      </div>
+      </Link>
       <div className="flex size-full flex-col justify-between gap-2 px-1 pb-1">
         {/* Categories */}
         <div className="flex flex-wrap items-center gap-0.5">
@@ -89,19 +89,9 @@ export function ProductCard({
               {formatPrice(product.priceCents)}
             </span>
           </ViewTransition>
-          <AddToCartButton
-            disabled={!isActive}
-            id={product.id}
-            product={{
-              id: product.id,
-              name: product.name,
-              priceCents: product.priceCents,
-              slug: product.slug,
-              imageUrl: product.images[0],
-            }}
-          />
+          <AddToCartButton disabled={!isActive} product={product} />
         </div>
       </div>
-    </Link>
+    </article>
   );
 }

@@ -22,7 +22,7 @@ export function ProductCartListItem({ product, quantity, onClick }: Props) {
           className="rounded-sm bg-muted object-cover object-center"
           height={60}
           quality={75}
-          src={product.images[0]?.url || "/images/sec.webp"}
+          src={product.images[0] || "/images/sec.webp"}
           width={60}
         />
 
@@ -36,7 +36,7 @@ export function ProductCartListItem({ product, quantity, onClick }: Props) {
           </Link>
           {product.category && (
             <Badge size="xs" variant="secondary">
-              {product.category}
+              {product.category.name}
             </Badge>
           )}
           <span className="text-muted-foreground text-xs">

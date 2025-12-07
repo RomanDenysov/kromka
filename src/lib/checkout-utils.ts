@@ -1,5 +1,5 @@
 /** biome-ignore-all lint/style/noMagicNumbers: Date calculation constants */
-/** biome-ignore-all lint/nursery/noIncrementDecrement: <explanation> */
+/** biome-ignore-all lint/nursery/noIncrementDecrement: we need to use increment/decrement */
 import { addDays, format, getDay, isAfter, startOfToday } from "date-fns";
 import type { StoreSchedule, TimeRange } from "@/db/types";
 import type { CartItem } from "@/types/cart";
@@ -172,7 +172,7 @@ export function getRestrictedPickupDates(
   const restrictedSets: Set<string>[] = [];
 
   for (const item of cartItems) {
-    const pickupDates = item.product.categoryPickupDates;
+    const pickupDates = item.product.category?.pickupDates ?? [];
     if (pickupDates && pickupDates.length > 0) {
       restrictedSets.push(new Set(pickupDates));
     }

@@ -1,12 +1,12 @@
 "use client";
 
 import { MinusIcon, PlusIcon, ShoppingCartIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCartActions } from "@/hooks/use-cart-actions";
 import { useIsMobile } from "@/hooks/use-mobile";
-import type { ProductMeta } from "@/types/cart";
+import type { Product } from "@/lib/queries/products";
+import { useCart } from "./cart/cart-context";
 import { Button } from "./ui/button";
 import {
   ButtonGroup,
@@ -21,40 +21,44 @@ export function AddToCartSingleProductButton({
   maxQuantity = 100,
 }: {
   disabled: boolean;
-  product: ProductMeta;
+  product: Product;
   maxQuantity?: number;
 }) {
   const isMobile = useIsMobile();
-  const [quantity, setQuantity] = useState(Math.min(1, maxQuantity));
-  const { addToCart, isAddingToCart } = useCartActions();
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
+  const [isPending, startTransition] = useTransition();
+
+  const handleAddToCart = () => {
+    startTransition(() => {
+      addToCart(product.id, quantity, product);
+      setQuantity(1);
+    });
+  };
+
   return (
     <div className="flex w-full flex-col items-start justify-between gap-6 md:flex-row md:items-center">
       <div className="flex items-center gap-2">
         <span className="font-medium">Množstvo:</span>
-        <ButtonGroup
-          aria-label="Product quantity setter"
-          aria-roledescription="Product quantity setter"
-        >
+        <ButtonGroup aria-label="Product quantity setter">
           <Button
-            aria-label="Decrease product quantity"
-            aria-roledescription="Decrease product quantity"
-            disabled={disabled || isAddingToCart}
-            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            aria-label="Decrease quantity"
+            disabled={disabled || isPending || quantity <= 1}
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             size={isMobile ? "icon" : "icon-lg"}
             variant="secondary"
           >
             <MinusIcon />
           </Button>
           <ButtonGroupSeparator />
-          <ButtonGroupText className="min-w-10 items-center justify-center text-center text-sm md:min-w-14 md:text-base">
+          <ButtonGroupText className="min-w-10 items-center justify-center text-center text-sm tabular-nums md:min-w-14 md:text-base">
             {quantity}
           </ButtonGroupText>
           <ButtonGroupSeparator />
           <Button
-            aria-label="Increase product quantity"
-            aria-roledescription="Increase product quantity"
-            disabled={disabled || isAddingToCart}
-            onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
+            aria-label="Increase quantity"
+            disabled={disabled || isPending || quantity >= maxQuantity}
+            onClick={() => setQuantity((q) => Math.min(maxQuantity, q + 1))}
             size={isMobile ? "icon" : "icon-lg"}
             variant="secondary"
           >
@@ -64,18 +68,11 @@ export function AddToCartSingleProductButton({
       </div>
       <Button
         className="w-full flex-1 md:w-auto md:text-base"
-        disabled={disabled || isAddingToCart}
-        onClick={() =>
-          addToCart({
-            productId: product.id,
-            quantity,
-            product,
-            onSuccess: () => setQuantity(1),
-          })
-        }
+        disabled={disabled || isPending}
+        onClick={handleAddToCart}
         size={isMobile ? "default" : "lg"}
       >
-        {isAddingToCart ? <Spinner /> : <ShoppingCartIcon />}
+        {isPending ? <Spinner /> : <ShoppingCartIcon />}
         <span>Do košíka</span>
       </Button>
     </div>

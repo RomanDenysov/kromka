@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useTransition } from "react";
 import { toast } from "sonner";
 import z from "zod";
+import { useCart } from "@/components/cart/cart-context";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
 import {
@@ -34,7 +35,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
 import { PAYMENT_METHODS, type PaymentMethod } from "@/db/types";
-import { useGetCart } from "@/hooks/use-get-cart";
 import { createOrderFromCart } from "@/lib/actions/orders";
 import { updateCurrentUserProfile } from "@/lib/actions/user-profile";
 import type { User } from "@/lib/auth/session";
@@ -67,7 +67,7 @@ export function CheckoutForm({
   user?: User;
   stores: Store[];
 }) {
-  const { data: cart } = useGetCart();
+  const { cart } = useCart();
   const { customer } = useCustomerDataStore();
   const setCustomerStore = useCustomerDataStore(
     (state) => state.actions.setCustomerStore

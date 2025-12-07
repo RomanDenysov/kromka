@@ -4,8 +4,8 @@ import { ShoppingCartIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
-import { useGetCart } from "@/hooks/use-get-cart";
 import { cn, formatPrice } from "@/lib/utils";
+import { useCart } from "../cart/cart-context";
 import { ProductCartListItem } from "../shared/product-cart-list-item";
 import { Badge } from "../ui/badge";
 import { Button, buttonVariants } from "../ui/button";
@@ -23,44 +23,33 @@ import { Separator } from "../ui/separator";
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false);
-  const { data: cart, isLoading } = useGetCart();
+  const { cart, itemsCount, totalCents } = useCart();
 
   const items = cart?.items ?? [];
-  const cartItemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
-  const totalCents = items.reduce(
-    (acc, item) => acc + item.priceCents * item.quantity,
-    0
-  );
 
   return (
     <Drawer direction={"right"} onOpenChange={setOpen} open={open}>
       <DrawerTrigger asChild>
-        <Button
-          className="relative"
-          disabled={isLoading}
-          size="icon-sm"
-          variant="ghost"
-        >
+        <Button className="relative" size="icon-sm" variant="ghost">
           <ShoppingCartIcon className="size-5" />
-          <span className="sr-only">Košík</span>
-          {isLoading && (
-            <span className="-top-1.5 -right-1.5 absolute size-4 rounded-full bg-muted" />
+          {!itemsCount && (
+            <span className="-top-1.5 -right-1.5 absolute size-4 animate-pulse rounded-full bg-muted" />
           )}
-          {cartItemsCount > 0 && (
+          {itemsCount > 0 && (
             <Badge
               className={cn(
                 "-top-1.5 -right-1.5 absolute aspect-square h-4 w-auto px-0.5 py-0 font-semibold text-[10px]"
               )}
               variant="default"
             >
-              {cartItemsCount}
+              {itemsCount}
             </Badge>
           )}
         </Button>
       </DrawerTrigger>
       <DrawerContent className="data-[vaul-drawer-direction=right]:w-[90%]">
         <DrawerHeader>
-          <DrawerTitle>Košík ({cartItemsCount})</DrawerTitle>
+          <DrawerTitle>Košík ({itemsCount})</DrawerTitle>
         </DrawerHeader>
         <Separator />
         {items.length === 0 ? (
