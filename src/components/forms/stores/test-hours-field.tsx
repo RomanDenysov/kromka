@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/style/noMagicNumbers: Ignore it for now */
 "use client";
 
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import {
   CheckIcon,
@@ -118,7 +118,7 @@ export function TestHoursField({ value, onChange }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <div className="w-full cursor-pointer overflow-x-auto rounded-md border p-2 transition-colors hover:bg-muted/50">
+        <div className="w-full cursor-pointer space-y-3 overflow-x-auto rounded-md border p-2 transition-colors hover:bg-muted/50">
           <div className="grid grid-cols-7 gap-1">
             {regularHours.map((day) => (
               <div
@@ -144,6 +144,24 @@ export function TestHoursField({ value, onChange }: Props) {
               </div>
             ))}
           </div>
+          {value.exceptions && (
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(value.exceptions)
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .map(([date, schedule]) => (
+                  <Badge key={date} size="xs" variant="outline">
+                    {format(
+                      parse(date, "yyyy-MM-dd", new Date()),
+                      "EEEE - dd.MM.yyyy",
+                      { locale: sk }
+                    )}{" "}
+                    {schedule === "closed"
+                      ? "- Zatvorené"
+                      : `- ${schedule?.start} - ${schedule?.end}`}
+                  </Badge>
+                ))}
+            </div>
+          )}
         </div>
       </DialogTrigger>
       <DialogContent className="max-w-xl space-y-5">
@@ -358,13 +376,17 @@ type ExceptionsEditorProps = {
 };
 
 function ExceptionsEditor({ exceptions, onChange }: ExceptionsEditorProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [isAdding, setIsAdding] = useState(false);
 
-  const addException = (date: string, schedule: DaySchedule) => {
-    onChange({ ...exceptions, [date]: schedule });
+  const addExceptions = (dates: Date[], schedule: DaySchedule) => {
+    const newExceptions = { ...exceptions };
+    for (const date of dates) {
+      newExceptions[format(date, "yyyy-MM-dd")] = schedule;
+    }
+    onChange(newExceptions);
     setIsAdding(false);
-    setSelectedDate(undefined);
+    setSelectedDates([]);
   };
 
   const removeException = (date: string) => {
@@ -417,16 +439,6 @@ function ExceptionsEditor({ exceptions, onChange }: ExceptionsEditorProps) {
           ))}
         </FieldGroup>
       )}
-      {/* {isAdding && (
-        <div>
-          <Calendar
-            mode="single"
-            onSelect={(date) => setSelectedDate(date)}
-            selected={selectedDate}
-          />
-          
-        </div>
-      )} */}
       <Popover onOpenChange={setIsAdding} open={isAdding}>
         <PopoverTrigger asChild>
           <Button
@@ -446,30 +458,40 @@ function ExceptionsEditor({ exceptions, onChange }: ExceptionsEditorProps) {
           sideOffset={4}
         >
           <Calendar
-            mode="single"
-            onSelect={(date) => setSelectedDate(date)}
-            selected={selectedDate}
+            locale={sk}
+            mode="multiple"
+            onSelect={(dates) => setSelectedDates(dates ?? [])}
+            selected={selectedDates}
             weekStartsOn={1}
           />
-          <div className="flex items-center justify-end gap-2 px-3 pb-3">
-            <Button
-              onClick={() => {
-                addException(selectedDate?.toISOString() ?? "", "closed");
-              }}
-              size="icon-xs"
-              type="button"
-              variant="ghost"
-            >
-              <CheckIcon />
-            </Button>
-            <Button
-              onClick={() => setIsAdding(false)}
-              size="icon-xs"
-              type="button"
-              variant="ghost"
-            >
-              <XIcon />
-            </Button>
+          <div className="flex items-center justify-between gap-2 px-3 pb-3">
+            <span className="text-muted-foreground text-xs">
+              {selectedDates.length > 0
+                ? `Vybrané: ${selectedDates.length}`
+                : "Vyberte dátumy"}
+            </span>
+            <div className="flex gap-1">
+              <Button
+                disabled={selectedDates.length === 0}
+                onClick={() => addExceptions(selectedDates, "closed")}
+                size="xs"
+                type="button"
+                variant="secondary"
+              >
+                <CheckIcon /> Pridať
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsAdding(false);
+                  setSelectedDates([]);
+                }}
+                size="icon-xs"
+                type="button"
+                variant="ghost"
+              >
+                <XIcon />
+              </Button>
+            </div>
           </div>
         </PopoverContent>
       </Popover>

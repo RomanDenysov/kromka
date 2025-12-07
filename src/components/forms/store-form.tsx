@@ -30,7 +30,6 @@ import { TestHoursField } from "./stores/test-hours-field";
 // biome-ignore lint/style/noMagicNumbers: Image aspect ratio
 const IMAGE_ASPECT_RATIO = 16 / 9;
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Component is slightly complex due to form fields
 export function StoreForm({
   store,
   className,

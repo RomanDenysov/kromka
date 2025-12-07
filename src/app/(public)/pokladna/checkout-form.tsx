@@ -129,7 +129,10 @@ export function CheckoutForm({
         if (!user?.storeId && value.storeId) {
           const selectedStore = stores.find((s) => s.id === value.storeId);
           if (selectedStore) {
-            setCustomerStore({ id: selectedStore.id, name: selectedStore.name });
+            setCustomerStore({
+              id: selectedStore.id,
+              name: selectedStore.name,
+            });
           }
         }
 

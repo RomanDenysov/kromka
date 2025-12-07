@@ -8,6 +8,7 @@ import { PriceInputField } from "./fields/price-input-field";
 import { QuantitySetterField } from "./fields/quantity-setter-field";
 import { RichTextField } from "./fields/rich-text-field";
 import { SelectField } from "./fields/select-field";
+import { StoreExceptionsField } from "./fields/store-exceptions-field";
 import { SubmitButton } from "./fields/submit-button";
 import { SwitchField } from "./fields/switch-field";
 import { TextField } from "./fields/text-field";
@@ -36,6 +37,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     DateRangeField,
     DaysToggleField,
     PriceInputField,
+    StoreExceptionsField,
   },
   formComponents: {
     SubmitButton,

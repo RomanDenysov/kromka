@@ -38,12 +38,7 @@ const defaultValues: OpeningHoursFieldGroupValues | undefined = {
       end: "18:00",
     },
   },
-  exceptions: {
-    "2025-12-24": {
-      start: "08:00",
-      end: "18:00",
-    },
-  },
+  exceptions: {},
 };
 
 const options = [
@@ -69,7 +64,9 @@ export const OpeningHoursFieldGroup = withFieldGroup({
         </group.AppField>
       ))}
       <group.AppField name="exceptions">
-        {(field) => <field.DateRangeField label="Výnimky" />}
+        {(field) => (
+          <field.StoreExceptionsField label="Výnimky (sviatky, dovolenky)" />
+        )}
       </group.AppField>
     </FieldGroup>
   ),
