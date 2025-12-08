@@ -20,7 +20,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { VisuallyHiddenInput } from "@/components/visually-hidden-input";
+import { VisuallyHiddenInput } from "@/components/shared/visually-hidden-input";
 import { useComposedRefs } from "@/lib/compose-refs";
 import { cn } from "@/lib/utils";
 

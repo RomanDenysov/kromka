@@ -13,9 +13,9 @@ type Props = {
 };
 
 async function ProfileLayoutContent({ children }: Props) {
-  const { user, isAuthenticated } = await getAuth();
+  const { user, session } = await getAuth();
 
-  if (!(isAuthenticated && user)) {
+  if (!(session && user)) {
     redirect("/prihlasenie?origin=/profil");
   }
 
