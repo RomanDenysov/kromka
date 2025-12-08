@@ -4,10 +4,10 @@ import type { Route } from "next";
 import { StoreCard } from "@/components/cards/store-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Store } from "@/lib/queries/stores";
-import { useCustomerDataStore } from "@/store/customer-data-store";
+import { useCustomerStore } from "@/store/customer-store";
 
 export function StoresGrid({ stores }: { stores: Store[] }) {
-  const selectedStore = useCustomerDataStore((state) => state.customerStore);
+  const selectedStore = useCustomerStore((state) => state.customerStore);
 
   return (
     <section>

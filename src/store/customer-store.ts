@@ -2,47 +2,39 @@ import { create } from "zustand";
 import { type PersistOptions, persist } from "zustand/middleware";
 import type { Store } from "@/lib/queries/stores";
 
-type CustomerData = {
+type Customer = {
   id: string;
   name: string | null;
   email: string;
   image: string | null;
-  isAnonymous: boolean;
 } | null;
 
 type SelectedStore = Pick<Store, "id" | "name"> | null;
 
-type CustomerDataState = {
-  customer: CustomerData;
+type CustomerState = {
+  customer: Customer;
   customerStore: SelectedStore;
 };
 
-type CustomerDataActions = {
-  setCustomer: (customer: CustomerData) => void;
+type CustomerActions = {
+  setCustomer: (customer: Customer) => void;
   setCustomerStore: (customerStore: SelectedStore) => void;
 };
 
-type CustomerDataStore = CustomerDataState & {
-  actions: CustomerDataActions;
-  _hasHydrated: boolean;
+type CustomerStore = CustomerState & {
+  actions: CustomerActions;
 };
 
-const persistOptions: PersistOptions<CustomerDataStore, CustomerDataState> = {
-  name: "kromka-customer-data",
+const persistOptions: PersistOptions<CustomerStore, CustomerState> = {
+  name: "krmk-store",
   partialize: ({ actions, ...state }) => state,
-  onRehydrateStorage: () => (state) => {
-    if (state) {
-      state._hasHydrated = true;
-    }
-  },
 };
 
-export const useCustomerDataStore = create<CustomerDataStore>()(
+export const useCustomerStore = create<CustomerStore>()(
   persist(
     (set) => ({
       customer: null,
       customerStore: null,
-      _hasHydrated: false,
       actions: {
         setCustomer: (customer) => set({ customer }),
         setCustomerStore: (customerStore) => set({ customerStore }),

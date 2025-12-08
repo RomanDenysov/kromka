@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
+import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { CartDrawerContent } from "@/components/shared/cart-drawer-content";
 import {
   CartIndicator,
@@ -12,8 +13,8 @@ import {
 import { Container } from "@/components/shared/container";
 import { buttonVariants } from "@/components/ui/button";
 import { UserButton } from "@/components/user-button";
+import { getStores } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
-import { OpenStoreModalButton } from "./open-store-modal-button";
 
 const navigation: { name: string; href: Route }[] = [
   { name: "E-shop", href: "/e-shop" },
@@ -24,12 +25,15 @@ const navigation: { name: string; href: Route }[] = [
 ] as const;
 
 export function Header() {
+  const stores = getStores();
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <Container>
         <div className="flex h-14 w-full items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-5">
           {/* Navigation */}
-          <MobileNavigation navigation={navigation} />
+          <MobileNavigation navigation={navigation}>
+            <StoreSelectModal storesPromise={stores} />
+          </MobileNavigation>
           <nav className="hidden grow items-center justify-start gap-2 md:flex">
             {navigation.map((item) => (
               <Link
@@ -52,7 +56,7 @@ export function Header() {
           {/* Actions */}
           <div className="flex items-center justify-end gap-3">
             <Suspense>
-              <OpenStoreModalButton />
+              <StoreSelectModal storesPromise={stores} />
               <UserButton />
               <CartDrawer
                 indicator={

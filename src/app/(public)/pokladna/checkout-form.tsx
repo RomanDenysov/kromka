@@ -32,6 +32,7 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { PAYMENT_METHODS, type PaymentMethod } from "@/db/types";
 import { createOrderFromCart } from "@/lib/actions/orders";
@@ -45,7 +46,7 @@ import {
 } from "@/lib/checkout-utils";
 import type { Store } from "@/lib/queries/stores";
 import { formatPrice } from "@/lib/utils";
-import { useCustomerDataStore } from "@/store/customer-data-store";
+import { useCustomerStore } from "@/store/customer-store";
 import type { Cart } from "@/types/cart";
 
 const checkoutFormSchema = z.object({
@@ -75,8 +76,9 @@ export function CheckoutForm({
     0
   );
 
-  const { customer } = useCustomerDataStore();
-  const setCustomerStore = useCustomerDataStore(
+  const customer = useCustomerStore((state) => state.customer);
+  const customerStore = useCustomerStore((state) => state.customerStore);
+  const setCustomerStore = useCustomerStore(
     (state) => state.actions.setCustomerStore
   );
   const router = useRouter();
@@ -95,19 +97,18 @@ export function CheckoutForm({
 
   // Derive initial values from user (DB) or local customer store fallback
   const initialValues = useMemo(() => {
-    const fallbackData = customer?.isAnonymous ? null : customer;
     const userData = user?.isAnonymous ? null : user;
 
     return {
-      name: userData?.name ?? fallbackData?.name ?? "",
-      email: userData?.email ?? fallbackData?.email ?? "",
+      name: userData?.name ?? customer?.name ?? "",
+      email: userData?.email ?? customer?.email ?? "",
       phone: userData?.phone ?? "",
       paymentMethod: "in_store" as PaymentMethod,
       pickupDate: new Date(),
       pickupTime: "",
-      storeId: user?.storeId ?? "",
+      storeId: user?.storeId ?? customerStore?.id ?? "",
     };
-  }, [user, customer]);
+  }, [user, customer, customerStore]);
 
   const form = useAppForm({
     defaultValues: initialValues,
@@ -442,6 +443,20 @@ export function CheckoutForm({
           </div>
         </form>
       </form.AppForm>
+    </div>
+  );
+}
+
+export function CheckoutFormSkeleton() {
+  return (
+    <div className="sticky top-14 size-full">
+      <div className="grid grid-cols-1 gap-5">
+        <Skeleton className="h-70 w-full" />
+        <Skeleton className="h-50 w-full" />
+        <Skeleton className="h-50 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
     </div>
   );
 }

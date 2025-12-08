@@ -1,10 +1,11 @@
 "use client";
 
-import { use, useTransition } from "react";
-import { setUserStore } from "@/lib/actions/stores";
+import { StoreIcon } from "lucide-react";
+import { use, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import type { Store } from "@/lib/queries/stores";
-import { useCustomerDataStore } from "@/store/customer-data-store";
-import { useSelectedModalStore } from "@/store/selecte-store-modal";
+import { cn } from "@/lib/utils";
+import { useCustomerStore } from "@/store/customer-store";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -14,6 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "../ui/dialog";
 import {
   Field,
@@ -32,43 +34,32 @@ type StoreSelectModalProps = {
 };
 
 export function StoreSelectModal({ storesPromise }: StoreSelectModalProps) {
+  const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
   const stores = use(storesPromise);
-  const [isPending, startTransition] = useTransition();
-  const { isOpen, setIsOpen } = useSelectedModalStore();
 
-  const setCustomerStore = useCustomerDataStore(
+  const setCustomerStore = useCustomerStore(
     (state) => state.actions.setCustomerStore
   );
-  const customerStore = useCustomerDataStore((state) => state.customerStore);
-
-  const handleSelect = (storeId: string) => {
-    const store = stores.find((s) => s.id === storeId);
-    if (!store) {
-      return;
-    }
-
-    // Optimistic — сразу обновляем UI
-    setCustomerStore({ id: store.id, name: store.name });
-    setIsOpen(false);
-
-    startTransition(async () => {
-      try {
-        await setUserStore(storeId);
-      } catch (error) {
-        // Rollback
-        setCustomerStore(
-          customerStore
-            ? { id: customerStore.id, name: customerStore.name }
-            : null
-        );
-        // biome-ignore lint/suspicious/noConsole: <explanation>
-        console.error(error);
-      }
-    });
-  };
+  const customerStore = useCustomerStore((state) => state.customerStore);
 
   return (
-    <Dialog onOpenChange={setIsOpen} open={isOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogTrigger asChild>
+        <Button
+          className={cn(
+            isMobile
+              ? "w-full justify-start gap-3 has-[>svg]:px-3"
+              : "hidden w-auto md:inline-flex"
+          )}
+          size={isMobile ? "xl" : "sm"}
+          type="button"
+          variant="outline"
+        >
+          <StoreIcon className={cn(isMobile ? "size-6" : "size-4")} />
+          {customerStore ? customerStore.name : "Vybrať predajňu"}
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Vyberte predajňu</DialogTitle>
@@ -81,8 +72,12 @@ export function StoreSelectModal({ storesPromise }: StoreSelectModalProps) {
             <FieldGroup>
               <FieldSet>
                 <RadioGroup
-                  disabled={isPending}
-                  onValueChange={(value) => handleSelect(value)}
+                  onValueChange={(value) =>
+                    setCustomerStore({
+                      id: value,
+                      name: stores.find((s) => s.id === value)?.name ?? "",
+                    })
+                  }
                   value={customerStore?.id ?? null}
                 >
                   {stores.map((store) => (
