@@ -1,6 +1,10 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import {
+  CartDrawerFooter,
+  CartDrawerFooterLoader,
+} from "@/components/cart-drawer-footer";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
@@ -73,6 +77,9 @@ export function Header() {
               >
                 <Suspense>
                   <CartDrawerContent />
+                </Suspense>
+                <Suspense fallback={<CartDrawerFooterLoader />}>
+                  <CartDrawerFooter />
                 </Suspense>
               </CartDrawer>
             </Suspense>
