@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeftIcon } from "lucide-react";
+import { ChevronLeftIcon } from "lucide-react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
@@ -10,7 +10,12 @@ type Props = ButtonProps & {
   href?: Route;
 };
 
-export function BackButton({ href, className, ...props }: Props) {
+export function BackButton({
+  href,
+  className,
+  variant = "secondary",
+  ...props
+}: Props) {
   const router = useRouter();
 
   const handleClick = useCallback(() => {
@@ -26,11 +31,14 @@ export function BackButton({ href, className, ...props }: Props) {
       {...props}
       className={className}
       onClick={handleClick}
-      size="icon-sm"
-      variant="secondary"
+      variant={variant}
     >
-      <ArrowLeftIcon className="size-4" />
-      <span className="sr-only">Vrátiť sa späť</span>
+      {props.children ?? (
+        <>
+          <ChevronLeftIcon className="size-4" />
+          <span className="sr-only">Vrátiť sa späť</span>
+        </>
+      )}
     </Button>
   );
 }

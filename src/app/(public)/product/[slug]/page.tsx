@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense, ViewTransition } from "react";
+import { ViewTransition } from "react";
 import { ImageSlider } from "@/components/image-slider";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
@@ -33,7 +33,7 @@ export async function generateStaticParams() {
   return allProducts.map((p) => ({ slug: p.slug }));
 }
 
-async function ProductPageContent({ params }: Props) {
+export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const urlDecoded = decodeURIComponent(slug);
   const products = await getProducts();
@@ -136,13 +136,5 @@ async function ProductPageContent({ params }: Props) {
         </div>
       </section>
     </PageWrapper>
-  );
-}
-
-export default function ProductPage({ params }: Props) {
-  return (
-    <Suspense fallback={<PageWrapper>Loading...</PageWrapper>}>
-      <ProductPageContent params={params} />
-    </Suspense>
   );
 }

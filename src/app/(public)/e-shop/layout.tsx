@@ -14,6 +14,7 @@ export default function EshopLayout({ children }: Props) {
       <AppBreadcrumbs items={[{ label: "E-shop", href: "/e-shop" }]} />
       <FeaturedCarousel />
       <CategoriesFilterLoader />
+      {/* <SimpleCategoriesFilter /> */}
       {children}
     </PageWrapper>
   );

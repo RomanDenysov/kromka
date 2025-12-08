@@ -44,13 +44,13 @@ export function FilterCarousel({ categories }: Props) {
     <div className="relative w-full">
       <div
         className={cn(
-          "pointer-events-none absolute top-0 bottom-0 left-12 z-10 w-12 bg-linear-to-r from-background to-transparent",
+          "pointer-events-none absolute top-0 bottom-0 left-12 z-10 hidden w-12 bg-linear-to-r from-background to-transparent md:block",
           current === 1 && "hidden"
         )}
       />
       <div
         className={cn(
-          "pointer-events-none absolute top-0 right-12 bottom-0 z-10 w-12 bg-linear-to-l from-background to-transparent",
+          "pointer-events-none absolute top-0 right-12 bottom-0 z-10 hidden w-12 bg-linear-to-l from-background to-transparent md:block",
           current === count && "hidden"
         )}
       />

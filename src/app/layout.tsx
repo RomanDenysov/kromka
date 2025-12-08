@@ -27,7 +27,7 @@ type Props = {
 export default function RootLayout({ children }: Props) {
   return (
     <html lang="sk" suppressHydrationWarning>
-      <body className={cn(fonts, "relative h-full min-h-screen scroll-smooth")}>
+      <body className={cn(fonts, "relative min-h-screen scroll-smooth")}>
         <Providers>
           <NuqsAdapter>
             {children}

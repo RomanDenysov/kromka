@@ -1,6 +1,7 @@
+import { ChevronLeftIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import React from "react";
+import { Fragment } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,6 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { BackButton } from "./back-button";
 
 export type BreadcrumbItemType = {
   label: string;
@@ -22,7 +24,11 @@ type Props = {
 export function AppBreadcrumbs({ items }: Props) {
   return (
     <Breadcrumb>
-      <BreadcrumbList>
+      <BackButton className="md:hidden" size="sm" variant="link">
+        <ChevronLeftIcon className="size-4" />
+        Späť
+      </BackButton>
+      <BreadcrumbList className="hidden font-medium md:flex">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
             <Link href="/">Domov</Link>
@@ -33,7 +39,7 @@ export function AppBreadcrumbs({ items }: Props) {
           const isLast = index === items.length - 1;
 
           return (
-            <React.Fragment key={item.label}>
+            <Fragment key={item.label}>
               <BreadcrumbItem>
                 {isLast || !item.href ? (
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
@@ -44,7 +50,7 @@ export function AppBreadcrumbs({ items }: Props) {
                 )}
               </BreadcrumbItem>
               {!isLast && <BreadcrumbSeparator />}
-            </React.Fragment>
+            </Fragment>
           );
         })}
       </BreadcrumbList>
