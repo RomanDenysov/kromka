@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import type { CartProduct } from "@/types/cart";
+import { RemoveItemButton } from "../checkout/remove-item-button";
 import { Badge } from "../ui/badge";
 import { QuantitySetter } from "./quantity-setter";
 
@@ -40,10 +41,18 @@ export function ProductCartListItem({ product, quantity }: Props) {
           </span>
         </div>
       </div>
-      <div className="flex flex-col items-end gap-2">
-        <span className="font-medium text-sm">
-          {formatPrice(product.priceCents * quantity)}
-        </span>
+      <div className="flex flex-col items-end justify-between gap-2">
+        <div className="flex items-center gap-1">
+          <span className="font-medium text-sm">
+            {formatPrice(product.priceCents * quantity)}
+          </span>
+          <RemoveItemButton
+            iconClassName="size-3 sm:size-4"
+            id={product.id}
+            size="icon-xs"
+            variant="ghost"
+          />
+        </div>
         <QuantitySetter id={product.id} quantity={quantity} />
       </div>
     </div>

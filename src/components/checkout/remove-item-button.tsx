@@ -1,10 +1,24 @@
 "use client";
+
 import { XIcon } from "lucide-react";
 import { useTransition } from "react";
 import { removeFromCart } from "@/lib/actions/cart";
-import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
+import { Button, type ButtonProps } from "../ui/button";
+import { Spinner } from "../ui/spinner";
 
-export function RemoveItemButton({ id }: { id: string }) {
+type Props = ButtonProps & {
+  id: string;
+  iconClassName?: string;
+};
+
+export function RemoveItemButton({
+  id,
+  variant = "ghost",
+  size = "icon-sm",
+  iconClassName,
+  ...props
+}: Props) {
   const [isPending, startTransition] = useTransition();
   return (
     <Button
@@ -15,11 +29,16 @@ export function RemoveItemButton({ id }: { id: string }) {
           removeFromCart(id);
         })
       }
-      size={"icon-sm"}
+      size={size}
       type="button"
-      variant="ghost"
+      variant={variant}
+      {...props}
     >
-      <XIcon className="size-5 sm:size-6" />
+      {isPending ? (
+        <Spinner />
+      ) : (
+        <XIcon className={cn("size-5 sm:size-6", iconClassName)} />
+      )}
       <span className="sr-only">Odstrániť z košíka</span>
     </Button>
   );

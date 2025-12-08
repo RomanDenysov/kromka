@@ -15,28 +15,31 @@ export async function CartDrawerFooter() {
     0
   );
   return (
-    items.length > 0 && (
-      <>
-        <Separator />
-        <DrawerFooter>
-          <div className="mb-2 flex items-center justify-between font-medium sm:mb-4">
-            <span>Spolu</span>
-            <span>{formatPrice(totalCents)}</span>
-          </div>
-          <DrawerClose asChild>
-            <Link
-              className={cn(
-                buttonVariants({ size: "lg", className: "w-full" }),
-                "text-base"
-              )}
-              href={"/pokladna"}
-            >
-              Prejsť na pokladňu
-            </Link>
-          </DrawerClose>
-        </DrawerFooter>
-      </>
-    )
+    <>
+      <Separator />
+      <DrawerFooter>
+        <div className="mb-2 flex items-center justify-between font-medium sm:mb-4">
+          <span>Spolu</span>
+          <span>{formatPrice(totalCents)}</span>
+        </div>
+        <DrawerClose
+          aria-disabled={items.length === 0}
+          asChild
+          disabled={items.length === 0}
+        >
+          <Link
+            className={cn(
+              buttonVariants({ size: "lg", className: "w-full" }),
+              "text-base",
+              items.length === 0 && "pointer-events-none opacity-50"
+            )}
+            href={"/pokladna"}
+          >
+            Prejsť na pokladňu
+          </Link>
+        </DrawerClose>
+      </DrawerFooter>
+    </>
   );
 }
 
