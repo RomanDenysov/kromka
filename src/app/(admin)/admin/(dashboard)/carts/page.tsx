@@ -30,31 +30,35 @@ export default async function AdminCartsPage() {
       {carts.map((cart) => (
         <Card key={cart.id}>
           <CardHeader className="border-b">
-            <div className="flex flex-row items-center gap-2">
-              <Avatar className="size-8">
-                <AvatarImage
-                  alt={cart.user.name ?? "Neznámy zákazník"}
-                  src={cart.user.image ?? undefined}
-                />
-                <AvatarFallback>
-                  {getInitials(cart.user.name ?? "A")}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col gap-1">
-                <CardTitle className="text-sm">
-                  {cart.user.isAnonymous
-                    ? "Neznámy zákazník"
-                    : (cart.user.name ?? "Neznámy zákazník")}
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  {cart.user.isAnonymous ? null : (
-                    <span className="truncate text-muted-foreground">
-                      {cart.user.email}
-                    </span>
-                  )}
-                </CardDescription>
+            {cart.user ? (
+              <div className="flex flex-row items-center gap-2">
+                <Avatar className="size-8">
+                  <AvatarImage
+                    alt={cart.user?.name ?? "Neznámy zákazník"}
+                    src={cart.user?.image ?? undefined}
+                  />
+                  <AvatarFallback>
+                    {getInitials(cart.user?.name ?? "A")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col gap-1">
+                  <CardTitle className="text-sm">
+                    {cart.user?.isAnonymous
+                      ? "Neznámy zákazník"
+                      : (cart.user?.name ?? "Neznámy zákazník")}
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    {cart.user?.isAnonymous ? null : (
+                      <span className="truncate text-muted-foreground">
+                        {cart.user?.email}
+                      </span>
+                    )}
+                  </CardDescription>
+                </div>
               </div>
-            </div>
+            ) : (
+              <CardTitle className="text-sm">Neznámy zákazník</CardTitle>
+            )}
           </CardHeader>
           <CardContent>
             <div className="flex flex-1 flex-col justify-between">

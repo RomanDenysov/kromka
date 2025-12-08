@@ -1,39 +1,83 @@
 "use client";
 
 import { MinusIcon, PlusIcon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 import { Button } from "@/components/ui/button";
+import { updateCartItemQuantity } from "@/lib/actions/cart";
 import { cn } from "@/lib/utils";
-import { useCart } from "../cart/cart-context";
+
+const DEBOUNCE_DELAY = 500;
 
 type Props = {
-  productId: string;
+  id: string;
   quantity: number;
   size?: "icon-xs" | "icon" | "icon-sm" | "icon-lg";
   textSize?: string;
+  max?: number;
 };
 
+/**
+ * Quantity setter with debounced server sync.
+ * Updates UI instantly and syncs to server after user stops clicking.
+ */
 export function QuantitySetter({
-  productId,
+  id,
   quantity,
   size = "icon-xs",
   textSize = "text-sm",
+  max = 100,
 }: Props) {
-  const { updateQuantity } = useCart();
+  const [localQuantity, setLocalQuantity] = useState(quantity);
+  const lastServerQuantity = useRef(quantity);
+
+  // Sync from server when prop changes (e.g., after revalidation)
+  useEffect(() => {
+    if (quantity !== lastServerQuantity.current) {
+      lastServerQuantity.current = quantity;
+      setLocalQuantity(quantity);
+    }
+  }, [quantity]);
+
+  const syncToServer = useDebouncedCallback((newQuantity: number) => {
+    if (newQuantity !== lastServerQuantity.current) {
+      lastServerQuantity.current = newQuantity;
+      updateCartItemQuantity(id, newQuantity);
+    }
+  }, DEBOUNCE_DELAY);
+
+  const handleDecrement = useCallback(() => {
+    setLocalQuantity((prev) => {
+      const next = Math.max(1, prev - 1);
+      syncToServer(next);
+      return next;
+    });
+  }, [syncToServer]);
+
+  const handleIncrement = useCallback(() => {
+    setLocalQuantity((prev) => {
+      const next = Math.min(max, prev + 1);
+      syncToServer(next);
+      return next;
+    });
+  }, [max, syncToServer]);
 
   return (
     <div className="flex items-center gap-1">
       <Button
-        onClick={() => updateQuantity(productId, Math.max(0, quantity - 1))}
+        disabled={localQuantity <= 1}
+        onClick={handleDecrement}
         size={size}
         variant="outline"
       >
         <MinusIcon className="size-3" />
       </Button>
       <span className={cn("w-6 text-center tabular-nums", textSize)}>
-        {quantity}
+        {localQuantity}
       </span>
       <Button
-        onClick={() => updateQuantity(productId, quantity + 1)}
+        disabled={localQuantity >= max}
+        onClick={handleIncrement}
         size={size}
         variant="outline"
       >

@@ -1,22 +1,19 @@
-"use client";
-
 import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
-import { CalendarIcon, XIcon } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import Link from "next/link";
-import { useTransition } from "react";
+import { getCart } from "@/lib/queries/cart";
 import { formatPrice } from "@/lib/utils";
 import type { CartItem } from "@/types/cart";
-import { useCart } from "../cart/cart-context";
+import { RemoveItemButton } from "../checkout/remove-item-button";
 import { Hint } from "../shared/hint";
 import { ProductImage } from "../shared/product-image";
 import { QuantitySetter } from "../shared/quantity-setter";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
-export function CheckoutList() {
-  const { cart } = useCart();
+export async function CheckoutList() {
+  const cart = await getCart();
   const items = cart?.items ?? [];
 
   return (
@@ -32,13 +29,7 @@ export function CheckoutList() {
 
 function CheckoutListItem({ item }: { item: CartItem }) {
   const { product, quantity } = item;
-  const { removeFromCart } = useCart();
-  const [isPending, startTransition] = useTransition();
-  const handleRemoveFromCart = () => {
-    startTransition(() => {
-      removeFromCart(product.id);
-    });
-  };
+
   const pickupDates = product.category?.pickupDates ?? [];
   const hasPickupRestriction = pickupDates && pickupDates.length > 0;
 
@@ -78,21 +69,11 @@ function CheckoutListItem({ item }: { item: CartItem }) {
             )}
           </div>
 
-          <Button
-            aria-label="Odstrániť z košíka"
-            disabled={isPending}
-            onClick={handleRemoveFromCart}
-            size={"icon-sm"}
-            type="button"
-            variant="ghost"
-          >
-            <XIcon className="size-5 sm:size-6" />
-            <span className="sr-only">Odstrániť z košíka</span>
-          </Button>
+          <RemoveItemButton id={product.id} />
         </div>
         <div className="flex flex-row items-center justify-between gap-2">
           <QuantitySetter
-            productId={product.id}
+            id={product.id}
             quantity={quantity}
             size="icon"
             textSize="text-sm sm:text-base w-6 sm:w-8"

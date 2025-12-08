@@ -31,15 +31,6 @@ export const getProducts = cache(async () => {
 // biome-ignore lint/complexity/noVoid: we need to preload the products
 export const preloadProducts = () => void getProducts();
 
-export const getProductBySlug = cache(async (slug: string) => {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("products", `product-${slug}`);
-
-  const allProducts = await getProducts();
-  return allProducts.find((p) => p.slug === slug) ?? null;
-});
-
 export const getCategories = cache(async () => {
   "use cache";
   cacheLife("days");

@@ -1,6 +1,8 @@
-"use client";
-
-import type { FeaturedCategory } from "@/lib/queries/products";
+import { cacheLife } from "next/cache";
+import {
+  type FeaturedCategory,
+  getFeaturedCategories,
+} from "@/lib/queries/products";
 import { FeaturedProductCard } from "./cards/featured-product-card";
 import {
   Carousel,
@@ -10,11 +12,10 @@ import {
   CarouselPrevious,
 } from "./ui/carousel";
 
-type Props = {
-  categories: FeaturedCategory[];
-};
-
-export function FeaturedCarousel({ categories }: Props) {
+export async function FeaturedCarousel() {
+  "use cache";
+  cacheLife("hours");
+  const categories = await getFeaturedCategories();
   if (categories.length === 0) {
     return null;
   }

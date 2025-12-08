@@ -1,14 +1,8 @@
-"use client";
-
-import { ShoppingCartIcon } from "lucide-react";
 import Link from "next/link";
-import { useTransition } from "react";
 import type { Product } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
-import { useCart } from "../cart/cart-context";
+import { AddToCartButtonIcon } from "../shared/add-to-cart-button";
 import { ProductImage } from "../shared/product-image";
-import { Button } from "../ui/button";
-import { Spinner } from "../ui/spinner";
 
 type Props = {
   product: Product;
@@ -16,13 +10,6 @@ type Props = {
 };
 
 export function FeaturedProductCard({ product, className }: Props) {
-  const { addToCart } = useCart();
-  const [isPending, startTransition] = useTransition();
-  const handleAddToCart = () => {
-    startTransition(() => {
-      addToCart(product.id, 1, product);
-    });
-  };
   const isActive = product?.status === "active";
 
   return (
@@ -57,23 +44,7 @@ export function FeaturedProductCard({ product, className }: Props) {
             </p>
           </div>
 
-          <Button
-            className="h-10 w-10 shrink-0 rounded-full bg-white text-black shadow-md transition-all hover:scale-105 hover:bg-white/90"
-            disabled={isPending || !isActive}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleAddToCart();
-            }}
-            size="icon"
-          >
-            {isPending ? (
-              <Spinner className="size-5" />
-            ) : (
-              <ShoppingCartIcon className="size-5" />
-            )}
-            <span className="sr-only">Do košíka</span>
-          </Button>
+          <AddToCartButtonIcon disabled={!isActive} id={product.id} />
         </div>
       </div>
     </Link>

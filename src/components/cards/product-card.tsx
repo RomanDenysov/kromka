@@ -13,45 +13,24 @@ import { Button } from "../ui/button";
 type Props = {
   product: Product;
   className?: string;
-  /** Delay in ms before animation starts. 0 = no animation (already rendered). */
-  animationDelay?: number;
   preload?: boolean;
 };
 
-export function ProductCard({
-  product,
-  className,
-  animationDelay = 0,
-  preload = false,
-}: Props) {
+export function ProductCard({ product, className, preload = false }: Props) {
   const isActive = product.status === "active";
-
-  const shouldAnimate = animationDelay > 0;
 
   return (
     <article
       className={cn(
         "relative flex flex-col gap-3 overflow-hidden rounded-md p-0.5",
-        shouldAnimate &&
-          "fade-in slide-in-from-bottom-4 animate-in fill-mode-backwards duration-300",
         className
       )}
-      style={
-        shouldAnimate ? { animationDelay: `${animationDelay}ms` } : undefined
-      }
       title={isActive ? product.name : `${product.name} (neaktívny produkt)`}
     >
       <Link href={`/product/${product.slug}`} prefetch>
         <div className="relative">
           <div className="absolute top-2 right-2 z-20">
-            <Button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              size="icon-sm"
-              variant="ghost"
-            >
+            <Button size="icon-sm" type="button" variant="ghost">
               <HeartIcon className="size-5" />
             </Button>
           </div>
@@ -89,7 +68,7 @@ export function ProductCard({
               {formatPrice(product.priceCents)}
             </span>
           </ViewTransition>
-          <AddToCartButton disabled={!isActive} product={product} />
+          <AddToCartButton disabled={!isActive} id={product.id} />
         </div>
       </div>
     </article>

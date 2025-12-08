@@ -1,29 +1,17 @@
 import "server-only";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { getAuth } from "../auth/session";
+import { carts } from "@/db/schema";
+import { getCartIdFromCookie } from "../cart/cookies";
 
 export async function getCart() {
-  const { user, session } = await getAuth();
-
-  if (!(user && session)) {
+  const cartId = await getCartIdFromCookie();
+  if (!cartId) {
     return null;
   }
 
-  const companyId = session.session?.activeOrganizationId ?? null;
-
   const cart = await db.query.carts.findFirst({
-    where: (cartTable, { eq: eqFn, and: andFn, isNull }) => {
-      if (companyId) {
-        return andFn(
-          eqFn(cartTable.userId, user.id),
-          eqFn(cartTable.companyId, companyId)
-        );
-      }
-      return andFn(
-        eqFn(cartTable.userId, user.id),
-        isNull(cartTable.companyId)
-      );
-    },
+    where: eq(carts.id, cartId),
     with: {
       items: {
         orderBy: (item, { asc }) => [asc(item.productId)],

@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useTransition } from "react";
 import { toast } from "sonner";
 import z from "zod";
-import { useCart } from "@/components/cart/cart-context";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
 import {
@@ -47,6 +46,7 @@ import {
 import type { Store } from "@/lib/queries/stores";
 import { formatPrice } from "@/lib/utils";
 import { useCustomerDataStore } from "@/store/customer-data-store";
+import type { Cart } from "@/types/cart";
 
 const checkoutFormSchema = z.object({
   name: z.string().min(1),
@@ -63,11 +63,18 @@ const checkoutFormSchema = z.object({
 export function CheckoutForm({
   user,
   stores,
+  cart,
 }: {
   user?: User;
   stores: Store[];
+  cart: Cart | null;
 }) {
-  const { cart } = useCart();
+  const items = cart?.items ?? [];
+  const totalCents = items.reduce(
+    (acc, item) => acc + item.priceCents * item.quantity,
+    0
+  );
+
   const { customer } = useCustomerDataStore();
   const setCustomerStore = useCustomerDataStore(
     (state) => state.actions.setCustomerStore
@@ -101,15 +108,6 @@ export function CheckoutForm({
       storeId: user?.storeId ?? "",
     };
   }, [user, customer]);
-
-  const totalCents = useMemo(
-    () =>
-      cart?.items.reduce(
-        (acc, item) => acc + item.priceCents * item.quantity,
-        0
-      ) ?? 0,
-    [cart]
-  );
 
   const form = useAppForm({
     defaultValues: initialValues,
@@ -165,8 +163,8 @@ export function CheckoutForm({
 
   // Compute restricted pickup dates from cart items' categories
   const restrictedPickupDates = useMemo(
-    () => getRestrictedPickupDates(cart?.items ?? []),
-    [cart?.items]
+    () => getRestrictedPickupDates(items),
+    [items]
   );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we want to memoize by all values

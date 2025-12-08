@@ -2,24 +2,21 @@
 
 import { ShoppingCartIcon } from "lucide-react";
 import { useTransition } from "react";
-import type { Product } from "@/lib/queries/products";
-import { useCart } from "../cart/cart-context";
+import { addToCart as addToCartAction } from "@/lib/actions/cart";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 
-export function AddToCartButton({
-  disabled = false,
-  product,
-}: {
+type Props = {
+  id: string;
   disabled?: boolean;
-  product: Product;
-}) {
-  const { addToCart } = useCart();
+};
+
+export function AddToCartButton({ id, disabled = false }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const handleClick = () => {
     startTransition(() => {
-      addToCart(product.id, 1, product);
+      addToCartAction(id, 1);
     });
   };
 
@@ -32,6 +29,36 @@ export function AddToCartButton({
     >
       {isPending ? <Spinner /> : <ShoppingCartIcon />}
       <span>Do košíka</span>
+    </Button>
+  );
+}
+
+export function AddToCartButtonIcon({ id, disabled = false }: Props) {
+  const [isPending, startTransition] = useTransition();
+
+  const handleClick = () => {
+    startTransition(() => {
+      addToCartAction(id, 1);
+    });
+  };
+
+  return (
+    <Button
+      className="h-10 w-10 shrink-0 rounded-full bg-white text-black shadow-md transition-all hover:scale-105 hover:bg-white/90"
+      disabled={isPending || disabled}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleClick();
+      }}
+      size="icon"
+    >
+      {isPending ? (
+        <Spinner className="size-5" />
+      ) : (
+        <ShoppingCartIcon className="size-5" />
+      )}
+      <span className="sr-only">Do košíka</span>
     </Button>
   );
 }

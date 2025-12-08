@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
@@ -10,10 +8,9 @@ import { QuantitySetter } from "./quantity-setter";
 type Props = {
   product: CartProduct;
   quantity: number;
-  onClick?: () => void;
 };
 
-export function ProductCartListItem({ product, quantity, onClick }: Props) {
+export function ProductCartListItem({ product, quantity }: Props) {
   return (
     <div className="flex w-full items-center justify-between gap-4">
       <div className="flex gap-2">
@@ -30,7 +27,6 @@ export function ProductCartListItem({ product, quantity, onClick }: Props) {
           <Link
             className="font-medium text-sm hover:underline"
             href={`/product/${product.slug}`}
-            onClick={onClick}
           >
             {product.name}
           </Link>
@@ -48,7 +44,7 @@ export function ProductCartListItem({ product, quantity, onClick }: Props) {
         <span className="font-medium text-sm">
           {formatPrice(product.priceCents * quantity)}
         </span>
-        <QuantitySetter productId={product.id} quantity={quantity} />
+        <QuantitySetter id={product.id} quantity={quantity} />
       </div>
     </div>
   );

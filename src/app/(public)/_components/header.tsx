@@ -4,6 +4,11 @@ import { Suspense } from "react";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
+import { CartDrawerContent } from "@/components/shared/cart-drawer-content";
+import {
+  CartIndicator,
+  CartIndicatorLoader,
+} from "@/components/shared/cart-indicator";
 import { Container } from "@/components/shared/container";
 import { buttonVariants } from "@/components/ui/button";
 import { UserButton } from "@/components/user-button";
@@ -49,7 +54,17 @@ export function Header() {
             <Suspense>
               <OpenStoreModalButton />
               <UserButton />
-              <CartDrawer />
+              <CartDrawer
+                indicator={
+                  <Suspense fallback={CartIndicatorLoader}>
+                    <CartIndicator />
+                  </Suspense>
+                }
+              >
+                <Suspense>
+                  <CartDrawerContent />
+                </Suspense>
+              </CartDrawer>
             </Suspense>
           </div>
         </div>

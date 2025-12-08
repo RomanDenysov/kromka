@@ -3,11 +3,9 @@
 import { ShoppingCartIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { cn, formatPrice } from "@/lib/utils";
 import { useCart } from "../cart/cart-context";
-import { ProductCartListItem } from "../shared/product-cart-list-item";
-import { Badge } from "../ui/badge";
 import { Button, buttonVariants } from "../ui/button";
 import {
   Drawer,
@@ -18,10 +16,14 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "../ui/drawer";
-import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 
-export function CartDrawer() {
+type Props = {
+  indicator: ReactNode;
+  children: ReactNode;
+};
+
+export function CartDrawer({ indicator, children }: Props) {
   const [open, setOpen] = useState(false);
   const { cart, itemsCount, totalCents } = useCart();
 
@@ -32,19 +34,7 @@ export function CartDrawer() {
       <DrawerTrigger asChild>
         <Button className="relative" size="icon-sm" variant="ghost">
           <ShoppingCartIcon className="size-5" />
-          {!itemsCount && (
-            <span className="-top-1.5 -right-1.5 absolute size-4 animate-pulse rounded-full bg-muted" />
-          )}
-          {itemsCount > 0 && (
-            <Badge
-              className={cn(
-                "-top-1.5 -right-1.5 absolute aspect-square h-4 w-auto px-0.5 py-0 font-semibold text-[10px]"
-              )}
-              variant="default"
-            >
-              {itemsCount}
-            </Badge>
-          )}
+          {indicator}
         </Button>
       </DrawerTrigger>
       <DrawerContent className="data-[vaul-drawer-direction=right]:w-[90%]">
@@ -52,29 +42,7 @@ export function CartDrawer() {
           <DrawerTitle>Košík ({itemsCount})</DrawerTitle>
         </DrawerHeader>
         <Separator />
-        {items.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center space-y-2">
-            <ShoppingCartIcon className="size-12 text-muted-foreground" />
-            <span className="font-medium text-lg text-muted-foreground">
-              Váš košík je prázdny
-            </span>
-          </div>
-        ) : (
-          <div className="size-full flex-1 overflow-y-auto">
-            <ScrollArea className="w-full flex-1 px-4 py-4">
-              <div className="flex size-full flex-col gap-4">
-                {items.map((item) => (
-                  <ProductCartListItem
-                    key={item.product.id}
-                    onClick={() => setOpen(false)}
-                    product={item.product}
-                    quantity={item.quantity}
-                  />
-                ))}
-              </div>
-            </ScrollArea>
-          </div>
-        )}
+        {children}
 
         {items.length > 0 && (
           <>

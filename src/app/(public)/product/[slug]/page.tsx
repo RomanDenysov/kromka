@@ -11,7 +11,6 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, ViewTransition } from "react";
-import { AddToCartSingleProductButton } from "@/components/add-to-cart-signle-product-button";
 import { ImageSlider } from "@/components/image-slider";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
@@ -19,8 +18,9 @@ import { Hint } from "@/components/shared/hint";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { getProductBySlug, getProducts } from "@/lib/queries/products";
+import { getProducts } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
+import { AddWithQuantityButton } from "./add-with-quantity-button";
 
 type Props = {
   params: Promise<{
@@ -36,7 +36,8 @@ export async function generateStaticParams() {
 async function ProductPageContent({ params }: Props) {
   const { slug } = await params;
   const urlDecoded = decodeURIComponent(slug);
-  const result = await getProductBySlug(urlDecoded);
+  const products = await getProducts();
+  const result = products.find((p) => p.slug === urlDecoded) ?? null;
 
   if (!result) {
     notFound();
@@ -130,10 +131,7 @@ async function ProductPageContent({ params }: Props) {
           </div>
           <Separator />
           <div className="flex w-full items-center justify-between gap-2">
-            <AddToCartSingleProductButton
-              disabled={!isInStock}
-              product={result}
-            />
+            <AddWithQuantityButton disabled={!isInStock} id={result.id} />
           </div>
         </div>
       </section>

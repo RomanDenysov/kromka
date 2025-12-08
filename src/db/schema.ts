@@ -409,12 +409,12 @@ export const carts = pgTable(
       .primaryKey()
       .$defaultFn(() => createPrefixedId("cart")),
 
-    userId: text("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
 
     companyId: text("company_id").references(() => organizations.id, {
-      onDelete: "cascade",
+      onDelete: "set null",
     }),
 
     shareToken: text("share_token").unique(),
