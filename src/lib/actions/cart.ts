@@ -3,12 +3,60 @@
 
 import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { db } from "@/db";
 import { cartItems, carts, products } from "@/db/schema";
+import { auth } from "@/lib/auth/server";
 import { getAuth } from "@/lib/auth/session";
 
+/**
+ * Ensures a user exists for cart operations.
+ * Creates an anonymous user if no session exists.
+ */
+async function ensureUser() {
+  const authResult = await getAuth();
+
+  if (authResult.user) {
+    return authResult;
+  }
+
+  // Create anonymous user on first cart interaction
+  const result = await auth.api.signInAnonymous({
+    headers: await headers(),
+  });
+
+  if (!result?.user) {
+    throw new Error("Failed to create session");
+  }
+
+  // Query fresh user data with relations (matching getAuth structure)
+  const user = await db.query.users.findFirst({
+    where: (u, { eq: eqFn }) => eqFn(u.id, result.user.id),
+    with: {
+      store: true,
+      members: {
+        with: { organization: true },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new Error("Failed to create user");
+  }
+
+  return {
+    // Anonymous users don't have organizations, so session structure is minimal
+    session: { session: { activeOrganizationId: null }, user: result.user },
+    user,
+    isAuthenticated: false,
+    isAnonymous: true,
+    store: user.store ?? null,
+    organization: null,
+  } as const;
+}
+
 export async function addToCart(productId: string, quantity: number) {
-  const { user, session } = await getAuth();
+  const { user, session } = await ensureUser();
   if (!user) {
     throw new Error("Unauthorized");
   }
