@@ -60,7 +60,9 @@ export function Header() {
                 <StoreSelectModal storesPromise={stores} />
               </Suspense>
             </div>
-            <UserButton />
+            <Suspense>
+              <UserButton />
+            </Suspense>
             <Suspense>
               <CartDrawer
                 indicator={
