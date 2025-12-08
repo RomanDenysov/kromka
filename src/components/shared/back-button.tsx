@@ -13,6 +13,7 @@ type Props = ButtonProps & {
 export function BackButton({
   href,
   className,
+  size = "icon-sm",
   variant = "secondary",
   ...props
 }: Props) {
@@ -31,6 +32,7 @@ export function BackButton({
       {...props}
       className={className}
       onClick={handleClick}
+      size={size}
       variant={variant}
     >
       {props.children ?? (
