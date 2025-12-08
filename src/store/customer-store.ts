@@ -6,6 +6,7 @@ type Customer = {
   id: string;
   name: string | null;
   email: string;
+  phone: string | null;
   image: string | null;
 } | null;
 

@@ -31,16 +31,10 @@ export async function updateCurrentUserProfile(
     return { success: false, error: "Unauthorized" } as const;
   }
 
-  const isAnonymous = !!user.isAnonymous;
-
   const updateData: Partial<typeof users.$inferInsert> = {
     name: input.name,
     phone: input.phone,
   };
-
-  if (isAnonymous) {
-    updateData.email = input.email;
-  }
 
   // Update storeId if provided and user doesn't have one set
   if (input.storeId && !user.storeId) {

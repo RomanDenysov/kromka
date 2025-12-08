@@ -269,7 +269,6 @@ Comprehensive authentication and user management system supporting:
 - `name`, `email`: User information
 - `emailVerified`: Verification status
 - `phone`, `image`: Optional contact info
-- `isAnonymous`: Anonymous user flag
 - `role`: User role
 - `banned`, `banReason`, `banExpires`: Ban management
 

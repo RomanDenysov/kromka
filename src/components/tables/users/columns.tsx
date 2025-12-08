@@ -101,9 +101,7 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
     accessorKey: "phone",
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
-        {!row.original.isAnonymous && (
-          <span className="font-medium text-xs">{row.original.name}</span>
-        )}
+        <span className="font-medium text-xs">{row.original.name}</span>
         {row.original.phone ? (
           <span className="truncate font-medium text-xs">
             {row.original.phone}
@@ -128,25 +126,6 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
     cell: ({ row }) => (
       <Badge size="xs" variant="outline">
         {row.original.role ?? "Uživatel"}
-      </Badge>
-    ),
-  },
-  {
-    id: "isAnonymous",
-    header: ({ column, table }) => (
-      <TableColumnHeader
-        column={column}
-        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
-        title="Anonymní"
-      />
-    ),
-    accessorKey: "isAnonymous",
-    cell: ({ row }) => (
-      <Badge
-        size="xs"
-        variant={row.original.isAnonymous ? "outline" : "success"}
-      >
-        {row.original.isAnonymous ? "Áno" : "Nie"}
       </Badge>
     ),
   },

@@ -43,16 +43,12 @@ export default async function AdminCartsPage() {
                 </Avatar>
                 <div className="flex flex-col gap-1">
                   <CardTitle className="text-sm">
-                    {cart.user?.isAnonymous
-                      ? "Neznámy zákazník"
-                      : (cart.user?.name ?? "Neznámy zákazník")}
+                    {cart.user?.name ?? "Neznámy zákazník"}
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    {cart.user?.isAnonymous ? null : (
-                      <span className="truncate text-muted-foreground">
-                        {cart.user?.email}
-                      </span>
-                    )}
+                    <span className="truncate text-muted-foreground">
+                      {cart.user?.email}
+                    </span>
                   </CardDescription>
                 </div>
               </div>

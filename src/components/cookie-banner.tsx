@@ -3,7 +3,7 @@
 
 import { CookieIcon } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,27 +13,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useConsent } from "@/hooks/use-consent";
-import { signIn } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
 
 export function CookieBanner() {
   const [show, setShow] = useState(false);
   const { consentGiven, acceptAll, acceptNecessary } = useConsent();
-
-  const handleAnonymousSingIn = useCallback(async () => {
-    await signIn.anonymous({
-      fetchOptions: {
-        onSuccess: () => {
-          // biome-ignore lint/suspicious/noConsole: <explanation>
-          console.log("Anonymous sign in successful");
-        },
-        onError: (error) => {
-          // biome-ignore lint/suspicious/noConsole: <explanation>
-          console.error("Anonymous sign in failed:", error);
-        },
-      },
-    });
-  }, []);
 
   useEffect(() => {
     if (!consentGiven) {
@@ -85,10 +69,9 @@ export function CookieBanner() {
         <CardFooter className="gap-2">
           <Button
             className="flex-1"
-            onClick={async (e) => {
+            onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              await handleAnonymousSingIn();
               acceptNecessary();
             }}
             size="sm"
@@ -103,10 +86,9 @@ export function CookieBanner() {
           </Button>
           <Button
             className="flex-1"
-            onClick={async (e) => {
+            onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              await handleAnonymousSingIn();
               acceptAll();
             }}
             size="sm"

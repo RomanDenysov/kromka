@@ -48,7 +48,6 @@ export const users = pgTable("users", {
     onDelete: "set null",
   }),
 
-  isAnonymous: boolean("is_anonymous"),
   role: text("role").$type<UserRole>().default("user").notNull(),
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),

@@ -35,7 +35,6 @@ export function AuthIdentitySync() {
     posthog.identify(user.id, {
       email: user.email,
       name: user.name,
-      isAnonymous: !!user.isAnonymous,
       role: user.role,
     });
 

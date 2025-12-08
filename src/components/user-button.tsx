@@ -34,7 +34,7 @@ export function UserButton() {
     return <Skeleton className="size-8 rounded-md" />;
   }
 
-  if (!session || session?.user?.isAnonymous) {
+  if (!session) {
     return (
       <Link
         className={buttonVariants({

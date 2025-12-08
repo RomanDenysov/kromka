@@ -96,19 +96,18 @@ export function CheckoutForm({
   );
 
   // Derive initial values from user (DB) or local customer store fallback
-  const initialValues = useMemo(() => {
-    const userData = user?.isAnonymous ? null : user;
-
-    return {
-      name: userData?.name ?? customer?.name ?? "",
-      email: userData?.email ?? customer?.email ?? "",
-      phone: userData?.phone ?? "",
+  const initialValues = useMemo(
+    () => ({
+      name: user?.name ?? customer?.name ?? "",
+      email: user?.email ?? customer?.email ?? "",
+      phone: user?.phone ?? customer?.phone ?? "",
       paymentMethod: "in_store" as PaymentMethod,
       pickupDate: new Date(),
       pickupTime: "",
       storeId: user?.storeId ?? customerStore?.id ?? "",
-    };
-  }, [user, customer, customerStore]);
+    }),
+    [user, customer, customerStore]
+  );
 
   const form = useAppForm({
     defaultValues: initialValues,

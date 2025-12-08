@@ -11,8 +11,6 @@ export const getAuth = cache(async () => {
     return {
       session: null,
       user: null,
-      isAuthenticated: false,
-      isAnonymous: true,
     } as const;
   }
   const user = await db.query.users.findFirst({
@@ -28,8 +26,6 @@ export const getAuth = cache(async () => {
   return {
     session,
     user,
-    isAuthenticated: !session.user.isAnonymous,
-    isAnonymous: !!session.user.isAnonymous,
     store: user?.store ?? null,
     organization: user?.members?.[0]?.organization ?? null,
   } as const;
