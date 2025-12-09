@@ -3,6 +3,7 @@ import {
   Field,
   FieldContent,
   FieldDescription,
+  FieldError,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,7 @@ export function TextField({
         value={field.state.value}
         volume="sm"
       />
+      {isInvalid && <FieldError errors={field.state.meta.errors} />}
     </Field>
   );
 }

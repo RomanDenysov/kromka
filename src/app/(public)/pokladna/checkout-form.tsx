@@ -27,6 +27,7 @@ import {
 import {
   Field,
   FieldContent,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldTitle,
@@ -68,15 +69,15 @@ import { useCustomerStore } from "@/store/customer-store";
 import type { Cart } from "@/types/cart";
 
 const checkoutFormSchema = z.object({
-  name: z.string().min(1),
-  email: z.email(),
-  phone: z.string().min(1),
+  name: z.string().min(1, "Meno je povinné"),
+  email: z.email("Neplatná emailová adresa"),
+  phone: z.string().min(1, "Telefónne číslo je povinné"),
 
-  paymentMethod: z.enum(PAYMENT_METHODS),
-  pickupDate: z.date(),
-  pickupTime: z.string().min(1),
+  paymentMethod: z.enum(PAYMENT_METHODS, "Spôsob platby je povinný"),
+  pickupDate: z.date().min(new Date(), "Dátum vyzdvihnutia je povinný"),
+  pickupTime: z.string().min(1, "Čas vyzdvihnutia je povinný"),
 
-  storeId: z.string().min(1),
+  storeId: z.string().min(1, "Miesto vyzdvihnutia je povinné"),
 });
 
 export function CheckoutForm({
@@ -186,6 +187,23 @@ export function CheckoutForm({
     [items]
   );
 
+  // Check if there are no available dates (empty intersection or no date found)
+  const hasNoAvailableDates = useMemo(() => {
+    if (!selectedStoreInForm) {
+      return false;
+    }
+    const schedule = selectedStoreInForm.openingHours;
+    const firstAvailableDate = getFirstAvailableDateWithRestrictions(
+      schedule,
+      restrictedPickupDates
+    );
+    // No available date found OR restricted dates exist but intersection is empty
+    return (
+      !firstAvailableDate ||
+      (restrictedPickupDates !== null && restrictedPickupDates.size === 0)
+    );
+  }, [selectedStoreInForm, restrictedPickupDates]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: we want to memoize by all values
   useEffect(() => {
     const defaultStoreId = user?.storeId;
@@ -291,16 +309,30 @@ export function CheckoutForm({
                     />
                   )}
                 </form.Field>
-                {restrictedPickupDates && restrictedPickupDates.size > 0 && (
-                  <Alert variant="default">
+                {hasNoAvailableDates && (
+                  <Alert variant="destructive">
                     <AlertCircleIcon className="size-4" />
-                    <AlertTitle>Obmedzené dátumy vyzdvihnutia</AlertTitle>
+                    <AlertTitle>Žiadne dostupné dátumy</AlertTitle>
                     <AlertDescription className="text-xs">
-                      Niektoré produkty v košíku sú dostupné len v určité dni.
-                      Zobrazia sa vám len dostupné dátumy.
+                      Produkty v košíku majú rôzne dostupné dni vyzdvihnutia,
+                      ktoré sa neprekrývajú. Nie je možné vybrať dátum, ktorý by
+                      vyhovoval všetkým produktom. Prosím, odstráňte niektoré
+                      produkty z košíka alebo kontaktujte nás.
                     </AlertDescription>
                   </Alert>
                 )}
+                {restrictedPickupDates &&
+                  restrictedPickupDates.size > 0 &&
+                  !hasNoAvailableDates && (
+                    <Alert variant="default">
+                      <AlertCircleIcon className="size-4" />
+                      <AlertTitle>Obmedzené dátumy vyzdvihnutia</AlertTitle>
+                      <AlertDescription className="text-xs">
+                        Niektoré produkty v košíku sú dostupné len v určité dni.
+                        Zobrazia sa vám len dostupné dátumy.
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 <FieldGroup className="grid w-full gap-2 md:grid-cols-5">
                   <form.Field
                     listeners={{
@@ -332,6 +364,9 @@ export function CheckoutForm({
                             selectedDate={field.state.value}
                             storeSchedule={storeSchedule}
                           />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
                         </Field>
                       );
                     }}
@@ -351,6 +386,9 @@ export function CheckoutForm({
                             selectedTime={field.state.value}
                             timeRange={timeRange}
                           />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
                         </Field>
                       );
                     }}
@@ -376,61 +414,63 @@ export function CheckoutForm({
                 </Alert>
                 <FieldGroup>
                   <form.Field name="paymentMethod">
-                    {(field) => (
-                      <Field
-                        data-invalid={
-                          field.state.meta.isTouched &&
-                          !field.state.meta.isValid
-                        }
-                      >
-                        <FieldContent>
-                          <RadioGroup
-                            aria-label="Spôsob platby"
-                            className="md:grid-cols-2"
-                            onValueChange={(value) =>
-                              field.handleChange(value as PaymentMethod)
-                            }
-                            value={field.state.value}
-                          >
-                            <FieldLabel htmlFor="in_store">
-                              <Field
-                                className="gap-2 p-2.5!"
-                                orientation="horizontal"
-                              >
-                                <StoreIcon className="size-5 shrink-0" />
-                                <FieldTitle className="text-wrap">
-                                  Pri vyzdvihnutí
-                                </FieldTitle>
+                    {(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field data-invalid={isInvalid}>
+                          <FieldContent>
+                            <RadioGroup
+                              aria-label="Spôsob platby"
+                              className="md:grid-cols-2"
+                              onValueChange={(value) =>
+                                field.handleChange(value as PaymentMethod)
+                              }
+                              value={field.state.value}
+                            >
+                              <FieldLabel htmlFor="in_store">
+                                <Field
+                                  className="gap-2 p-2.5!"
+                                  orientation="horizontal"
+                                >
+                                  <StoreIcon className="size-5 shrink-0" />
+                                  <FieldTitle className="text-wrap">
+                                    Pri vyzdvihnutí
+                                  </FieldTitle>
 
-                                <RadioGroupItem
-                                  className="peer sr-only"
-                                  id="in_store"
-                                  value="in_store"
-                                />
-                              </Field>
-                            </FieldLabel>
+                                  <RadioGroupItem
+                                    className="peer sr-only"
+                                    id="in_store"
+                                    value="in_store"
+                                  />
+                                </Field>
+                              </FieldLabel>
 
-                            <FieldLabel htmlFor="card">
-                              <Field
-                                className="gap-2 p-2.5!"
-                                orientation="horizontal"
-                              >
-                                <CreditCardIcon className="size-5 shrink-0" />
-                                <FieldTitle className="text-wrap">
-                                  Kartou online
-                                </FieldTitle>
-                                <RadioGroupItem
-                                  className="peer sr-only"
-                                  disabled={true}
-                                  id="card"
-                                  value="card"
-                                />
-                              </Field>
-                            </FieldLabel>
-                          </RadioGroup>
-                        </FieldContent>
-                      </Field>
-                    )}
+                              <FieldLabel htmlFor="card">
+                                <Field
+                                  className="gap-2 p-2.5! text-muted-foreground"
+                                  orientation="horizontal"
+                                >
+                                  <CreditCardIcon className="size-5 shrink-0" />
+                                  <FieldTitle className="text-wrap">
+                                    Kartou online
+                                  </FieldTitle>
+                                  <RadioGroupItem
+                                    className="peer sr-only"
+                                    disabled={true}
+                                    id="card"
+                                    value="card"
+                                  />
+                                </Field>
+                              </FieldLabel>
+                            </RadioGroup>
+                          </FieldContent>
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
                   </form.Field>
                 </FieldGroup>
               </CardContent>
@@ -458,6 +498,23 @@ export function CheckoutForm({
                 </Button>
               )}
             </form.Subscribe>
+            {form.state.errors && form.state.errors.length > 0 && (
+              <Alert variant="destructive">
+                <AlertCircleIcon className="size-4" />
+                <AlertTitle>Chyba</AlertTitle>
+                <AlertDescription className="text-xs">
+                  {form.state.errors
+                    .slice(0, 1)
+                    .map((error) => error?.message)
+                    .join(", ")}
+                  {form.state.errors.length > 1 && (
+                    <span className="text-xs">
+                      a {form.state.errors.length - 1} ďalších chybách
+                    </span>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
         </form>
       </form.AppForm>
