@@ -5,8 +5,8 @@ import {
 } from "@/components/lists/checkout-list";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
-import { CheckoutFormContainer } from "./[orderId]/checkout-form-container";
 import { CheckoutFormSkeleton } from "./checkout-form";
+import { CheckoutFormContainer } from "./checkout-form-container";
 
 export default function CheckoutPage() {
   return (

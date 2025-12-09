@@ -32,9 +32,9 @@ export type OrderReadyEmailData = {
 export function OrderReadyEmail({ pickupPlace, logoUrl }: OrderReadyEmailData) {
   return (
     <Html>
-      <Head />
-      <Preview>Vaše lakocinky sú nachystané, príďte do Kromky!</Preview>
       <Tailwind>
+        <Head />
+        <Preview>Vaše lakocinky sú nachystané, príďte do Kromky!</Preview>
         <Body className={EMAIL_BODY_CLASS}>
           <Container className={EMAIL_CONTAINER_CLASS}>
             <Section className="text-center">

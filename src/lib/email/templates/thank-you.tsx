@@ -41,9 +41,9 @@ export function ThankYouEmail({
 
   return (
     <Html>
-      <Head />
-      <Preview>Ďakujeme za vašu objednávku - Kromka</Preview>
       <Tailwind>
+        <Head />
+        <Preview>Ďakujeme za vašu objednávku - Kromka</Preview>
         <Body className={EMAIL_BODY_CLASS}>
           <Container className={EMAIL_CONTAINER_CLASS}>
             <Section className="text-center">

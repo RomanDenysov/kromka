@@ -31,6 +31,8 @@ type ContactPhone = {
 export type OrderConfirmationEmailData = {
   pickupPlace: string;
   pickupPlaceUrl?: string;
+  pickupDate: string;
+  pickupTime: string;
   logoUrl?: string;
   contactPhones?: ContactPhone[];
 };
@@ -41,6 +43,8 @@ export type OrderConfirmationEmailData = {
 export function OrderConfirmationEmail({
   pickupPlace,
   pickupPlaceUrl,
+  pickupDate,
+  pickupTime,
   logoUrl,
   contactPhones,
 }: OrderConfirmationEmailData) {
@@ -48,9 +52,9 @@ export function OrderConfirmationEmail({
 
   return (
     <Html>
-      <Head />
-      <Preview>Už sa to pečie, už sa to chystá! - Kromka</Preview>
       <Tailwind>
+        <Head />
+        <Preview>Už sa to pečie, už sa to chystá! - Kromka</Preview>
         <Body className={EMAIL_BODY_CLASS}>
           <Container className={EMAIL_CONTAINER_CLASS}>
             <Section className="text-center">
@@ -89,9 +93,13 @@ export function OrderConfirmationEmail({
                   {pickupPlace}
                 </Text>
               )}
-              <Text className={EMAIL_MUTED_TEXT_CLASS}>
-                Presný čas vyzdvihnutia sa riadi aktuálnou otváracou dobou
-                predajne.
+              <Text className={EMAIL_PARAGRAPH_CLASS}>
+                <strong className="font-semibold text-gray-900">Dátum:</strong>{" "}
+                {pickupDate}
+              </Text>
+              <Text className={EMAIL_PARAGRAPH_CLASS}>
+                <strong className="font-semibold text-gray-900">Čas:</strong>{" "}
+                {pickupTime}
               </Text>
             </Section>
 

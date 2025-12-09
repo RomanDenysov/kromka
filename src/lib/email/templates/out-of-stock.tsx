@@ -37,9 +37,9 @@ export function OutOfStockEmail({
 }: OutOfStockEmailData) {
   return (
     <Html>
-      <Head />
-      <Preview>Produkt momentálne nie je k dispozícii - Kromka</Preview>
       <Tailwind>
+        <Head />
+        <Preview>Produkt momentálne nie je k dispozícii - Kromka</Preview>
         <Body className={EMAIL_BODY_CLASS}>
           <Container className={EMAIL_CONTAINER_CLASS}>
             <Section className="text-center">

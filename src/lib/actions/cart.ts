@@ -10,8 +10,24 @@ import { getCartIdFromCookie, setCartIdCookie } from "../cart/cookies";
 export async function addToCart(productId: string, quantity: number) {
   let cartId: string | null = null;
   const prevCartId = await getCartIdFromCookie();
+
   if (prevCartId) {
-    cartId = prevCartId;
+    // Verify cart exists in database
+    const existingCart = await db.query.carts.findFirst({
+      where: eq(carts.id, prevCartId),
+    });
+
+    if (existingCart) {
+      cartId = prevCartId;
+    } else {
+      // Cart was deleted (e.g., after order creation), create new one
+      const [newCart] = await db
+        .insert(carts)
+        .values({})
+        .returning({ id: carts.id });
+      cartId = newCart.id;
+      await setCartIdCookie(cartId);
+    }
   } else {
     const [newCart] = await db
       .insert(carts)

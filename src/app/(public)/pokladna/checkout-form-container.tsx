@@ -1,7 +1,7 @@
 import { getAuth } from "@/lib/auth/session";
 import { getCart } from "@/lib/queries/cart";
 import { getStores } from "@/lib/queries/stores";
-import { CheckoutForm } from "../checkout-form";
+import { CheckoutForm } from "./checkout-form";
 
 export async function CheckoutFormContainer() {
   const { user } = await getAuth();

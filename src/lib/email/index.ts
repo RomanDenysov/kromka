@@ -5,7 +5,28 @@ import { env } from "@/env";
 import type { Order } from "../queries/orders";
 import { renderMagicLink } from "./templates/magic-link";
 import { renderNewOrderEmail } from "./templates/new-order";
+import { renderOrderConfirmationEmail } from "./templates/order-confirmation";
+import { renderOrderReadyEmail } from "./templates/order-ready";
+import { renderOutOfStockEmail } from "./templates/out-of-stock";
+import { renderReceiptEmail } from "./templates/receipt";
 import { DEFAULT_SUPPORT_EMAIL, getBaseUrl } from "./templates/shared";
+import { renderThankYouEmail } from "./templates/thank-you";
+
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  new: "Nová",
+  confirmed: "Potvrdená",
+  preparing: "Pripravuje sa",
+  ready: "Pripravená",
+  completed: "Dokončená",
+  cancelled: "Zrušená",
+};
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  in_store: "store",
+  card: "card",
+  invoice: "store",
+  cash: "cash",
+};
 
 const config = {
   host: env.EMAIL_HOST,
@@ -19,7 +40,7 @@ const config = {
 
 const transporter = createTransport(config);
 
-export async function emailService(options: {
+async function emailService(options: {
   from: string;
   to: string;
   subject: string;
@@ -28,50 +49,64 @@ export async function emailService(options: {
   return await transporter.sendMail(options);
 }
 
+/** Extracts customer email from order (user or customerInfo fallback) */
+function getCustomerEmail(order: Order): string {
+  const email = order?.createdBy?.email ?? order?.customerInfo?.email;
+  if (!email) {
+    throw new Error("Customer email not found");
+  }
+  return email;
+}
+
+/** Builds pickup place URL from store slug */
+function getPickupPlaceUrl(storeSlug?: string | null): string | undefined {
+  return storeSlug ? `${getBaseUrl()}/predajne/${storeSlug}` : undefined;
+}
+
+/** Formats pickup date in Slovak locale */
+function formatPickupDate(date: Date | null | undefined): string {
+  return date ? format(date, "d. MMMM yyyy", { locale: sk }) : "Neurčený dátum";
+}
+
+/** Formats order creation date */
+function formatOrderDate(date: Date | null | undefined): string {
+  return date
+    ? format(date, "d. MMMM yyyy, HH:mm", { locale: sk })
+    : "Neurčený dátum";
+}
+
 export const sendEmail = {
+  /**
+   * Send magic link for passwordless authentication.
+   */
   magicLink: async ({ email, url }: { email: string; url: string }) => {
-    const magicLinkTemplate = await renderMagicLink(url);
-    return await emailService({
+    const html = await renderMagicLink(url);
+    return emailService({
       from: `"Kromka" <${env.EMAIL_USER}>`,
       to: email,
-      subject: "Prihlásenie do Kromka učtu",
-      html: magicLinkTemplate,
+      subject: "Prihlásenie do Kromka účtu",
+      html,
     });
   },
+
+  /**
+   * Send new order notification to staff.
+   */
   newOrder: async ({ order }: { order: Order }) => {
     if (!order) {
       throw new Error("Order not found");
     }
 
-    const customerEmail = order.createdBy?.email ?? order.customerInfo?.email;
-    if (!customerEmail) {
-      throw new Error("Customer email not found");
-    }
-    const pickupDate = order?.pickupDate
-      ? format(order.pickupDate, "d. MMMM yyyy", {
-          locale: sk,
-        })
-      : "Neurčený dátum";
-    const pickupTime = order?.pickupTime ?? "Neurčený čas";
+    const customerEmail = getCustomerEmail(order);
+    const pickupDate = formatPickupDate(order.pickupDate);
+    const pickupTime = order.pickupTime ?? "Neurčený čas";
 
-    const customerInfo = {
-      name: order.createdBy?.name ?? order.customerInfo?.name ?? "Neurčené",
-      email:
-        order.createdBy?.email ?? order.customerInfo?.email ?? "Neurčený email",
-      phone:
-        order.createdBy?.phone ??
-        order.customerInfo?.phone ??
-        "Neurčený telefón",
-    };
-
-    const pickupPlaceUrl = order.store?.slug
-      ? `${getBaseUrl()}/predajne/${order.store.slug}`
-      : undefined;
-
-    const orderData = {
+    const html = await renderNewOrderEmail({
+      orderId: order.id,
       orderNumber: order.orderNumber,
+      orderUrl: `${getBaseUrl()}/admin/orders/${order.id}`,
       pickupPlace: order.store?.name ?? "Neurčené",
-      pickupPlaceUrl,
+      pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
       pickupTime,
       pickupDate,
       paymentMethod: order.paymentMethod,
@@ -80,19 +115,147 @@ export const sendEmail = {
         quantity: item.quantity,
         priceCents: item.price,
       })),
-      customer: customerInfo,
-      // TODO: Add support email and logo url
+      customer: {
+        name: order.createdBy?.name ?? order.customerInfo?.name ?? "Neurčené",
+        email: customerEmail,
+        phone: order.createdBy?.phone ?? order.customerInfo?.phone,
+      },
       supportEmail: DEFAULT_SUPPORT_EMAIL,
-      logoUrl: "logo-kromka.png",
-    };
+    });
 
-    const newOrderTemplate = await renderNewOrderEmail(orderData);
-
-    return await emailService({
+    return emailService({
       from: `"Kromka" <${env.EMAIL_USER}>`,
       to: customerEmail,
-      subject: "Nová objednávka",
-      html: newOrderTemplate,
+      subject: `Nová objednávka ${order.orderNumber}`,
+      html,
+    });
+  },
+
+  /**
+   * Send order confirmation to customer (order is being prepared).
+   */
+  orderConfirmation: async ({ order }: { order: Order }) => {
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    const customerEmail = getCustomerEmail(order);
+
+    const html = await renderOrderConfirmationEmail({
+      pickupPlace: order.store?.name ?? "Neurčené",
+      pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
+      pickupDate: formatPickupDate(order.pickupDate),
+      pickupTime: order.pickupTime ?? "Neurčený čas",
+    });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: customerEmail,
+      subject: "Potvrdenie objednávky – Kromka",
+      html,
+    });
+  },
+
+  /**
+   * Send notification that order is ready for pickup.
+   */
+  orderReady: async ({ order }: { order: Order }) => {
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    const customerEmail = getCustomerEmail(order);
+
+    const html = await renderOrderReadyEmail({
+      pickupPlace: order.store?.name ?? "Neurčené",
+    });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: customerEmail,
+      subject: "Vaša objednávka je pripravená – Kromka",
+      html,
+    });
+  },
+
+  /**
+   * Send receipt/invoice to customer after order completion.
+   */
+  receipt: async ({ order }: { order: Order }) => {
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    const customerEmail = getCustomerEmail(order);
+    const totalCents = order.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    const html = await renderReceiptEmail({
+      date: formatOrderDate(order.createdAt),
+      orderId: order.orderNumber,
+      status: ORDER_STATUS_LABELS[order.orderStatus] ?? order.orderStatus,
+      method: PAYMENT_METHOD_LABELS[order.paymentMethod] ?? order.paymentMethod,
+      products: order.items.map((item) => ({
+        title: item.product.name,
+        quantity: item.quantity,
+        priceCents: item.price,
+      })),
+      pickupPlace: order.store?.name ?? "Neurčené",
+      pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
+      pickupDate: formatPickupDate(order.pickupDate),
+      pickupTime: order.pickupTime ?? "Neurčený čas",
+      totalCents,
+    });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: customerEmail,
+      subject: `Potvrdenie objednávky ${order.orderNumber} – Kromka`,
+      html,
+    });
+  },
+
+  /**
+   * Send thank you message after order is completed/picked up.
+   */
+  thankYou: async ({ order }: { order: Order }) => {
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    const customerEmail = getCustomerEmail(order);
+
+    const html = await renderThankYouEmail({
+      orderId: order.orderNumber,
+    });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: customerEmail,
+      subject: "Ďakujeme za vašu objednávku – Kromka",
+      html,
+    });
+  },
+
+  /**
+   * Notify customer about out-of-stock product.
+   */
+  outOfStock: async ({
+    email,
+    productName,
+  }: {
+    email: string;
+    productName: string;
+  }) => {
+    const html = await renderOutOfStockEmail({ productName });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: email,
+      subject: "Produkt nie je k dispozícii – Kromka",
+      html,
     });
   },
 };

@@ -1,10 +1,12 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { eq } from "drizzle-orm";
-import { CheckCircleIcon } from "lucide-react";
+import { CheckCircleIcon, ChevronLeftIcon } from "lucide-react";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { formatPrice } from "@/lib/utils";
@@ -68,6 +70,12 @@ async function OrderConfirmationPageContent({ orderId }: { orderId: string }) {
             <span>Spolu</span>
             <span>{formatPrice(order.totalCents)}</span>
           </div>
+        </div>
+        <div className="flex w-full items-center justify-center">
+          <Link className={buttonVariants({ variant: "link" })} href="/e-shop">
+            <ChevronLeftIcon />
+            Pokračovať v nákupe
+          </Link>
         </div>
       </div>
     </div>

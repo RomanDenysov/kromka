@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Footer } from "@/components/landing/footer";
 import { Header } from "./_components/header";
 
 type Props = {
@@ -10,7 +11,7 @@ export default function PublicLayout({ children }: Props) {
     <div className="relative flex min-h-full flex-col">
       <Header />
       <main className="relative min-h-screen flex-1 grow">{children}</main>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 }

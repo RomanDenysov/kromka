@@ -6,6 +6,7 @@ import {
   Img,
   Link,
   Preview,
+  Row,
   render,
   Section,
   Tailwind,
@@ -38,7 +39,9 @@ type CustomerDetails = {
 };
 
 export type NewOrderEmailData = {
+  orderId: string;
   orderNumber: string | number;
+  orderUrl: string;
   pickupPlace: string;
   pickupPlaceUrl?: string;
   pickupTime: string;
@@ -62,6 +65,7 @@ const labels: Record<string, string> = {
  */
 export function NewOrderEmail({
   orderNumber,
+  orderUrl,
   pickupPlace,
   pickupPlaceUrl,
   pickupTime,
@@ -76,14 +80,18 @@ export function NewOrderEmail({
   const paymentLabel = labels[paymentMethod] ?? paymentMethod;
   const contactEmail = supportEmail ?? DEFAULT_SUPPORT_EMAIL;
   const hasProducts = products.length > 0;
+  const totalCents = products.reduce(
+    (sum, p) => sum + p.priceCents * p.quantity,
+    0
+  );
 
   return (
     <Html>
-      <Head />
-      <Preview>
-        Nová objednávka {formattedOrderId} – {pickupPlace}
-      </Preview>
       <Tailwind>
+        <Head />
+        <Preview>
+          Nová objednávka {formattedOrderId} – {pickupPlace}
+        </Preview>
         <Body className={EMAIL_BODY_CLASS}>
           <Container className={EMAIL_CONTAINER_CLASS}>
             <Section className="text-center">
@@ -109,7 +117,14 @@ export function NewOrderEmail({
             </Section>
 
             <Section className={`${EMAIL_CARD_CLASS} mt-6 space-y-3`}>
-              <Text className={EMAIL_SUBTITLE_CLASS}>Detaily objednávky</Text>
+              <Row>
+                <Text className={`${EMAIL_SUBTITLE_CLASS} inline`}>
+                  Detaily objednávky
+                </Text>
+                <code className="ml-2 rounded bg-gray-100 px-2 py-1 font-mono text-gray-700 text-xs">
+                  {formattedOrderId}
+                </code>
+              </Row>
               <Text className={EMAIL_PARAGRAPH_CLASS}>
                 <strong className="font-semibold text-gray-900">
                   Dátum a čas vyzdvihnutia:
@@ -121,12 +136,6 @@ export function NewOrderEmail({
                   Spôsob platby:
                 </strong>{" "}
                 {paymentLabel}
-              </Text>
-              <Text className={EMAIL_PARAGRAPH_CLASS}>
-                <strong className="font-semibold text-gray-900">
-                  ID v systéme:
-                </strong>{" "}
-                {formattedOrderId}
               </Text>
             </Section>
 
@@ -165,19 +174,69 @@ export function NewOrderEmail({
             {hasProducts ? (
               <Section className={`${EMAIL_CARD_CLASS} mt-4`}>
                 <Text className={EMAIL_SUBTITLE_CLASS}>Produkty</Text>
-                <div className="mt-3 space-y-2">
-                  {products.map((product) => (
-                    <Text
-                      className="font-medium text-gray-800 text-sm"
-                      key={product.title}
-                    >
-                      • {product.title} – {product.quantity} ks{" "}
-                      <span className="text-gray-500 text-xs">x</span>{" "}
-                      {formatPrice(product.priceCents)} ={" "}
-                      {formatPrice(product.priceCents * product.quantity)}
-                    </Text>
-                  ))}
-                </div>
+                <table
+                  cellPadding="0"
+                  cellSpacing="0"
+                  className="mt-3 w-full text-left text-sm"
+                >
+                  <thead>
+                    <tr className="border-gray-200 border-b">
+                      <th className="pb-2 font-semibold text-gray-500 text-xs">
+                        Produkt
+                      </th>
+                      <th className="pb-2 text-center font-semibold text-gray-500 text-xs">
+                        Ks
+                      </th>
+                      <th className="pb-2 text-right font-semibold text-gray-500 text-xs">
+                        Cena/ks
+                      </th>
+                      <th className="pb-2 text-right font-semibold text-gray-500 text-xs">
+                        Spolu
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => (
+                      <tr
+                        className="border-gray-100 border-b"
+                        key={product.title}
+                      >
+                        <td className="py-2 font-medium text-gray-900">
+                          {product.title}
+                        </td>
+                        <td className="py-2 text-center text-gray-700">
+                          {product.quantity}
+                        </td>
+                        <td className="py-2 text-right text-gray-700">
+                          {formatPrice(product.priceCents)}
+                        </td>
+                        <td className="py-2 text-right font-medium text-gray-900">
+                          {formatPrice(product.priceCents * product.quantity)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td
+                        className="pt-3 font-semibold text-gray-900"
+                        colSpan={3}
+                      >
+                        Celkom
+                      </td>
+                      <td className="pt-3 text-right font-bold text-gray-900">
+                        {formatPrice(totalCents)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+
+                <Link
+                  className="mt-4 inline-block rounded-md bg-gray-800 px-4 py-2 font-medium text-sm text-white"
+                  href={orderUrl}
+                >
+                  Zobraziť detaily objednávky
+                </Link>
               </Section>
             ) : null}
 

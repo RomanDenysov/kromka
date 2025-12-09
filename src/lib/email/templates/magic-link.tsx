@@ -22,10 +22,10 @@ export function MagicLink(props: { url: string }) {
 
   return (
     <Html>
-      <Head />
       <Tailwind>
+        <Head />
+        <Preview>Prihlásenie do Kromka učtu</Preview>
         <Body className="mx-auto my-auto bg-white px-2 font-sans">
-          <Preview>Prihlásenie do Kromka učtu</Preview>
           <Container className="mx-auto my-[40px] max-w-[465px] rounded-md border border-solid p-[20px]">
             <Section>
               <Img

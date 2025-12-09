@@ -1,67 +1,14 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import {
-  carts,
-  orderItems,
-  orderStatusEvents,
-  orders,
-  organizations,
-  prices,
-  products,
-} from "@/db/schema";
+import { carts, orderItems, orderStatusEvents, orders } from "@/db/schema";
 import type { OrderStatus, PaymentMethod } from "@/db/types";
 import { getAuth } from "../auth/session";
+import { clearCartIdCookie, getCartIdFromCookie } from "../cart/cookies";
 import { sendEmail } from "../email";
 import { createPrefixedNumericId } from "../ids";
 import { getOrderById } from "../queries/orders";
-
-/**
- * Get the price for a product based on company's price tier and quantity
- */
-export async function getProductPrice(
-  productId: string,
-  companyId: string | null,
-  _quantity: number
-): Promise<number> {
-  if (!companyId) {
-    // B2C: use product's default price
-    const product = await db.query.products.findFirst({
-      where: eq(products.id, productId),
-      columns: { priceCents: true },
-    });
-    return product?.priceCents ?? 0;
-  }
-
-  // B2B: get organization's price tier
-  const org = await db.query.organizations.findFirst({
-    where: eq(organizations.id, companyId),
-    columns: { priceTierId: true },
-    with: {
-      priceTier: true,
-    },
-  });
-
-  if (!org?.priceTierId) {
-    // No price tier: fallback to default price
-    const product = await db.query.products.findFirst({
-      where: eq(products.id, productId),
-      columns: { priceCents: true },
-    });
-    return product?.priceCents ?? 0;
-  }
-
-  // Find the best matching price tier (highest minQty <= quantity)
-  const price = await db.query.prices.findFirst({
-    where: and(
-      eq(prices.productId, productId),
-      eq(prices.priceTierId, org.priceTierId)
-    ),
-    columns: { priceCents: true },
-  });
-  return price?.priceCents ?? 0;
-}
 
 type CreateOrderResult =
   | { success: true; orderId: string; orderNumber: string }
@@ -82,18 +29,14 @@ export async function createOrderFromCart(data: {
       return { success: false, error: "Unauthorized" };
     }
 
-    const companyId = session.session?.activeOrganizationId ?? null;
-    const isB2B = companyId !== null;
+    const cartId = await getCartIdFromCookie();
+    if (!cartId) {
+      return { success: false, error: "Košík je prázdny" };
+    }
 
     // 1. Get cart
     const cart = await db.query.carts.findFirst({
-      where: (cartTable, { eq: eqFn, and: andFn, isNull }) =>
-        companyId
-          ? andFn(
-              eqFn(cartTable.userId, user.id),
-              eqFn(cartTable.companyId, companyId)
-            )
-          : andFn(eqFn(cartTable.userId, user.id), isNull(cartTable.companyId)),
+      where: eq(carts.id, cartId),
       with: {
         items: {
           with: {
@@ -114,25 +57,20 @@ export async function createOrderFromCart(data: {
     }
 
     // 3. Preparation of items with prices
-    const orderItemsData = await Promise.all(
-      validItems.map(async (item) => {
-        // biome-ignore lint/style/noNonNullAssertion: TODO: fix this in a future
-        const product = item.product!;
-        const priceCents = isB2B
-          ? await getProductPrice(item.productId, companyId, item.quantity)
-          : product.priceCents;
+    const orderItemsData = validItems.map((item) => {
+      // biome-ignore lint/style/noNonNullAssertion: TODO: fix this in a future
+      const product = item.product!;
 
-        return {
-          productId: item.productId,
-          productSnapshot: {
-            name: product.name,
-            price: priceCents,
-          },
-          price: priceCents,
-          quantity: item.quantity,
-        };
-      })
-    );
+      return {
+        productId: item.productId,
+        productSnapshot: {
+          name: product.name,
+          price: product.priceCents,
+        },
+        price: product.priceCents,
+        quantity: item.quantity,
+      };
+    });
 
     // 4. Розрахунок total
     const totalCents = orderItemsData.reduce(
@@ -150,10 +88,9 @@ export async function createOrderFromCart(data: {
         orderNumber,
         createdBy: user.id,
         storeId: data.storeId,
-        companyId,
         orderStatus: "new",
         paymentStatus: "pending",
-        paymentMethod: isB2B ? "invoice" : data.paymentMethod,
+        paymentMethod: data.paymentMethod,
         pickupDate: data.pickupDate,
         pickupTime: data.pickupTime,
         totalCents,
@@ -175,8 +112,9 @@ export async function createOrderFromCart(data: {
       createdBy: user.id,
     });
 
-    // 9. Deletion of cart
+    // 9. Deletion of cart and clear cookie
     await db.delete(carts).where(eq(carts.id, cart.id));
+    await clearCartIdCookie();
 
     // 10. Fetch full order with relations
     const fullOrder = await getOrderById(order.id);
@@ -184,8 +122,9 @@ export async function createOrderFromCart(data: {
       throw new Error("Order not found after creation");
     }
 
-    // 11. Send email
+    // 11. Send email to staff and customer
     await sendEmail.newOrder({ order: fullOrder });
+    await sendEmail.receipt({ order: fullOrder });
 
     return {
       success: true,
@@ -200,22 +139,6 @@ export async function createOrderFromCart(data: {
       error: "Nastala chyba pri vytváraní objednávky",
     };
   }
-}
-
-export async function createB2BOrderFromCart(data: {
-  storeId: string;
-  pickupDate: Date;
-  pickupTime: string;
-}) {
-  const { session } = await getAuth();
-  if (!session?.session?.activeOrganizationId) {
-    throw new Error("Not a B2B user");
-  }
-
-  return createOrderFromCart({
-    ...data,
-    paymentMethod: "invoice",
-  });
 }
 
 /**
