@@ -3,6 +3,7 @@ import { sk } from "date-fns/locale/sk";
 import { createTransport } from "nodemailer";
 import { env } from "@/env";
 import type { Order } from "../queries/orders";
+import { renderB2BRequestEmail } from "./templates/b2b-request";
 import { renderMagicLink } from "./templates/magic-link";
 import { renderNewOrderEmail } from "./templates/new-order";
 import { renderOrderConfirmationEmail } from "./templates/order-confirmation";
@@ -15,6 +16,8 @@ import {
   DEFAULT_SUPPORT_EMAIL,
   getBaseUrl,
 } from "./templates/shared";
+import { renderSupportConfirmationEmail } from "./templates/support-confirmation";
+import { renderSupportRequestEmail } from "./templates/support-request";
 import { renderThankYouEmail } from "./templates/thank-you";
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
@@ -45,6 +48,7 @@ const config = {
 
 const STAFF_EMAIL = ["kromka@kavejo.sk", "r.denysov96@gmail.com"];
 
+const DEVELOPER_EMAIL = "r.denysov96@gmail.com";
 const transporter = createTransport(config);
 
 async function emailService(options: {
@@ -52,6 +56,7 @@ async function emailService(options: {
   to: string | string[];
   subject: string;
   html: string;
+  replyTo?: string;
 }) {
   return await transporter.sendMail(options);
 }
@@ -269,6 +274,83 @@ export const sendEmail = {
       from: `"Kromka" <${env.EMAIL_USER}>`,
       to: email,
       subject: "Produkt nie je k dispozícii – Kromka",
+      html,
+    });
+  },
+
+  /**
+   * Send support request from contact form to staff.
+   */
+  supportRequest: async ({
+    name,
+    email,
+    rootCause,
+    message,
+  }: {
+    name: string;
+    email: string;
+    rootCause: string;
+    message: string;
+  }) => {
+    const html = await renderSupportRequestEmail({
+      name,
+      email,
+      rootCause,
+      message,
+    });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: DEVELOPER_EMAIL,
+      replyTo: email,
+      subject: `Nová žiadosť o podporu od ${name}`,
+      html,
+    });
+  },
+
+  /**
+   * Send confirmation email to user after they submit a support request.
+   */
+  supportConfirmation: async ({ email }: { email: string }) => {
+    const html = await renderSupportConfirmationEmail({});
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: email,
+      subject: "Vaša žiadosť o podporu bola prijatá – Kromka",
+      html,
+    });
+  },
+
+  /**
+   * Send B2B request from registration form to staff.
+   */
+  b2bRequest: async ({
+    companyName,
+    businessType,
+    userName,
+    email,
+    phone,
+  }: {
+    companyName: string;
+    businessType: string;
+    userName: string;
+    email: string;
+    phone: string;
+  }) => {
+    const html = await renderB2BRequestEmail({
+      companyName,
+      businessType,
+      userName,
+      email,
+      phone,
+    });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: STAFF_EMAIL,
+      replyTo: email,
+      subject: `Nová B2B žiadosť od ${companyName}`,
       html,
     });
   },
