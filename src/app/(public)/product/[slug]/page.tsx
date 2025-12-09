@@ -78,7 +78,7 @@ export default async function ProductPage({ params }: Props) {
                   buttonVariants({ variant: "secondary", size: "xs" }),
                   "rounded-full"
                 )}
-                href={`/e-shop?category=${result.category.slug}`}
+                href={`/e-shop/${result.category.slug}`}
                 key={result.category.id}
               >
                 {result.category.name}

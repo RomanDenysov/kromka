@@ -45,7 +45,7 @@ const gridItems: GridItemConfig[] = [
     id: "seasonal",
     title: "Vianočná ponuka",
     subtitle: "Tradičné koláče na váš stôl",
-    href: "/e-shop?category=vianocna-ponuka" as Route,
+    href: "/e-shop/vianocna-ponuka" as Route,
     image: "/images/christmas-compain.jpg",
     size: "medium",
   },
@@ -108,7 +108,7 @@ const gridItems: GridItemConfig[] = [
     id: "e-shop",
     title: "Naše pečivo",
     subtitle: "Čerstvé pečivo na každý deň",
-    href: "/e-shop?category=nase-pecivo",
+    href: "/e-shop/nase-pecivo" as Route,
     images: ["/images/breads-3.jpg", "/images/breads-1.jpg"],
     autoplayDelay: 5000,
     size: "medium",
@@ -117,7 +117,7 @@ const gridItems: GridItemConfig[] = [
     id: "e-shop-meat",
     title: "Maso a udeniny",
     subtitle: "Kvalitné maso a udeniny pre váš stôl",
-    href: "/e-shop?category=maso-a-udeniny",
+    href: "/e-shop/maso-a-udeniny" as Route,
     image: "/images/meat-trznica.jpg",
     size: "medium",
   },
@@ -131,15 +131,15 @@ const gridItems: GridItemConfig[] = [
   // },
 
   // Join Us
-  {
-    id: "join-us",
-    title: "Pridajte sa",
-    subtitle: "Staňte sa súčasťou nášho tímu",
-    href: "/kontakt" as Route,
-    color: "bg-zinc-900",
-    size: "small",
-    textColor: "text-white",
-  },
+  // {
+  //   id: "join-us",
+  //   title: "Pridajte sa",
+  //   subtitle: "Staňte sa súčasťou nášho tímu",
+  //   href: "/kontakt" as Route,
+  //   color: "bg-zinc-900",
+  //   size: "small",
+  //   textColor: "text-white",
+  // },
 ];
 
 // Filter items based on feature flags - happens on server
