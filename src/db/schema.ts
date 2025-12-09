@@ -1,6 +1,7 @@
 import type { JSONContent } from "@tiptap/react";
 import {
   boolean,
+  date,
   foreignKey,
   index,
   integer,
@@ -553,7 +554,7 @@ export const orders = pgTable(
 
     totalCents: integer("total_cents").notNull(),
 
-    pickupDate: timestamp("pickup_date"),
+    pickupDate: date("pickup_date", { mode: "string" }),
     pickupTime: text("pickup_time").notNull(),
 
     paymentId: text("payment_id"),
