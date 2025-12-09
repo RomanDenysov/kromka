@@ -6,14 +6,13 @@ export default async function middleware(req: NextRequest) {
     headers: req.headers,
   });
 
-  if (
-    req.nextUrl.pathname.startsWith("/admin") &&
-    session?.user?.role !== "admin"
-  ) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  if (session?.user?.role !== "admin") {
+    return NextResponse.redirect(new URL("/prihlasenie", req.url));
   }
 
-  const response = NextResponse.next();
-
-  return response;
+  return NextResponse.next();
 }
+
+export const config = {
+  matcher: ["/admin/:path*"],
+};

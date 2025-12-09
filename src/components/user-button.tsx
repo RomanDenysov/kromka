@@ -63,7 +63,7 @@ export function UserButton() {
             className="rounded-md object-cover"
             src={user.image ?? undefined}
           />
-          <AvatarFallback className="rounded-md">
+          <AvatarFallback className="rounded-md font-medium text-sm">
             {getInitials(user.name || user.email)}
           </AvatarFallback>
         </Avatar>

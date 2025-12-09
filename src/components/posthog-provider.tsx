@@ -7,6 +7,21 @@ import { Suspense, useEffect } from "react";
 import { consent } from "@/lib/consent";
 import { AuthIdentitySync } from "./auth-identity-sync";
 
+// Initialize PostHog
+if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+  // biome-ignore lint/style/noNonNullAssertion: we need to use the namespace import for PostHog
+  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+    api_host: "/ph",
+    ui_host: "https://eu.posthog.com",
+    person_profiles: "identified_only",
+    persistence: "localStorage+cookie",
+    capture_pageview: false,
+    capture_pageleave: true,
+    // Ключова настройка:
+    cookieless_mode: "on_reject",
+  });
+}
+
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   // Synchronize state on load
   useEffect(() => {

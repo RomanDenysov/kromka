@@ -11,7 +11,7 @@ export function getInitials(nameOrEmail: string | null | undefined): string {
     return "";
   }
 
-  const parts = nameOrEmail.trim().split(" ");
+  const parts = nameOrEmail.trim().split(" ").slice(0, 3);
   return parts.map((part) => part[0]?.toUpperCase() ?? "").join("");
 }
 
