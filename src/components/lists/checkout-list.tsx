@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
-import { CalendarIcon } from "lucide-react";
+import { AlertTriangleIcon } from "lucide-react";
 import Link from "next/link";
 import { getCart } from "@/lib/queries/cart";
 import { formatPrice } from "@/lib/utils";
@@ -31,57 +31,66 @@ function CheckoutListItem({ item }: { item: CartItem }) {
   const { product, quantity } = item;
 
   const pickupDates = product.category?.pickupDates ?? [];
-  const hasPickupRestriction = pickupDates && pickupDates.length > 0;
+  const _hasPickupRestriction = pickupDates && pickupDates.length > 0;
 
   return (
-    <div className="flex flex-row gap-2 rounded-md border p-3 shadow sm:gap-5">
+    <div className="grid grid-cols-[minmax(100px,15%)_1fr_auto] gap-3 rounded-md border p-3 shadow">
       <ProductImage
-        alt={product.name}
+        alt={`${product.name} foto produktu`}
         className="aspect-square rounded-sm object-cover"
-        height={100}
+        height={120}
         src={product.images[0] || ""}
-        width={100}
+        width={120}
       />
 
-      <div className="flex flex-1 flex-col justify-between gap-2">
-        <div className="flex flex-row items-start justify-between gap-2">
-          <div className="flex flex-1 grow flex-col items-start gap-2">
-            <Link
-              className="flex flex-row items-center gap-1 font-medium text-base hover:underline"
-              href={`/product/${product.slug}`}
+      <div className="flex min-w-0 flex-col justify-between gap-2">
+        <div className="flex flex-col gap-1">
+          <Link
+            className="truncate font-medium text-sm hover:underline sm:text-base"
+            href={`/product/${product.slug}`}
+          >
+            {product.name}
+          </Link>
+          <span className="text-muted-foreground text-xs sm:text-sm">
+            {formatPrice(product.priceCents)}
+          </span>
+
+          <div className="flex flex-row items-center gap-0.5 sm:gap-1">
+            <Badge
+              className="mr-1 hidden sm:inline-flex"
+              size="xs"
+              variant="outline"
             >
-              {product.name}
-            </Link>
-            <span className="text-muted-foreground text-sm">
-              {formatPrice(product.priceCents)}
-            </span>
-            {hasPickupRestriction && (
-              <div className="flex flex-row flex-wrap items-center gap-1">
-                <Hint text="Dostupné len v týchto dňoch">
-                  <CalendarIcon className="size-3" />
-                </Hint>
+              {product.category?.name}
+            </Badge>
+
+            <Hint text="Dostupné len v týchto dňoch">
+              <div className="flex flex-row items-center gap-1">
+                <AlertTriangleIcon className="size-4" />
                 {pickupDates.map((date) => (
-                  <Badge key={date} size="xs" variant="secondary">
-                    {format(new Date(date), "dd. MMM", { locale: sk })}
-                  </Badge>
+                  <span
+                    className="whitespace-nowrap font-medium text-xs"
+                    key={date}
+                  >
+                    {format(new Date(date), "d. MMM", { locale: sk })}
+                  </span>
                 ))}
               </div>
-            )}
+            </Hint>
           </div>
-
-          <RemoveItemButton id={product.id} />
         </div>
-        <div className="flex flex-row items-center justify-between gap-2">
-          <QuantitySetter
-            id={product.id}
-            quantity={quantity}
-            size="icon"
-            textSize="text-sm sm:text-base w-6 sm:w-8"
-          />
-          <span className="font-medium text-base sm:text-lg">
-            {formatPrice(product.priceCents * quantity)}
-          </span>
-        </div>
+        <QuantitySetter
+          id={product.id}
+          quantity={quantity}
+          size="icon-sm"
+          textSize="text-sm sm:text-base w-6 sm:w-8"
+        />
+      </div>
+      <div className="flex flex-col items-end justify-between gap-2">
+        <RemoveItemButton id={product.id} />
+        <span className="font-medium text-base sm:text-lg">
+          {formatPrice(product.priceCents * quantity)}
+        </span>
       </div>
     </div>
   );

@@ -19,9 +19,7 @@ export function ProductImage({
       height={height}
       loading={priority ? "eager" : "lazy"}
       placeholder="blur"
-      priority={priority}
       quality={75}
-      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       src={src || "/images/sweat-bread.jpg"}
       width={width}
     />
