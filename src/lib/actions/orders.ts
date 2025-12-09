@@ -13,7 +13,9 @@ import {
 } from "@/db/schema";
 import type { OrderStatus, PaymentMethod } from "@/db/types";
 import { getAuth } from "../auth/session";
+import { sendEmail } from "../email";
 import { createPrefixedNumericId } from "../ids";
+import { getOrderById } from "../queries/orders";
 
 /**
  * Get the price for a product based on company's price tier and quantity
@@ -175,6 +177,15 @@ export async function createOrderFromCart(data: {
 
     // 9. Deletion of cart
     await db.delete(carts).where(eq(carts.id, cart.id));
+
+    // 10. Fetch full order with relations
+    const fullOrder = await getOrderById(order.id);
+    if (!fullOrder) {
+      throw new Error("Order not found after creation");
+    }
+
+    // 11. Send email
+    await sendEmail.newOrder({ order: fullOrder });
 
     return {
       success: true,

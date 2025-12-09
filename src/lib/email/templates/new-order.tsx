@@ -11,7 +11,7 @@ import {
   Tailwind,
   Text,
 } from "@react-email/components";
-
+import { formatPrice } from "@/lib/utils";
 import {
   DEFAULT_LOGO_URL,
   DEFAULT_SUPPORT_EMAIL,
@@ -28,6 +28,7 @@ import {
 type OrderSummaryProduct = {
   title: string;
   quantity: number;
+  priceCents: number;
 };
 
 type CustomerDetails = {
@@ -37,10 +38,12 @@ type CustomerDetails = {
 };
 
 export type NewOrderEmailData = {
-  orderId: string | number;
+  orderNumber: string | number;
   pickupPlace: string;
+  pickupPlaceUrl?: string;
   pickupTime: string;
-  paymentMethod: "card" | "cash" | "store" | string;
+  pickupDate: string;
+  paymentMethod: "in_store" | "card" | "invoice" | "other";
   products: OrderSummaryProduct[];
   customer: CustomerDetails;
   supportEmail?: string;
@@ -48,25 +51,28 @@ export type NewOrderEmailData = {
 };
 
 const labels: Record<string, string> = {
-  card: "Zaplatené kartou",
-  cash: "Platba v hotovosti",
-  store: "Platba na predajni",
+  in_store: "Na predajni",
+  invoice: "Na faktúru",
+  card: "Kartou",
+  other: "Iné",
 };
 
 /**
  * Transactional template sent to admins with the core order details.
  */
 export function NewOrderEmail({
-  orderId,
+  orderNumber,
   pickupPlace,
+  pickupPlaceUrl,
   pickupTime,
+  pickupDate,
   paymentMethod,
   products,
   customer,
   supportEmail,
   logoUrl,
 }: NewOrderEmailData) {
-  const formattedOrderId = formatOrderCode(orderId);
+  const formattedOrderId = formatOrderCode(orderNumber);
   const paymentLabel = labels[paymentMethod] ?? paymentMethod;
   const contactEmail = supportEmail ?? DEFAULT_SUPPORT_EMAIL;
   const hasProducts = products.length > 0;
@@ -92,7 +98,13 @@ export function NewOrderEmail({
                 Nová objednávka {formattedOrderId}
               </Text>
               <Text className="font-medium text-base text-gray-600">
-                Predajňa: {pickupPlace}
+                Predajňa:{" "}
+                <Link
+                  className="text-gray-900 underline"
+                  href={pickupPlaceUrl ?? "#"}
+                >
+                  {pickupPlace}
+                </Link>
               </Text>
             </Section>
 
@@ -100,9 +112,9 @@ export function NewOrderEmail({
               <Text className={EMAIL_SUBTITLE_CLASS}>Detaily objednávky</Text>
               <Text className={EMAIL_PARAGRAPH_CLASS}>
                 <strong className="font-semibold text-gray-900">
-                  Dátum vyzdvihnutia:
+                  Dátum a čas vyzdvihnutia:
                 </strong>{" "}
-                {pickupTime}
+                {pickupDate} {pickupTime}
               </Text>
               <Text className={EMAIL_PARAGRAPH_CLASS}>
                 <strong className="font-semibold text-gray-900">
@@ -159,7 +171,10 @@ export function NewOrderEmail({
                       className="font-medium text-gray-800 text-sm"
                       key={product.title}
                     >
-                      • {product.title} – {product.quantity} ks
+                      • {product.title} – {product.quantity} ks{" "}
+                      <span className="text-gray-500 text-xs">x</span>{" "}
+                      {formatPrice(product.priceCents)} ={" "}
+                      {formatPrice(product.priceCents * product.quantity)}
                     </Text>
                   ))}
                 </div>

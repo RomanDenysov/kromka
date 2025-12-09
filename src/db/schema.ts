@@ -523,6 +523,11 @@ export const orders = pgTable(
     createdBy: text("created_by").references(() => users.id, {
       onDelete: "set null",
     }),
+    customerInfo: jsonb("customer_info").$type<{
+      name?: string | null;
+      email: string;
+      phone: string;
+    }>(),
 
     storeId: text("store_id").references(() => stores.id, {
       onDelete: "set null",

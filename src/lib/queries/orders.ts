@@ -74,6 +74,7 @@ export async function getOrderById(id: string) {
           name: true,
           email: true,
           image: true,
+          phone: true,
         },
       },
       store: {
@@ -96,6 +97,8 @@ export async function getOrderById(id: string) {
             columns: {
               id: true,
               name: true,
+              slug: true,
+              priceCents: true,
             },
           },
         },

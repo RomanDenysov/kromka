@@ -17,7 +17,7 @@ export const EMAIL_PARAGRAPH_CLASS = "text-sm leading-6 text-gray-600";
 
 export const EMAIL_MUTED_TEXT_CLASS = "text-xs leading-5 text-gray-500";
 
-function getBaseUrl() {
+export function getBaseUrl() {
   if (typeof window !== "undefined" && window.location?.origin) {
     return window.location.origin;
   }
@@ -31,7 +31,7 @@ function getBaseUrl() {
   return envUrl.startsWith("http") ? envUrl : `https://${envUrl}`;
 }
 
-function buildAssetUrl(path: string) {
+export function buildAssetUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
   return `${getBaseUrl()}/${normalizedPath}`;
 }
