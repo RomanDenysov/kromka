@@ -35,9 +35,27 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { PAYMENT_METHODS, type PaymentMethod } from "@/db/types";
-import { createOrderFromCart } from "@/lib/actions/orders";
+import {
+  createOrderFromCart,
+  type GuestCustomerInfo,
+} from "@/lib/actions/orders";
 import { updateCurrentUserProfile } from "@/lib/actions/user-profile";
 import type { User } from "@/lib/auth/session";
+
+function buildGuestCustomerInfo(
+  value: { name: string; email: string; phone: string },
+  isGuest: boolean
+): GuestCustomerInfo | null {
+  if (!isGuest) {
+    return null;
+  }
+  return { name: value.name, email: value.email, phone: value.phone };
+}
+
+function findStoreById(stores: Store[], id: string) {
+  return stores.find((s) => s.id === id);
+}
+
 import {
   getFirstAvailableDateWithRestrictions,
   getFirstAvailableTime,
@@ -116,30 +134,31 @@ export function CheckoutForm({
     },
     onSubmit: ({ value }) =>
       startTransition(async () => {
-        // Save customer profile + storeId to DB
-        await updateCurrentUserProfile({
-          name: value.name,
-          email: value.email,
-          phone: value.phone,
-          storeId: value.storeId,
-        });
+        const isGuest = !user;
 
-        // Sync selected store to local state if user didn't have one
-        if (!user?.storeId && value.storeId) {
-          const selectedStore = stores.find((s) => s.id === value.storeId);
-          if (selectedStore) {
-            setCustomerStore({
-              id: selectedStore.id,
-              name: selectedStore.name,
-            });
-          }
+        // Save customer profile + storeId to DB (only for authenticated users)
+        if (user) {
+          await updateCurrentUserProfile({
+            name: value.name,
+            email: value.email,
+            phone: value.phone,
+            storeId: value.storeId,
+          });
         }
 
+        // Sync selected store to local state
+        const selectedStore = findStoreById(stores, value.storeId);
+        if (selectedStore && !user?.storeId) {
+          setCustomerStore({ id: selectedStore.id, name: selectedStore.name });
+        }
+
+        const guestInfo = buildGuestCustomerInfo(value, isGuest);
         const result = await createOrderFromCart({
           storeId: value.storeId,
           pickupDate: value.pickupDate,
           pickupTime: value.pickupTime,
           paymentMethod: value.paymentMethod,
+          customerInfo: guestInfo ?? undefined,
         });
 
         if (result.success) {
