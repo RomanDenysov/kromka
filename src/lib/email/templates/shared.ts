@@ -38,7 +38,7 @@ export function buildAssetUrl(path: string) {
 
 export const DEFAULT_LOGO_URL = buildAssetUrl("logo-kromka.png");
 
-export const DEFAULT_SIGNATURE_LOGO_URL = buildAssetUrl("logo/kromka-sign.png");
+export const DEFAULT_SIGNATURE_LOGO_URL = buildAssetUrl("kromka-sign.png");
 
 export const DEFAULT_SUPPORT_EMAIL = "support@pekarenkromka.sk";
 
