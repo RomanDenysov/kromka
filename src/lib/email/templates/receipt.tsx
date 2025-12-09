@@ -245,7 +245,7 @@ export function ReceiptEmail({
                 ))}
               </Text>
               <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-3`}>
-                © 2025 Kromka s.r.o.
+                © 2025 Všetky práva vyhradené pre Kromka s.r.o.
               </Text>
             </Section>
           </Container>

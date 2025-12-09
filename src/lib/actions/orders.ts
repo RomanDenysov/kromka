@@ -140,6 +140,29 @@ export async function createOrderFromCart(data: {
     };
   }
 }
+// "in_progress" | "ready_for_pickup" | "completed" | "cancelled" | "refunded";
+
+async function sendEmailBasedOnOrderStatus(
+  orderId: string,
+  status: OrderStatus
+) {
+  const order = await getOrderById(orderId);
+  if (!order) {
+    throw new Error("Order not found");
+  }
+  if (status === "in_progress") {
+    return sendEmail.orderConfirmation({ order });
+  }
+  if (status === "ready_for_pickup") {
+    return sendEmail.orderReady({ order });
+  }
+  if (status === "completed") {
+    return sendEmail.thankYou({ order });
+  }
+  // if (status === "cancelled") {
+  //   return sendEmail.outOfStock({ email: order.createdBy?.email ?? "", productName: order.items[0].product.name });
+  // }
+}
 
 /**
  * Update order status (admin)
@@ -170,6 +193,8 @@ export async function updateOrderStatusAction({
     createdBy: user.id,
     note: note ?? null,
   });
+
+  await sendEmailBasedOnOrderStatus(updatedOrder.id, status);
 
   return updatedOrder;
 }

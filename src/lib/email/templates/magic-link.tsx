@@ -15,7 +15,12 @@ import {
   Text,
 } from "@react-email/components";
 
-import { DEFAULT_LOGO_URL } from "./shared";
+import {
+  DEFAULT_CONTACT_PHONES,
+  DEFAULT_LOGO_URL,
+  DEFAULT_SUPPORT_EMAIL,
+  EMAIL_MUTED_TEXT_CLASS,
+} from "./shared";
 
 export function MagicLink(props: { url: string }) {
   const { url } = props;
@@ -58,14 +63,34 @@ export function MagicLink(props: { url: string }) {
               <Hr className="mx-0 my-[14px] w-full border border-[#eaeaea] border-solid" />
               <Text className="mb-[14px] text-center text-gray-500 text-xs leading-[20px]">
                 Ak ste tento email nepožiadali, môžete ho bezpečne ignorovať.
-                <br />
-                Potrebujete pomoc? Kontaktujte{" "}
+              </Text>
+            </Section>
+
+            <Section className="mt-6 border-gray-200 border-t pt-4 text-center">
+              <Text className={EMAIL_MUTED_TEXT_CLASS}>
+                Máte otázky? Napíšte nám na{" "}
                 <Link
-                  className="text-blue-500 underline"
-                  href="mailto:support@kromka.sk"
+                  className="text-gray-700 underline"
+                  href={`mailto:${DEFAULT_SUPPORT_EMAIL}`}
                 >
-                  support@kromka.sk
+                  {DEFAULT_SUPPORT_EMAIL}
                 </Link>
+              </Text>
+              <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-1`}>
+                {DEFAULT_CONTACT_PHONES.map((contact, idx) => (
+                  <span key={contact.phone}>
+                    {idx > 0 && " · "}
+                    <Link
+                      className="text-gray-700 underline"
+                      href={`tel:${contact.phone}`}
+                    >
+                      {contact.label}
+                    </Link>
+                  </span>
+                ))}
+              </Text>
+              <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-3`}>
+                © 2025 Všetky práva vyhradené pre Kromka s.r.o.
               </Text>
             </Section>
           </Container>

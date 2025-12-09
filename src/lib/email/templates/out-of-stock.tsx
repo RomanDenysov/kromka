@@ -4,6 +4,7 @@ import {
   Head,
   Html,
   Img,
+  Link,
   Preview,
   render,
   Section,
@@ -12,12 +13,15 @@ import {
 } from "@react-email/components";
 
 import {
+  DEFAULT_CONTACT_PHONES,
   DEFAULT_LOGO_URL,
   DEFAULT_SIGNATURE_LOGO_URL,
+  DEFAULT_SUPPORT_EMAIL,
   EMAIL_BODY_CLASS,
   EMAIL_CARD_CLASS,
   EMAIL_CONTAINER_CLASS,
   EMAIL_HEADING_CLASS,
+  EMAIL_MUTED_TEXT_CLASS,
   EMAIL_PARAGRAPH_CLASS,
 } from "./shared";
 
@@ -75,6 +79,34 @@ export function OutOfStockEmail({
                 src={signatureLogoUrl ?? DEFAULT_SIGNATURE_LOGO_URL}
                 width="64"
               />
+            </Section>
+
+            <Section className="mt-6 border-gray-200 border-t pt-4 text-center">
+              <Text className={EMAIL_MUTED_TEXT_CLASS}>
+                Máte otázky? Napíšte nám na{" "}
+                <Link
+                  className="text-gray-700 underline"
+                  href={`mailto:${DEFAULT_SUPPORT_EMAIL}`}
+                >
+                  {DEFAULT_SUPPORT_EMAIL}
+                </Link>
+              </Text>
+              <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-1`}>
+                {DEFAULT_CONTACT_PHONES.map((contact, idx) => (
+                  <span key={contact.phone}>
+                    {idx > 0 && " · "}
+                    <Link
+                      className="text-gray-700 underline"
+                      href={`tel:${contact.phone}`}
+                    >
+                      {contact.label}
+                    </Link>
+                  </span>
+                ))}
+              </Text>
+              <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-3`}>
+                © 2025 Všetky práva vyhradené pre Kromka s.r.o.
+              </Text>
             </Section>
           </Container>
         </Body>

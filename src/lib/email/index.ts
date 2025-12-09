@@ -9,7 +9,12 @@ import { renderOrderConfirmationEmail } from "./templates/order-confirmation";
 import { renderOrderReadyEmail } from "./templates/order-ready";
 import { renderOutOfStockEmail } from "./templates/out-of-stock";
 import { renderReceiptEmail } from "./templates/receipt";
-import { DEFAULT_SUPPORT_EMAIL, getBaseUrl } from "./templates/shared";
+import {
+  DEFAULT_LOGO_URL,
+  DEFAULT_SIGNATURE_LOGO_URL,
+  DEFAULT_SUPPORT_EMAIL,
+  getBaseUrl,
+} from "./templates/shared";
 import { renderThankYouEmail } from "./templates/thank-you";
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
@@ -38,11 +43,13 @@ const config = {
   },
 };
 
+const STAFF_EMAIL = ["kromka@kavejo.sk", "r.denysov96@gmail.com"];
+
 const transporter = createTransport(config);
 
 async function emailService(options: {
   from: string;
-  to: string;
+  to: string | string[];
   subject: string;
   html: string;
 }) {
@@ -125,7 +132,7 @@ export const sendEmail = {
 
     return emailService({
       from: `"Kromka" <${env.EMAIL_USER}>`,
-      to: customerEmail,
+      to: STAFF_EMAIL,
       subject: `Nová objednávka ${order.orderNumber}`,
       html,
     });
@@ -146,6 +153,7 @@ export const sendEmail = {
       pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
       pickupDate: formatPickupDate(order.pickupDate),
       pickupTime: order.pickupTime ?? "Neurčený čas",
+      orderId: order.orderNumber,
     });
 
     return emailService({
@@ -168,6 +176,11 @@ export const sendEmail = {
 
     const html = await renderOrderReadyEmail({
       pickupPlace: order.store?.name ?? "Neurčené",
+      pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug) ?? "",
+      logoUrl: DEFAULT_LOGO_URL,
+      orderId: order.orderNumber,
+      pickupDate: formatPickupDate(order.pickupDate),
+      pickupTime: order.pickupTime ?? "Neurčený čas",
     });
 
     return emailService({
@@ -228,7 +241,8 @@ export const sendEmail = {
     const customerEmail = getCustomerEmail(order);
 
     const html = await renderThankYouEmail({
-      orderId: order.orderNumber,
+      logoUrl: DEFAULT_LOGO_URL,
+      signatureLogoUrl: DEFAULT_SIGNATURE_LOGO_URL,
     });
 
     return emailService({

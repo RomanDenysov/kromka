@@ -4,6 +4,7 @@ import {
   Head,
   Html,
   Img,
+  Link,
   Preview,
   render,
   Section,
@@ -12,18 +13,18 @@ import {
 } from "@react-email/components";
 
 import {
+  DEFAULT_CONTACT_PHONES,
   DEFAULT_LOGO_URL,
   DEFAULT_SIGNATURE_LOGO_URL,
+  DEFAULT_SUPPORT_EMAIL,
   EMAIL_BODY_CLASS,
   EMAIL_CARD_CLASS,
   EMAIL_CONTAINER_CLASS,
   EMAIL_HEADING_CLASS,
   EMAIL_MUTED_TEXT_CLASS,
-  formatOrderCode,
 } from "./shared";
 
 export type ThankYouEmailData = {
-  orderId?: string | number;
   logoUrl?: string;
   signatureLogoUrl?: string;
 };
@@ -32,13 +33,9 @@ export type ThankYouEmailData = {
  * Friendly thank-you message after the order lifecycle is completed.
  */
 export function ThankYouEmail({
-  orderId,
   logoUrl,
   signatureLogoUrl,
 }: ThankYouEmailData) {
-  const formattedOrderId =
-    typeof orderId === "undefined" ? undefined : formatOrderCode(orderId);
-
   return (
     <Html>
       <Tailwind>
@@ -57,11 +54,6 @@ export function ThankYouEmail({
               <Text className={EMAIL_HEADING_CLASS}>
                 Ďakujeme, že máte radi naše lakocinky!
               </Text>
-              {formattedOrderId ? (
-                <Text className="font-medium text-gray-600 text-sm">
-                  Číslo vašej objednávky: {formattedOrderId}
-                </Text>
-              ) : null}
             </Section>
 
             <Section className={`${EMAIL_CARD_CLASS} mt-6 text-center`}>
@@ -70,7 +62,7 @@ export function ThankYouEmail({
                 našich sociálnych sieťach alebo sa zastavte na kávičku.
               </Text>
               <Text className="mt-4 text-base text-gray-900 italic">
-                Váš tím pekárne Kromka
+                Váš tím pekárne Kromka 👋🏻
               </Text>
             </Section>
 
@@ -82,7 +74,32 @@ export function ThankYouEmail({
                 src={signatureLogoUrl ?? DEFAULT_SIGNATURE_LOGO_URL}
                 width="48"
               />
-              <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-4`}>
+            </Section>
+
+            <Section className="mt-6 border-gray-200 border-t pt-4 text-center">
+              <Text className={EMAIL_MUTED_TEXT_CLASS}>
+                Máte otázky? Napíšte nám na{" "}
+                <Link
+                  className="text-gray-700 underline"
+                  href={`mailto:${DEFAULT_SUPPORT_EMAIL}`}
+                >
+                  {DEFAULT_SUPPORT_EMAIL}
+                </Link>
+              </Text>
+              <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-1`}>
+                {DEFAULT_CONTACT_PHONES.map((contact, idx) => (
+                  <span key={contact.phone}>
+                    {idx > 0 && " · "}
+                    <Link
+                      className="text-gray-700 underline"
+                      href={`tel:${contact.phone}`}
+                    >
+                      {contact.label}
+                    </Link>
+                  </span>
+                ))}
+              </Text>
+              <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-3`}>
                 © 2025 Všetky práva vyhradené pre Kromka s.r.o.
               </Text>
             </Section>
