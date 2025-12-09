@@ -24,18 +24,29 @@ export async function submitSupportRequest(data: {
 
     const validatedData = validationResult.data;
 
-    // Send email to staff
-    await sendEmail.supportRequest({
-      name: validatedData.name,
-      email: validatedData.email,
-      rootCause: validatedData.rootCause,
-      message: validatedData.message,
-    });
+    // Send email to staff (critical - must succeed)
+    try {
+      await sendEmail.supportRequest({
+        name: validatedData.name,
+        email: validatedData.email,
+        rootCause: validatedData.rootCause,
+        message: validatedData.message,
+      });
+    } catch {
+      return {
+        success: false,
+        error: "Nastala chyba pri odosielaní správy. Skúste to prosím znova.",
+      };
+    }
 
-    // Send confirmation email to user
-    await sendEmail.supportConfirmation({
-      email: validatedData.email,
-    });
+    // Send confirmation email to user (non-critical - failure doesn't affect success)
+    try {
+      await sendEmail.supportConfirmation({
+        email: validatedData.email,
+      });
+    } catch {
+      // ignore
+    }
 
     return { success: true };
   } catch (_error) {
