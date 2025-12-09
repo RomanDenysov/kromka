@@ -14,19 +14,47 @@ type CreateOrderResult =
   | { success: true; orderId: string; orderNumber: string }
   | { success: false; error: string };
 
+export type GuestCustomerInfo = {
+  name: string;
+  email: string;
+  phone: string;
+};
+
+function isValidGuestInfo(info: GuestCustomerInfo): boolean {
+  return Boolean(info.name.trim() && info.email.trim() && info.phone.trim());
+}
+
 /**
  * Create order from cart (B2C checkout)
+ * Supports both authenticated users and guest checkout
  */
 export async function createOrderFromCart(data: {
   storeId: string;
   pickupDate: Date;
   pickupTime: string;
   paymentMethod: PaymentMethod;
+  /** Required for guest checkout when user is not authenticated */
+  customerInfo?: GuestCustomerInfo;
 }): Promise<CreateOrderResult> {
   try {
-    const { user, session } = await getAuth();
-    if (!(user && session)) {
-      return { success: false, error: "Unauthorized" };
+    const { user } = await getAuth();
+    const isGuest = !user;
+
+    // Require either authenticated user or guest customer info
+    if (isGuest && !data.customerInfo) {
+      return {
+        success: false,
+        error:
+          "Pre objednávku je potrebné byť prihlásený alebo zadať kontaktné údaje",
+      };
+    }
+
+    // Validate guest info if provided
+    if (isGuest && data.customerInfo && !isValidGuestInfo(data.customerInfo)) {
+      return {
+        success: false,
+        error: "Vyplňte prosím všetky kontaktné údaje",
+      };
     }
 
     const cartId = await getCartIdFromCookie();
@@ -86,7 +114,8 @@ export async function createOrderFromCart(data: {
       .insert(orders)
       .values({
         orderNumber,
-        createdBy: user.id,
+        createdBy: user?.id ?? null,
+        customerInfo: data.customerInfo ?? null,
         storeId: data.storeId,
         orderStatus: "new",
         paymentStatus: "pending",
@@ -109,7 +138,7 @@ export async function createOrderFromCart(data: {
     await db.insert(orderStatusEvents).values({
       orderId: order.id,
       status: "new",
-      createdBy: user.id,
+      createdBy: user?.id ?? null,
     });
 
     // 9. Deletion of cart and clear cookie
