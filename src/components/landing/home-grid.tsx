@@ -45,7 +45,7 @@ const gridItems: GridItemConfig[] = [
     id: "seasonal",
     title: "Vianočná ponuka",
     subtitle: "Tradičné koláče na váš stôl",
-    href: "/e-shop/vianocna-ponuka" as Route,
+    href: "/e-shop/vianoce" as Route,
     image: "/images/christmas-compain.jpg",
     size: "medium",
   },
