@@ -1,8 +1,11 @@
 "use client";
 
-import z from "zod";
+import { useTransition } from "react";
+import { toast } from "sonner";
 import { useAppForm } from "@/components/shared/form";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
+import { submitB2BRequest } from "@/lib/actions/b2b";
+import { b2bRequestSchema } from "@/validation/contact";
 
 const BUSINESS_TYPE_OPTIONS: Array<{ label: string; value: string }> = [
   { label: "Reštaurácia", value: "restaurant" },
@@ -12,20 +15,9 @@ const BUSINESS_TYPE_OPTIONS: Array<{ label: string; value: string }> = [
   { label: "Iné", value: "other" },
 ];
 
-const b2bRequestSchema = z.object({
-  companyName: z.string().min(1, "Názov spoločnosti je povinný"),
-  businessType: z
-    .string()
-    .min(1, "Typ podniku je povinný")
-    .refine((val) => BUSINESS_TYPE_OPTIONS.some((opt) => opt.value === val), {
-      message: "Vyberte platný typ podniku",
-    }),
-  userName: z.string().min(1, "Meno a priezvisko je povinné"),
-  email: z.string().email("Neplatná emailová adresa"),
-  phone: z.string().min(1, "Telefónne číslo je povinné"),
-});
-
 export function B2BForm() {
+  const [isPending, startTransition] = useTransition();
+
   const form = useAppForm({
     validators: {
       onSubmit: b2bRequestSchema,
@@ -38,8 +30,16 @@ export function B2BForm() {
       phone: "",
     },
     onSubmit: ({ value }) => {
-      // biome-ignore lint/suspicious/noConsole: Mock server operation
-      console.log("B2B Request submitted:", value);
+      startTransition(async () => {
+        const result = await submitB2BRequest(value);
+
+        if (result.success) {
+          toast.success("Žiadosť bola úspešne odoslaná");
+          form.reset();
+        } else {
+          toast.error(result.error ?? "Nastala chyba pri odosielaní žiadosti");
+        }
+      });
     },
   });
 
@@ -88,7 +88,9 @@ export function B2BForm() {
             </form.AppField>
           </FieldGroup>
 
-          <form.SubmitButton>Odoslať žiadosť</form.SubmitButton>
+          <form.SubmitButton disabled={isPending}>
+            {isPending ? "Odosiela sa..." : "Odoslať žiadosť"}
+          </form.SubmitButton>
         </FieldSet>
       </form>
     </form.AppForm>
