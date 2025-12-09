@@ -4,9 +4,12 @@ import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { OrdersTable } from "@/components/tables/orders/table";
 import { getAllOrders } from "@/lib/queries/orders";
 
-export default async function B2COrdersPage() {
-  const fetchedOrders = await getAllOrders();
+async function OrdersLoader() {
+  const orders = await getAllOrders();
+  return <OrdersTable orders={orders} />;
+}
 
+export default function B2COrdersPage() {
   return (
     <>
       <AdminHeader
@@ -17,7 +20,7 @@ export default async function B2COrdersPage() {
       />
       <section className="h-full flex-1">
         <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-          <OrdersTable orders={fetchedOrders} />
+          <OrdersLoader />
         </Suspense>
       </section>
     </>

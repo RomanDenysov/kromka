@@ -1,9 +1,10 @@
-import { cacheLife } from "next/cache";
+import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductForm } from "@/app/(admin)/admin/products/[id]/product-form";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
-import { db } from "@/db";
+import { getAdminCategories } from "@/lib/queries/categories";
+import { getAdminProductById } from "@/lib/queries/products";
 
 type Props = {
   params: Promise<{
@@ -11,82 +12,34 @@ type Props = {
   }>;
 };
 
-async function getProduct(id: string) {
-  "use cache";
-  cacheLife("minutes");
-
-  const product = await db.query.products.findFirst({
-    where: (p, { eq }) => eq(p.id, id),
-    with: {
-      category: true,
-      images: {
-        with: {
-          media: true,
-        },
-      },
-      prices: {
-        with: {
-          priceTier: true,
-        },
-      },
-    },
-  });
-  if (product) {
-    product.images = product.images.sort((a, b) => a.sortOrder - b.sortOrder);
-
-    return {
-      ...product,
-      images: product.images.map((img) => img.media.url),
-      category: product.category,
-      prices: product.prices.map((p) => ({
-        priceCents: p.priceCents,
-        priceTier: p.priceTier,
-      })),
-    };
-  }
-
-  return null;
-}
-
-async function getCategories() {
-  "use cache";
-  cacheLife("hours");
-  return await db.query.categories.findMany();
-}
-
-export type AdminProduct = Awaited<ReturnType<typeof getProduct>>;
-
-async function B2CProductPageContent({ params }: Props) {
+async function ProductLoader({ params }: Props) {
   const { id } = await params;
-  const product = await getProduct(id);
-  const categories = await getCategories();
+  const decodedId = decodeURIComponent(id);
+  const [product, categories] = await Promise.all([
+    getAdminProductById(decodedId),
+    getAdminCategories(),
+  ]);
   if (!product) {
-    return <div>Produkt nebol nájdený</div>;
+    notFound();
   }
-
+  return <ProductForm categories={categories} product={product} />;
+}
+export default function B2CProductPage({ params }: Props) {
   return (
     <>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
           { label: "Produkty", href: "/admin/products" },
-          { label: product.name },
+          { label: "Upraviť produkt" },
         ]}
       />
 
       <section className="@container/page h-full flex-1 p-4">
         <Suspense fallback={<FormSkeleton />}>
-          <ProductForm categories={categories} product={product} />
+          <ProductLoader params={params} />
         </Suspense>
       </section>
     </>
-  );
-}
-
-export default function B2CProductPage({ params }: Props) {
-  return (
-    <Suspense fallback={<FormSkeleton />}>
-      <B2CProductPageContent params={params} />
-    </Suspense>
   );
 }

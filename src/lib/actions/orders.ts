@@ -1,5 +1,6 @@
 "use server";
 
+import { format } from "date-fns";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { carts, orderItems, orderStatusEvents, orders } from "@/db/schema";
@@ -120,7 +121,7 @@ export async function createOrderFromCart(data: {
         orderStatus: "new",
         paymentStatus: "pending",
         paymentMethod: data.paymentMethod,
-        pickupDate: data.pickupDate,
+        pickupDate: format(data.pickupDate, "yyyy-MM-dd"),
         pickupTime: data.pickupTime,
         totalCents,
       })

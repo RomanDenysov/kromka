@@ -53,6 +53,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { OrderStatus } from "@/db/types";
 import { updateOrderStatusAction } from "@/lib/actions/orders";
 import {
   ORDER_STATUS_ICONS,
@@ -64,7 +65,6 @@ import {
 } from "@/lib/constants";
 import type { Order } from "@/lib/queries/orders";
 import { formatPrice, getInitials } from "@/lib/utils";
-import type { OrderStatus } from "@/types/orders";
 
 const ORDER_ID_LENGTH = 8;
 const ITEMS_PLURAL_THRESHOLD = 5;
@@ -415,7 +415,7 @@ function PickupCard({
   pickupTime,
 }: {
   store: StoreData;
-  pickupDate: Date | null;
+  pickupDate: string | null;
   pickupTime: string | null;
 }) {
   return (
@@ -596,7 +596,7 @@ function StatusHistoryCard({ events }: { events: StatusEventData[] }) {
 // Main Component
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function OrderDetail({ order }: { order: Order }) {
+export function OrderDetail({ order }: { order: Order | undefined }) {
   const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const validationResolverRef = useRef<((value: boolean) => void) | null>(null);

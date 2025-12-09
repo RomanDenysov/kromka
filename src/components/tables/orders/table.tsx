@@ -33,11 +33,11 @@ import {
   exportAsCsv,
   exportAsXlsx,
 } from "@/lib/export-utils";
-import type { AllOrdersList } from "@/lib/queries/orders";
+import type { Order } from "@/lib/queries/orders";
 import { cn } from "@/lib/utils";
 import { columns } from "./columns";
 
-const orderExportColumns: ExportColumnConfig<AllOrdersList[number]>[] = [
+const orderExportColumns: ExportColumnConfig<Order>[] = [
   {
     key: "orderNumber",
     header: "Objednávka",
@@ -69,12 +69,12 @@ const orderExportColumns: ExportColumnConfig<AllOrdersList[number]>[] = [
   },
 ];
 
-export function OrdersTable({ orders }: { orders: AllOrdersList }) {
+export function OrdersTable({ orders }: { orders: Order[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  const table = useReactTable<AllOrdersList[number]>({
+  const table = useReactTable<Order>({
     data: orders,
     columns,
     filterFns: {

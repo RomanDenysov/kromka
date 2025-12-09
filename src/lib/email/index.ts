@@ -76,7 +76,7 @@ function getPickupPlaceUrl(storeSlug?: string | null): string | undefined {
 }
 
 /** Formats pickup date in Slovak locale */
-function formatPickupDate(date: Date | null | undefined): string {
+function formatPickupDate(date: string | null | undefined): string {
   return date ? format(date, "d. MMMM yyyy", { locale: sk }) : "Neurčený dátum";
 }
 

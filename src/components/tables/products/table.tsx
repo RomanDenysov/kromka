@@ -17,14 +17,7 @@ import {
   TablePropertiesIcon,
   Trash2Icon,
 } from "lucide-react";
-import {
-  Fragment,
-  use,
-  useCallback,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
+import { Fragment, useCallback, useMemo, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -69,12 +62,12 @@ import {
   exportAsCsv,
   exportAsXlsx,
 } from "@/lib/export-utils";
-import type { Product } from "@/lib/queries/products";
+import type { AdminProduct } from "@/lib/queries/products";
 import { cn } from "@/lib/utils";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
-const productExportColumns: ExportColumnConfig<Product>[] = [
+const productExportColumns: ExportColumnConfig<AdminProduct>[] = [
   {
     key: "name",
     header: "Názov",
@@ -109,12 +102,7 @@ const productExportColumns: ExportColumnConfig<Product>[] = [
   },
 ];
 
-export function ProductsTable({
-  productsPromise,
-}: {
-  productsPromise: Promise<Product[]>;
-}) {
-  const products = use(productsPromise);
+export function ProductsTable({ products }: { products: AdminProduct[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -126,7 +114,7 @@ export function ProductsTable({
 
   const processedProducts = useMemo(() => products ?? [], [products]);
 
-  const table = useReactTable<Product>({
+  const table = useReactTable<AdminProduct>({
     filterFns: {
       fuzzy: fuzzyFilter,
     },

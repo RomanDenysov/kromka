@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import type { AdminProduct } from "@/app/(admin)/admin/products/[id]/page";
 import { ImageUpload } from "@/components/image-upload";
 import { useAppForm } from "@/components/shared/form";
 import { Button } from "@/components/ui/button";
@@ -43,6 +42,7 @@ import {
 } from "@/components/ui/popover";
 import { updateProductAction } from "@/lib/actions/products";
 import { getSlug } from "@/lib/get-slug";
+import type { AdminProduct } from "@/lib/queries/products";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types/categories";
 import { updateProductSchema } from "@/validation/products";

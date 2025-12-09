@@ -22,10 +22,10 @@ import {
   PAYMENT_STATUS_LABELS,
   PAYMENT_STATUS_VARIANTS,
 } from "@/lib/constants";
-import type { AllOrdersList } from "@/lib/queries/orders";
+import type { Order } from "@/lib/queries/orders";
 import { formatPrice } from "@/lib/utils";
 
-export const columns: ColumnDef<AllOrdersList[number]>[] = [
+export const columns: ColumnDef<Order>[] = [
   {
     id: "select",
     enableSorting: false,
@@ -100,14 +100,19 @@ export const columns: ColumnDef<AllOrdersList[number]>[] = [
       />
     ),
     enableSorting: true,
-    accessorFn: (row) =>
-      row.createdBy?.name || row.createdBy?.email || "Neznámy zákazník",
     cell: ({ row }) => {
-      const customer = row.original.createdBy;
+      const createdByData = row.original.createdBy;
+      const customerData = row.original.customerInfo;
+
+      const name = createdByData?.name ?? customerData?.name;
+      const email = createdByData?.email ?? customerData?.email;
+      const phone = createdByData?.phone ?? customerData?.phone;
+
       return (
-        <div className="flex flex-col">
-          <span className="truncate font-medium text-xs">{customer?.name}</span>
-          <span className="truncate text-xs">{customer?.email}</span>
+        <div className="flex flex-col gap-0">
+          <span className="truncate font-medium text-xs">{name}</span>
+          <span className="truncate text-xs">{email}</span>
+          <span className="truncate text-xs">{phone}</span>
         </div>
       );
     },

@@ -1,4 +1,4 @@
-import { getCategories } from "@/lib/queries/products";
+import { getCategories } from "@/lib/queries/categories";
 import { CategoryLink } from "./category-link";
 
 export async function SimpleCategoriesFilter() {

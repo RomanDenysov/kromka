@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
@@ -11,15 +10,14 @@ type Props = {
   }>;
 };
 
-async function AdminOrderPageContent({ params }: Props) {
+async function OrderLoader({ params }: Props) {
   const { id } = await params;
+  const decodedId = decodeURIComponent(id);
+  const order = await getOrderById(decodedId);
+  return <OrderDetail order={order} />;
+}
 
-  const fetchedOrder = await getOrderById(id);
-
-  if (!fetchedOrder) {
-    notFound();
-  }
-
+export default function AdminOrderPage({ params }: Props) {
   return (
     <>
       <AdminHeader
@@ -31,17 +29,9 @@ async function AdminOrderPageContent({ params }: Props) {
       />
       <section className="@container/page h-full flex-1 p-4">
         <Suspense fallback={<FormSkeleton />}>
-          <OrderDetail order={fetchedOrder} />
+          <OrderLoader params={params} />
         </Suspense>
       </section>
     </>
-  );
-}
-
-export default function AdminOrderPage({ params }: Props) {
-  return (
-    <Suspense fallback={<FormSkeleton />}>
-      <AdminOrderPageContent params={params} />
-    </Suspense>
   );
 }

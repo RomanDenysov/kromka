@@ -1,15 +1,32 @@
+/** biome-ignore-all lint/complexity/noVoid: we need to preload the products with void */
+import "server-only";
+
+import { eq } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
+import { products } from "@/db/schema";
 
+// Helper to transform product images
+function transformProduct<T extends { images: { media: { url: string } }[] }>(
+  product: T
+) {
+  return {
+    ...product,
+    images: product.images.map((img) => img.media.url),
+  };
+}
+
+// PUBLIC (cached, for storefront)
+// One function to get all products just reused for all queries for better performance
 export const getProducts = cache(async () => {
   "use cache";
   cacheLife("hours");
   cacheTag("products");
 
   const data = await db.query.products.findMany({
-    where: (p, { eq, and, notInArray }) =>
-      and(eq(p.isActive, true), notInArray(p.status, ["archived", "draft"])),
+    where: (p, { eq: eqOp, and, notInArray }) =>
+      and(eqOp(p.isActive, true), notInArray(p.status, ["archived", "draft"])),
     with: {
       images: {
         with: { media: true },
@@ -22,65 +39,31 @@ export const getProducts = cache(async () => {
     orderBy: (p, { asc, desc }) => [asc(p.sortOrder), desc(p.createdAt)],
   });
 
-  return data.map((p) => ({
-    ...p,
-    images: p.images.map((img) => img.media.url),
-  }));
+  return data.map(transformProduct);
 });
 
-// biome-ignore lint/complexity/noVoid: we need to preload the products
 export const preloadProducts = () => void getProducts();
 
-export const getCategories = cache(async () => {
-  "use cache";
-  cacheLife("days");
-  cacheTag("categories");
-
-  // Reuse products to count the number of products in each category
-  const allProducts = await getProducts();
-
-  const data = await db.query.categories.findMany({
-    where: (cat, { eq, and }) =>
-      and(
-        eq(cat.isActive, true),
-        eq(cat.showInMenu, true),
-        eq(cat.isFeatured, false)
-      ),
-  });
-
-  // Filter categories that have active products
-  const categoryIdsWithProducts = new Set(
-    allProducts.map((p) => p.categoryId).filter(Boolean)
-  );
-
-  return data.filter((cat) => categoryIdsWithProducts.has(cat.id));
-});
-
-export const getFeaturedCategories = cache(async () => {
+export const getProductBySlug = cache(async (slug: string) => {
   "use cache";
   cacheLife("hours");
-  cacheTag("featured", "products");
+  cacheTag("products", `product-${slug}`);
 
-  const allProducts = await getProducts();
-
-  const categories = await db.query.categories.findMany({
-    where: (cat, { eq, and }) =>
-      and(
-        eq(cat.isFeatured, true),
-        eq(cat.isActive, true),
-        eq(cat.showInMenu, true)
-      ),
-    orderBy: (cat, { asc }) => asc(cat.sortOrder),
+  const product = await db.query.products.findFirst({
+    where: (p, { eq: eqOp }) => eqOp(p.slug, slug),
+    with: {
+      images: {
+        with: { media: true },
+        orderBy: (image, { asc }) => [asc(image.sortOrder)],
+      },
+      category: true,
+      prices: {
+        with: { priceTier: true },
+      },
+    },
   });
 
-  return categories
-    .map((cat) => ({
-      ...cat,
-      products: allProducts
-        .filter((p) => p.categoryId === cat.id)
-        .sort((a, b) => a.sortOrder - b.sortOrder),
-    }))
-    .filter((cat) => cat.products.length > 0); // only with products
+  return product ? transformProduct(product) : null;
 });
 
 export const getProductsByCategory = cache(async (slug: string) => {
@@ -88,21 +71,84 @@ export const getProductsByCategory = cache(async (slug: string) => {
   cacheLife("hours");
   cacheTag("products", `category-${slug}`);
 
-  // Reuse existing cached function
   const allProducts = await getProducts();
   const filtered = allProducts.filter((p) => p.category?.slug === slug);
-
-  // Will work fine if we have less than ~100 products in the category
 
   return filtered.length > 0 ? filtered : null;
 });
 
 export const preloadProductsByCategory = (slug: string) =>
-  // biome-ignore lint/complexity/noVoid: we need to preload the products by category
   void getProductsByCategory(slug);
 
+// ADMIN (no cache, always fresh)
+export async function getAdminProducts() {
+  const fetchedProducts = await db.query.products.findMany({
+    with: {
+      category: true,
+      prices: {
+        with: {
+          priceTier: true,
+        },
+      },
+      images: {
+        with: {
+          media: true,
+        },
+      },
+    },
+    orderBy: (product, { desc }) => desc(product.createdAt),
+  });
+
+  return fetchedProducts.map((p) => ({
+    ...p,
+    images: p.images
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((img) => img.media.url),
+    prices: p.prices.map((pt) => ({
+      priceCents: pt.priceCents,
+      priceTier: pt.priceTier,
+    })),
+  }));
+}
+
+export async function getAdminProductById(id: string) {
+  const product = await db.query.products.findFirst({
+    where: eq(products.id, id),
+    with: {
+      category: true,
+      images: {
+        with: {
+          media: true,
+        },
+      },
+      prices: {
+        with: {
+          priceTier: true,
+        },
+      },
+    },
+  });
+
+  if (!product) {
+    return null;
+  }
+
+  return {
+    ...product,
+    images: product.images
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((img) => img.media.url),
+    category: product.category,
+    prices: product.prices.map((p) => ({
+      priceCents: p.priceCents,
+      priceTier: p.priceTier,
+    })),
+  };
+}
+
+// Types
 export type Product = Awaited<ReturnType<typeof getProducts>>[number];
-export type Category = Awaited<ReturnType<typeof getCategories>>[number];
-export type FeaturedCategory = Awaited<
-  ReturnType<typeof getFeaturedCategories>
->[number];
+export type AdminProduct = NonNullable<
+  Awaited<ReturnType<typeof getAdminProductById>>
+>;
+export type AdminProductList = Awaited<ReturnType<typeof getAdminProducts>>;

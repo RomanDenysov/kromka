@@ -34,7 +34,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Product } from "@/lib/queries/products";
+import type { AdminProduct } from "@/lib/queries/products";
 import { formatPrice } from "@/lib/utils";
 
 type ProductTableMeta = {
@@ -44,7 +44,7 @@ type ProductTableMeta = {
   onToggleActive: (id: string) => void;
 };
 
-export const columns: ColumnDef<Product, ProductTableMeta>[] = [
+export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
   {
     id: "select",
     header: ({ table }) => (

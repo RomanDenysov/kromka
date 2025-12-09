@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ProductsGrid } from "@/components/products-grid";
-import { getCategories, getProducts } from "@/lib/queries/products";
+import { getProducts } from "@/lib/queries/products";
+import { getCategories } from "@/lib/queries/categories";
 
 type Props = {
   params: Promise<{ category: string }>;

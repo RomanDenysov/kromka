@@ -2,7 +2,7 @@ import { cacheLife } from "next/cache";
 import {
   type FeaturedCategory,
   getFeaturedCategories,
-} from "@/lib/queries/products";
+} from "@/lib/queries/categories";
 import { FeaturedProductCard } from "./cards/featured-product-card";
 import {
   Carousel,
