@@ -17,9 +17,15 @@ export const supportRequestSchema = z.object({
 
 export const b2bRequestSchema = z.object({
   companyName: z.string().trim().min(1, "Názov spoločnosti je povinný"),
-  businessType: z.enum(BUSINESS_TYPE_OPTIONS, {
-    errorMap: () => ({ message: "Vyberte platný typ podniku" }),
-  }),
+  businessType: z
+    .string()
+    .refine(
+      (val) =>
+        BUSINESS_TYPE_OPTIONS.includes(
+          val as (typeof BUSINESS_TYPE_OPTIONS)[number]
+        ),
+      { message: "Vyberte platný typ podniku" }
+    ),
   userName: z.string().trim().min(1, "Meno a priezvisko je povinné"),
   email: z.string().trim().email("Neplatná emailová adresa"),
   phone: z.string().trim().min(1, "Telefónne číslo je povinné"),
