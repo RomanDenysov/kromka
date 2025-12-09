@@ -23,6 +23,19 @@ export async function updateProductAction({
   // Remove id from update data since it's used in the where clause
   const { id: _id, ...updateData } = product;
 
+  // Check if slug is taken by another product
+  if (updateData.slug) {
+    const existingProduct = await db.query.products.findFirst({
+      where: (p, { and: andFn, eq: eqFn, ne }) =>
+        andFn(eqFn(p.slug, updateData.slug as string), ne(p.id, id)),
+      columns: { id: true },
+    });
+
+    if (existingProduct) {
+      return { success: false, error: "SLUG_TAKEN" };
+    }
+  }
+
   await db.update(products).set(updateData).where(eq(products.id, id));
 
   revalidatePath(`/admin/products/${id}`);

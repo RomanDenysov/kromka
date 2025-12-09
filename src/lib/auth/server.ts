@@ -86,10 +86,12 @@ export const auth = betterAuth({
     database: {
       generateId: createId,
     },
-    crossSubDomainCookies: {
-      enabled: true,
-      domain: "pekarenkromka.sk",
-    },
+    ...(process.env.NODE_ENV === "production" && {
+      crossSubDomainCookies: {
+        enabled: true,
+        domain: "pekarenkromka.sk",
+      },
+    }),
   },
 });
 

@@ -1,8 +1,14 @@
 "use client";
 
 import { format } from "date-fns";
-import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import {
+  MoreHorizontalIcon,
+  RefreshCwIcon,
+  SaveIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useTransition } from "react";
+import { toast } from "sonner";
 import {
   Field,
   FieldDescription,
@@ -10,7 +16,6 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
-import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { updateStoreAction } from "@/lib/actions/stores";
 import { getSlug } from "@/lib/get-slug";
 import type { Store } from "@/lib/queries/stores";
@@ -52,7 +57,6 @@ export function StoreForm({
       address: store?.address ?? null,
       latitude: store?.latitude ?? null,
       longitude: store?.longitude ?? null,
-      // Initialize openingHours with fallback (though DB provides default)
       openingHours: store?.openingHours ?? {
         regularHours: {
           monday: "closed",
@@ -66,25 +70,21 @@ export function StoreForm({
         exceptions: {},
       },
     },
-    listeners: {
-      onChangeDebounceMs: 5000,
-      onChange: ({ formApi }) => {
-        if (formApi.state.isValid && !formApi.state.isSubmitting) {
-          formApi.handleSubmit();
-        }
-      },
-    },
     validators: {
       onSubmit: storeSchema,
     },
-    onSubmit: ({ value }) =>
+    onSubmit: ({ value }) => {
       startTransition(async () => {
-        await updateStoreAction({ id: store.id, store: value });
-      }),
-  });
-
-  const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form, {
-    blurDelay: 1000,
+        const result = await updateStoreAction({ id: store.id, store: value });
+        if (result.success) {
+          toast.success("Obchod bol uložený");
+        } else if (result.error === "SLUG_TAKEN") {
+          toast.error("Slug je už použitý iným obchodom");
+        } else {
+          toast.error("Nepodarilo sa uložiť obchod");
+        }
+      });
+    },
   });
 
   return (
@@ -93,29 +93,36 @@ export function StoreForm({
         <form
           aria-disabled={isPending}
           id="store-form"
-          onBlurCapture={onBlurCapture}
-          onFocusCapture={onFocusCapture}
           onSubmit={(e) => {
             e.preventDefault();
             e.stopPropagation();
             form.handleSubmit();
           }}
-          ref={formRef}
         >
           <FieldSet className="@md/page:max-w-md max-w-full gap-5">
             <div className="flex flex-row items-start justify-between">
               <div>
                 <FieldLegend>Nastavenie obchodu</FieldLegend>
                 <FieldDescription className="text-[10px]">
-                  {isPending
-                    ? "Ukladá sa..."
-                    : `Naposledy uložené ${format(
-                        store.updatedAt ?? new Date(),
-                        "dd.MM.yyyy HH:mm"
-                      )}`}
+                  Naposledy uložené{" "}
+                  {format(store.updatedAt ?? new Date(), "dd.MM.yyyy HH:mm")}
                 </FieldDescription>
               </div>
-              <div>
+              <div className="flex gap-1">
+                <form.Subscribe
+                  selector={(state) => [state.isDirty, state.isValid]}
+                >
+                  {([isDirty, isValid]) => (
+                    <Button
+                      disabled={isPending || !isDirty || !isValid}
+                      size="xs"
+                      type="submit"
+                    >
+                      <SaveIcon className="size-3.5" />
+                      {isPending ? "Ukladá sa..." : "Uložiť"}
+                    </Button>
+                  )}
+                </form.Subscribe>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="icon-xs" variant="ghost">
@@ -145,15 +152,7 @@ export function StoreForm({
                   </Field>
                 )}
               </form.AppField>
-              <form.AppField
-                listeners={{
-                  onChangeDebounceMs: 300,
-                  onChange: (event) => {
-                    form.setFieldValue("slug", getSlug(event.value));
-                  },
-                }}
-                name="name"
-              >
+              <form.AppField name="name">
                 {(field) => (
                   <field.TextField
                     label="Názov obchodu"
@@ -162,7 +161,27 @@ export function StoreForm({
                 )}
               </form.AppField>
               <form.AppField name="slug">
-                {(field) => <field.TextField label="Slug" placeholder="Slug" />}
+                {(field) => (
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <field.TextField label="Slug" placeholder="Slug" />
+                    </div>
+                    <form.Subscribe selector={(state) => state.values.name}>
+                      {(name) => (
+                        <Button
+                          className="mt-6"
+                          onClick={() => field.handleChange(getSlug(name))}
+                          size="icon"
+                          title="Generovať z názvu"
+                          type="button"
+                          variant="outline"
+                        >
+                          <RefreshCwIcon className="size-4" />
+                        </Button>
+                      )}
+                    </form.Subscribe>
+                  </div>
+                )}
               </form.AppField>
               <form.AppField name="description">
                 {(field) => <field.RichTextField label="Popis obchodu" />}

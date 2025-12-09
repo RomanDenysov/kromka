@@ -54,6 +54,19 @@ export async function updateStoreAction({
     throw new Error("Unauthorized");
   }
 
+  // Check if slug is taken by another store
+  if (store.slug) {
+    const existingStore = await db.query.stores.findFirst({
+      where: (s, { and: andFn, eq: eqFn, ne }) =>
+        andFn(eqFn(s.slug, store.slug), ne(s.id, id)),
+      columns: { id: true },
+    });
+
+    if (existingStore) {
+      return { success: false, error: "SLUG_TAKEN" };
+    }
+  }
+
   const [updatedStore] = await db
     .update(stores)
     .set(store)
@@ -63,7 +76,7 @@ export async function updateStoreAction({
   revalidatePath(`/admin/stores/${updatedStore.id}`);
   revalidatePath("/admin/stores");
 
-  return updatedStore;
+  return { success: true, store: updatedStore };
 }
 
 export async function copyStoreAction({ storeId }: { storeId: string }) {

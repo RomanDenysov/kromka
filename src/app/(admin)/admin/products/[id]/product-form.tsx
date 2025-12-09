@@ -1,8 +1,14 @@
 "use client";
 
 import { format } from "date-fns";
-import { MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import {
+  MoreHorizontalIcon,
+  RefreshCwIcon,
+  SaveIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import type { AdminProduct } from "@/app/(admin)/admin/products/[id]/page";
 import { ImageUpload } from "@/components/image-upload";
 import { useAppForm } from "@/components/shared/form";
@@ -48,7 +54,7 @@ export function ProductForm({
   product: AdminProduct;
   categories: Category[];
 }) {
-  const [isPendingUpdateProduct, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const form = useAppForm({
     validators: {
@@ -67,26 +73,22 @@ export function ProductForm({
       priceCents: product?.priceCents ?? 0,
       categoryId: product?.category?.id ?? null,
     },
-    listeners: {
-      onChangeDebounceMs: 2000,
-      onChange: ({ formApi }) => {
-        if (
-          formApi.state.isValid &&
-          formApi.state.isDirty &&
-          !formApi.state.isSubmitting
-        ) {
-          formApi.handleSubmit();
-        }
-      },
-    },
     onSubmit: ({ value }) => {
       startTransition(async () => {
-        await updateProductAction({ id: value.id, product: value });
+        const result = await updateProductAction({
+          id: value.id,
+          product: value,
+        });
+        if (result.success) {
+          toast.success("Produkt bol uložený");
+        } else if (result.error === "SLUG_TAKEN") {
+          toast.error("Slug je už použitý iným produktom");
+        } else {
+          toast.error("Nepodarilo sa uložiť produkt");
+        }
       });
     },
   });
-
-  // const { formRef, onBlurCapture, onFocusCapture } = useFormAutoSave(form);
 
   if (!product) {
     return <div>Produkt nebol nájdený</div>;
@@ -95,31 +97,38 @@ export function ProductForm({
   return (
     <form.AppForm>
       <form
-        aria-disabled={isPendingUpdateProduct}
+        aria-disabled={isPending}
         id="product-form"
-        // onBlurCapture={onBlurCapture}
-        // onFocusCapture={onFocusCapture}
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
           form.handleSubmit();
         }}
-        // ref={formRef}
       >
         <FieldSet className="@md/page:max-w-md max-w-full gap-5">
           <div className="flex flex-row items-start justify-between">
             <div>
               <FieldLegend>Nastavenie produktu</FieldLegend>
               <FieldDescription className="text-[10px]">
-                {isPendingUpdateProduct
-                  ? "Ukladá sa..."
-                  : `Naposledy uložené ${format(
-                      product?.updatedAt ?? new Date(),
-                      "dd.MM.yyyy HH:mm"
-                    )}`}
+                Naposledy uložené{" "}
+                {format(product?.updatedAt ?? new Date(), "dd.MM.yyyy HH:mm")}
               </FieldDescription>
             </div>
-            <div>
+            <div className="flex gap-1">
+              <form.Subscribe
+                selector={(state) => [state.isDirty, state.isValid]}
+              >
+                {([isDirty, isValid]) => (
+                  <Button
+                    disabled={isPending || !isDirty || !isValid}
+                    size="xs"
+                    type="submit"
+                  >
+                    <SaveIcon className="size-3.5" />
+                    {isPending ? "Ukladá sa..." : "Uložiť"}
+                  </Button>
+                )}
+              </form.Subscribe>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="icon-xs" variant="ghost">
@@ -140,27 +149,37 @@ export function ProductForm({
               <FieldLabel>Galéria</FieldLabel>
               <ImageUpload productId={product.id} />
             </Field>
-            <form.AppField
-              listeners={{
-                onChangeDebounceMs: 300,
-                onChange: (event) => {
-                  form.setFieldValue("slug", getSlug(event.value));
-                },
-              }}
-              name="name"
-            >
+            <form.AppField name="name">
               {(field) => <field.TextField label="Názov" />}
             </form.AppField>
 
             <form.AppField name="slug">
               {(field) => (
-                <field.TextField
-                  label="Slug"
-                  onBlur={() => {
-                    const formatted = getSlug(field.state.value);
-                    field.handleChange(formatted);
-                  }}
-                />
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <field.TextField
+                      label="Slug"
+                      onBlur={() => {
+                        const formatted = getSlug(field.state.value);
+                        field.handleChange(formatted);
+                      }}
+                    />
+                  </div>
+                  <form.Subscribe selector={(state) => state.values.name}>
+                    {(name) => (
+                      <Button
+                        className="mt-6"
+                        onClick={() => field.handleChange(getSlug(name))}
+                        size="icon"
+                        title="Generovať z názvu"
+                        type="button"
+                        variant="outline"
+                      >
+                        <RefreshCwIcon className="size-4" />
+                      </Button>
+                    )}
+                  </form.Subscribe>
+                </div>
               )}
             </form.AppField>
 
@@ -211,7 +230,9 @@ export function ProductForm({
                         <Command>
                           <CommandInput placeholder="Vyberte kategóriu..." />
                           <CommandList>
-                            <CommandEmpty>No results found.</CommandEmpty>
+                            <CommandEmpty>
+                              Ziadna kategória nebola nájdená
+                            </CommandEmpty>
                             <CommandGroup>
                               {categories.map((category) => (
                                 <CommandItem

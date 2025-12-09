@@ -6,10 +6,13 @@ import {
   CalendarIcon,
   MoreHorizontalIcon,
   PlusIcon,
+  RefreshCwIcon,
+  SaveIcon,
   Trash2Icon,
   XIcon,
 } from "lucide-react";
 import { useTransition } from "react";
+import { toast } from "sonner";
 import { SingleImageUpload } from "@/components/image-upload/single-image-upload";
 import {
   Field,
@@ -68,20 +71,22 @@ export function CategoryForm({
       imageId: category?.imageId ?? null,
       sortOrder: category?.sortOrder ?? 0,
     },
-    listeners: {
-      onChangeDebounceMs: 5000,
-      onChange: ({ formApi }) => {
-        if (formApi.state.isValid && !formApi.state.isSubmitting) {
-          formApi.handleSubmit();
-        }
-      },
-    },
     validators: {
       onSubmit: updateCategorySchema,
     },
     onSubmit: ({ value }) => {
       startTransition(async () => {
-        await updateCategoryAction({ id: value.id, category: value });
+        const result = await updateCategoryAction({
+          id: value.id,
+          category: value,
+        });
+        if (result.success) {
+          toast.success("Kategória bola uložená");
+        } else if (result.error === "SLUG_TAKEN") {
+          toast.error("Slug je už použitý inou kategóriou");
+        } else {
+          toast.error("Nepodarilo sa uložiť kategóriu");
+        }
       });
     },
   });
@@ -106,15 +111,25 @@ export function CategoryForm({
             <div>
               <FieldLegend>Nastavenie kategórie</FieldLegend>
               <FieldDescription className="text-[10px]">
-                {isPending
-                  ? "Ukladá sa..."
-                  : `Naposledy uložené ${format(
-                      category?.updatedAt ?? new Date(),
-                      "dd.MM.yyyy HH:mm"
-                    )}`}
+                Naposledy uložené{" "}
+                {format(category?.updatedAt ?? new Date(), "dd.MM.yyyy HH:mm")}
               </FieldDescription>
             </div>
-            <div>
+            <div className="flex gap-1">
+              <form.Subscribe
+                selector={(state) => [state.isDirty, state.isValid]}
+              >
+                {([isDirty, isValid]) => (
+                  <Button
+                    disabled={isPending || !isDirty || !isValid}
+                    size="xs"
+                    type="submit"
+                  >
+                    <SaveIcon className="size-3.5" />
+                    {isPending ? "Ukladá sa..." : "Uložiť"}
+                  </Button>
+                )}
+              </form.Subscribe>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="icon-xs" variant="ghost">
@@ -144,15 +159,7 @@ export function CategoryForm({
                 </Field>
               )}
             </form.AppField>
-            <form.AppField
-              listeners={{
-                onChangeDebounceMs: 300,
-                onChange: (event) => {
-                  form.setFieldValue("slug", getSlug(event.value));
-                },
-              }}
-              name="name"
-            >
+            <form.AppField name="name">
               {(field) => (
                 <field.TextField
                   label="Názov kategórie"
@@ -161,7 +168,27 @@ export function CategoryForm({
               )}
             </form.AppField>
             <form.AppField name="slug">
-              {(field) => <field.TextField label="Slug" placeholder="Slug" />}
+              {(field) => (
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <field.TextField label="Slug" placeholder="Slug" />
+                  </div>
+                  <form.Subscribe selector={(state) => state.values.name}>
+                    {(name) => (
+                      <Button
+                        className="mt-6"
+                        onClick={() => field.handleChange(getSlug(name))}
+                        size="icon"
+                        title="Generovať z názvu"
+                        type="button"
+                        variant="outline"
+                      >
+                        <RefreshCwIcon className="size-4" />
+                      </Button>
+                    )}
+                  </form.Subscribe>
+                </div>
+              )}
             </form.AppField>
             <form.AppField name="description">
               {(field) => (
