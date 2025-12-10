@@ -1,7 +1,7 @@
 import { db } from "@/db";
 
-export async function getUsers() {
-  return await db.query.users.findMany({
+export function getUsers() {
+  return db.query.users.findMany({
     orderBy: (user, { desc }) => [desc(user.createdAt)],
     with: {
       orders: true,
@@ -21,8 +21,8 @@ export async function getUsers() {
   });
 }
 
-export async function getUserById(id: string) {
-  return await db.query.users.findFirst({
+export function getUserById(id: string) {
+  return db.query.users.findFirst({
     where: (user, { eq }) => eq(user.id, id),
     with: {
       orders: true,

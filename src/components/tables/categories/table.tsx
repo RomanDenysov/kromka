@@ -11,14 +11,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import {
-  Fragment,
-  use,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
+import { Fragment, useEffect, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -52,17 +45,16 @@ import {
   toggleIsActiveCategoryAction,
   toggleIsFeaturedCategoryAction,
 } from "@/lib/actions/categories";
+import type { AdminCategory } from "@/lib/queries/categories";
 import { cn } from "@/lib/utils";
-import type { TableCategory } from "@/types/categories";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
 export function CategoriesTable({
-  categoriesPromise,
+  categories,
 }: {
-  categoriesPromise: Promise<TableCategory[]>;
+  categories: AdminCategory[];
 }) {
-  const categories = use(categoriesPromise);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -70,13 +62,8 @@ export function CategoriesTable({
 
   const [isPending, startTransition] = useTransition();
 
-  const processedCategories = useMemo(
-    () => categories.map((category) => category),
-    [categories]
-  );
-
-  const table = useReactTable({
-    data: processedCategories,
+  const table = useReactTable<AdminCategory>({
+    data: categories,
     columns,
     filterFns: {
       fuzzy: fuzzyFilter,

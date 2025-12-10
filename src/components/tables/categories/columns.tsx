@@ -33,7 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { TableCategory } from "@/types/categories";
+import type { AdminCategory } from "@/lib/queries/categories";
 
 type CategoryTableMeta = {
   toggleActive: (id: string) => void;
@@ -42,7 +42,7 @@ type CategoryTableMeta = {
   toggleFeatured: (id: string) => void;
 };
 
-export const columns: ColumnDef<TableCategory, CategoryTableMeta>[] = [
+export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
   {
     id: "select",
     enableSorting: false,

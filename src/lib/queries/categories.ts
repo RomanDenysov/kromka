@@ -5,10 +5,7 @@ import { cache } from "react";
 import { db } from "@/db";
 import { getProducts } from "./products";
 
-// ============================================
 // PUBLIC (cached)
-// ============================================
-
 export const getCategories = cache(async () => {
   "use cache";
   cacheLife("days");
@@ -34,7 +31,7 @@ export const getCategories = cache(async () => {
 
 export const getFeaturedCategories = cache(async () => {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("featured", "products");
 
   const allProducts = await getProducts();
@@ -59,21 +56,32 @@ export const getFeaturedCategories = cache(async () => {
     .filter((cat) => cat.products.length > 0);
 });
 
-// ============================================
 // ADMIN (no cache)
-// ============================================
-
-export async function getAdminCategories() {
-  return await db.query.categories.findMany({
+export function getAdminCategories() {
+  return db.query.categories.findMany({
+    with: {
+      products: true,
+      image: true,
+    },
     orderBy: (cat, { asc }) => asc(cat.sortOrder),
   });
 }
 
-// ============================================
-// Types
-// ============================================
+export function getAdminCategoryById(id: string) {
+  return db.query.categories.findFirst({
+    where: (cat, { eq }) => eq(cat.id, id),
+    with: {
+      products: true,
+      image: true,
+    },
+  });
+}
 
 export type Category = Awaited<ReturnType<typeof getCategories>>[number];
 export type FeaturedCategory = Awaited<
   ReturnType<typeof getFeaturedCategories>
+>[number];
+
+export type AdminCategory = Awaited<
+  ReturnType<typeof getAdminCategories>
 >[number];

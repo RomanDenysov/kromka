@@ -1,7 +1,7 @@
 import { db } from "@/db";
 
-export async function getMedia() {
-  return await db.query.media.findMany({
+export function getMedia() {
+  return db.query.media.findMany({
     orderBy: (mediaTable, { desc }) => [desc(mediaTable.createdAt)],
     with: {
       productImages: {
@@ -16,8 +16,8 @@ export async function getMedia() {
   });
 }
 
-export async function getMediaById(id: string) {
-  return await db.query.media.findFirst({
+export function getMediaById(id: string) {
+  return db.query.media.findFirst({
     where: (mediaTable, { eq }) => eq(mediaTable.id, id),
     with: {
       productImages: {

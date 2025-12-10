@@ -26,8 +26,9 @@ export async function getCart() {
             },
             with: {
               images: {
-                with: { media: { columns: { url: true } } },
+                limit: 1,
                 orderBy: (img, { asc }) => [asc(img.sortOrder)],
+                with: { media: { columns: { url: true } } },
               },
               category: {
                 columns: { name: true, pickupDates: true },

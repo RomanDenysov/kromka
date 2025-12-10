@@ -1,41 +1,41 @@
-// lib/actions/cart.ts
 "use server";
 
 import { and, eq, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { cartItems, carts } from "@/db/schema";
 import { getCartIdFromCookie, setCartIdCookie } from "../cart/cookies";
+import { getCart } from "../queries/cart";
 
-export async function addToCart(productId: string, quantity: number) {
-  let cartId: string | null = null;
-  const prevCartId = await getCartIdFromCookie();
+async function getOrCreateCartId(): Promise<string> {
+  const cartId = await getCartIdFromCookie();
 
-  if (prevCartId) {
-    // Verify cart exists in database
+  if (cartId) {
+    // Проверяем, жива ли корзина в БД
     const existingCart = await db.query.carts.findFirst({
-      where: eq(carts.id, prevCartId),
+      where: eq(carts.id, cartId),
+      columns: { id: true }, // Нам нужен только ID, экономим трафик
     });
 
     if (existingCart) {
-      cartId = prevCartId;
-    } else {
-      // Cart was deleted (e.g., after order creation), create new one
-      const [newCart] = await db
-        .insert(carts)
-        .values({})
-        .returning({ id: carts.id });
-      cartId = newCart.id;
-      await setCartIdCookie(cartId);
+      return existingCart.id;
     }
-  } else {
-    const [newCart] = await db
-      .insert(carts)
-      .values({})
-      .returning({ id: carts.id });
-    cartId = newCart.id;
-    await setCartIdCookie(cartId);
   }
+
+  // Создаем новую, если куки нет или корзина удалена
+  const [newCart] = await db
+    .insert(carts)
+    .values({})
+    .returning({ id: carts.id });
+  await setCartIdCookie(newCart.id);
+  return newCart.id;
+}
+
+export async function addToCart(productId: string, quantity: number) {
+  if (quantity <= 0) {
+    return { error: "Quantity must be positive" };
+  }
+
+  const cartId = await getOrCreateCartId();
 
   // Upsert cart item
   await db
@@ -46,13 +46,13 @@ export async function addToCart(productId: string, quantity: number) {
       set: { quantity: sql`${cartItems.quantity} + ${quantity}` },
     });
 
-  revalidatePath("/", "layout");
+  return getCart();
 }
 
 export async function removeFromCart(productId: string) {
   const cartId = await getCartIdFromCookie();
   if (!cartId) {
-    throw new Error("Cart not found");
+    return { error: "Cart not found" };
   }
 
   await db
@@ -61,7 +61,7 @@ export async function removeFromCart(productId: string) {
       and(eq(cartItems.cartId, cartId), eq(cartItems.productId, productId))
     );
 
-  revalidatePath("/", "layout");
+  return getCart();
 }
 
 export async function updateCartItemQuantity(
@@ -72,17 +72,15 @@ export async function updateCartItemQuantity(
   if (!cartId) {
     throw new Error("Cart not found");
   }
-  if (quantity < 0) {
-    throw new Error("Invalid quantity");
-  }
-
-  if (quantity === 0) {
+  if (quantity <= 0) {
+    // Delete item if quantity is 0 or less
     await db
       .delete(cartItems)
       .where(
         and(eq(cartItems.cartId, cartId), eq(cartItems.productId, productId))
       );
   } else {
+    // Update item quantity if it's positive
     await db
       .update(cartItems)
       .set({ quantity })
@@ -91,5 +89,5 @@ export async function updateCartItemQuantity(
       );
   }
 
-  revalidatePath("/", "layout");
+  return getCart();
 }
