@@ -1,4 +1,5 @@
 import { generateHTML } from "@tiptap/html";
+import { generateText } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
@@ -43,17 +44,20 @@ export async function generateMetadata({ params }: Props) {
   if (!result) {
     notFound();
   }
-  const descriptionHtml = generateHTML(
-    result?.description ?? {
-      type: "doc",
-      content: [{ type: "paragraph", content: [{ type: "text", text: "" }] }],
-    },
-    [StarterKit]
-  );
+  const description = result?.description ?? {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "Popis produktu chýba" }],
+      },
+    ],
+  };
+  const descriptionText = generateText(description, [StarterKit]);
 
   return createMetadata({
     title: result.name,
-    description: descriptionHtml,
+    description: descriptionText,
     image: result.images[0],
     canonicalUrl: getSiteUrl(`/product/${result.slug}`),
   });
@@ -142,7 +146,7 @@ export default async function ProductPage({ params }: Props) {
                 </Hint>
                 {pickupDates.map((date) => (
                   <Badge key={date} size="xs" variant="secondary">
-                    {format(new Date(date), "dd. MMM", { locale: sk })}
+                    {format(date, "dd. MMM", { locale: sk })}
                   </Badge>
                 ))}
               </div>

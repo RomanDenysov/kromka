@@ -7,6 +7,7 @@ import { PageWrapper } from "@/components/shared/container";
 import { defaultMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = {
+  ...defaultMetadata,
   title: "Naše Produkty",
   description:
     "Objavte širokú ponuku tradičných slovenských pekárenských výrobkov z Pekárne Kromka. Čerstvý domáci chlieb, pečivo, koláče a iné špeciality pečené s láskou a podľa tradičných receptov. Nakupujte online.",
@@ -23,7 +24,6 @@ export const metadata: Metadata = {
       },
     ],
   },
-  ...defaultMetadata,
 };
 
 type Props = {
