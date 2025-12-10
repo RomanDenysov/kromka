@@ -5,7 +5,7 @@ const siteName = "Pekáreň Kromka";
 
 const author: Metadata["authors"] = {
   name: siteName,
-  url: "https://pekarenkromka.sk",
+  url: "https://www.pekarenkromka.sk",
 };
 
 export const defaultMetadata: Metadata = {
@@ -18,7 +18,7 @@ export const defaultMetadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://pekarenkromka.sk"),
+  metadataBase: new URL("https://www.pekarenkromka.sk"),
   openGraph: {
     type: "website",
     siteName,

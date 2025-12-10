@@ -46,13 +46,17 @@ export const formatCentsToPrice = (cents: number) => {
 };
 
 export function getSiteUrl(path?: string) {
-  if (typeof window !== "undefined" && window.location?.origin && path) {
-    return window.location.origin + path;
+  // Client-side
+  if (typeof window !== "undefined" && window.location?.origin) {
+    return new URL(path ?? "", window.location.origin).toString();
   }
 
-  const url = process.env.VERCEL_URL ?? "http://localhost:3000";
+  // Server-side: prioritize custom domain
+  const url =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
 
-  const fullUrl = url.startsWith("http") ? url : `https://${url}`;
-
-  return new URL(path ?? "", fullUrl).toString();
+  return new URL(path ?? "", url).toString();
 }
