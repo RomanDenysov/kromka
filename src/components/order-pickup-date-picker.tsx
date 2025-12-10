@@ -130,6 +130,7 @@ export function OrderPickupDatePicker({
           onSelect={handleSelectDate}
           required
           selected={selectedDate}
+          timeZone="Europe/Bratislava"
           weekStartsOn={1}
         />
       </PopoverContent>

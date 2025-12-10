@@ -70,7 +70,7 @@ const gridItems: GridItemConfig[] = [
     title: "Naše predajne",
     subtitle: "Kde nás nájdete v Košiciach a Prešove",
     href: "/predajne",
-    image: "/images/stores.jpg",
+    image: "/images/stores.webp",
     size: "banner",
   },
 
@@ -109,7 +109,7 @@ const gridItems: GridItemConfig[] = [
     title: "Naše pečivo",
     subtitle: "Čerstvé pečivo na každý deň",
     href: "/e-shop/nase-pecivo" as Route,
-    images: ["/images/breads-3.jpg", "/images/breads-1.jpg"],
+    images: ["/images/breads-3.jpg", "/images/breads-1.webp"],
     autoplayDelay: 5000,
     size: "medium",
   },

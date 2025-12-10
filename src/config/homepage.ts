@@ -22,7 +22,7 @@ export const homepageConfig: PageConfig = {
   hero: {
     main: {
       // image: "/images/velka-noc.jpeg",
-      image: "/images/kromka-vianoce-hero-min.jpeg",
+      image: "/images/kromka-vianoce-hero-min.webp",
       title: "S láskou ku kvásku",
       description:
         "V Kromke to vonia čerstvým kváskovým chlebom, koláčmi a kávou, a teraz sme aj online! Vitajte na našom eshope, veríme, že si nájdete lakocinky podľa svojej chuti.",

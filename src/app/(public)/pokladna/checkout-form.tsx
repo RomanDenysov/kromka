@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/style/noMagicNumbers: Date calculation constants */
+/** biome-ignore-all lint/suspicious/noConsole: <explanation> */
 "use client";
 
 import { useStore } from "@tanstack/react-form";
@@ -151,11 +152,13 @@ export function CheckoutForm({
         if (selectedStore && !user?.storeId) {
           setCustomerStore({ id: selectedStore.id, name: selectedStore.name });
         }
-
+        const formattedDate = format(value.pickupDate, "yyyy-MM-dd");
+        console.log("[CLIENT] Date object:", value.pickupDate.toString());
+        console.log("[CLIENT] Formatted:", formattedDate);
         const guestInfo = buildGuestCustomerInfo(value, isGuest);
         const result = await createOrderFromCart({
           storeId: value.storeId,
-          pickupDate: format(value.pickupDate, "yyyy-MM-dd"),
+          pickupDate: formattedDate,
           pickupTime: value.pickupTime,
           paymentMethod: value.paymentMethod,
           customerInfo: guestInfo ?? undefined,

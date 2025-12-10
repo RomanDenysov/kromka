@@ -36,6 +36,14 @@ export async function createOrderFromCart(data: {
   /** Required for guest checkout when user is not authenticated */
   customerInfo?: GuestCustomerInfo;
 }): Promise<CreateOrderResult> {
+  // biome-ignore lint/suspicious/noConsole: <explanation>
+  console.log(
+    "[SERVER] Received pickupDate:",
+    data.pickupDate,
+    "type:",
+    typeof data.pickupDate
+  );
+
   try {
     const { user } = await getAuth();
     const isGuest = !user;

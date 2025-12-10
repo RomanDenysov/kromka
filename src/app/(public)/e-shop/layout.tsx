@@ -17,7 +17,7 @@ export const metadata: Metadata = {
       "Objavte širokú ponuku tradičných slovenských pekárenských výrobkov z Pekárne Kromka. Čerstvý domáci chlieb, pečivo, koláče a iné špeciality pečené s láskou a podľa tradičných receptov. Nakupujte online.",
     images: [
       {
-        url: "/images/kromka-vianoce-hero-min.jpeg",
+        url: "/images/kromka-vianoce-hero-min.webp",
         width: 1200,
         height: 630,
         alt: "Vianočná ponuka Pekárne Kromka",
