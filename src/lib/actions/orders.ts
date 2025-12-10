@@ -1,6 +1,5 @@
 "use server";
 
-import { format } from "date-fns";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { orderItems, orderStatusEvents, orders, products } from "@/db/schema";
@@ -31,7 +30,7 @@ function isValidGuestInfo(info: GuestCustomerInfo): boolean {
  */
 export async function createOrderFromCart(data: {
   storeId: string;
-  pickupDate: Date;
+  pickupDate: string;
   pickupTime: string;
   paymentMethod: PaymentMethod;
   /** Required for guest checkout when user is not authenticated */
@@ -112,7 +111,7 @@ export async function createOrderFromCart(data: {
         orderStatus: "new",
         paymentStatus: "pending",
         paymentMethod: data.paymentMethod,
-        pickupDate: format(data.pickupDate, "yyyy-MM-dd"),
+        pickupDate: data.pickupDate,
         pickupTime: data.pickupTime,
         totalCents,
       })
