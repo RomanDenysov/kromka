@@ -2,6 +2,7 @@
 "use client";
 
 import { useStore } from "@tanstack/react-form";
+import { format } from "date-fns";
 import { AlertCircleIcon, CreditCardIcon, StoreIcon } from "lucide-react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -42,6 +43,16 @@ import {
 } from "@/lib/actions/orders";
 import { updateCurrentUserProfile } from "@/lib/actions/user-profile";
 import type { User } from "@/lib/auth/session";
+import type { DetailedCartItem } from "@/lib/cart/queries";
+import {
+  getFirstAvailableDateWithRestrictions,
+  getFirstAvailableTime,
+  getRestrictedPickupDates,
+  getTimeRangeForDate,
+} from "@/lib/checkout-utils";
+import type { Store } from "@/lib/queries/stores";
+import { formatPrice } from "@/lib/utils";
+import { useCustomerStore } from "@/store/customer-store";
 
 function buildGuestCustomerInfo(
   value: { name: string; email: string; phone: string },
@@ -56,17 +67,6 @@ function buildGuestCustomerInfo(
 function findStoreById(stores: Store[], id: string) {
   return stores.find((s) => s.id === id);
 }
-
-import type { DetailedCartItem } from "@/lib/cart/queries";
-import {
-  getFirstAvailableDateWithRestrictions,
-  getFirstAvailableTime,
-  getRestrictedPickupDates,
-  getTimeRangeForDate,
-} from "@/lib/checkout-utils";
-import type { Store } from "@/lib/queries/stores";
-import { formatPrice } from "@/lib/utils";
-import { useCustomerStore } from "@/store/customer-store";
 
 const checkoutFormSchema = z.object({
   name: z.string().min(1, "Meno je povinné"),
@@ -155,7 +155,7 @@ export function CheckoutForm({
         const guestInfo = buildGuestCustomerInfo(value, isGuest);
         const result = await createOrderFromCart({
           storeId: value.storeId,
-          pickupDate: value.pickupDate,
+          pickupDate: format(value.pickupDate, "yyyy-MM-dd"),
           pickupTime: value.pickupTime,
           paymentMethod: value.paymentMethod,
           customerInfo: guestInfo ?? undefined,
