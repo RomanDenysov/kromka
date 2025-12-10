@@ -4,9 +4,12 @@ import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { UsersTable } from "@/components/tables/users/users-table";
 import { getUsers } from "@/lib/queries/users";
 
-export default function SettingsUsersPage() {
-  const usersPromise = getUsers();
+async function UsersLoader() {
+  const users = await getUsers();
+  return <UsersTable users={users} />;
+}
 
+export default function SettingsUsersPage() {
   return (
     <>
       <AdminHeader
@@ -17,7 +20,7 @@ export default function SettingsUsersPage() {
       />
       <section className="h-full flex-1">
         <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-          <UsersTable usersPromise={usersPromise} />
+          <UsersLoader />
         </Suspense>
       </section>
     </>

@@ -15,7 +15,7 @@ import {
   PlusIcon,
   TablePropertiesIcon,
 } from "lucide-react";
-import { Fragment, use, useMemo, useState, useTransition } from "react";
+import { Fragment, useMemo, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
@@ -48,12 +48,12 @@ import {
   exportAsCsv,
   exportAsXlsx,
 } from "@/lib/export-utils";
-import type { Store } from "@/lib/queries/stores";
+import type { AdminStore } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
 import { columns } from "./columns";
 import { EmptyState } from "./empty-state";
 
-const storeExportColumns: ExportColumnConfig<Store>[] = [
+const storeExportColumns: ExportColumnConfig<AdminStore>[] = [
   {
     key: "name",
     header: "Názov",
@@ -85,12 +85,7 @@ const storeExportColumns: ExportColumnConfig<Store>[] = [
   },
 ];
 
-export function StoresTable({
-  storesPromise,
-}: {
-  storesPromise: Promise<Store[]>;
-}) {
-  const stores = use(storesPromise);
+export function StoresTable({ stores }: { stores: AdminStore[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -104,7 +99,7 @@ export function StoresTable({
 
   const processedStores = useMemo(() => stores.map((store) => store), [stores]);
 
-  const table = useReactTable<Store>({
+  const table = useReactTable<AdminStore>({
     data: processedStores,
     columns,
     filterFns: {

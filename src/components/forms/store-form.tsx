@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/field";
 import { updateStoreAction } from "@/lib/actions/stores";
 import { getSlug } from "@/lib/get-slug";
-import type { Store } from "@/lib/queries/stores";
+import type { AdminStore } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
 import { storeSchema } from "@/validation/stores";
 import { SingleImageUpload } from "../image-upload/single-image-upload";
@@ -39,7 +39,7 @@ export function StoreForm({
   store,
   className,
 }: {
-  store: Store;
+  store: AdminStore;
   className?: string;
 }) {
   const [isPending, startTransition] = useTransition();
