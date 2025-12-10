@@ -1,7 +1,7 @@
 "use server";
 
 import { eq, inArray, not } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
@@ -36,10 +36,18 @@ export async function updateCategoryAction({
     }
   }
 
-  await db.update(categories).set(updateData).where(eq(categories.id, id));
+  const [updatedCategory] = await db
+    .update(categories)
+    .set(updateData)
+    .where(eq(categories.id, id))
+    .returning({ slug: categories.slug });
 
-  revalidatePath(`/admin/categories/${id}`);
-  revalidatePath("/admin/categories");
+  // Invalidate public cache
+  updateTag("categories");
+  updateTag("products"); // Products depend on categories
+  if (updatedCategory.slug) {
+    updateTag(`category-${updatedCategory.slug}`);
+  }
 
   return { success: true };
 }
@@ -55,8 +63,9 @@ export async function createDraftCategoryAction() {
     .values({})
     .returning({ id: categories.id });
 
-  revalidatePath(`/admin/categories/${newDraftCategory.id}`);
-  revalidatePath("/admin/categories");
+  // Invalidate public cache
+  updateTag("categories");
+  updateTag("products");
 
   redirect(`/admin/categories/${newDraftCategory.id}`);
 }
@@ -81,10 +90,14 @@ export async function copyCategoryAction({ id }: { id: string }) {
   const [newCategory] = await db
     .insert(categories)
     .values(newCategoryData)
-    .returning({ id: categories.id });
+    .returning({ id: categories.id, slug: categories.slug });
 
-  revalidatePath(`/admin/categories/${newCategory.id}`);
-  revalidatePath("/admin/categories");
+  // Invalidate public cache
+  updateTag("categories");
+  updateTag("products");
+  if (newCategory.slug) {
+    updateTag(`category-${newCategory.slug}`);
+  }
 
   return { success: true, id: newCategory.id };
 }
@@ -99,10 +112,14 @@ export async function toggleIsActiveCategoryAction({ id }: { id: string }) {
     .update(categories)
     .set({ isActive: not(categories.isActive) })
     .where(eq(categories.id, id))
-    .returning({ id: categories.id });
+    .returning({ id: categories.id, slug: categories.slug });
 
-  revalidatePath(`/admin/categories/${updatedCategory.id}`);
-  revalidatePath("/admin/categories");
+  // Invalidate public cache
+  updateTag("categories");
+  updateTag("products");
+  if (updatedCategory.slug) {
+    updateTag(`category-${updatedCategory.slug}`);
+  }
 
   return { success: true, id: updatedCategory.id };
 }
@@ -121,15 +138,16 @@ export async function toggleIsActiveCategoriesAction({
     .update(categories)
     .set({ isActive: not(categories.isActive) })
     .where(inArray(categories.id, ids))
-    .returning({ id: categories.id });
+    .returning({ id: categories.id, slug: categories.slug });
 
-  // TODO: DELETE IT AFTER RELEASE
-  // biome-ignore lint/complexity/noForEach: We need to revalidate the paths for each category
-  updatedCategories.forEach((category) => {
-    revalidatePath(`/admin/categories/${category.id}`);
-  });
-
-  revalidatePath("/admin/categories");
+  // Invalidate public cache
+  updateTag("categories");
+  updateTag("products");
+  for (const category of updatedCategories) {
+    if (category.slug) {
+      updateTag(`category-${category.slug}`);
+    }
+  }
 
   return {
     success: true,
@@ -147,10 +165,15 @@ export async function toggleIsFeaturedCategoryAction({ id }: { id: string }) {
     .update(categories)
     .set({ isFeatured: not(categories.isFeatured) })
     .where(eq(categories.id, id))
-    .returning({ id: categories.id });
+    .returning({ id: categories.id, slug: categories.slug });
 
-  revalidatePath(`/admin/categories/${updatedCategory.id}`);
-  revalidatePath("/admin/categories");
+  // Invalidate public cache
+  updateTag("categories");
+  updateTag("featured");
+  updateTag("products");
+  if (updatedCategory.slug) {
+    updateTag(`category-${updatedCategory.slug}`);
+  }
 
   return {
     success: true,
@@ -167,15 +190,16 @@ export async function deleteCategoriesAction({ ids }: { ids: string[] }) {
   const deletedCategories = await db
     .delete(categories)
     .where(inArray(categories.id, ids))
-    .returning({ id: categories.id });
+    .returning({ id: categories.id, slug: categories.slug });
 
-  // TODO: DELETE IT AFTER RELEASE
-  // biome-ignore lint/complexity/noForEach: We need to revalidate the paths for each category
-  deletedCategories.forEach((category) => {
-    revalidatePath(`/admin/categories/${category.id}`);
-  });
-
-  revalidatePath("/admin/categories");
+  // Invalidate public cache
+  updateTag("categories");
+  updateTag("products");
+  for (const category of deletedCategories) {
+    if (category.slug) {
+      updateTag(`category-${category.slug}`);
+    }
+  }
 
   return {
     success: true,
