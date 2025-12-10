@@ -1,12 +1,12 @@
 "use server";
 
 import { format } from "date-fns";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { carts, orderItems, orderStatusEvents, orders } from "@/db/schema";
+import { orderItems, orderStatusEvents, orders, products } from "@/db/schema";
 import type { OrderStatus, PaymentMethod } from "@/db/types";
 import { getAuth } from "../auth/session";
-import { clearCartIdCookie, getCartIdFromCookie } from "../cart/cookies";
+import { clearCart, getCart } from "../cart/cookies";
 import { sendEmail } from "../email";
 import { createPrefixedNumericId } from "../ids";
 import { getOrderById } from "../queries/orders";
@@ -58,59 +58,50 @@ export async function createOrderFromCart(data: {
       };
     }
 
-    const cartId = await getCartIdFromCookie();
-    if (!cartId) {
+    // 1. Get cart from cookie
+    const cartItems = await getCart();
+    if (cartItems.length === 0) {
       return { success: false, error: "Košík je prázdny" };
     }
-
-    // 1. Get cart
-    const cart = await db.query.carts.findFirst({
-      where: eq(carts.id, cartId),
-      with: {
-        items: {
-          with: {
-            product: true,
-          },
-        },
-      },
+    // 2. Get product data from DB
+    const productIds = cartItems.map((item) => item.productId);
+    const productData = await db.query.products.findMany({
+      where: inArray(products.id, productIds),
     });
+    // 3. Validation - match cart items with products
+    const orderItemsData = cartItems
+      .map((item) => {
+        const product = productData.find((p) => p.id === item.productId);
+        if (!product) {
+          return null;
+        }
 
-    if (!cart || cart.items.length === 0) {
-      return { success: false, error: "Košík je prázdny" };
-    }
+        return {
+          productId: item.productId,
+          productSnapshot: {
+            name: product.name,
+            price: product.priceCents,
+          },
+          price: product.priceCents,
+          quantity: item.qty,
+        };
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    // 2. Validation of items
-    const validItems = cart.items.filter((item) => item.product);
-    if (validItems.length === 0) {
+    if (orderItemsData.length === 0) {
       return { success: false, error: "Žiadne platné produkty v košíku" };
     }
 
-    // 3. Preparation of items with prices
-    const orderItemsData = validItems.map((item) => {
-      // biome-ignore lint/style/noNonNullAssertion: TODO: fix this in a future
-      const product = item.product!;
-
-      return {
-        productId: item.productId,
-        productSnapshot: {
-          name: product.name,
-          price: product.priceCents,
-        },
-        price: product.priceCents,
-        quantity: item.quantity,
-      };
-    });
-
-    // 4. Розрахунок total
+    // 4. Calculate total
     const totalCents = orderItemsData.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
 
-    // 5. Generation of order number
+    // 5. Generate order number
     const orderNumber = createPrefixedNumericId("OBJ");
 
-    // 6. Creation of order
+    // 6. Create order
     const [order] = await db
       .insert(orders)
       .values({
@@ -142,9 +133,8 @@ export async function createOrderFromCart(data: {
       createdBy: user?.id ?? null,
     });
 
-    // 9. Deletion of cart and clear cookie
-    await db.delete(carts).where(eq(carts.id, cart.id));
-    await clearCartIdCookie();
+    // 9. Clear cart cookie
+    await clearCart();
 
     // 10. Fetch full order with relations
     const fullOrder = await getOrderById(order.id);

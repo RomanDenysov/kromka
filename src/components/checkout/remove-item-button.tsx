@@ -2,7 +2,7 @@
 
 import { XIcon } from "lucide-react";
 import { useTransition } from "react";
-import { removeFromCart } from "@/lib/actions/cart";
+import { removeFromCart } from "@/lib/cart/actions";
 import { cn } from "@/lib/utils";
 import { Button, type ButtonProps } from "../ui/button";
 import { Spinner } from "../ui/spinner";
@@ -25,8 +25,8 @@ export function RemoveItemButton({
       aria-label="Odstrániť z košíka"
       disabled={isPending}
       onClick={() =>
-        startTransition(() => {
-          removeFromCart(id);
+        startTransition(async () => {
+          await removeFromCart(id);
         })
       }
       size={size}

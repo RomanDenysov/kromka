@@ -1,13 +1,13 @@
 "use client";
 
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "@/components/ui/button";
-import { updateCartItemQuantity } from "@/lib/actions/cart";
+import { updateQuantity } from "@/lib/cart/actions";
 import { cn } from "@/lib/utils";
 
-const DEBOUNCE_DELAY = 500;
+const DEBOUNCE_DELAY = 400;
 
 type Props = {
   id: string;
@@ -28,56 +28,36 @@ export function QuantitySetter({
   textSize = "text-sm",
   max = 100,
 }: Props) {
-  const [localQuantity, setLocalQuantity] = useState(quantity);
-  const lastServerQuantity = useRef(quantity);
+  const [localQty, setLocalQty] = useState(quantity);
+  const [isPending, startTransition] = useTransition();
 
-  // Sync from server when prop changes (e.g., after revalidation)
-  useEffect(() => {
-    if (quantity !== lastServerQuantity.current) {
-      lastServerQuantity.current = quantity;
-      setLocalQuantity(quantity);
-    }
-  }, [quantity]);
-
-  const syncToServer = useDebouncedCallback((newQuantity: number) => {
-    if (newQuantity !== lastServerQuantity.current) {
-      lastServerQuantity.current = newQuantity;
-      updateCartItemQuantity(id, newQuantity);
-    }
+  const syncToServer = useDebouncedCallback((newQty: number) => {
+    startTransition(async () => {
+      await updateQuantity(id, newQty);
+    });
   }, DEBOUNCE_DELAY);
 
-  const handleDecrement = useCallback(() => {
-    setLocalQuantity((prev) => {
-      const next = Math.max(1, prev - 1);
-      syncToServer(next);
-      return next;
-    });
-  }, [syncToServer]);
-
-  const handleIncrement = useCallback(() => {
-    setLocalQuantity((prev) => {
-      const next = Math.min(max, prev + 1);
-      syncToServer(next);
-      return next;
-    });
-  }, [max, syncToServer]);
+  const handleChange = (newQty: number) => {
+    setLocalQty(newQty);
+    syncToServer(newQty);
+  };
 
   return (
     <div className="flex items-center gap-1">
       <Button
-        disabled={localQuantity <= 1}
-        onClick={handleDecrement}
+        disabled={localQty <= 1 || isPending}
+        onClick={() => handleChange(localQty - 1)}
         size={size}
         variant="outline"
       >
         <MinusIcon className="size-3" />
       </Button>
       <span className={cn("w-6 text-center tabular-nums", textSize)}>
-        {localQuantity}
+        {localQty}
       </span>
       <Button
-        disabled={localQuantity >= max}
-        onClick={handleIncrement}
+        disabled={localQty >= max || isPending}
+        onClick={() => handleChange(localQty + 1)}
         size={size}
         variant="outline"
       >

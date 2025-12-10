@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/button-group";
 import { Spinner } from "@/components/ui/spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { addToCart as addToCartAction } from "@/lib/actions/cart";
+import { addToCart } from "@/lib/cart/actions";
 
 type Props = {
   id: string;
@@ -25,7 +25,7 @@ export function AddWithQuantityButton({ id, disabled, max = 100 }: Props) {
 
   const handleAddToCart = () => {
     startTransition(() => {
-      addToCartAction(id, quantity);
+      addToCart(id, quantity);
       setQuantity(1);
     });
   };

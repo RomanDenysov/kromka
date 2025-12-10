@@ -1,19 +1,16 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { CartBadge, CartBadgeSkeleton } from "@/components/cart/cart-badge";
+import { CartDrawerContent } from "@/components/cart/cart-drawer-content";
 import {
   CartDrawerFooter,
   CartDrawerFooterLoader,
-} from "@/components/cart-drawer-footer";
+} from "@/components/cart/cart-drawer-footer";
 import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { StoreSelectModal } from "@/components/modal/store-select-modal";
-import { CartDrawerContent } from "@/components/shared/cart-drawer-content";
-import {
-  CartIndicator,
-  CartIndicatorLoader,
-} from "@/components/shared/cart-indicator";
 import { Container } from "@/components/shared/container";
 import { buttonVariants } from "@/components/ui/button";
 import { UserButton } from "@/components/user-button";
@@ -70,8 +67,8 @@ export function Header() {
             <Suspense>
               <CartDrawer
                 indicator={
-                  <Suspense fallback={CartIndicatorLoader}>
-                    <CartIndicator />
+                  <Suspense fallback={CartBadgeSkeleton}>
+                    <CartBadge />
                   </Suspense>
                 }
               >

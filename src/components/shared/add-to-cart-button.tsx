@@ -2,7 +2,7 @@
 
 import { ShoppingCartIcon } from "lucide-react";
 import { useTransition } from "react";
-import { addToCart as addToCartAction } from "@/lib/actions/cart";
+import { addToCart } from "@/lib/cart/actions";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 
@@ -15,8 +15,8 @@ export function AddToCartButton({ id, disabled = false }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const handleClick = () => {
-    startTransition(() => {
-      addToCartAction(id, 1);
+    startTransition(async () => {
+      await addToCart(id, 1);
     });
   };
 
@@ -37,8 +37,8 @@ export function AddToCartButtonIcon({ id, disabled = false }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const handleClick = () => {
-    startTransition(() => {
-      addToCartAction(id, 1);
+    startTransition(async () => {
+      await addToCart(id, 1);
     });
   };
 

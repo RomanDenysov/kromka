@@ -2,7 +2,6 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { eq } from "drizzle-orm";
 import { CheckCircleIcon, ChevronLeftIcon } from "lucide-react";
-import { cacheLife } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -11,10 +10,8 @@ import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { formatPrice } from "@/lib/utils";
 
-async function getOrderById(orderId: string) {
-  "use cache";
-  cacheLife("minutes");
-  return await db.query.orders.findFirst({
+function getOrderById(orderId: string) {
+  return db.query.orders.findFirst({
     where: eq(orders.id, orderId),
     with: {
       store: true,

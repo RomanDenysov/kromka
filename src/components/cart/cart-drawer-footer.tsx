@@ -1,19 +1,17 @@
 import Link from "next/link";
-import { getCart } from "@/lib/queries/cart";
+import { getCartTotals, getDetailedCart } from "@/lib/cart/queries";
 import { cn, formatPrice } from "@/lib/utils";
-import { buttonVariants } from "./ui/button";
-import { DrawerClose, DrawerFooter } from "./ui/drawer";
-import { Separator } from "./ui/separator";
-import { Skeleton } from "./ui/skeleton";
-import { Spinner } from "./ui/spinner";
+import { buttonVariants } from "../ui/button";
+import { DrawerClose, DrawerFooter } from "../ui/drawer";
+import { Separator } from "../ui/separator";
+import { Skeleton } from "../ui/skeleton";
+import { Spinner } from "../ui/spinner";
 
 export async function CartDrawerFooter() {
-  const cart = await getCart();
-  const items = cart?.items ?? [];
-  const totalCents = items.reduce(
-    (acc, item) => acc + item.priceCents * item.quantity,
-    0
-  );
+  const items = await getDetailedCart();
+  const { totalCents } = getCartTotals(items);
+  const isEmpty = items.length === 0;
+
   return (
     <>
       <Separator />
@@ -22,18 +20,14 @@ export async function CartDrawerFooter() {
           <span>Spolu</span>
           <span>{formatPrice(totalCents)}</span>
         </div>
-        <DrawerClose
-          aria-disabled={items.length === 0}
-          asChild
-          disabled={items.length === 0}
-        >
+        <DrawerClose asChild disabled={isEmpty}>
           <Link
             className={cn(
               buttonVariants({ size: "lg", className: "w-full" }),
               "text-base",
-              items.length === 0 && "pointer-events-none opacity-50"
+              isEmpty && "pointer-events-none opacity-50"
             )}
-            href={"/pokladna"}
+            href="/pokladna"
           >
             Prejsť na pokladňu
           </Link>

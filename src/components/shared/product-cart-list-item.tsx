@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { DetailedCartItem } from "@/lib/cart/queries";
 import { formatPrice } from "@/lib/utils";
-import type { CartProduct } from "@/types/cart";
 import { RemoveItemButton } from "../checkout/remove-item-button";
 import { Badge } from "../ui/badge";
 import { QuantitySetter } from "./quantity-setter";
 
 type Props = {
-  product: CartProduct;
+  product: DetailedCartItem;
   quantity: number;
 };
 
@@ -20,7 +20,7 @@ export function ProductCartListItem({ product, quantity }: Props) {
           className="aspect-square rounded-sm bg-muted object-cover object-center"
           height={60}
           quality={75}
-          src={product.images[0] || "/images/sec.webp"}
+          src={product.imageUrl || "/images/sec.webp"}
           width={60}
         />
 
@@ -48,12 +48,12 @@ export function ProductCartListItem({ product, quantity }: Props) {
           </span>
           <RemoveItemButton
             iconClassName="size-3 sm:size-4"
-            id={product.id}
+            id={product.productId}
             size="icon-xs"
             variant="ghost"
           />
         </div>
-        <QuantitySetter id={product.id} quantity={quantity} />
+        <QuantitySetter id={product.productId} quantity={quantity} />
       </div>
     </div>
   );

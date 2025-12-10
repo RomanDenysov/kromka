@@ -1,7 +1,6 @@
 import "server-only";
 
 import { and, count, desc, eq, gte, sql } from "drizzle-orm";
-import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 import {
   carts,
@@ -23,9 +22,6 @@ export type DashboardMetrics = {
 };
 
 export async function getOrdersCount(): Promise<number> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("dashboard", "orders-count");
   return await db
     .select({ count: count() })
     .from(orders)
@@ -33,9 +29,6 @@ export async function getOrdersCount(): Promise<number> {
     .then((res) => res[0]?.count ?? 0);
 }
 export async function getCartsCount(): Promise<number> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("dashboard", "carts-count");
   return await db
     .select({ count: count() })
     .from(carts)
@@ -43,9 +36,6 @@ export async function getCartsCount(): Promise<number> {
 }
 
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("dashboard", "dashboard-metrics");
   const [
     newOrdersCount,
     activeProductsCount,
@@ -107,9 +97,6 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 export type OrderStatusDistributionResult = { status: string; count: number }[];
 
 export async function getOrderStatusDistribution(): Promise<OrderStatusDistributionResult> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("dashboard", "order-status-distribution");
   return await db
     .select({
       status: orders.orderStatus,
@@ -127,11 +114,6 @@ export async function getRevenueHistory({
 }: {
   days: number;
 }): Promise<RevenueHistoryResult> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("dashboard", `revenue-history-${days}`);
-
-  // Краще: нехай БД робить всю роботу з датами
   const revenueHistory = await db
     .select({
       date: sql<string>`to_char(${orders.createdAt}, 'YYYY-MM-DD')`,
@@ -178,9 +160,6 @@ type TopProductsResult = {
 }[];
 
 export async function getTopProducts(): Promise<TopProductsResult> {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("dashboard", "top-products");
   const topProducts = await db
     .select({
       id: products.id,
@@ -210,11 +189,8 @@ export async function getTopProducts(): Promise<TopProductsResult> {
 
 export type RecentOrder = Awaited<ReturnType<typeof getRecentOrders>>[number];
 
-export async function getRecentOrders() {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("dashboard", "recent-orders");
-  return await db.query.orders.findMany({
+export function getRecentOrders() {
+  return db.query.orders.findMany({
     where: (order, { inArray: inArrayFn }) =>
       inArrayFn(order.orderStatus, [
         "new",
@@ -244,11 +220,8 @@ export async function getRecentOrders() {
   });
 }
 
-export async function getActiveCarts() {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("dashboard", "carts");
-  return await db.query.carts.findMany({
+export function getActiveCarts() {
+  return db.query.carts.findMany({
     orderBy: desc(carts.updatedAt),
     with: {
       items: {
@@ -268,3 +241,4 @@ export async function getActiveCarts() {
 
 export type RecentOrdersData = Awaited<ReturnType<typeof getRecentOrders>>;
 export type ActiveCartsData = Awaited<ReturnType<typeof getActiveCarts>>;
+export type ActiveCart = Awaited<ReturnType<typeof getActiveCarts>>[number];

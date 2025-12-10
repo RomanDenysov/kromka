@@ -2,7 +2,7 @@
 /** biome-ignore-all lint/nursery/noIncrementDecrement: we need to use increment/decrement */
 import { addDays, format, getDay, isAfter, startOfToday } from "date-fns";
 import type { StoreSchedule, TimeRange } from "@/db/types";
-import type { CartItem } from "@/types/cart";
+import type { DetailedCartItem } from "@/lib/cart/queries";
 
 export const DAY_KEYS = [
   "sunday",
@@ -160,19 +160,14 @@ export function filterTimeSlots(
  * Computes the restricted pickup dates based on cart items.
  * Returns null if there are no restrictions (all dates allowed).
  * Returns Set of allowed date strings (yyyy-MM-dd) if restrictions exist.
- *
- * Logic:
- * - Items with categoryPickupDates restrict to only those dates
- * - Multiple restricted items: intersection of all allowed dates
- * - Items without restrictions don't affect the result
  */
 export function getRestrictedPickupDates(
-  cartItems: CartItem[]
+  cartItems: DetailedCartItem[]
 ): Set<string> | null {
   const restrictedSets: Set<string>[] = [];
 
   for (const item of cartItems) {
-    const pickupDates = item.product.category?.pickupDates ?? [];
+    const pickupDates = item.category?.pickupDates ?? [];
     if (pickupDates && pickupDates.length > 0) {
       restrictedSets.push(new Set(pickupDates));
     }

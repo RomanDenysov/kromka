@@ -57,6 +57,7 @@ function findStoreById(stores: Store[], id: string) {
   return stores.find((s) => s.id === id);
 }
 
+import type { DetailedCartItem } from "@/lib/cart/queries";
 import {
   getFirstAvailableDateWithRestrictions,
   getFirstAvailableTime,
@@ -66,7 +67,6 @@ import {
 import type { Store } from "@/lib/queries/stores";
 import { formatPrice } from "@/lib/utils";
 import { useCustomerStore } from "@/store/customer-store";
-import type { Cart } from "@/types/cart";
 
 const checkoutFormSchema = z.object({
   name: z.string().min(1, "Meno je povinné"),
@@ -83,13 +83,12 @@ const checkoutFormSchema = z.object({
 export function CheckoutForm({
   user,
   stores,
-  cart,
+  items,
 }: {
   user?: User;
   stores: Store[];
-  cart: Cart | null;
+  items: DetailedCartItem[];
 }) {
-  const items = cart?.items ?? [];
   const totalCents = items.reduce(
     (acc, item) => acc + item.priceCents * item.quantity,
     0
