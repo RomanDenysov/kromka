@@ -44,3 +44,15 @@ export const formatCentsToPrice = (cents: number) => {
   const price = processedCents / 100;
   return price;
 };
+
+export function getSiteUrl(path?: string) {
+  if (typeof window !== "undefined" && window.location?.origin && path) {
+    return window.location.origin + path;
+  }
+
+  const url = process.env.VERCEL_URL ?? "http://localhost:3000";
+
+  const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+
+  return new URL(path ?? "", fullUrl).toString();
+}

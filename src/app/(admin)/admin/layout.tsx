@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
 import AppSidebar, {
   AppSidebarSkeleton,
@@ -5,6 +6,15 @@ import AppSidebar, {
 import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getNewOrdersCount } from "@/lib/queries/orders";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Admin panel",
+    template: "%s | Pekáreň Kromka – Admin",
+  },
+  description:
+    "Admin panel Pekárne Kromka. Zobrazí sa iba pre administrátorov.",
+};
 
 type Props = {
   readonly children: ReactNode;

@@ -1,8 +1,30 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { FeaturedCarousel } from "@/components/featured-carousel";
 import { CategoriesFilterLoader } from "@/components/filters/categories-filter-loader";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { defaultMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = {
+  title: "Naše Produkty",
+  description:
+    "Objavte širokú ponuku tradičných slovenských pekárenských výrobkov z Pekárne Kromka. Čerstvý domáci chlieb, pečivo, koláče a iné špeciality pečené s láskou a podľa tradičných receptov. Nakupujte online.",
+  openGraph: {
+    title: "Naše Produkty",
+    description:
+      "Objavte širokú ponuku tradičných slovenských pekárenských výrobkov z Pekárne Kromka. Čerstvý domáci chlieb, pečivo, koláče a iné špeciality pečené s láskou a podľa tradičných receptov. Nakupujte online.",
+    images: [
+      {
+        url: "/images/kromka-vianoce-hero-min.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "Vianočná ponuka Pekárne Kromka",
+      },
+    ],
+  },
+  ...defaultMetadata,
+};
 
 type Props = {
   readonly children: ReactNode;

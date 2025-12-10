@@ -1,4 +1,5 @@
 import { PackageIcon, SettingsIcon, UserIcon } from "lucide-react";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type ReactNode, Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
@@ -7,6 +8,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAuth } from "@/lib/auth/session";
 import { getInitials } from "@/lib/utils";
 import { ProfileNavLink } from "./_components/profile-nav-link";
+
+export const metadata: Metadata = {
+  title: "Váš profil",
+  description:
+    "Profil používateľa Pekárne Kromka. Zobrazí sa iba po prihlásení.",
+};
 
 type Props = {
   readonly children: ReactNode;

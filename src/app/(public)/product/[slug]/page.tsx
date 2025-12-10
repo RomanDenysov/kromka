@@ -18,8 +18,9 @@ import { Hint } from "@/components/shared/hint";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { createMetadata } from "@/lib/metadata";
 import { getProducts } from "@/lib/queries/products";
-import { cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
 
 type Props = {
@@ -31,6 +32,31 @@ type Props = {
 export async function generateStaticParams() {
   const allProducts = await getProducts();
   return allProducts.map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const urlDecoded = decodeURIComponent(slug);
+  const products = await getProducts();
+  const result = products.find((p) => p.slug === urlDecoded);
+
+  if (!result) {
+    notFound();
+  }
+  const descriptionHtml = generateHTML(
+    result?.description ?? {
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: "" }] }],
+    },
+    [StarterKit]
+  );
+
+  return createMetadata({
+    title: result.name,
+    description: descriptionHtml,
+    image: result.images[0],
+    canonicalUrl: getSiteUrl(`/product/${result.slug}`),
+  });
 }
 
 export default async function ProductPage({ params }: Props) {

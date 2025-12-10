@@ -4,7 +4,6 @@ import { preloadProducts } from "@/lib/queries/products";
 
 export default function Home() {
   preloadProducts();
-
   return (
     <>
       <HomeGrid />
