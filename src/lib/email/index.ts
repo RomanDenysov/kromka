@@ -12,7 +12,6 @@ import { renderOutOfStockEmail } from "./templates/out-of-stock";
 import { renderReceiptEmail } from "./templates/receipt";
 import {
   DEFAULT_LOGO_URL,
-  DEFAULT_SIGNATURE_LOGO_URL,
   DEFAULT_SUPPORT_EMAIL,
   getBaseUrl,
 } from "./templates/shared";
@@ -251,7 +250,6 @@ export const sendEmail = {
 
     const html = await renderThankYouEmail({
       logoUrl: DEFAULT_LOGO_URL,
-      signatureLogoUrl: DEFAULT_SIGNATURE_LOGO_URL,
     });
 
     return emailService({
