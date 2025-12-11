@@ -46,7 +46,11 @@ const config = {
   },
 };
 
-const STAFF_EMAIL = ["kromka@kavejo.sk", "r.denysov96@gmail.com"];
+const isDev = process.env.NODE_ENV === "development";
+
+const STAFF_EMAIL = isDev
+  ? ["r.denysov96@gmail.com"]
+  : ["kromka@kavejo.sk", "r.denysov96@gmail.com"];
 
 const DEVELOPER_EMAIL = "r.denysov96@gmail.com";
 const transporter = createTransport(config);

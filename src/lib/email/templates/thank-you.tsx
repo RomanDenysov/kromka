@@ -15,7 +15,6 @@ import {
 import {
   DEFAULT_CONTACT_PHONES,
   DEFAULT_LOGO_URL,
-  DEFAULT_SIGNATURE_LOGO_URL,
   DEFAULT_SUPPORT_EMAIL,
   EMAIL_BODY_CLASS,
   EMAIL_CARD_CLASS,
@@ -26,16 +25,12 @@ import {
 
 export type ThankYouEmailData = {
   logoUrl?: string;
-  signatureLogoUrl?: string;
 };
 
 /**
  * Friendly thank-you message after the order lifecycle is completed.
  */
-export function ThankYouEmail({
-  logoUrl,
-  signatureLogoUrl,
-}: ThankYouEmailData) {
+export function ThankYouEmail({ logoUrl }: ThankYouEmailData) {
   return (
     <Html>
       <Tailwind>
@@ -64,16 +59,6 @@ export function ThankYouEmail({
               <Text className="mt-4 text-base text-gray-900 italic">
                 Váš tím pekárne Kromka 👋🏻
               </Text>
-            </Section>
-
-            <Section className="mt-6 text-center">
-              <Img
-                alt="Kromka Logo"
-                className="mx-auto"
-                height="48"
-                src={signatureLogoUrl ?? DEFAULT_SIGNATURE_LOGO_URL}
-                width="48"
-              />
             </Section>
 
             <Section className="mt-6 border-gray-200 border-t pt-4 text-center">
