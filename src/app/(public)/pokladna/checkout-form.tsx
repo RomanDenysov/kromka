@@ -153,8 +153,7 @@ export function CheckoutForm({
           setCustomerStore({ id: selectedStore.id, name: selectedStore.name });
         }
         const formattedDate = format(value.pickupDate, "yyyy-MM-dd");
-        console.log("[CLIENT] Date object:", value.pickupDate.toString());
-        console.log("[CLIENT] Formatted:", formattedDate);
+
         const guestInfo = buildGuestCustomerInfo(value, isGuest);
         const result = await createOrderFromCart({
           storeId: value.storeId,

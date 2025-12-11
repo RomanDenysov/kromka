@@ -36,14 +36,6 @@ export async function createOrderFromCart(data: {
   /** Required for guest checkout when user is not authenticated */
   customerInfo?: GuestCustomerInfo;
 }): Promise<CreateOrderResult> {
-  // biome-ignore lint/suspicious/noConsole: <explanation>
-  console.log(
-    "[SERVER] Received pickupDate:",
-    data.pickupDate,
-    "type:",
-    typeof data.pickupDate
-  );
-
   try {
     const { user } = await getAuth();
     const isGuest = !user;
@@ -160,7 +152,7 @@ export async function createOrderFromCart(data: {
     };
   } catch (error) {
     // biome-ignore lint/suspicious/noConsole: TODO: replace with error logging later
-    console.error("Create order failed:", error);
+    console.error("[SERVER] Create ORDER failed:", error);
     return {
       success: false,
       error: "Nastala chyba pri vytváraní objednávky",
