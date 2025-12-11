@@ -1,7 +1,7 @@
 "use server";
 
 import { eq, inArray, not } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { stores, users } from "@/db/schema";
@@ -20,8 +20,6 @@ export async function setUserStore(
 
   await db.update(users).set({ storeId }).where(eq(users.id, user.id));
 
-  revalidatePath("/", "layout");
-
   return { success: true };
 }
 
@@ -36,8 +34,7 @@ export async function createDraftStoreAction() {
     .values({})
     .returning({ id: stores.id });
 
-  revalidatePath(`/admin/stores/${newDraftStore.id}`);
-  revalidatePath("/admin/stores");
+  updateTag("stores");
 
   redirect(`/admin/stores/${newDraftStore.id}`);
 }
@@ -73,8 +70,8 @@ export async function updateStoreAction({
     .where(eq(stores.id, id))
     .returning();
 
-  revalidatePath(`/admin/stores/${updatedStore.id}`);
-  revalidatePath("/admin/stores");
+  updateTag("stores");
+  updateTag(`store-${updatedStore.slug}`);
 
   return { success: true, store: updatedStore };
 }
@@ -104,8 +101,7 @@ export async function copyStoreAction({ storeId }: { storeId: string }) {
     .values(newStoreData)
     .returning({ id: stores.id });
 
-  revalidatePath(`/admin/stores/${newStore.id}`);
-  revalidatePath("/admin/stores");
+  updateTag("stores");
 
   return { id: newStore.id };
 }
@@ -120,7 +116,7 @@ export async function toggleIsActiveStoresAction({ ids }: { ids: string[] }) {
     .update(stores)
     .set({ isActive: not(stores.isActive) })
     .where(inArray(stores.id, ids))
-    .returning({ id: stores.id });
+    .returning({ id: stores.id, slug: stores.slug });
 
   // TODO: DELETE IT AFTER RELEASE
   // biome-ignore lint/complexity/noForEach: We need to revalidate the paths for each store
@@ -128,7 +124,10 @@ export async function toggleIsActiveStoresAction({ ids }: { ids: string[] }) {
     revalidatePath(`/admin/stores/${store.id}`);
   });
 
-  revalidatePath("/admin/stores");
+  updateTag("stores");
+  for (const store of updatedStores) {
+    updateTag(`store-${store.slug}`);
+  }
 
   return {
     success: true,
@@ -145,7 +144,7 @@ export async function deleteStoresAction({ ids }: { ids: string[] }) {
   const deletedStores = await db
     .delete(stores)
     .where(inArray(stores.id, ids))
-    .returning({ id: stores.id });
+    .returning({ id: stores.id, slug: stores.slug });
 
   // TODO: DELETE IT AFTER RELEASE
   // biome-ignore lint/complexity/noForEach: We need to revalidate the paths for each store
@@ -153,7 +152,10 @@ export async function deleteStoresAction({ ids }: { ids: string[] }) {
     revalidatePath(`/admin/stores/${store.id}`);
   });
 
-  revalidatePath("/admin/stores");
+  updateTag("stores");
+  for (const store of deletedStores) {
+    updateTag(`store-${store.slug}`);
+  }
 
   return {
     success: true,

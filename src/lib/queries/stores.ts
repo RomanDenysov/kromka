@@ -6,7 +6,7 @@ import { stores } from "@/db/schema";
 
 export const getStores = cache(async () => {
   "use cache";
-  cacheLife("hours");
+  cacheLife("max");
   return await db.query.stores.findMany({
     where: eq(stores.isActive, true),
     orderBy: desc(stores.createdAt),

@@ -1,4 +1,3 @@
-import { cacheLife } from "next/cache";
 import {
   type FeaturedCategory,
   getFeaturedCategories,
@@ -13,8 +12,6 @@ import {
 } from "./ui/carousel";
 
 export async function FeaturedCarousel() {
-  "use cache";
-  cacheLife("hours");
   const categories = await getFeaturedCategories();
   if (categories.length === 0) {
     return null;

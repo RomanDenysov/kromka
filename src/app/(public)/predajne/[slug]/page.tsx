@@ -9,7 +9,7 @@ import {
   Navigation,
   Phone,
 } from "lucide-react";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -300,7 +300,8 @@ async function StorePageContent({
 
 async function getStoreBySlug(slug: string) {
   "use cache";
-  cacheLife("hours");
+  cacheLife("max");
+  cacheTag("stores", `store-${slug}`);
   return await db.query.stores.findFirst({
     where: (s, { eq, and }) => and(eq(s.slug, slug), eq(s.isActive, true)),
     with: {
