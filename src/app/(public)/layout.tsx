@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Footer } from "@/components/landing/footer";
+import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { defaultMetadata } from "@/lib/metadata";
 import { Header } from "./_components/header";
 
@@ -20,10 +21,11 @@ type Props = {
 
 export default function PublicLayout({ children }: Props) {
   return (
-    <div className="relative flex min-h-full flex-col">
+    <>
       <Header />
-      <main className="relative min-h-screen flex-1 grow">{children}</main>
+      <main className="min-h-svh">{children}</main>
       <Footer />
-    </div>
+      <ScrollToTop />
+    </>
   );
 }

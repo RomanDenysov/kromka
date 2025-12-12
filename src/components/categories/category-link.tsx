@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { getCategoriesLink } from "@/app/(public)/e-shop/eshop-params";
 import { cn } from "@/lib/utils";
 import { LinkStatus } from "../shared/link-status";
 import { buttonVariants } from "../ui/button";
@@ -14,6 +15,9 @@ export function CategoryLink({
   label: string;
 }) {
   const params = useParams().category;
+  const link = slug
+    ? getCategoriesLink({ category: slug })
+    : getCategoriesLink({});
   return (
     <Link
       className={cn(
@@ -25,7 +29,7 @@ export function CategoryLink({
         }),
         "h-7 cursor-pointer gap-0.5 whitespace-nowrap rounded-md px-2 text-xs has-[>svg]:px-1.5 md:h-8 md:gap-1.5 md:rounded-md md:px-3 md:text-sm md:has-[>svg]:px-2.5"
       )}
-      href={slug ? `/e-shop/${slug}` : "/e-shop"}
+      href={link}
       prefetch
       scroll={false}
     >

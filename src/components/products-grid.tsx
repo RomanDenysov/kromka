@@ -1,30 +1,43 @@
-import type { Product } from "@/lib/queries/products";
+import { loadEshopParams } from "@/app/(public)/e-shop/eshop-params";
+import { filterProducts } from "@/lib/products/filter";
+import { getProducts } from "@/lib/queries/products";
 import { ProductCard } from "./cards/product-card";
+import { ShowMore } from "./show-more";
+import { Empty, EmptyDescription, EmptyTitle } from "./ui/empty";
 import { Skeleton } from "./ui/skeleton";
+import { GridView } from "./views/grid-view";
 
 const PRELOAD_LIMIT = 15;
 
 type Props = {
-  products: Product[];
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export function ProductsGrid({ products }: Props) {
+export async function ProductsGrid({ searchParams }: Props) {
+  const eshopParams = await loadEshopParams(searchParams);
+  const allProducts = await getProducts();
+  const { products, total } = filterProducts(allProducts, eshopParams);
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-      {products.length > 0 ? (
-        products.map((product, index) => (
-          <ProductCard
-            key={product.id}
-            preload={index < PRELOAD_LIMIT}
-            product={product}
-          />
-        ))
+    <GridView>
+      {total > 0 ? (
+        <ShowMore className="col-span-full" initial={12}>
+          {products.map((product, index) => (
+            <ProductCard
+              key={product.id}
+              preload={index < PRELOAD_LIMIT}
+              product={product}
+            />
+          ))}
+        </ShowMore>
       ) : (
-        <p className="col-span-full text-center text-muted-foreground">
-          Žiadne produkty v tejto kategórii
-        </p>
+        <Empty className="col-span-full mt-12 text-center">
+          <EmptyTitle>Žiadne výsledky.</EmptyTitle>
+          <EmptyDescription>
+            Upravte vyhľadávanie alebo kategóriu.
+          </EmptyDescription>
+        </Empty>
       )}
-    </div>
+    </GridView>
   );
 }
 

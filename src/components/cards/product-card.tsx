@@ -2,7 +2,6 @@
 
 import { HeartIcon } from "lucide-react";
 import Link from "next/link";
-import { ViewTransition } from "react";
 import type { Product } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
 import { ImageSlider } from "../image-slider";
@@ -52,22 +51,18 @@ export function ProductCard({ product, className, preload = false }: Props) {
         </div>
 
         {/* Name */}
-        <ViewTransition name={`${product.slug}-name`}>
-          <h3 className="line-clamp-2 font-semibold text-base">
-            {product.name}
-          </h3>
-        </ViewTransition>
+
+        <h3 className="line-clamp-2 font-semibold text-base">{product.name}</h3>
 
         {/* Spacer */}
         <div className="h-full flex-1" />
 
         {/* Price */}
         <div className="mt-auto flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
-          <ViewTransition name={`${product.slug}-price`}>
-            <span className="flex-1 font-bold text-base">
-              {formatPrice(product.priceCents)}
-            </span>
-          </ViewTransition>
+          <span className="flex-1 font-bold text-base">
+            {formatPrice(product.priceCents)}
+          </span>
+
           <AddToCartButton disabled={!isActive} id={product.id} />
         </div>
       </div>

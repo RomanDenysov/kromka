@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getCategoriesLink } from "@/app/(public)/e-shop/eshop-params";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types/categories";
 import { buttonVariants } from "../ui/button";
@@ -91,7 +92,7 @@ export function FilterCarousel({ categories }: Props) {
                   }),
                   "cursor-pointer whitespace-nowrap rounded-full"
                 )}
-                href={`/e-shop/${category.slug}`}
+                href={getCategoriesLink({ category: category.slug })}
               >
                 {category.name}
               </Link>
