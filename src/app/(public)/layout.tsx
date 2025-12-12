@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Footer } from "@/components/landing/footer";
+import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { defaultMetadata } from "@/lib/metadata";
 import { Header } from "./_components/header";
 
@@ -24,6 +25,7 @@ export default function PublicLayout({ children }: Props) {
       <Header />
       <main className="min-h-svh">{children}</main>
       <Footer />
+      <ScrollToTop />
     </>
   );
 }
