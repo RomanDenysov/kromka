@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ViewTransition } from "react";
 import { ImageSlider } from "@/components/image-slider";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
@@ -115,18 +114,14 @@ export default async function ProductPage({ params }: Props) {
               </Link>
             </div>
           ) : null}
-          <ViewTransition name={`${result.slug}-name`}>
-            <h1 className="line-clamp-2 font-semibold text-2xl leading-tight tracking-tight md:text-3xl">
-              {result.name}
-            </h1>
-          </ViewTransition>
+          <h1 className="line-clamp-2 font-semibold text-2xl leading-tight tracking-tight md:text-3xl">
+            {result.name}
+          </h1>
 
           {/* Product Price and Features */}
-          <ViewTransition name={`${result.slug}-price`}>
-            <h2 className="font-semibold text-2xl tracking-tight md:text-4xl">
-              {formatPrice(result.priceCents)}
-            </h2>
-          </ViewTransition>
+          <h2 className="font-semibold text-2xl tracking-tight md:text-4xl">
+            {formatPrice(result.priceCents)}
+          </h2>
           <div className="flex flex-col items-start justify-start gap-2 md:flex-row md:items-center">
             {isInStock ? (
               <Badge className="w-fit" variant="success">

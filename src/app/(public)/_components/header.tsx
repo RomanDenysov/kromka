@@ -30,7 +30,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <Container>
-        <div className="flex h-14 w-full items-center justify-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-5">
+        <div className="flex h-12 w-full items-center justify-center gap-4 md:grid md:h-14 md:grid-cols-[1fr_auto_1fr] md:gap-5">
           {/* Navigation */}
           <MobileNavigation navigation={navigation}>
             <StoreSelectModal storesPromise={stores} />

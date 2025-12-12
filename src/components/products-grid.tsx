@@ -2,7 +2,7 @@ import { loadEshopParams } from "@/app/(public)/e-shop/eshop-params";
 import { filterProducts } from "@/lib/products/filter";
 import { getProducts } from "@/lib/queries/products";
 import { ProductCard } from "./cards/product-card";
-import ShowMore from "./show-more";
+import { ShowMore } from "./show-more";
 import { Skeleton } from "./ui/skeleton";
 import { GridView } from "./views/grid-view";
 

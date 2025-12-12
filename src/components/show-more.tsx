@@ -12,7 +12,7 @@ type Props = {
   showMoreLabel?: (remaining: number) => string;
 };
 
-export default function ShowMore({
+export function ShowMore({
   children,
   className,
   initial = 5,
@@ -43,6 +43,37 @@ export default function ShowMore({
           {expanded ? showLessLabel : showMoreLabel(remaining)}
         </Button>
       </center>
+    </>
+  );
+}
+
+export function ShowMoreInline({
+  children,
+  className,
+  initial = 5,
+  showLessLabel = "Menej",
+  showMoreLabel = (n) => `Viac (${n})`,
+}: Props) {
+  const [expanded, setExpanded] = useState(false);
+  const childArray = Children.toArray(children);
+  const remaining = childArray.length - initial;
+
+  if (remaining <= 0) {
+    // Don't render button if nothing to expand
+    return children;
+  }
+
+  const items = expanded ? childArray : childArray.slice(0, initial);
+  return (
+    <>
+      {items}
+      <button
+        className={cn("font-medium text-sm", className)}
+        onClick={() => setExpanded(!expanded)}
+        type="button"
+      >
+        {expanded ? showLessLabel : showMoreLabel(remaining)}
+      </button>
     </>
   );
 }
