@@ -18,7 +18,7 @@ export function FeaturedProductCard({ product, className }: Props) {
         "group relative block aspect-square overflow-hidden rounded-sm bg-muted shadow-sm",
         className
       )}
-      href={`/e-shop/${product?.slug}`}
+      href={`/product/${product?.slug}`}
       title={product?.name}
     >
       <ProductImage

@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { createMetadata } from "@/lib/metadata";
 import { getProducts } from "@/lib/queries/products";
 import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
+import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
 
 type Props = {
@@ -107,8 +108,9 @@ export default async function ProductPage({ params }: Props) {
                   buttonVariants({ variant: "secondary", size: "xs" }),
                   "rounded-full"
                 )}
-                href={`/e-shop/${result.category.slug}`}
+                href={getCategoriesLink({ category: result.category.slug })}
                 key={result.category.id}
+                scroll={false}
               >
                 {result.category.name}
               </Link>
