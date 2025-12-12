@@ -3,6 +3,7 @@ import { filterProducts } from "@/lib/products/filter";
 import { getProducts } from "@/lib/queries/products";
 import { ProductCard } from "./cards/product-card";
 import { ShowMore } from "./show-more";
+import { Empty, EmptyDescription, EmptyTitle } from "./ui/empty";
 import { Skeleton } from "./ui/skeleton";
 import { GridView } from "./views/grid-view";
 
@@ -29,11 +30,12 @@ export async function ProductsGrid({ searchParams }: Props) {
           ))}
         </ShowMore>
       ) : (
-        <div className="col-span-full text-center">
-          <p className="text-muted-foreground">
-            Žiadne produkty v tejto kategórii
-          </p>
-        </div>
+        <Empty className="col-span-full mt-12 text-center">
+          <EmptyTitle>Žiadne výsledky.</EmptyTitle>
+          <EmptyDescription>
+            Upravte vyhľadávanie alebo kategóriu.
+          </EmptyDescription>
+        </Empty>
       )}
     </GridView>
   );

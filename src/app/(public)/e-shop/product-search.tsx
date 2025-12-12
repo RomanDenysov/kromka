@@ -3,6 +3,7 @@
 import { debounce } from "nuqs";
 import { useTransition } from "react";
 import { SearchInput } from "@/components/shared/search-input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEshopParams } from "./eshop-params";
 
 const DEBOUNCE_DELAY = 300;
@@ -35,4 +36,8 @@ export function ProductSearch() {
       value={q}
     />
   );
+}
+
+export function ProductSearchSkeleton() {
+  return <Skeleton className="h-10 w-full flex-2" />;
 }

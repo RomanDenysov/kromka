@@ -10,6 +10,7 @@ import { useTransition } from "react";
 import { useEshopParams } from "@/app/(public)/e-shop/eshop-params";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "../ui/button";
+import { Skeleton } from "../ui/skeleton";
 
 export function SortToggles() {
   const isMobile = useIsMobile();
@@ -60,6 +61,15 @@ export function SortToggles() {
         Cena
         {sortBy === "price" && <PriceIcon className="size-4" />}
       </Button>
+    </div>
+  );
+}
+
+export function SortTogglesSkeleton() {
+  return (
+    <div className="flex gap-1">
+      <Skeleton className="h-9 w-20 rounded-md" />
+      <Skeleton className="h-9 w-20 rounded-md" />
     </div>
   );
 }

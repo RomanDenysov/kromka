@@ -1,5 +1,4 @@
 import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import { Providers } from "@/app/providers";
@@ -17,7 +16,7 @@ type Props = {
 export default function RootLayout({ children }: Props) {
   return (
     <html lang="sk" suppressHydrationWarning>
-      <body className={cn(fonts, "relative min-h-screen scroll-smooth")}>
+      <body className={cn(fonts, "min-h-svh scroll-smooth")}>
         <Providers>
           <NuqsAdapter>
             {children}
@@ -26,7 +25,8 @@ export default function RootLayout({ children }: Props) {
           </NuqsAdapter>
         </Providers>
         <Analytics />
-        <SpeedInsights />
+        {/* TODO: add speed insights back when we have a better way to measure performance */}
+        {/* <SpeedInsights /> */}
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ import { use } from "react";
 import { LinkStatus } from "@/components/shared/link-status";
 import { ShowMoreInline } from "@/components/show-more";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Category } from "@/lib/queries/categories";
 import { getCategoriesLink, useEshopParams } from "./eshop-params";
 
@@ -33,6 +34,19 @@ export function CategoriesChips({ categories }: Props) {
           </Badge>
         ))}
       </ShowMoreInline>
+    </div>
+  );
+}
+
+export function CategoriesChipsSkeleton() {
+  return (
+    <div className="flex flex-wrap gap-1.5 md:hidden">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Skeleton
+          className="h-6 w-20 rounded-full"
+          key={`${i.toString()}-skeleton`}
+        />
+      ))}
     </div>
   );
 }
