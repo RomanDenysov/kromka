@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { type ReactNode, Suspense } from "react";
 import { FeaturedCarousel } from "@/components/featured-carousel";
-import { CategoriesFilterLoader } from "@/components/filters/categories-filter-loader";
+import { CategoriesSidebar } from "@/components/filters/categories-sidebar";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { defaultMetadata } from "@/lib/metadata";
+import { getCategories } from "@/lib/queries/categories";
 
 export const metadata: Metadata = {
   ...defaultMetadata,
@@ -31,13 +32,19 @@ type Props = {
 };
 
 export default function EshopLayout({ children }: Props) {
+  const categories = getCategories();
   return (
     <PageWrapper>
       <AppBreadcrumbs items={[{ label: "E-shop", href: "/e-shop" }]} />
       <FeaturedCarousel />
-      <CategoriesFilterLoader />
+      {/* <CategoriesFilterLoader /> */}
       {/* <SimpleCategoriesFilter /> */}
-      {children}
+      <div className="flex gap-8">
+        <Suspense>
+          <CategoriesSidebar categories={categories} />
+        </Suspense>
+        {children}
+      </div>
     </PageWrapper>
   );
 }
