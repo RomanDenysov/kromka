@@ -4,22 +4,29 @@ import { usePathname, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
+import { env } from "@/env";
 import { consent } from "@/lib/consent";
 import { AuthIdentitySync } from "./auth-identity-sync";
 
 // Initialize PostHog
-if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-  // biome-ignore lint/style/noNonNullAssertion: we need to use the namespace import for PostHog
-  posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-    api_host: "/ph",
-    ui_host: "https://eu.posthog.com",
-    person_profiles: "identified_only",
-    persistence: "localStorage+cookie",
-    capture_pageview: false,
-    capture_pageleave: true,
-    // Ключова настройка:
-    cookieless_mode: "on_reject",
-  });
+
+if (typeof window !== "undefined") {
+  // Prevent double-init in dev/HMR.
+  // posthog-js exposes `__loaded` at runtime but it isn't typed.
+  // biome-ignore lint/suspicious/noExplicitAny: needed for untyped runtime flag
+  const alreadyInitialized = Boolean((posthog as any).__loaded);
+  if (!alreadyInitialized) {
+    posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
+      api_host: "/ph",
+      ui_host: "https://eu.posthog.com",
+      person_profiles: "identified_only",
+      persistence: "localStorage+cookie",
+      capture_pageview: false,
+      capture_pageleave: true,
+      // Important setting:
+      cookieless_mode: "on_reject",
+    });
+  }
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
@@ -55,7 +62,7 @@ function PostHogPageView() {
   useEffect(() => {
     if (pathname) {
       const url =
-        window.origin +
+        window.location.origin +
         pathname +
         (searchParams.toString() ? `?${searchParams}` : "");
       posthog.capture("$pageview", { $current_url: url });
