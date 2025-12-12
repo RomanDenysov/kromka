@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/noMagicNumbers: Ignore it for now */
 "use client";
 
 import Link from "next/link";
@@ -41,10 +42,11 @@ export function CategoriesChips({ categories }: Props) {
 export function CategoriesChipsSkeleton() {
   return (
     <div className="flex flex-wrap gap-1.5 md:hidden">
-      {Array.from({ length: 5 }).map((_, i) => (
+      {[16, 24, 20, 14, 18].map((width) => (
         <Skeleton
-          className="h-6 w-20 rounded-full"
-          key={`${i.toString()}-skeleton`}
+          className="h-[22px] rounded-full"
+          key={`chip-skeleton-${width}`}
+          style={{ width: `${width * 4}px` }}
         />
       ))}
     </div>

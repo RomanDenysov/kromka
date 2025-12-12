@@ -8,12 +8,11 @@ import {
 } from "lucide-react";
 import { useTransition } from "react";
 import { useEshopParams } from "@/app/(public)/e-shop/eshop-params";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
 export function SortToggles() {
-  const isMobile = useIsMobile();
+  // const isMobile = useIsMobile();
   const [isPending, startTransition] = useTransition();
   const [{ sort }, setSearchParams] = useEshopParams({
     startTransition,
@@ -44,18 +43,20 @@ export function SortToggles() {
   return (
     <div className="flex gap-1">
       <Button
+        className="md:h-9 md:px-4 md:py-2 md:text-sm md:has-[>svg]:px-3"
         disabled={isPending}
         onClick={() => handleSort("name")}
-        size={isMobile ? "xs" : "default"}
+        size="xs"
         variant={sortBy === "name" ? "default" : "outline"}
       >
         Názov
         {sortBy === "name" && <NameIcon className="size-4" />}
       </Button>
       <Button
+        className="md:h-9 md:px-4 md:py-2 md:text-sm md:has-[>svg]:px-3"
         disabled={isPending}
         onClick={() => handleSort("price")}
-        size={isMobile ? "xs" : "default"}
+        size="xs"
         variant={sortBy === "price" ? "default" : "outline"}
       >
         Cena
@@ -68,8 +69,8 @@ export function SortToggles() {
 export function SortTogglesSkeleton() {
   return (
     <div className="flex gap-1">
-      <Skeleton className="h-9 w-20 rounded-md" />
-      <Skeleton className="h-9 w-20 rounded-md" />
+      <Skeleton className="h-7 w-20 rounded-md md:h-9" />
+      <Skeleton className="h-7 w-20 rounded-md md:h-9" />
     </div>
   );
 }
