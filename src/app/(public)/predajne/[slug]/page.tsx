@@ -4,13 +4,11 @@ import {
   ArrowLeft,
   Clock,
   ExternalLink,
-  Mail,
   MapPin,
   Navigation,
   Phone,
 } from "lucide-react";
 import { cacheLife, cacheTag } from "next/cache";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -96,204 +94,148 @@ async function StorePageContent({
 
   return (
     <PageWrapper>
-      {/* Back Link */}
-      <Link
-        className="mb-6 inline-flex items-center gap-2 text-muted-foreground text-sm transition-colors hover:text-foreground"
-        href="/predajne"
-      >
-        <ArrowLeft className="size-4" />
-        Všetky predajne
-      </Link>
+      <div className="space-y-12 py-8">
+        {/* Back Link */}
+        <Link
+          className="inline-flex items-center gap-2 text-muted-foreground text-sm transition-colors hover:text-foreground"
+          href="/predajne"
+        >
+          <ArrowLeft className="size-4" />
+          Všetky predajne
+        </Link>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-neutral-900">
-        {/* Background Image */}
-        {store.image?.url ? (
-          <>
-            <Image
-              alt={store.name}
-              className="absolute inset-0 object-cover opacity-50"
-              fill
-              priority
-              src={store.image.url}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/60 to-neutral-900/30" />
-          </>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 to-neutral-900" />
-        )}
-
-        <div className="relative px-6 py-12 md:px-10 md:py-16 lg:py-20">
-          {/* Status Badge */}
-          <div className="mb-6 flex items-center gap-3">
+        {/* Header Section - Minimal */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <div
-                className={`size-2.5 rounded-full ${storeIsOpen ? "bg-green-400" : "bg-neutral-500"}`}
+                className={`size-2 rounded-full ${storeIsOpen ? "bg-green-500" : "bg-neutral-400"}`}
               />
-              <span className="font-medium text-sm text-white">
+              <span className="text-muted-foreground text-sm">
                 {storeIsOpen ? "Práve otvorené" : "Zatvorené"}
               </span>
             </div>
             {isSelected && (
-              <span className="rounded-full bg-white/20 px-3 py-1 text-white text-xs backdrop-blur-sm">
+              <span className="rounded-md border border-border bg-muted px-2 py-0.5 text-muted-foreground text-xs">
                 Vaša predajňa
               </span>
             )}
           </div>
 
-          {/* Title */}
-          <h1 className="max-w-2xl font-bold text-4xl text-white md:text-5xl lg:text-6xl">
+          <h1 className="font-semibold text-4xl tracking-tight md:text-5xl">
             {store.name}
           </h1>
 
-          {/* Description */}
           {store.description?.content?.[0]?.content?.[0]?.text && (
-            <p className="mt-4 max-w-xl text-lg text-white/70 leading-relaxed">
+            <p className="max-w-2xl text-lg text-muted-foreground leading-relaxed">
               {store.description.content[0].content[0].text}
             </p>
           )}
+        </section>
 
-          {/* Quick Actions */}
-          <div className="mt-8 flex flex-wrap gap-3">
-            {googleMapsUrl && (
-              <Button
-                asChild
-                className="rounded-full"
-                size="lg"
-                variant="outline"
-              >
+        {/* Info Sections - Clean and Minimal */}
+        <section className="space-y-8">
+          {/* Opening Hours */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Clock className="size-4 text-muted-foreground" />
+              <h2 className="font-semibold text-xl tracking-tight">
+                Otváracie hodiny
+              </h2>
+            </div>
+            <div className="space-y-1 border-border border-l-2 pl-4">
+              {regularHours &&
+                DAYS_ORDER.map((day) => {
+                  const schedule =
+                    regularHours[day as keyof typeof regularHours];
+                  const isToday = todayKey === day;
+
+                  return (
+                    <div
+                      className={`flex items-center justify-between py-1.5 ${
+                        isToday ? "font-medium" : "text-muted-foreground"
+                      }`}
+                      key={day}
+                    >
+                      <span>{DAYS_MAP[day]}</span>
+                      <span className={isToday ? "" : "tabular-nums"}>
+                        {formatTimeRange(schedule)}
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <MapPin className="size-4 text-muted-foreground" />
+              <h2 className="font-semibold text-xl tracking-tight">Adresa</h2>
+            </div>
+            <div className="space-y-2 border-border border-l-2 pl-4">
+              <p className="text-lg">{fullAddress}</p>
+              {googleMapsUrl && (
                 <a
+                  className="inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
                   href={googleMapsUrl}
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  <Navigation className="size-4" />
-                  Navigovať
+                  Otvoriť v Google Maps
+                  <ExternalLink className="size-3.5" />
                 </a>
-              </Button>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Info Grid - Bento Style */}
-      <section className="mt-6 grid gap-4 md:grid-cols-2">
-        {/* Opening Hours Card */}
-        <div className="rounded-2xl bg-neutral-100 p-6 dark:bg-neutral-900">
-          <div className="mb-5 flex items-center gap-2 text-muted-foreground">
-            <Clock className="size-4" />
-            <span className="font-medium text-sm uppercase tracking-wider">
-              Otváracie hodiny
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {regularHours &&
-              DAYS_ORDER.map((day) => {
-                const schedule = regularHours[day as keyof typeof regularHours];
-                const isToday = todayKey === day;
-
-                return (
-                  <div
-                    className={`flex items-center justify-between rounded-lg px-3 py-2 transition-colors ${
-                      isToday
-                        ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
-                        : "text-muted-foreground"
-                    }`}
-                    key={day}
-                  >
-                    <span className="font-medium">{DAYS_MAP[day]}</span>
-                    <span className={isToday ? "" : "tabular-nums"}>
-                      {formatTimeRange(schedule)}
-                    </span>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-
-        {/* Contact & Address Card */}
-        <div className="flex flex-col gap-4">
-          {/* Address */}
-          <div className="flex-1 rounded-2xl bg-neutral-100 p-6 dark:bg-neutral-900">
-            <div className="mb-4 flex items-center gap-2 text-muted-foreground">
-              <MapPin className="size-4" />
-              <span className="font-medium text-sm uppercase tracking-wider">
-                Adresa
-              </span>
+              )}
             </div>
-
-            <p className="font-medium text-lg">{fullAddress}</p>
-
-            {googleMapsUrl && (
-              <a
-                className="mt-3 inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
-                href={googleMapsUrl}
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                Otvoriť v Google Maps
-                <ExternalLink className="size-3.5" />
-              </a>
-            )}
           </div>
 
           {/* Contact */}
           {(store.phone || store.email) && (
-            <div className="rounded-2xl bg-neutral-100 p-6 dark:bg-neutral-900">
-              <div className="mb-4 flex items-center gap-2 text-muted-foreground">
-                <Phone className="size-4" />
-                <span className="font-medium text-sm uppercase tracking-wider">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Phone className="size-4 text-muted-foreground" />
+                <h2 className="font-semibold text-xl tracking-tight">
                   Kontakt
-                </span>
+                </h2>
               </div>
-
-              <div className="space-y-3">
+              <div className="space-y-2 border-border border-l-2 pl-4">
                 {store.phone && (
                   <a
-                    className="flex items-center gap-3 font-medium text-lg transition-colors hover:text-primary"
+                    className="block text-lg transition-colors hover:text-primary"
                     href={`tel:${store.phone}`}
                   >
-                    <div className="flex size-10 items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-800">
-                      <Phone className="size-4" />
-                    </div>
                     {store.phone}
                   </a>
                 )}
                 {store.email && (
                   <a
-                    className="flex items-center gap-3 font-medium transition-colors hover:text-primary"
+                    className="block transition-colors hover:text-primary"
                     href={`mailto:${store.email}`}
                   >
-                    <div className="flex size-10 items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-800">
-                      <Mail className="size-4" />
-                    </div>
                     {store.email}
                   </a>
                 )}
               </div>
             </div>
           )}
-        </div>
-      </section>
 
-      {/* Map Placeholder or Additional Section */}
-      <section className="mt-6 overflow-hidden rounded-2xl bg-neutral-100 dark:bg-neutral-900">
-        <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-          <MapPin className="mb-4 size-8 text-muted-foreground" />
-          <h3 className="font-semibold text-lg">Interaktívna mapa</h3>
-          <p className="mt-1 max-w-md text-muted-foreground text-sm">
-            Tu môže byť vložená mapa s presnou polohou predajne
-          </p>
+          {/* Navigation Button */}
           {googleMapsUrl && (
-            <Button asChild className="mt-4 rounded-full" variant="outline">
-              <a href={googleMapsUrl} rel="noopener noreferrer" target="_blank">
-                Zobraziť na Google Maps
-              </a>
-            </Button>
+            <div className="pt-4">
+              <Button asChild variant="outline">
+                <a
+                  href={googleMapsUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  <Navigation className="size-4" />
+                  Navigovať na Google Maps
+                </a>
+              </Button>
+            </div>
           )}
-        </div>
-      </section>
+        </section>
+      </div>
     </PageWrapper>
   );
 }

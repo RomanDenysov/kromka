@@ -1,12 +1,12 @@
 "use client";
 
-import { format } from "date-fns";
-import { sk } from "date-fns/locale";
+import { startOfToday } from "date-fns";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import type { DaySchedule } from "@/db/types";
+import type { TimeRange } from "@/db/types";
+import { getTimeRangeForDate, parseTimeToMinutes } from "@/lib/checkout-utils";
 import type { Store } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
 
@@ -23,27 +23,29 @@ const getTodayOpeningHours = (openingHours: Store["openingHours"]) => {
     return null;
   }
 
-  const today = new Date();
-  const dayName = format(today, "EEEE", { locale: sk }).toLowerCase();
-  const dateStr = format(today, "yyyy-MM-dd");
-
-  if (openingHours.exceptions?.[dateStr]) {
-    return openingHours.exceptions[dateStr];
-  }
-
-  // @ts-expect-error - day types
-  return openingHours.regularHours?.[dayName] || null;
+  const today = startOfToday();
+  return getTimeRangeForDate(today, openingHours);
 };
 
-const formatTimeRange = (schedule: DaySchedule | null) => {
-  if (!schedule || schedule === "closed") {
+const formatTimeRange = (schedule: TimeRange | null) => {
+  if (!schedule) {
     return "Zatvorené";
   }
   return `${schedule.start} – ${schedule.end}`;
 };
 
-const isOpen = (schedule: DaySchedule | null) =>
-  schedule && schedule !== "closed";
+const isCurrentlyOpen = (schedule: TimeRange | null): boolean => {
+  if (!schedule) {
+    return false;
+  }
+
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const startMinutes = parseTimeToMinutes(schedule.start);
+  const endMinutes = parseTimeToMinutes(schedule.end);
+
+  return currentMinutes >= startMinutes && currentMinutes < endMinutes;
+};
 
 export function StoreCard({
   store,
@@ -53,7 +55,7 @@ export function StoreCard({
   variant = "default",
 }: StoreCardProps) {
   const todaySchedule = getTodayOpeningHours(store.openingHours);
-  const storeIsOpen = isOpen(todaySchedule);
+  const storeIsOpen = isCurrentlyOpen(todaySchedule);
 
   const CardContent = (
     <div
@@ -158,7 +160,7 @@ export function StoreCardCompact({
   onClick?: () => void;
 }) {
   const todaySchedule = getTodayOpeningHours(store.openingHours);
-  const storeIsOpen = isOpen(todaySchedule);
+  const storeIsOpen = isCurrentlyOpen(todaySchedule);
 
   return (
     <button

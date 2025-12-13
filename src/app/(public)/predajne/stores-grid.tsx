@@ -10,23 +10,23 @@ export function StoresGrid({ stores }: { stores: Store[] }) {
   const selectedStore = useCustomerStore((state) => state.customerStore);
 
   return (
-    <section>
-      <div className="mb-8 flex items-end justify-between">
-        <div>
-          <h2 className="font-bold text-2xl tracking-tight">Všetky predajne</h2>
-          <p className="mt-1 text-muted-foreground">
-            {stores.length} predajní v 2 mestách
-          </p>
-        </div>
+    <section className="space-y-6">
+      <div className="space-y-1">
+        <h2 className="font-semibold text-2xl tracking-tight">
+          Všetky predajne
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          {stores.length} predajní v 2 mestách
+        </p>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {stores?.map((store, index) => (
+        {stores?.map((store) => (
           <StoreCard
             href={`/predajne/${store.slug}` as Route}
             isSelected={selectedStore?.id === store.id}
             key={store.id}
             store={store}
-            variant={index === 0 ? "featured" : "default"}
+            variant="default"
           />
         ))}
       </div>
