@@ -4,6 +4,8 @@ import {
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
+  getSortedRowModel,
+  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
@@ -16,16 +18,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { RecentOrdersData } from "@/lib/queries/dashboard";
+import type { RecentOrder, RecentOrdersData } from "@/lib/queries/dashboard";
 import { cn, formatPrice } from "@/lib/utils";
 import { columns } from "./columns";
 
 export function RecentOrdersTable({ orders }: { orders: RecentOrdersData }) {
   const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
 
-  const table = useReactTable({
+  const table = useReactTable<RecentOrder>({
     data: orders,
     columns,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getRowCanExpand: (row) => row.original.items.length > 0,
     filterFns: {
@@ -34,6 +39,7 @@ export function RecentOrdersTable({ orders }: { orders: RecentOrdersData }) {
     globalFilterFn: "fuzzy",
     state: {
       globalFilter,
+      sorting,
     },
     getExpandedRowModel: getExpandedRowModel(),
     onGlobalFilterChange: setGlobalFilter,

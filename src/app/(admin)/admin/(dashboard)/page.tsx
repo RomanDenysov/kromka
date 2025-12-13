@@ -1,5 +1,6 @@
 import { format, getMonth, getYear } from "date-fns";
 import { Suspense } from "react";
+import { AdminHeader } from "@/components/admin-header/admin-header";
 import { RecentOrdersTable } from "@/components/tables/recent-orders/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -9,6 +10,9 @@ import {
   getRecentOrders,
 } from "@/lib/queries/dashboard";
 import { DashboardMetrics } from "../_components/dashboard-metrics";
+import { RevenueChartSection } from "../_components/revenue-chart-section";
+import { SecondaryMenuSection } from "../_components/secondary-menu-section";
+import { TopProductsSection } from "../_components/top-products-section";
 import { DashboardCalendar } from "./dashboard-calendar";
 import { DashboardRecentTabs } from "./dashboard-recent-tabs";
 import {
@@ -46,8 +50,8 @@ export async function DashboardContent({
     {} as Record<string, { orderCount: number; revenue: number }>
   );
   return (
-    <>
-      <div className="flex flex-1 flex-col space-y-4 p-4">
+    <div className="grid grid-cols-1 gap-4 p-4">
+      <div className="flex flex-1 flex-col space-y-4">
         <DashboardMetrics />
         <div className="flex gap-8">
           <div className="shrink-0">
@@ -58,10 +62,30 @@ export async function DashboardContent({
           </div>
         </div>
       </div>
-      <div className="grow overflow-hidden">
-        <RecentOrdersTable orders={recentOrders} />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Suspense fallback={<Skeleton className="col-span-4 size-full" />}>
+          <RevenueChartSection />
+        </Suspense>
+        <Suspense fallback={<Skeleton className="col-span-3 size-full" />}>
+          <TopProductsSection />
+        </Suspense>
       </div>
-    </>
+      <div className="grid grid-cols-1 gap-4">
+        <Suspense
+          fallback={
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-8 w-24" />
+              <Skeleton className="h-8 w-28" />
+            </div>
+          }
+        >
+          <SecondaryMenuSection />
+        </Suspense>
+        <div className="grow overflow-hidden">
+          <RecentOrdersTable orders={recentOrders} />
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -70,8 +94,11 @@ export default function AdminDashboardPage({
 }: PageProps<"/admin">) {
   const dashboardParams = loadDashboardSearchParams(searchParams);
   return (
-    <Suspense fallback={<Skeleton className="size-full" />}>
-      <DashboardContent dashboardParams={dashboardParams} />
-    </Suspense>
+    <>
+      <AdminHeader breadcrumbs={[{ label: "Prehľad", href: "/admin" }]} />
+      <Suspense fallback={<Skeleton className="size-full" />}>
+        <DashboardContent dashboardParams={dashboardParams} />
+      </Suspense>
+    </>
   );
 }

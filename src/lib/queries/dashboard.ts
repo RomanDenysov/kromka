@@ -39,8 +39,10 @@ export function getOrdersByPickupDate(
     with: {
       createdBy: {
         columns: {
+          id: true,
           name: true,
           email: true,
+          phone: true,
         },
       },
       store: {
@@ -294,8 +296,10 @@ export function getRecentOrders() {
     with: {
       createdBy: {
         columns: {
+          id: true,
           name: true,
           email: true,
+          phone: true,
         },
       },
       store: {

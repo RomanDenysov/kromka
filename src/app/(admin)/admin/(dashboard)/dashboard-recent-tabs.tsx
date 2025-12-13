@@ -1,8 +1,13 @@
 "use client";
+
 import { format } from "date-fns";
+import { ArrowUpRightFromSquareIcon } from "lucide-react";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDashboardParams } from "@/hooks/use-dashboard-params";
+import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
 import type { RecentOrder } from "@/lib/queries/dashboard";
 import { formatPrice } from "@/lib/utils";
 
@@ -67,18 +72,31 @@ function OrdersList({ orders }: { orders: RecentOrder[] }) {
       {orders.map((order) => (
         <div className="rounded-lg border p-3" key={order.id}>
           <div className="flex items-center justify-between">
-            <span className="font-medium">#{order.orderNumber}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">#{order.orderNumber}</span>
+              <Badge
+                size="xs"
+                variant={ORDER_STATUS_VARIANTS[order.orderStatus]}
+              >
+                {ORDER_STATUS_LABELS[order.orderStatus]}
+              </Badge>
+            </div>
             <span className="text-sm">{formatPrice(order.totalCents)}</span>
           </div>
           <div className="text-muted-foreground text-sm">
             {order.store?.name} • {order.pickupTime}
           </div>
-          <div className="mt-2 text-xs">
-            {order.items.map((item) => (
-              <span className="mr-2" key={item.productId}>
-                {item.product.name} ×{item.quantity}
-              </span>
-            ))}
+          <div className="mt-2 flex items-center justify-between">
+            <div className="text-xs">
+              {order.items.map((item) => (
+                <span className="mr-2" key={item.productId}>
+                  {item.product.name} ×{item.quantity}
+                </span>
+              ))}
+            </div>
+            <Link href={`/admin/orders/${order.id}`}>
+              <ArrowUpRightFromSquareIcon className="size-4" />
+            </Link>
           </div>
         </div>
       ))}
@@ -99,7 +117,9 @@ function ProductsAggregate({ products }: { products: ProductAggregate[] }) {
 
   return (
     <div className="space-y-2">
-      <div className="mb-4 font-medium text-sm">Celkom: {totalQuantity} ks</div>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="font-medium text-sm">Celkom: {totalQuantity} ks</div>
+      </div>
       <div className="max-h-[400px] space-y-1 overflow-auto">
         {products.map((product) => (
           <div

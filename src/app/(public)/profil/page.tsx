@@ -76,7 +76,7 @@ async function ProfilPageContent() {
           </CardHeader>
           <CardContent>
             <div className="font-bold text-2xl">{formatPrice(totalSpent)}</div>
-            <p className="text-muted-foreground text-xs">celkom utratené</p>
+            <p className="text-muted-foreground text-xs">Celkové výdavky</p>
           </CardContent>
         </Card>
 

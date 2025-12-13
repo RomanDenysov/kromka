@@ -20,7 +20,7 @@ export function DashboardCalendar({ dailyStats }: Props) {
   return (
     <Calendar
       captionLayout="dropdown"
-      className="rounded-lg border shadow-sm [--cell-size:--spacing(11)] md:[--cell-size:--spacing(13)]"
+      className="[--cell-size:--spacing(11)] md:[--cell-size:--spacing(13)]"
       components={{
         DayButton: ({ children, modifiers, day, ...props }) => {
           const formattedDayDate = format(day.date, "yyyy-MM-dd");

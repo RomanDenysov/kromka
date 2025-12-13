@@ -1,15 +1,17 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 import {
-  ArrowUpDownIcon,
   ChevronDown,
   ChevronRight,
   CopyIcon,
   EyeIcon,
   MoreHorizontalIcon,
+  VerifiedIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,19 +59,55 @@ export const columns: ColumnDef<RecentOrder>[] = [
     },
   },
   {
-    accessorKey: "createdBy.name",
-    header: "Zákazník",
+    accessorKey: "customerInfo",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Zákazník"
+      />
+    ),
+    enableSorting: true,
+    accessorFn: (row) =>
+      row.customerInfo?.name ?? row.createdBy?.name ?? "Guest",
     cell: ({ row }) => {
-      const name = row.original.createdBy?.name || "Guest";
-      const email = row.original.createdBy?.email;
+      const name =
+        row.original.customerInfo?.name ||
+        row.original.createdBy?.name ||
+        "Guest";
+      const email =
+        row.original.customerInfo?.email ||
+        row.original.createdBy?.email ||
+        "-";
+      const phone =
+        row.original.customerInfo?.phone ||
+        row.original.createdBy?.phone ||
+        "-";
+
+      const isGuest = !row.original.createdBy?.id;
       return (
         <div className="flex flex-col">
-          <span className="font-medium">{name}</span>
-          {email && (
-            <span className="hidden text-muted-foreground text-xs md:inline">
-              {email}
-            </span>
+          {isGuest ? (
+            <div className="flex items-center gap-1">
+              <span className="font-medium">{name}</span>
+              <Badge size="xs" variant="secondary">
+                Guest
+              </Badge>
+            </div>
+          ) : (
+            <Link
+              className="flex items-center gap-1 font-medium hover:underline"
+              href={`/admin/users/${row.original.createdBy?.id}`}
+            >
+              {name} <VerifiedIcon className="size-3 text-green-500" />
+            </Link>
           )}
+          <span className="hidden text-muted-foreground text-xs md:inline">
+            {email}
+          </span>
+          <span className="hidden text-muted-foreground text-xs md:inline">
+            {phone}
+          </span>
         </div>
       );
     },
@@ -84,35 +122,74 @@ export const columns: ColumnDef<RecentOrder>[] = [
   },
   {
     accessorKey: "store.name",
-    header: "Predajna",
+    enableSorting: true,
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Predajna"
+      />
+    ),
     cell: ({ row }) => row.original.store?.name ?? "-",
   },
   {
+    accessorKey: "pickupDate",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Vyzdvihnúťie"
+      />
+    ),
+    enableSorting: true,
+    cell: ({ row }) => {
+      const pickupDate = row.original.pickupDate;
+      const pickupTime = row.original.pickupTime;
+      return (
+        <div className="flex flex-col">
+          <span className="font-medium font-mono text-xs tracking-tighter">
+            {pickupDate ? format(pickupDate, "dd.MM.yyyy") : "-"}
+          </span>
+          <span className="font-medium font-mono text-xs tracking-tighter">
+            {pickupTime ? pickupTime : "-"}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "createdAt",
-    header: "Dátum",
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Dátum vytvorenia"
+      />
+    ),
+    enableSorting: true,
     cell: ({ row }) => {
       const date = row.getValue("createdAt") as Date;
-      return date.toLocaleDateString();
+      return (
+        <span className="font-medium font-mono text-xs tracking-tighter">
+          {date ? format(date, "dd.MM.yyyy HH:mm") : "-"}
+        </span>
+      );
     },
   },
   {
     accessorKey: "totalCents",
-    header: ({ column }) => (
-      <div className="text-right">
-        <Button
-          className="p-0 hover:bg-transparent"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          variant="ghost"
-        >
-          Celková suma
-          <ArrowUpDownIcon className="ml-2 size-4" />
-        </Button>
-      </div>
+    header: ({ column, table }) => (
+      <TableColumnHeader
+        column={column}
+        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
+        title="Spolu (EUR)"
+      />
     ),
+    enableSorting: true,
     cell: ({ row }) => (
-      <div className="text-right font-medium">
+      <span className="font-medium font-mono text-xs tracking-tighter">
         {formatPrice(row.original.totalCents ?? 0)}
-      </div>
+      </span>
     ),
   },
   {

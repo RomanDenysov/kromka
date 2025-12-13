@@ -25,8 +25,15 @@ export function getUserById(id: string) {
   return db.query.users.findFirst({
     where: (user, { eq }) => eq(user.id, id),
     with: {
-      orders: true,
+      orders: {
+        orderBy: (order, { desc }) => [desc(order.createdAt)],
+      },
       store: true,
+      members: {
+        with: {
+          organization: true,
+        },
+      },
       postComments: true,
       postLikes: true,
       posts: true,
