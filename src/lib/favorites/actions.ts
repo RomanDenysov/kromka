@@ -1,6 +1,7 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
+import { refresh } from "next/cache";
 import { db } from "@/db";
 import { favorites } from "@/db/schema";
 import { getAuth } from "../auth/session";
@@ -31,7 +32,7 @@ export async function toggleFavorite(productId: string) {
       productId,
     });
   }
-
+  refresh();
   return { success: true };
 }
 
