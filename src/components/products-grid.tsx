@@ -1,4 +1,5 @@
 import { loadEshopParams } from "@/app/(public)/e-shop/eshop-params";
+import { getFavoriteIds } from "@/lib/favorites/queries";
 import { filterProducts } from "@/lib/products/filter";
 import { getProducts } from "@/lib/queries/products";
 import { ProductCard } from "./cards/product-card";
@@ -15,14 +16,20 @@ type Props = {
 
 export async function ProductsGrid({ searchParams }: Props) {
   const eshopParams = await loadEshopParams(searchParams);
-  const allProducts = await getProducts();
+  const [allProducts, favoriteIds] = await Promise.all([
+    getProducts(),
+    getFavoriteIds(),
+  ]);
   const { products, total } = filterProducts(allProducts, eshopParams);
+  const favoriteSet = new Set(favoriteIds);
+
   return (
     <GridView>
       {total > 0 ? (
         <ShowMore className="col-span-full" initial={12}>
           {products.map((product, index) => (
             <ProductCard
+              isFavorite={favoriteSet.has(product.id)}
               key={product.id}
               preload={index < PRELOAD_LIMIT}
               product={product}
@@ -30,7 +37,7 @@ export async function ProductsGrid({ searchParams }: Props) {
           ))}
         </ShowMore>
       ) : (
-        <Empty className="col-span-full mt-12 text-center">
+        <Empty className="col-span-full mt-12 text-center md:mt-20">
           <EmptyTitle>Žiadne výsledky.</EmptyTitle>
           <EmptyDescription>
             Upravte vyhľadávanie alebo kategóriu.

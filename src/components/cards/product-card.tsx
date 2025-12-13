@@ -1,21 +1,26 @@
 "use client";
 
-import { HeartIcon } from "lucide-react";
 import Link from "next/link";
 import type { Product } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
+import { FavoriteButton } from "../favorites/favorite-button";
 import { ImageSlider } from "../image-slider";
 import { AddToCartButton } from "../shared/add-to-cart-button";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
 
 type Props = {
   product: Product;
   className?: string;
   preload?: boolean;
+  isFavorite?: boolean;
 };
 
-export function ProductCard({ product, className, preload = false }: Props) {
+export function ProductCard({
+  product,
+  className,
+  preload = false,
+  isFavorite,
+}: Props) {
   const isActive = product.status === "active";
 
   return (
@@ -28,10 +33,14 @@ export function ProductCard({ product, className, preload = false }: Props) {
     >
       <Link href={`/product/${product.slug}`} prefetch>
         <div className="relative">
-          <div className="absolute top-2 right-2 z-20">
-            <Button size="icon-sm" type="button" variant="ghost">
-              <HeartIcon className="size-5" />
-            </Button>
+          <div className="absolute top-1 right-1 z-20 md:top-2 md:right-2">
+            <FavoriteButton
+              className="hover:bg-accent/50 [&_svg:not([class*='size-'])]:size-5"
+              initialIsFavorite={isFavorite}
+              productId={product.id}
+              size="icon"
+              variant="ghost"
+            />
           </div>
           <ImageSlider
             disabled={!isActive}

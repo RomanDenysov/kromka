@@ -1,3 +1,4 @@
+import { MenuIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -12,10 +13,11 @@ import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { Container } from "@/components/shared/container";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { UserButton } from "@/components/user-button";
 import { getStores } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
+import { FavoritesLink } from "./favorites-link";
 
 const navigation: { name: string; href: Route }[] = [
   { name: "E-shop", href: "/e-shop" },
@@ -32,9 +34,22 @@ export function Header() {
       <Container>
         <div className="flex h-12 w-full items-center justify-center gap-4 md:grid md:h-14 md:grid-cols-[1fr_auto_1fr] md:gap-5">
           {/* Navigation */}
-          <MobileNavigation navigation={navigation}>
-            <StoreSelectModal storesPromise={stores} />
-          </MobileNavigation>
+          <Suspense
+            fallback={
+              <Button
+                className="md:hidden"
+                size="icon-sm"
+                type="button"
+                variant="ghost"
+              >
+                <MenuIcon className="size-5" />
+              </Button>
+            }
+          >
+            <MobileNavigation navigation={navigation}>
+              <StoreSelectModal storesPromise={stores} />
+            </MobileNavigation>
+          </Suspense>
           <nav className="hidden grow items-center justify-start gap-2 md:flex">
             {navigation.map((item) => (
               <Link
@@ -55,7 +70,7 @@ export function Header() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-end gap-2 xl:gap-3">
             <div className="hidden md:block">
               <Suspense>
                 <StoreSelectModal storesPromise={stores} />
@@ -63,6 +78,9 @@ export function Header() {
             </div>
             <Suspense>
               <UserButton />
+            </Suspense>
+            <Suspense>
+              <FavoritesLink />
             </Suspense>
             <Suspense>
               <CartDrawer
