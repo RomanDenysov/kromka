@@ -1,6 +1,7 @@
 import "server-only";
 
-import { and, count, desc, eq, gte, sql } from "drizzle-orm";
+import { format } from "date-fns";
+import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   carts,
@@ -10,8 +11,99 @@ import {
   products,
   stores,
 } from "@/db/schema";
+import type { OrderStatus, PaymentStatus } from "@/db/types";
 
 const TOP_PRODUCTS_LIMIT = 5;
+
+export function getOrdersByPickupDate(
+  date: string,
+  filters?: {
+    orderStatus?: OrderStatus;
+    paymentStatus?: PaymentStatus;
+    storeId?: string;
+  }
+) {
+  const where = and(
+    eq(orders.pickupDate, date),
+    ...(filters?.orderStatus
+      ? [eq(orders.orderStatus, filters.orderStatus)]
+      : []),
+    ...(filters?.paymentStatus
+      ? [eq(orders.paymentStatus, filters.paymentStatus)]
+      : []),
+    ...(filters?.storeId ? [eq(orders.storeId, filters.storeId)] : [])
+  );
+  return db.query.orders.findMany({
+    where,
+    orderBy: desc(orders.createdAt),
+    with: {
+      createdBy: {
+        columns: {
+          name: true,
+          email: true,
+        },
+      },
+      store: {
+        columns: {
+          name: true,
+        },
+      },
+      items: {
+        with: {
+          product: true,
+        },
+      },
+    },
+  });
+}
+
+export function getProductsAggregateByPickupDate(
+  date: string,
+  storeId?: string
+) {
+  const baseConditions = [eq(orders.pickupDate, date)];
+  if (storeId) {
+    baseConditions.push(eq(orders.storeId, storeId));
+  }
+  return db
+    .select({
+      productId: products.id,
+      productName: products.name,
+      totalQuantity: sql<number>`sum(${orderItems.quantity})`.mapWith(Number),
+      totalRevenue:
+        sql<number>`sum(${orderItems.quantity} * ${orderItems.price})`.mapWith(
+          Number
+        ),
+      orderCount: sql<number>`count(distinct ${orders.id})`.mapWith(Number),
+    })
+    .from(orderItems)
+    .innerJoin(orders, eq(orderItems.orderId, orders.id))
+    .innerJoin(products, eq(orderItems.productId, products.id))
+    .where(and(...baseConditions))
+    .groupBy(products.id, products.name)
+    .orderBy(desc(sql`sum(${orderItems.quantity})`));
+}
+
+export function getMonthlyOrderStats(year: number, month: number) {
+  const startDate = format(new Date(year, month, 1), "yyyy-MM-dd");
+  const endDate = format(new Date(year, month + 1, 0), "yyyy-MM-dd");
+
+  return db
+    .select({
+      date: orders.pickupDate,
+      orderCount: count(),
+      totalRevenue: sql<number>`sum(${orders.totalCents})`.mapWith(Number),
+    })
+    .from(orders)
+    .where(
+      and(gte(orders.pickupDate, startDate), lte(orders.pickupDate, endDate))
+    )
+    .groupBy(orders.pickupDate);
+}
+
+export type MonthlyOrderStats = Awaited<
+  ReturnType<typeof getMonthlyOrderStats>
+>;
 
 export type DashboardMetrics = {
   newOrdersCount: number;
