@@ -136,7 +136,7 @@ export function MobileNavigation({ navigation, children }: Props) {
           ) : (
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 pb-2">
-                <Icons.kromka className="h-5" />
+                <Icons.logo className="h-5" />
                 <span className="font-bold text-lg">Kromka</span>
               </div>
               <Link
