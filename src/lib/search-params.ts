@@ -1,6 +1,7 @@
 import {
   createSearchParamsCache,
   parseAsBoolean,
+  parseAsString,
   parseAsStringEnum,
 } from "nuqs/server";
 
@@ -13,6 +14,7 @@ export const loginModalParams = {
     "checkout",
     "default",
   ]).withDefault("default"),
+  origin: parseAsString.withDefault(""),
 };
 
 export const loginModalCache = createSearchParamsCache(loginModalParams);

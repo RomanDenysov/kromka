@@ -14,7 +14,7 @@ import type { LoginReason } from "@/lib/search-params";
 
 const MESSAGES: Record<LoginReason, string> = {
   favorites: "Pre uloženie obľúbených produktov sa prihláste.",
-  checkout: "Pre dokončenie objednávky sa prihláste.",
+  checkout: "Prihláste sa pre uloženie objednávky do účtu (voliteľné).",
   default: "Prihláste sa do svojho účtu.",
 };
 

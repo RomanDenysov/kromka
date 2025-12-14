@@ -1,12 +1,12 @@
 /** biome-ignore-all lint/style/noMagicNumbers: Date calculation constants */
-/** biome-ignore-all lint/suspicious/noConsole: <explanation> */
+/** biome-ignore-all lint/suspicious/noConsole: allow debugging logs in checkout */
 "use client";
 
 import { useStore } from "@tanstack/react-form";
 import { format } from "date-fns";
 import { AlertCircleIcon, CreditCardIcon, StoreIcon } from "lucide-react";
 import type { Route } from "next";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useTransition } from "react";
 import { toast } from "sonner";
 import z from "zod";
@@ -38,6 +38,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { PAYMENT_METHODS, type PaymentMethod } from "@/db/types";
+import { useLoginModalParams } from "@/hooks/use-login-modal-params";
 import {
   createOrderFromCart,
   type GuestCustomerInfo,
@@ -101,6 +102,8 @@ export function CheckoutForm({
     (state) => state.actions.setCustomerStore
   );
   const router = useRouter();
+  const pathname = usePathname();
+  const { open: openLogin } = useLoginModalParams();
 
   const [isPending, startTransition] = useTransition();
 
@@ -262,6 +265,26 @@ export function CheckoutForm({
                     {(field) => <field.TextField label="Telefón" />}
                   </form.AppField>
                 </FieldGroup>
+                {!user && (
+                  <div className="mt-4 flex items-start justify-between gap-3 rounded-md border bg-muted/30 px-3 py-2">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm">Máte účet?</p>
+                      <p className="text-muted-foreground text-xs">
+                        Prihláste sa alebo si vytvorte účet pre uloženie
+                        objednávky do vášho profilu (voliteľné).
+                      </p>
+                    </div>
+                    <Button
+                      className="shrink-0"
+                      onClick={() => openLogin("checkout", pathname)}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      Prihlásiť sa
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 

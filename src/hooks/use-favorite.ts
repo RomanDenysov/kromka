@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth/client";
@@ -8,6 +9,7 @@ import { useLoginModalParams } from "./use-login-modal-params";
 
 export function useFavorite(productId: string, initialValue?: boolean) {
   const { open: openLogin } = useLoginModalParams();
+  const pathname = usePathname();
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
   const [favorite, setFavorite] = useState<boolean | null>(null);
@@ -46,7 +48,7 @@ export function useFavorite(productId: string, initialValue?: boolean) {
 
   const toggle = () => {
     if (!session) {
-      openLogin("favorites");
+      openLogin("favorites", pathname);
       return;
     }
 
@@ -62,7 +64,7 @@ export function useFavorite(productId: string, initialValue?: boolean) {
         setFavorite(previousFavorite);
 
         if (result.error === "UNAUTHORIZED") {
-          openLogin("favorites");
+          openLogin("favorites", pathname);
         } else {
           toast.error("Nastala chyba pri aktualizácii obľúbených");
         }
