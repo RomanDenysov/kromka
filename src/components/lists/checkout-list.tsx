@@ -2,7 +2,10 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import { AlertTriangleIcon } from "lucide-react";
 import Link from "next/link";
+import { ProductCard } from "@/components/cards/product-card";
+import { GridView } from "@/components/views/grid-view";
 import { type DetailedCartItem, getDetailedCart } from "@/lib/cart/queries";
+import { getProductsByCategory } from "@/lib/queries/products";
 import { formatPrice } from "@/lib/utils";
 import { RemoveItemButton } from "../checkout/remove-item-button";
 import { Hint } from "../shared/hint";
@@ -11,14 +14,47 @@ import { QuantitySetter } from "../shared/quantity-setter";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
 
+const CHECKOUT_UPSELL_CATEGORY = "trvanlive-potraviny";
+const CHECKOUT_UPSELL_LIMIT = 4;
+
 export async function CheckoutList() {
   const items = await getDetailedCart();
+  const cartProductIds = new Set(items.map((item) => item.productId));
+
+  // Fetch upsell recommendations
+  const categoryProducts = await getProductsByCategory(
+    CHECKOUT_UPSELL_CATEGORY
+  );
+  const upsellProducts =
+    categoryProducts
+      ?.filter((p) => p.status === "active" && !cartProductIds.has(p.id))
+      .slice(0, CHECKOUT_UPSELL_LIMIT) ?? [];
 
   return (
-    <div className="flex flex-col gap-2">
-      {items.map((item) => (
-        <CheckoutListItem item={item} key={item.productId} />
-      ))}
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        {items.map((item) => (
+          <CheckoutListItem item={item} key={item.productId} />
+        ))}
+      </div>
+      {upsellProducts.length > 0 && (
+        <section
+          aria-labelledby="checkout-upsell"
+          className="flex flex-col gap-4"
+        >
+          <h3
+            className="font-semibold text-xl tracking-tight"
+            id="checkout-upsell"
+          >
+            Mohlo by vás tiež zaujať
+          </h3>
+          <GridView>
+            {upsellProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </GridView>
+        </section>
+      )}
     </div>
   );
 }

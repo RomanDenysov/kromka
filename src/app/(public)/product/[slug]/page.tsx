@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { ProductCard } from "@/components/cards/product-card";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { ImageSlider } from "@/components/image-slider";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
@@ -21,8 +22,9 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GridView } from "@/components/views/grid-view";
 import { createMetadata } from "@/lib/metadata";
-import { getProducts } from "@/lib/queries/products";
+import { getProducts, type Product } from "@/lib/queries/products";
 import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
 import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
@@ -66,6 +68,51 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
+/**
+ * Compute product recommendations using blend strategy:
+ * - Up to 6 products from same category (excluding current product)
+ * - Fill remainder up to 8 total with popular products
+ * - If no category, use popular-only
+ */
+function getProductRecommendations(
+  currentProduct: Product,
+  allProducts: Product[]
+): Product[] {
+  const MAX_SAME_CATEGORY = 6;
+  const MAX_TOTAL = 8;
+
+  // Filter active products, excluding current product
+  const availableProducts = allProducts.filter(
+    (p) => p.id !== currentProduct.id && p.status === "active"
+  );
+
+  const recommendations: Product[] = [];
+  const usedIds = new Set<string>();
+
+  // Step 1: Add products from same category (up to MAX_SAME_CATEGORY)
+  if (currentProduct.category?.slug) {
+    const sameCategory = availableProducts.filter(
+      (p) => p.category?.slug === currentProduct.category?.slug
+    );
+    const categoryPicks = sameCategory.slice(0, MAX_SAME_CATEGORY);
+    recommendations.push(...categoryPicks);
+    for (const p of categoryPicks) {
+      usedIds.add(p.id);
+    }
+  }
+
+  // Step 2: Fill remainder with popular products (already ordered by sortOrder, createdAt)
+  const remaining = MAX_TOTAL - recommendations.length;
+  if (remaining > 0) {
+    const popularPicks = availableProducts
+      .filter((p) => !usedIds.has(p.id))
+      .slice(0, remaining);
+    recommendations.push(...popularPicks);
+  }
+
+  return recommendations;
+}
+
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const urlDecoded = decodeURIComponent(slug);
@@ -87,6 +134,8 @@ export default async function ProductPage({ params }: Props) {
     },
     [StarterKit]
   );
+
+  const recommendations = getProductRecommendations(result, products);
 
   return (
     <PageWrapper>
@@ -134,9 +183,9 @@ export default async function ProductPage({ params }: Props) {
           </div>
 
           {/* Product Price and Features */}
-          <h2 className="font-semibold text-2xl tracking-tight md:text-4xl">
+          <p className="font-semibold text-2xl tracking-tight md:text-4xl">
             {formatPrice(result.priceCents)}
-          </h2>
+          </p>
           <div className="flex flex-col items-start justify-start gap-2 md:flex-row md:items-center">
             {isInStock ? (
               <Badge className="w-fit" variant="success">
@@ -175,6 +224,24 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </div>
       </section>
+      {recommendations.length > 0 && (
+        <section
+          aria-labelledby="product-recommendations"
+          className="mt-12 flex flex-col gap-4"
+        >
+          <h2
+            className="font-semibold text-2xl tracking-tight"
+            id="product-recommendations"
+          >
+            Mohlo by vás tiež zaujať
+          </h2>
+          <GridView>
+            {recommendations.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </GridView>
+        </section>
+      )}
     </PageWrapper>
   );
 }
