@@ -14,6 +14,7 @@ import { MobileNavigation } from "@/components/mobile-nav";
 import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UserButton } from "@/components/user-button";
 import { getStores } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
@@ -76,7 +77,7 @@ export function Header() {
                 <StoreSelectModal storesPromise={stores} />
               </Suspense>
             </div>
-            <Suspense>
+            <Suspense fallback={<Skeleton className="size-8 rounded-md" />}>
               <UserButton />
             </Suspense>
             <Suspense>

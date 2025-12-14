@@ -171,6 +171,10 @@
   .leaflet-edit-marker-selected {
     @apply !border-transparent !bg-transparent;
   }
+  nextjs-portal {
+    left: unset;
+    top: unset;
+  }
 }
 
 /* Tiptap Editor Styles */

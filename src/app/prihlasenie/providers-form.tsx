@@ -38,7 +38,6 @@ export function ProvidersForm() {
           disabled={isPending}
           key={provider.id}
           onClick={() => handleProviderLogin(provider.id)}
-          size="xs"
           type="button"
           variant="outline"
         >

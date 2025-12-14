@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -29,8 +30,13 @@ export function UserButton() {
   const router = useRouter();
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
+  const [mounted, setMounted] = useState(false);
 
-  if (isPending) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || isPending) {
     return <Skeleton className="size-8 rounded-md" />;
   }
 

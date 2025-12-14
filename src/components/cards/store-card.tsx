@@ -61,7 +61,7 @@ export function StoreCard({
     <div
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-md bg-neutral-900",
-        variant === "featured" ? "min-h-[320px]" : "min-h-[240px]",
+        variant === "featured" ? "min-h-[420px]" : "min-h-[320px]",
         isSelected && "ring-2 ring-white ring-offset-2 ring-offset-background",
         className
       )}

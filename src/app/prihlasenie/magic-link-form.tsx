@@ -69,7 +69,6 @@ export function MagicLinkForm() {
             className="mt-4 w-full"
             disabled={isSubmitting || !canSubmit || isSuccess}
             form="magic-link-form"
-            size="sm"
             type="submit"
           >
             {isSubmitting ? (

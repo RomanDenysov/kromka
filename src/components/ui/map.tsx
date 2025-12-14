@@ -196,9 +196,19 @@ function MapTileLayer({
     ref?: Ref<TileLayer>
 }) {
     const map = useMap()
-    if (map.attributionControl) {
-        map.attributionControl.setPrefix("")
-    }
+    const [isReady, setIsReady] = useState(false)
+
+    useEffect(() => {
+        if (map) {
+            const container = map.getContainer()
+            if (container && container.parentElement) {
+                setIsReady(true)
+                if (map.attributionControl) {
+                    map.attributionControl.setPrefix("")
+                }
+            }
+        }
+    }, [map])
 
     const context = useContext(MapLayersContext)
     const DEFAULT_URL =
@@ -228,6 +238,10 @@ function MapTileLayer({
     }, [context, name, url, attribution])
 
     if (context && context.selectedTileLayer !== name) {
+        return null
+    }
+
+    if (!isReady) {
         return null
     }
 
