@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useTransition } from "react";
 import { toast } from "sonner";
 import z from "zod";
+import { CheckoutTotalPrice } from "@/components/checkout/checkout-total-price";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
 import {
@@ -53,7 +54,6 @@ import {
   getTimeRangeForDate,
 } from "@/lib/checkout-utils";
 import type { Store } from "@/lib/queries/stores";
-import { formatPrice } from "@/lib/utils";
 import { useCustomerStore } from "@/store/customer-store";
 
 function buildGuestCustomerInfo(
@@ -91,11 +91,6 @@ export function CheckoutForm({
   stores: Store[];
   items: DetailedCartItem[];
 }) {
-  const totalCents = items.reduce(
-    (acc, item) => acc + item.priceCents * item.quantity,
-    0
-  );
-
   const customer = useCustomerStore((state) => state.customer);
   const customerStore = useCustomerStore((state) => state.customerStore);
   const setCustomerStore = useCustomerStore(
@@ -500,12 +495,7 @@ export function CheckoutForm({
               </CardContent>
             </Card>
 
-            <div className="flex flex-row items-center justify-between">
-              <span className="font-medium text-lg">Spolu</span>
-              <span className="font-semibold text-lg">
-                {formatPrice(totalCents)}
-              </span>
-            </div>
+            <CheckoutTotalPrice items={items} />
 
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}
