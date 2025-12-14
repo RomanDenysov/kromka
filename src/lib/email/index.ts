@@ -288,17 +288,32 @@ export const sendEmail = {
     email,
     rootCause,
     message,
+    sourcePath,
+    sourceUrl,
+    sourceRef,
+    userAgent,
+    posthogId,
   }: {
     name: string;
     email: string;
     rootCause: string;
     message: string;
+    sourcePath?: string;
+    sourceUrl?: string;
+    sourceRef?: string;
+    userAgent?: string;
+    posthogId?: string;
   }) => {
     const html = await renderSupportRequestEmail({
       name,
       email,
       rootCause,
       message,
+      sourcePath,
+      sourceUrl,
+      sourceRef,
+      userAgent,
+      posthogId,
     });
 
     return emailService({

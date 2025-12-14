@@ -1,6 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useSearchParams } from "next/navigation";
+import posthog from "posthog-js";
+import { useEffect, useTransition } from "react";
 import { toast } from "sonner";
 import { useAppForm } from "@/components/shared/form";
 import {
@@ -16,6 +18,18 @@ import { supportRequestSchema } from "@/validation/contact";
 
 export function SupportForm() {
   const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+
+  const ref = searchParams.get("ref");
+  const path = searchParams.get("path");
+
+  // Build source URL if we have pathname
+  let sourceUrl: string | undefined;
+  if (typeof window !== "undefined") {
+    sourceUrl = path
+      ? `${window.location.origin}${path}`
+      : window.location.href;
+  }
 
   const form = useAppForm({
     validators: {
@@ -26,6 +40,15 @@ export function SupportForm() {
       email: "",
       rootCause: "",
       message: "",
+      ...(path && { sourcePath: path }),
+      ...(sourceUrl && { sourceUrl }),
+      ...(ref && { sourceRef: ref }),
+      ...(typeof window !== "undefined" && {
+        userAgent: window.navigator.userAgent,
+      }),
+      ...(typeof window !== "undefined" && {
+        posthogId: posthog.get_distinct_id() ?? undefined,
+      }),
     },
     onSubmit: ({ value }) => {
       startTransition(async () => {
@@ -40,6 +63,26 @@ export function SupportForm() {
       });
     },
   });
+
+  // Update form when search params change
+  useEffect(() => {
+    if (path) {
+      form.setFieldValue("sourcePath", path);
+    }
+    if (sourceUrl) {
+      form.setFieldValue("sourceUrl", sourceUrl);
+    }
+    if (ref) {
+      form.setFieldValue("sourceRef", ref);
+    }
+    // Update PostHog ID in case it changes
+    if (typeof window !== "undefined") {
+      const posthogId = posthog.get_distinct_id();
+      if (posthogId) {
+        form.setFieldValue("posthogId", posthogId);
+      }
+    }
+  }, [ref, path, sourceUrl, form.setFieldValue]);
 
   return (
     <Card>
@@ -75,8 +118,8 @@ export function SupportForm() {
                 <form.AppField name="rootCause">
                   {(field) => (
                     <field.TextField
-                      label="Príčina problému"
-                      placeholder="Napríklad: Problém s objednávkou, otázka k produktu..."
+                      label="Dôvod správy"
+                      placeholder="Napríklad: Problém s objednávkou, otázka k produktu, nahlásenie chyby..."
                     />
                   )}
                 </form.AppField>

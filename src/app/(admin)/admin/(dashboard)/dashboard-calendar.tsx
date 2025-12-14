@@ -1,10 +1,11 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
 "use client";
 
 import { format } from "date-fns";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { useDashboardParams } from "@/hooks/use-dashboard-params";
 import { cn } from "@/lib/utils";
+
+const DEFAULT_NUMBER_OF_MONTHS = 1;
 
 type DailyStats = {
   [date: string]: { orderCount: number; revenue: number };
@@ -51,7 +52,7 @@ export function DashboardCalendar({ dailyStats }: Props) {
         formatMonthDropdown: (d) => d.toLocaleString("sk", { month: "long" }),
       }}
       mode="single"
-      numberOfMonths={1}
+      numberOfMonths={DEFAULT_NUMBER_OF_MONTHS}
       onSelect={(d) => setSearchParams({ date: d })}
       selected={date}
       timeZone="Europe/Bratislava"

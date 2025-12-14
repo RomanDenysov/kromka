@@ -1,5 +1,5 @@
-/** biome-ignore-all lint/nursery/noIncrementDecrement: <explanation> */
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+/** biome-ignore-all lint/nursery/noIncrementDecrement: Ignore it for now */
+/** biome-ignore-all lint/style/noMagicNumbers: Ignore it for now */
 import type { Route } from "next";
 import {
   GridCard,

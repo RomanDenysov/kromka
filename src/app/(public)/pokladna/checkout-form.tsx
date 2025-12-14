@@ -4,8 +4,14 @@
 
 import { useStore } from "@tanstack/react-form";
 import { format } from "date-fns";
-import { AlertCircleIcon, CreditCardIcon, StoreIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  ArrowLeftIcon,
+  CreditCardIcon,
+  StoreIcon,
+} from "lucide-react";
 import type { Route } from "next";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useTransition } from "react";
 import { toast } from "sonner";
@@ -19,7 +25,7 @@ import {
 } from "@/components/order-store-picker";
 import { useAppForm } from "@/components/shared/form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -54,6 +60,7 @@ import {
   getTimeRangeForDate,
 } from "@/lib/checkout-utils";
 import type { Store } from "@/lib/queries/stores";
+import { cn } from "@/lib/utils";
 import { useCustomerStore } from "@/store/customer-store";
 
 function buildGuestCustomerInfo(
@@ -529,6 +536,19 @@ export function CheckoutForm({
                 </AlertDescription>
               </Alert>
             )}
+            <Link
+              className={cn(
+                buttonVariants({
+                  variant: "link",
+                  size: "sm",
+                }),
+                "w-full text-center"
+              )}
+              href="/e-shop"
+            >
+              <ArrowLeftIcon className="size-4" />
+              Pokračovať v nákupe
+            </Link>
           </div>
         </form>
       </form.AppForm>

@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { MapPinIcon, PackageIcon } from "lucide-react";
@@ -16,6 +15,8 @@ import { getAuth } from "@/lib/auth/session";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
 import { getUserOrders } from "@/lib/queries/profile";
 import { formatPrice } from "@/lib/utils";
+
+const RECENT_ORDER_ITEMS_COUNT = 3;
 
 async function ObjednavkyPageContent() {
   const { user } = await getAuth();
@@ -99,25 +100,28 @@ async function ObjednavkyPageContent() {
 
                   {/* Order items */}
                   <div className="flex flex-col gap-2">
-                    {order.items.slice(0, 3).map((item) => (
-                      <div
-                        className="flex items-center justify-between text-sm"
-                        key={item.productId}
-                      >
-                        <span>
-                          {item.quantity}×{" "}
-                          {item.productSnapshot?.name ??
-                            item.product?.name ??
-                            "Produkt"}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {formatPrice(item.price * item.quantity)}
-                        </span>
-                      </div>
-                    ))}
-                    {order.items.length > 3 && (
+                    {order.items
+                      .slice(0, RECENT_ORDER_ITEMS_COUNT)
+                      .map((item) => (
+                        <div
+                          className="flex items-center justify-between text-sm"
+                          key={item.productId}
+                        >
+                          <span>
+                            {item.quantity}×{" "}
+                            {item.productSnapshot?.name ??
+                              item.product?.name ??
+                              "Produkt"}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {formatPrice(item.price * item.quantity)}
+                          </span>
+                        </div>
+                      ))}
+                    {order.items.length > RECENT_ORDER_ITEMS_COUNT && (
                       <span className="text-muted-foreground text-sm">
-                        +{order.items.length - 3} ďalších položiek
+                        +{order.items.length - RECENT_ORDER_ITEMS_COUNT} ďalších
+                        položiek
                       </span>
                     )}
                   </div>

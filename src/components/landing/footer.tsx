@@ -24,6 +24,7 @@ const footerLinks: Record<"company" | "legal", FooterLinkItem[]> = {
     { name: "Kontakt", href: "/kontakt" },
     { name: "Predajne", href: "/predajne" },
     { name: "Blog", href: "/blog" },
+    { name: "Nahlásiť problém", href: "/kontakt/podpora?ref=footer" as Route },
   ],
   legal: Object.values(POLICY_LINKS).map((link) => ({
     name: link.label,

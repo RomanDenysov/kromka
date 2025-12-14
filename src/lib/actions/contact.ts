@@ -12,6 +12,11 @@ export async function submitSupportRequest(data: {
   email: string;
   rootCause: string;
   message: string;
+  sourcePath?: string;
+  sourceUrl?: string;
+  sourceRef?: string;
+  userAgent?: string;
+  posthogId?: string;
 }): Promise<SubmitSupportRequestResult> {
   try {
     // Validate input with zod
@@ -31,6 +36,11 @@ export async function submitSupportRequest(data: {
         email: validatedData.email,
         rootCause: validatedData.rootCause,
         message: validatedData.message,
+        sourcePath: validatedData.sourcePath,
+        sourceUrl: validatedData.sourceUrl,
+        sourceRef: validatedData.sourceRef,
+        userAgent: validatedData.userAgent,
+        posthogId: validatedData.posthogId,
       });
     } catch {
       return {

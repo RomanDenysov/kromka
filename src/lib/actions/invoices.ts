@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
 "use server";
 
 import { and, eq, sql } from "drizzle-orm";
@@ -7,6 +6,8 @@ import { invoices, orders, organizations } from "@/db/schema";
 import { getAuth } from "../auth/session";
 
 const INVOICE_NUMBER_PADDING = 4;
+
+const DEFAULT_PAYMENT_TERM_DAYS = 14;
 
 /**
  * Generate invoice number
@@ -83,7 +84,7 @@ export async function generateInvoiceForCompany(
     columns: { paymentTermDays: true },
   });
 
-  const paymentTermDays = org?.paymentTermDays ?? 14;
+  const paymentTermDays = org?.paymentTermDays ?? DEFAULT_PAYMENT_TERM_DAYS;
   const dueDate = new Date(periodEnd);
   dueDate.setDate(dueDate.getDate() + paymentTermDays);
 
