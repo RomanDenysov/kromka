@@ -235,11 +235,31 @@ export default async function ProductPage({ params }: Props) {
           >
             Mohlo by vás tiež zaujať
           </h2>
-          <GridView>
-            {recommendations.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </GridView>
+          <Suspense
+            fallback={
+              <GridView>
+                {recommendations.map((product) => (
+                  <div
+                    className="flex flex-col gap-3 overflow-hidden rounded-md p-0.5"
+                    key={product.id}
+                  >
+                    <Skeleton className="aspect-square w-full rounded-sm" />
+                    <div className="flex flex-col gap-2 px-1 pb-1">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-6 w-full" />
+                      <Skeleton className="h-6 w-24" />
+                    </div>
+                  </div>
+                ))}
+              </GridView>
+            }
+          >
+            <GridView>
+              {recommendations.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </GridView>
+          </Suspense>
         </section>
       )}
     </PageWrapper>
