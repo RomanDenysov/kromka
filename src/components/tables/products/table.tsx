@@ -23,6 +23,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { Fragment, useCallback, useMemo, useState, useTransition } from "react";
+import { SearchInput } from "@/components/shared/search-input";
 import { TableEmptyState } from "@/components/table-empty-state";
 import {
   AlertDialog,
@@ -71,6 +72,7 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
     pageIndex: 0,
     pageSize: 16,
   });
+  const [globalFilter, setGlobalFilter] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const { setParams } = useProductParams();
@@ -82,19 +84,22 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
+    onGlobalFilterChange: setGlobalFilter,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       columnFilters,
       sorting,
       rowSelection,
       pagination,
+      globalFilter,
     },
     data: processedProducts,
     getRowId: ({ id }) => id,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    enableGlobalFilter: true,
     enableRowSelection: true,
     enableMultiSort: true,
     meta: {
@@ -120,6 +125,17 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
   return (
     <div className="size-full overflow-hidden">
       <div className="flex items-center justify-between p-3">
+        <div className="max-w-sm">
+          <SearchInput
+            className="h-8 max-w-xs"
+            isLoading={isPending}
+            onChange={(e) => {
+              setGlobalFilter(e.target.value);
+            }}
+            placeholder="Hľadať produkty, kategórie, status..."
+            value={globalFilter}
+          />
+        </div>
         <div className="flex items-center justify-end gap-2">
           {Object.keys(rowSelection).length > 1 && (
             <AlertDialog>

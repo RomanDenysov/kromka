@@ -9,10 +9,15 @@ import {
   getProductsAggregateByPickupDate,
   getRecentOrders,
 } from "@/lib/queries/dashboard";
-import { DashboardMetrics } from "../_components/dashboard-metrics";
+import { AttentionRequiredCard } from "../_components/attention-required-card";
+import { DashboardTopMetrics } from "../_components/dashboard-top-metrics";
+import { GrowthComparisonCard } from "../_components/growth-comparison-card";
 import { RevenueChartSection } from "../_components/revenue-chart-section";
+import { RevenueProgressCard } from "../_components/revenue-progress-card";
 import { SecondaryMenuSection } from "../_components/secondary-menu-section";
-import { TopProductsSection } from "../_components/top-products-section";
+import { StoreLoadCard } from "../_components/store-load-card";
+import { TopProductsSectionWrapper } from "../_components/top-products-section-wrapper";
+import { UnusedProductsAlert } from "../_components/unused-products-alert";
 import { DashboardCalendar } from "./dashboard-calendar";
 import { DashboardRecentTabs } from "./dashboard-recent-tabs";
 import {
@@ -51,8 +56,32 @@ export async function DashboardContent({
   );
   return (
     <div className="grid grid-cols-1 gap-4 p-4">
+      {/* TOP CARDS */}
+      <Suspense
+        fallback={
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+          </div>
+        }
+      >
+        <DashboardTopMetrics />
+      </Suspense>
+
+      {/* MIDDLE ROW: Attention Required + Store Load */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Suspense fallback={<Skeleton className="h-32" />}>
+          <AttentionRequiredCard />
+        </Suspense>
+        <Suspense fallback={<Skeleton className="h-32" />}>
+          <StoreLoadCard />
+        </Suspense>
+      </div>
+
+      {/* EXISTING CONTENT: Calendar + Date Orders/Products */}
       <div className="flex flex-1 flex-col space-y-4">
-        <DashboardMetrics />
         <div className="flex gap-8">
           <div className="shrink-0">
             <DashboardCalendar dailyStats={dailyStats} />
@@ -62,15 +91,32 @@ export async function DashboardContent({
           </div>
         </div>
       </div>
+
+      {/* Revenue Chart + Top Products */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Suspense fallback={<Skeleton className="col-span-4 size-full" />}>
           <RevenueChartSection />
         </Suspense>
         <Suspense fallback={<Skeleton className="col-span-3 size-full" />}>
-          <TopProductsSection />
+          <TopProductsSectionWrapper />
         </Suspense>
       </div>
+
+      {/* NEW ANALYTICS ROW */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Suspense fallback={<Skeleton className="h-48" />}>
+          <RevenueProgressCard />
+        </Suspense>
+        <Suspense fallback={<Skeleton className="h-48" />}>
+          <GrowthComparisonCard />
+        </Suspense>
+      </div>
+
+      {/* BOTTOM: Unused Products Alert + Recent Orders */}
       <div className="grid grid-cols-1 gap-4">
+        <Suspense fallback={<Skeleton className="h-32" />}>
+          <UnusedProductsAlert />
+        </Suspense>
         <Suspense
           fallback={
             <div className="flex items-center gap-2">
@@ -91,7 +137,9 @@ export async function DashboardContent({
 
 export default function AdminDashboardPage({
   searchParams,
-}: PageProps<"/admin">) {
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const dashboardParams = loadDashboardSearchParams(searchParams);
   return (
     <>

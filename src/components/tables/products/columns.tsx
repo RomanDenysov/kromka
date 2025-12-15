@@ -78,6 +78,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
     ),
     accessorKey: "name",
     enableSorting: true,
+    enableGlobalFilter: true,
     cell: ({ row }) => {
       const product = row.original;
       return (
@@ -101,6 +102,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
     ),
     accessorKey: "status",
     enableSorting: true,
+    enableGlobalFilter: true,
     cell: ({ row }) => (
       <Badge className="capitalize" size="xs">
         <CircleIcon className="size-3" />
@@ -168,6 +170,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
     ),
     accessorKey: "categories",
     enableSorting: true,
+    enableGlobalFilter: true,
     cell: ({ row }) => {
       const category = row.original.category;
       return category ? (
