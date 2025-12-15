@@ -47,9 +47,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         title="Názov"
       />
     ),
-    enableGlobalFilter: true,
     accessorKey: "name",
-    filterFn: "fuzzy",
     enableSorting: true,
     cell: ({ row }) => (
       <Link

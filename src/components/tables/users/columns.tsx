@@ -76,11 +76,8 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
         title="Email"
       />
     ),
-    enableGlobalFilter: true,
-    enableColumnFilter: true,
     accessorKey: "email",
     enableSorting: true,
-    filterFn: "fuzzy",
     cell: ({ row }) => (
       <span
         className={cn(

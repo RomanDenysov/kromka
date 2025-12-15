@@ -13,7 +13,6 @@ import { FormSubmitButton } from "../shared/form-submit-button";
 import { buttonVariants } from "../ui/button";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -67,19 +66,17 @@ export function ProductEditDrawer() {
           </DrawerHeader>
           <div className="flex-1" />
           <DrawerFooter className="flex-row border-t">
-            <DrawerClose asChild>
-              <Link
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "ml-auto"
-                )}
-                href={`/admin/products/${productId}`}
-                prefetch
-              >
-                <SquareArrowOutUpLeftIcon />
-                Otvoriť
-              </Link>
-            </DrawerClose>
+            <Link
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "ml-auto"
+              )}
+              href={`/admin/products/${productId}`}
+              prefetch
+            >
+              <SquareArrowOutUpLeftIcon />
+              Otvoriť
+            </Link>
             <FormSubmitButton formId="product-edit-form" />
           </DrawerFooter>
         </DrawerContent>

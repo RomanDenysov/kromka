@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductForm } from "@/app/(admin)/admin/products/[id]/product-form";
+// import { ProductForm as ProductForm2 } from "@/app/(admin)/admin/products/[id]/product-form/index";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { getAdminCategories } from "@/lib/queries/categories";
@@ -40,6 +41,7 @@ export default function B2CProductPage({ params }: Props) {
           <ProductLoader params={params} />
         </Suspense>
       </section>
+      {/* <ProductForm2 /> */}
     </>
   );
 }
