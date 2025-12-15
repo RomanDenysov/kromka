@@ -4,7 +4,9 @@ import {
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
+  type PaginationState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
@@ -25,58 +27,56 @@ const PAGE_SIZE = 10;
 
 export function RecentOrdersTable({ orders }: { orders: RecentOrdersData }) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [pageIndex, setPageIndex] = useState(0);
-
-  const paginatedData = orders.slice(
-    pageIndex * PAGE_SIZE,
-    (pageIndex + 1) * PAGE_SIZE
-  );
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: PAGE_SIZE,
+  });
 
   const table = useReactTable<RecentOrder>({
-    data: paginatedData,
+    data: orders,
     columns,
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getRowCanExpand: (row) => row.original.items.length > 0,
     state: {
       sorting,
+      pagination,
     },
     getExpandedRowModel: getExpandedRowModel(),
     paginateExpandedRows: false,
-    manualPagination: true,
-    pageCount: Math.ceil(orders.length / PAGE_SIZE),
   });
 
-  const totalPages = Math.ceil(orders.length / PAGE_SIZE);
-  const hasNextPage = pageIndex < totalPages - 1;
-  const hasPreviousPage = pageIndex > 0;
+  const totalPages = table.getPageCount();
+  const hasNextPage = table.getCanNextPage();
+  const hasPreviousPage = table.getCanPreviousPage();
 
   return (
     <div className="space-y-4">
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
           <div className="text-muted-foreground text-sm">
-            Zobrazených {paginatedData.length} z {orders.length} objednávok
+            Zobrazených {table.getRowModel().rows.length} z {orders.length}{" "}
+            objednávok
           </div>
           <div className="flex items-center space-x-2">
             <button
               className="rounded border p-2 text-sm disabled:opacity-50"
               disabled={!hasPreviousPage}
-              onClick={() => setPageIndex((old) => Math.max(old - 1, 0))}
+              onClick={() => table.previousPage()}
               type="button"
             >
               Predchádzajúca
             </button>
             <span className="text-sm">
-              Strana {pageIndex + 1} z {totalPages}
+              Strana {pagination.pageIndex + 1} z {totalPages}
             </span>
             <button
               className="rounded border p-2 text-sm disabled:opacity-50"
               disabled={!hasNextPage}
-              onClick={() =>
-                setPageIndex((old) => Math.min(old + 1, totalPages - 1))
-              }
+              onClick={() => table.nextPage()}
               type="button"
             >
               Ďalšia

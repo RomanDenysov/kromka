@@ -98,27 +98,42 @@ export async function getWeeklyRevenue(): Promise<{
 export async function getAverageOrderValue(): Promise<{
   averageCents: number;
   orderCount: number;
+  allOrdersAverageCents: number;
+  allOrdersCount: number;
 }> {
   const thirtyDaysAgo = subDays(new Date(), 30);
 
-  const result = await db
-    .select({
-      avgValue: sql<number>`COALESCE(AVG(${orders.totalCents}), 0)`.mapWith(
-        Number
+  const [paidResult, allResult] = await Promise.all([
+    db
+      .select({
+        avgValue: sql<number>`COALESCE(AVG(${orders.totalCents}), 0)`.mapWith(
+          Number
+        ),
+        orderCount: count(),
+      })
+      .from(orders)
+      .where(
+        and(
+          eq(orders.paymentStatus, "paid"),
+          gte(orders.createdAt, thirtyDaysAgo)
+        )
       ),
-      orderCount: count(),
-    })
-    .from(orders)
-    .where(
-      and(
-        eq(orders.paymentStatus, "paid"),
-        gte(orders.createdAt, thirtyDaysAgo)
-      )
-    );
+    db
+      .select({
+        avgValue: sql<number>`COALESCE(AVG(${orders.totalCents}), 0)`.mapWith(
+          Number
+        ),
+        orderCount: count(),
+      })
+      .from(orders)
+      .where(gte(orders.createdAt, thirtyDaysAgo)),
+  ]);
 
   return {
-    averageCents: Math.round(result[0]?.avgValue ?? 0),
-    orderCount: result[0]?.orderCount ?? 0,
+    averageCents: Math.round(paidResult[0]?.avgValue ?? 0),
+    orderCount: paidResult[0]?.orderCount ?? 0,
+    allOrdersAverageCents: Math.round(allResult[0]?.avgValue ?? 0),
+    allOrdersCount: allResult[0]?.orderCount ?? 0,
   };
 }
 
@@ -707,7 +722,8 @@ export async function getSeasonalTrends(days: number = 14): Promise<{
     const previousQty = previousMap.get(p.productId) ?? 0;
     const changePercent =
       previousQty === 0
-        ? p.quantity > 0
+        ? // biome-ignore lint/style/noNestedTernary: <explanation>
+          p.quantity > 0
           ? 100
           : 0
         : Math.round(((p.quantity - previousQty) / previousQty) * 100);

@@ -4,16 +4,25 @@ import { cn, formatPrice } from "@/lib/utils";
 
 function TrendIndicator({ value }: { value: number }) {
   const isPositive = value > 0;
+  const isNeutral = value === 0;
+
+  let className = "font-medium text-xs";
+  let indicator = "";
+
+  if (isNeutral) {
+    className = cn(className, "text-muted-foreground");
+    indicator = "—";
+  } else if (isPositive) {
+    className = cn(className, "text-green-600 dark:text-green-400");
+    indicator = "↑";
+  } else {
+    className = cn(className, "text-red-600 dark:text-red-400");
+    indicator = "↓";
+  }
+
   return (
-    <span
-      className={cn(
-        "font-medium text-xs",
-        isPositive
-          ? "text-green-600 dark:text-green-400"
-          : "text-red-600 dark:text-red-400"
-      )}
-    >
-      {isPositive ? "↑" : "↓"} {Math.abs(value)}%
+    <span className={className}>
+      {indicator} {Math.abs(value)}%
     </span>
   );
 }
