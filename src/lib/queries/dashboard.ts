@@ -25,6 +25,7 @@ export function getOrdersByPickupDate(
 ) {
   const where = and(
     eq(orders.pickupDate, date),
+    ne(orders.orderStatus, "cancelled"),
     ...(filters?.orderStatus
       ? [eq(orders.orderStatus, filters.orderStatus)]
       : []),
@@ -63,7 +64,10 @@ export function getProductsAggregateByPickupDate(
   date: string,
   storeId?: string
 ) {
-  const baseConditions = [eq(orders.pickupDate, date)];
+  const baseConditions = [
+    eq(orders.pickupDate, date),
+    ne(orders.orderStatus, "cancelled"),
+  ];
   if (storeId) {
     baseConditions.push(eq(orders.storeId, storeId));
   }
@@ -98,7 +102,11 @@ export function getMonthlyOrderStats(year: number, month: number) {
     })
     .from(orders)
     .where(
-      and(gte(orders.pickupDate, startDate), lte(orders.pickupDate, endDate))
+      and(
+        gte(orders.pickupDate, startDate),
+        lte(orders.pickupDate, endDate),
+        ne(orders.orderStatus, "cancelled")
+      )
     )
     .groupBy(orders.pickupDate);
 }
@@ -173,6 +181,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
       .where(
         and(
           eq(orders.paymentStatus, "paid"),
+          ne(orders.orderStatus, "cancelled"),
           sql`DATE(${orders.createdAt}) = CURRENT_DATE`
         )
       )
@@ -219,6 +228,7 @@ export async function getRevenueHistory({
     .where(
       and(
         eq(orders.paymentStatus, "paid"),
+        ne(orders.orderStatus, "cancelled"),
         gte(
           orders.createdAt,
           sql`CURRENT_DATE - INTERVAL '${sql.raw(String(days))} days'`
@@ -333,7 +343,9 @@ export async function getTopProducts(): Promise<TopProductsResult> {
         ),
     })
     .from(orderItems)
+    .innerJoin(orders, eq(orderItems.orderId, orders.id))
     .leftJoin(products, eq(orderItems.productId, products.id))
+    .where(ne(orders.orderStatus, "cancelled"))
     .groupBy(products.id, products.name)
     .orderBy(desc(sql`sum(${orderItems.quantity})`))
     .limit(TOP_PRODUCTS_LIMIT)
