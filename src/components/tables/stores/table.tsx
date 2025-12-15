@@ -9,24 +9,14 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowDownIcon,
-  FileIcon,
-  PlusIcon,
-  TablePropertiesIcon,
-} from "lucide-react";
+import { PlusIcon, StoreIcon } from "lucide-react";
 import { Fragment, useMemo, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
 } from "@/components/data-table/data-table-search";
+import { TableEmptyState } from "@/components/table-empty-state";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
@@ -43,47 +33,9 @@ import {
   deleteStoresAction,
   toggleIsActiveStoresAction,
 } from "@/lib/actions/stores";
-import {
-  type ExportColumnConfig,
-  exportAsCsv,
-  exportAsXlsx,
-} from "@/lib/export-utils";
 import type { AdminStore } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
 import { columns } from "./columns";
-import { EmptyState } from "./empty-state";
-
-const storeExportColumns: ExportColumnConfig<AdminStore>[] = [
-  {
-    key: "name",
-    header: "Názov",
-  },
-  {
-    key: "slug",
-    header: "Slug",
-  },
-  {
-    key: "city",
-    header: "Mesto",
-  },
-  {
-    key: "isActive",
-    header: "Aktívny",
-    format: (value) => (value ? "Áno" : "Nie"),
-  },
-  {
-    key: "createdAt",
-    header: "Vytvorené",
-    format: (value) =>
-      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
-  },
-  {
-    key: "updatedAt",
-    header: "Upravené",
-    format: (value) =>
-      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
-  },
-];
 
 export function StoresTable({ stores }: { stores: AdminStore[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -131,23 +83,6 @@ export function StoresTable({ stores }: { stores: AdminStore[] }) {
     },
   });
 
-  const handleExport = async (format: "csv" | "xlsx") => {
-    const selectedRows = table.getSelectedRowModel().rows;
-    const exportData = selectedRows.length
-      ? selectedRows.map((r) => r.original)
-      : table.getFilteredRowModel().rows.map((r) => r.original);
-
-    if (!exportData.length) {
-      return;
-    }
-
-    if (format === "csv") {
-      exportAsCsv(exportData, storeExportColumns, "stores");
-    } else {
-      await exportAsXlsx(exportData, storeExportColumns, "stores");
-    }
-  };
-
   return (
     <div className="size-full overflow-hidden">
       <div className="flex items-center justify-between p-3">
@@ -157,24 +92,19 @@ export function StoresTable({ stores }: { stores: AdminStore[] }) {
           value={globalFilter ?? ""}
         />
         <div className="flex items-center justify-end gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline">
-                <ArrowDownIcon />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleExport("csv")}>
-                <FileIcon />
-                CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
-                <TablePropertiesIcon />
-                XLSX
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button disabled={isPending} onClick={handleCreateDraft} size="sm">
+            {isPending ? (
+              <>
+                <Spinner />
+                Pridávame...
+              </>
+            ) : (
+              <>
+                <PlusIcon />
+                Pridať
+              </>
+            )}
+          </Button>
         </div>
       </div>
       <Table>
@@ -220,7 +150,26 @@ export function StoresTable({ stores }: { stores: AdminStore[] }) {
           ) : (
             <TableRow>
               <TableCell className="h-24 text-center" colSpan={columns.length}>
-                <EmptyState />
+                <TableEmptyState icon={StoreIcon}>
+                  <Button
+                    disabled={isPending}
+                    onClick={handleCreateDraft}
+                    size="sm"
+                    variant="outline"
+                  >
+                    {isPending ? (
+                      <>
+                        <Spinner />
+                        Pridávame...
+                      </>
+                    ) : (
+                      <>
+                        <PlusIcon />
+                        Pridať
+                      </>
+                    )}
+                  </Button>
+                </TableEmptyState>
               </TableCell>
             </TableRow>
           )}
@@ -228,27 +177,7 @@ export function StoresTable({ stores }: { stores: AdminStore[] }) {
         {table.getRowModel().rows?.length > 0 && (
           <TableFooter>
             <TableRow className="p-0">
-              <TableCell className="p-0" colSpan={columns.length}>
-                <Button
-                  className="w-full rounded-none"
-                  disabled={isPending}
-                  onClick={handleCreateDraft}
-                  size="sm"
-                  variant="ghost"
-                >
-                  {isPending ? (
-                    <>
-                      <Spinner />
-                      Pridávame obchod...
-                    </>
-                  ) : (
-                    <>
-                      <PlusIcon />
-                      Pridať obchod
-                    </>
-                  )}
-                </Button>
-              </TableCell>
+              <TableCell className="p-0" colSpan={columns.length} />
             </TableRow>
           </TableFooter>
         )}

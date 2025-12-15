@@ -54,6 +54,10 @@ const userExportColumns: ExportColumnConfig<UserList[number]>[] = [
     header: "Rola",
   },
   {
+    key: "phone",
+    header: "Telefón",
+  },
+  {
     key: "emailVerified",
     header: "Email overený",
     format: (value) => (value ? "Áno" : "Nie"),

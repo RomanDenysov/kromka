@@ -10,12 +10,13 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { FolderOpenIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { Fragment, useEffect, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
 } from "@/components/data-table/data-table-search";
+import { TableEmptyState } from "@/components/table-empty-state";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,7 +49,6 @@ import {
 import type { AdminCategory } from "@/lib/queries/categories";
 import { cn } from "@/lib/utils";
 import { columns } from "./columns";
-import { EmptyState } from "./empty-state";
 
 export function CategoriesTable({
   categories,
@@ -152,6 +152,28 @@ export function CategoriesTable({
               </AlertDialogContent>
             </AlertDialog>
           )}
+          <Button
+            className="w-full rounded-none"
+            disabled={isPending}
+            onClick={() =>
+              startTransition(async () => {
+                await createDraftCategoryAction();
+              })
+            }
+            size="sm"
+          >
+            {isPending ? (
+              <>
+                <Spinner />
+                Pridávame...
+              </>
+            ) : (
+              <>
+                <PlusIcon />
+                Pridať
+              </>
+            )}
+          </Button>
         </div>
       </div>
       <Table>
@@ -204,7 +226,30 @@ export function CategoriesTable({
           ) : (
             <TableRow>
               <TableCell className="h-24 text-center" colSpan={columns.length}>
-                <EmptyState />
+                <TableEmptyState icon={FolderOpenIcon}>
+                  <Button
+                    disabled={isPending}
+                    onClick={() =>
+                      startTransition(async () => {
+                        await createDraftCategoryAction();
+                      })
+                    }
+                    size="sm"
+                    variant="outline"
+                  >
+                    {isPending ? (
+                      <>
+                        <Spinner />
+                        Pridávame...
+                      </>
+                    ) : (
+                      <>
+                        <PlusIcon />
+                        Pridať
+                      </>
+                    )}
+                  </Button>
+                </TableEmptyState>
               </TableCell>
             </TableRow>
           )}
@@ -212,31 +257,7 @@ export function CategoriesTable({
         {table.getRowModel().rows?.length > 0 && (
           <TableFooter>
             <TableRow className="p-0">
-              <TableCell className="p-0" colSpan={columns.length}>
-                <Button
-                  className="w-full rounded-none"
-                  disabled={isPending}
-                  onClick={() =>
-                    startTransition(async () => {
-                      await createDraftCategoryAction();
-                    })
-                  }
-                  size="sm"
-                  variant="ghost"
-                >
-                  {isPending ? (
-                    <>
-                      <Spinner />
-                      Pridávame kategóriu...
-                    </>
-                  ) : (
-                    <>
-                      <PlusIcon />
-                      Pridať kategóriu
-                    </>
-                  )}
-                </Button>
-              </TableCell>
+              <TableCell className="p-0" colSpan={columns.length} />
             </TableRow>
           </TableFooter>
         )}

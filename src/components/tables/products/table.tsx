@@ -10,18 +10,13 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowDownIcon,
-  FileTextIcon,
-  PlusIcon,
-  TablePropertiesIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { PackageOpenIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { Fragment, useCallback, useMemo, useState, useTransition } from "react";
 import {
   DataTableSearch,
   fuzzyFilter,
 } from "@/components/data-table/data-table-search";
+import { TableEmptyState } from "@/components/table-empty-state";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,12 +29,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
@@ -57,50 +46,9 @@ import {
   deleteProductsAction,
   toggleIsActiveProductAction,
 } from "@/lib/actions/products";
-import {
-  type ExportColumnConfig,
-  exportAsCsv,
-  exportAsXlsx,
-} from "@/lib/export-utils";
 import type { AdminProduct } from "@/lib/queries/products";
 import { cn } from "@/lib/utils";
 import { columns } from "./columns";
-import { EmptyState } from "./empty-state";
-
-const productExportColumns: ExportColumnConfig<AdminProduct>[] = [
-  {
-    key: "name",
-    header: "Názov",
-  },
-  {
-    key: "sku",
-    header: "SKU",
-  },
-  {
-    key: "priceCents",
-    header: "Cena (EUR)",
-    format: (value: number) =>
-      // biome-ignore lint/style/noMagicNumbers: Ignore it for now
-      typeof value === "number" ? (value / 100).toFixed(2) : "",
-  },
-  {
-    key: "isActive",
-    header: "Aktívny",
-    format: (value) => (value ? "Áno" : "Nie"),
-  },
-  {
-    key: "createdAt",
-    header: "Vytvorené",
-    format: (value) =>
-      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
-  },
-  {
-    key: "updatedAt",
-    header: "Upravené",
-    format: (value) =>
-      value instanceof Date ? value.toLocaleDateString("sk-SK") : "",
-  },
-];
 
 export function ProductsTable({ products }: { products: AdminProduct[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -157,23 +105,6 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
     await deleteProductsAction({ ids: Object.keys(rowSelection) });
   }, [rowSelection]);
 
-  const handleExport = async (format: "csv" | "xlsx") => {
-    const selectedRows = table.getSelectedRowModel().rows;
-    const exportData = selectedRows.length
-      ? selectedRows.map((r) => r.original)
-      : table.getFilteredRowModel().rows.map((r) => r.original);
-
-    if (!exportData.length) {
-      return;
-    }
-
-    if (format === "csv") {
-      exportAsCsv(exportData, productExportColumns, "products");
-    } else {
-      await exportAsXlsx(exportData, productExportColumns, "products");
-    }
-  };
-
   return (
     <div className="size-full overflow-hidden">
       <div className="flex items-center justify-between p-3">
@@ -216,24 +147,27 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
               </AlertDialogContent>
             </AlertDialog>
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline">
-                <ArrowDownIcon />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleExport("csv")}>
-                <FileTextIcon />
-                CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
-                <TablePropertiesIcon />
-                XLSX
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            disabled={isPending}
+            onClick={() =>
+              startTransition(async () => {
+                await createDraftProductAction();
+              })
+            }
+            size="sm"
+          >
+            {isPending ? (
+              <>
+                <Spinner />
+                Pridávame...
+              </>
+            ) : (
+              <>
+                <PlusIcon />
+                Pridať
+              </>
+            )}
+          </Button>
         </div>
       </div>
       <Table>
@@ -279,7 +213,30 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
           ) : (
             <TableRow>
               <TableCell className="h-24 text-center" colSpan={columns.length}>
-                <EmptyState />
+                <TableEmptyState icon={PackageOpenIcon}>
+                  <Button
+                    disabled={isPending}
+                    onClick={() =>
+                      startTransition(async () => {
+                        await createDraftProductAction();
+                      })
+                    }
+                    size="sm"
+                    variant="outline"
+                  >
+                    {isPending ? (
+                      <>
+                        <Spinner />
+                        Pridávame produkt...
+                      </>
+                    ) : (
+                      <>
+                        <PlusIcon />
+                        Pridať
+                      </>
+                    )}
+                  </Button>
+                </TableEmptyState>
               </TableCell>
             </TableRow>
           )}
@@ -287,31 +244,7 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
         {table.getRowModel().rows?.length > 0 && (
           <TableFooter>
             <TableRow className="p-0">
-              <TableCell className="p-0" colSpan={columns.length}>
-                <Button
-                  className="w-full rounded-none"
-                  disabled={isPending}
-                  onClick={() =>
-                    startTransition(async () => {
-                      await createDraftProductAction();
-                    })
-                  }
-                  size="sm"
-                  variant="ghost"
-                >
-                  {isPending ? (
-                    <>
-                      <Spinner />
-                      Pridávame produkt...
-                    </>
-                  ) : (
-                    <>
-                      <PlusIcon />
-                      Pridať produkt
-                    </>
-                  )}
-                </Button>
-              </TableCell>
+              <TableCell className="p-0" colSpan={columns.length} />
             </TableRow>
           </TableFooter>
         )}
