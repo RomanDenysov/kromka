@@ -1,7 +1,7 @@
 import "server-only";
 
 import { format } from "date-fns";
-import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, lte, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   carts,
@@ -244,6 +244,74 @@ export async function getRevenueHistory({
     date: row.date,
     revenue: revenueMap.get(row.date) ?? 0,
   }));
+}
+
+export type RevenueAndOrdersHistoryResult = {
+  date: string;
+  revenue: number;
+  expectedRevenue: number;
+  orderCount: number;
+}[];
+
+export async function getRevenueAndOrdersHistory({
+  days,
+}: {
+  days: number;
+}): Promise<RevenueAndOrdersHistoryResult> {
+  const history = await db
+    .select({
+      date: sql<string>`to_char(${orders.createdAt}, 'YYYY-MM-DD')`,
+      actualRevenue:
+        sql<number>`COALESCE(sum(CASE WHEN ${orders.paymentStatus} = 'paid' THEN ${orders.totalCents} ELSE 0 END), 0)`.mapWith(
+          Number
+        ),
+      expectedRevenue:
+        sql<number>`COALESCE(sum(${orders.totalCents}), 0)`.mapWith(Number),
+      orderCount: count(),
+    })
+    .from(orders)
+    .where(
+      and(
+        gte(
+          orders.createdAt,
+          sql`CURRENT_DATE - INTERVAL '${sql.raw(String(days))} days'`
+        ),
+        ne(orders.orderStatus, "cancelled")
+      )
+    )
+    .groupBy(sql`to_char(${orders.createdAt}, 'YYYY-MM-DD')`)
+    .orderBy(sql`to_char(${orders.createdAt}, 'YYYY-MM-DD')`);
+
+  // Generate full date range
+  const fullRange = await db.execute<{ date: string }>(
+    sql`SELECT to_char(d::date, 'YYYY-MM-DD') as date 
+        FROM generate_series(
+          CURRENT_DATE - INTERVAL '${sql.raw(String(days - 1))} days',
+          CURRENT_DATE,
+          '1 day'
+        ) d`
+  );
+
+  const historyMap = new Map(
+    history.map((h) => [
+      h.date,
+      {
+        actualRevenue: h.actualRevenue,
+        expectedRevenue: h.expectedRevenue,
+        orderCount: h.orderCount,
+      },
+    ])
+  );
+
+  return fullRange.rows.map((row) => {
+    const dayData = historyMap.get(row.date);
+    return {
+      date: row.date,
+      revenue: dayData?.actualRevenue ?? 0,
+      expectedRevenue: dayData?.expectedRevenue ?? 0,
+      orderCount: dayData?.orderCount ?? 0,
+    };
+  });
 }
 
 type TopProductsResult = {
