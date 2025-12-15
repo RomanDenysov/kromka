@@ -38,9 +38,7 @@ export default function AdminLayout({ children }: Props) {
       <Suspense fallback={<AppSidebarSkeleton />}>
         <AdminSidebarLoader />
       </Suspense>
-      <SidebarInset>
-        <div className="relative size-full min-h-svh flex-1">{children}</div>
-      </SidebarInset>
+      <SidebarInset>{children}</SidebarInset>
       <Suspense>
         <AdminDrawersProvider />
       </Suspense>

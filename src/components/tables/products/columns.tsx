@@ -77,22 +77,19 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
       />
     ),
     accessorKey: "name",
-    filterFn: "fuzzy",
     enableSorting: true,
     cell: ({ row }) => {
       const product = row.original;
       return (
         <Link
           className={buttonVariants({ variant: "link", size: "xs" })}
-          href={`/admin/products/${product.id}`}
+          href={`/admin/products?productId=${product.id}`}
           prefetch
         >
           {product.name}
         </Link>
       );
     },
-    enableHiding: false,
-    enableGlobalFilter: true,
   },
   {
     header: ({ column, table }) => (
@@ -110,7 +107,6 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         {row.original.status}
       </Badge>
     ),
-    enableGlobalFilter: true,
   },
   {
     header: ({ column, table }) => (
@@ -155,6 +151,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
       />
     ),
     accessorKey: "priceCents",
+    enableSorting: true,
     cell: ({ row }) => (
       <span className="font-medium text-xs">
         {formatPrice(row.original.priceCents)}
@@ -170,6 +167,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
       />
     ),
     accessorKey: "categories",
+    enableSorting: true,
     cell: ({ row }) => {
       const category = row.original.category;
       return category ? (
@@ -188,6 +186,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
       />
     ),
     accessorKey: "showInB2cAndB2b",
+    enableSorting: true,
     cell: ({ row }) => {
       const channels =
         row.original.showInB2c && row.original.showInB2b
@@ -212,6 +211,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
       />
     ),
     accessorKey: "createdAt",
+    enableSorting: true,
     cell: ({ row }) => (
       <span className="font-medium font-mono text-xs">
         {format(row.original.createdAt, "dd.MM.yyyy")}
@@ -220,6 +220,8 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
   },
   {
     id: "actions",
+    enableSorting: false,
+    enableHiding: false,
     cell: ({ row, table }) => {
       const meta = table.options.meta as ProductTableMeta;
       return (

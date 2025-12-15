@@ -6,13 +6,16 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
+  type PaginationState,
+  type RowSelectionState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowDownIcon, FileIcon, TablePropertiesIcon } from "lucide-react";
 import { Fragment, useState } from "react";
-import { fuzzyFilter } from "@/components/data-table/data-table-search";
+import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -71,24 +74,27 @@ const orderExportColumns: ExportColumnConfig<Order>[] = [
 
 export function OrdersTable({ orders }: { orders: Order[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 16,
+  });
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const table = useReactTable<Order>({
     data: orders,
     columns,
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    globalFilterFn: "fuzzy",
     onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    onRowSelectionChange: setRowSelection,
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       columnFilters,
-      globalFilter,
       sorting,
+      rowSelection,
+      pagination,
     },
     getRowId: ({ id }) => id,
     getCoreRowModel: getCoreRowModel(),
@@ -186,6 +192,7 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
           )}
         </TableBody>
       </Table>
+      <DataTablePagination table={table} />
     </div>
   );
 }

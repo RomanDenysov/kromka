@@ -11,7 +11,7 @@ async function CategoriesLoader() {
 
 export default function CategoriesPage() {
   return (
-    <>
+    <div>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
@@ -21,6 +21,6 @@ export default function CategoriesPage() {
       <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
         <CategoriesLoader />
       </Suspense>
-    </>
+    </div>
   );
 }

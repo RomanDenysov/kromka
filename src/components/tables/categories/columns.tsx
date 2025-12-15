@@ -67,7 +67,6 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
     size: 32,
   },
   {
-    id: "name",
     header: ({ column, table }) => (
       <TableColumnHeader
         column={column}
@@ -75,10 +74,7 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
         title="Názov"
       />
     ),
-    enableGlobalFilter: true,
     accessorKey: "name",
-    filterFn: "fuzzy",
-    enableSorting: true,
     cell: ({ row }) => (
       <div className="flex items-center gap-1.5">
         <Link
@@ -163,22 +159,16 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
     ),
     enableSorting: true,
     accessorKey: "showInB2b",
-    filterFn: "fuzzy",
-    enableGlobalFilter: true,
-    cell: ({ row }) => {
-      const channels =
-        row.original.showInB2c && row.original.showInB2b
-          ? ["B2C", "B2B"]
+    cell: ({ row }) => (
+      <span className="font-medium font-mono text-xs">
+        {row.original.showInB2c && row.original.showInB2b
+          ? "B2C, B2B"
           : // biome-ignore lint/style/noNestedTernary: Simple channel selection
             row.original.showInB2c
-            ? ["B2C"]
-            : ["B2B"];
-      return (
-        <span className="font-medium font-mono text-xs">
-          {channels.map((channel) => channel.toUpperCase()).join(", ")}
-        </span>
-      );
-    },
+            ? "B2C"
+            : "B2B"}
+      </span>
+    ),
   },
   {
     id: "productsCount",
@@ -217,6 +207,8 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
   {
     id: "actions",
     header: "",
+    enableSorting: false,
+    enableHiding: false,
     cell: ({ row, table }) => {
       const meta = table.options.meta as CategoryTableMeta;
       return (

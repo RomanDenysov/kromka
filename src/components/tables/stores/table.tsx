@@ -11,10 +11,6 @@ import {
 } from "@tanstack/react-table";
 import { PlusIcon, StoreIcon } from "lucide-react";
 import { Fragment, useMemo, useState, useTransition } from "react";
-import {
-  DataTableSearch,
-  fuzzyFilter,
-} from "@/components/data-table/data-table-search";
 import { TableEmptyState } from "@/components/table-empty-state";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -39,7 +35,6 @@ import { columns } from "./columns";
 
 export function StoresTable({ stores }: { stores: AdminStore[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const [isPending, startTransition] = useTransition();
@@ -54,17 +49,11 @@ export function StoresTable({ stores }: { stores: AdminStore[] }) {
   const table = useReactTable<AdminStore>({
     data: processedStores,
     columns,
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    globalFilterFn: "fuzzy",
     onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     state: {
       columnFilters,
-      globalFilter,
       sorting,
     },
     getRowId: ({ id }) => id,
@@ -86,11 +75,6 @@ export function StoresTable({ stores }: { stores: AdminStore[] }) {
   return (
     <div className="size-full overflow-hidden">
       <div className="flex items-center justify-between p-3">
-        <DataTableSearch
-          onChange={(value) => setGlobalFilter(String(value))}
-          placeholder="Hľadať obchod..."
-          value={globalFilter ?? ""}
-        />
         <div className="flex items-center justify-end gap-2">
           <Button disabled={isPending} onClick={handleCreateDraft} size="sm">
             {isPending ? (

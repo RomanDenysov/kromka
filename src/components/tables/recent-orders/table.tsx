@@ -9,7 +9,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
-import { fuzzyFilter } from "@/components/data-table/data-table-search";
 import {
   Table,
   TableBody,
@@ -23,7 +22,6 @@ import { cn, formatPrice } from "@/lib/utils";
 import { columns } from "./columns";
 
 export function RecentOrdersTable({ orders }: { orders: RecentOrdersData }) {
-  const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable<RecentOrder>({
@@ -33,16 +31,10 @@ export function RecentOrdersTable({ orders }: { orders: RecentOrdersData }) {
     getSortedRowModel: getSortedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getRowCanExpand: (row) => row.original.items.length > 0,
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    globalFilterFn: "fuzzy",
     state: {
-      globalFilter,
       sorting,
     },
     getExpandedRowModel: getExpandedRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
     paginateExpandedRows: false,
   });
 

@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
 "use client";
 
 import {
@@ -5,17 +6,23 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
+  type PaginationState,
   type RowSelectionState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { PackageOpenIcon, PlusIcon, Trash2Icon } from "lucide-react";
-import { Fragment, useCallback, useMemo, useState, useTransition } from "react";
 import {
-  DataTableSearch,
-  fuzzyFilter,
-} from "@/components/data-table/data-table-search";
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+  PackageOpenIcon,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
+import { Fragment, useCallback, useMemo, useState, useTransition } from "react";
 import { TableEmptyState } from "@/components/table-empty-state";
 import {
   AlertDialog,
@@ -29,12 +36,18 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -52,10 +65,12 @@ import { columns } from "./columns";
 
 export function ProductsTable({ products }: { products: AdminProduct[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 16,
+  });
   const [isPending, startTransition] = useTransition();
 
   const { setParams } = useProductParams();
@@ -63,26 +78,23 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
   const processedProducts = useMemo(() => products ?? [], [products]);
 
   const table = useReactTable<AdminProduct>({
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
     onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
-    globalFilterFn: "fuzzy",
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       columnFilters,
-      globalFilter,
       sorting,
       rowSelection,
+      pagination,
     },
     data: processedProducts,
     getRowId: ({ id }) => id,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     enableRowSelection: true,
     enableMultiSort: true,
     meta: {
@@ -108,18 +120,13 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
   return (
     <div className="size-full overflow-hidden">
       <div className="flex items-center justify-between p-3">
-        <DataTableSearch
-          onChange={(value) => setGlobalFilter(String(value))}
-          placeholder="Hľadať produkt..."
-          value={globalFilter ?? ""}
-        />
         <div className="flex items-center justify-end gap-2">
           {Object.keys(rowSelection).length > 1 && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
                   disabled={Object.keys(rowSelection).length === 0}
-                  size="sm"
+                  size="xs"
                   variant="destructive"
                 >
                   <Trash2Icon />
@@ -135,10 +142,10 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel size="sm">Zrušiť</AlertDialogCancel>
+                  <AlertDialogCancel size="xs">Zrušiť</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleBulkDelete}
-                    size="sm"
+                    size="xs"
                     variant="destructive"
                   >
                     Vymazať
@@ -154,7 +161,7 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
                 await createDraftProductAction();
               })
             }
-            size="sm"
+            size="xs"
           >
             {isPending ? (
               <>
@@ -221,7 +228,7 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
                         await createDraftProductAction();
                       })
                     }
-                    size="sm"
+                    size="xs"
                     variant="outline"
                   >
                     {isPending ? (
@@ -241,14 +248,83 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
             </TableRow>
           )}
         </TableBody>
-        {table.getRowModel().rows?.length > 0 && (
-          <TableFooter>
-            <TableRow className="p-0">
-              <TableCell className="p-0" colSpan={columns.length} />
-            </TableRow>
-          </TableFooter>
-        )}
       </Table>
+      <div className="flex items-center justify-between p-2">
+        <div className="flex-1 text-muted-foreground text-sm">
+          {table.getFilteredSelectedRowModel().rows.length} z{" "}
+          {table.getFilteredRowModel().rows.length} riadkov vybraných.
+        </div>
+        <div className="flex items-center space-x-6 lg:space-x-8">
+          <div className="flex items-center space-x-2">
+            <p className="font-medium text-sm">Riadkov na stránke</p>
+            <Select
+              onValueChange={(value) => {
+                table.setPageSize(Number(value));
+              }}
+              value={`${table.getState().pagination.pageSize}`}
+            >
+              <SelectTrigger size="xs">
+                <SelectValue
+                  placeholder={table.getState().pagination.pageSize}
+                />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {[16, 25, 50, 100].map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex w-[100px] items-center justify-center font-medium text-sm">
+            Stránka {table.getState().pagination.pageIndex + 1} z{" "}
+            {table.getPageCount()}
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              className="hidden lg:flex"
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.setPageIndex(0)}
+              size="icon-xs"
+              variant="outline"
+            >
+              <span className="sr-only">Prejsť na prvú stránku</span>
+              <ChevronsLeftIcon />
+            </Button>
+            <Button
+              className=""
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
+              size="icon-xs"
+              variant="outline"
+            >
+              <span className="sr-only">Prejsť na predchádzajúcu stránku</span>
+              <ChevronLeftIcon />
+            </Button>
+            <Button
+              className=""
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.nextPage()}
+              size="icon-xs"
+              variant="outline"
+            >
+              <span className="sr-only">Prejsť na ďalšiu stránku</span>
+              <ChevronRightIcon />
+            </Button>
+            <Button
+              className="hidden lg:flex"
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              size="icon-xs"
+              variant="outline"
+            >
+              <span className="sr-only">Prejsť na poslednú stránku</span>
+              <ChevronsRightIcon />
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

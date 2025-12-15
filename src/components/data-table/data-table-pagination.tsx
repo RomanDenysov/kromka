@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const PAGE_SIZES = [16, 50, 100];
+const PAGE_SIZES = [16, 25, 50, 100];
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
@@ -26,7 +26,7 @@ export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
   return (
-    <div className="flex items-center justify-between px-2">
+    <div className="flex items-center justify-between p-2">
       <div className="flex-1 text-muted-foreground text-sm">
         {table.getFilteredSelectedRowModel().rows.length} z{" "}
         {table.getFilteredRowModel().rows.length} riadkov vybraných.

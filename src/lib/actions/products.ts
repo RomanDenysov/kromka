@@ -9,18 +9,6 @@ import { draftSlug } from "@/db/utils";
 import type { UpdateProductSchema } from "@/validation/products";
 import { getAuth } from "../auth/session";
 
-async function _invalidateProductCache(productId: string) {
-  const product = await db.query.products.findFirst({
-    where: (p, { eq: eqFn }) => eqFn(p.id, productId),
-    columns: { slug: true },
-  });
-
-  updateTag("products");
-  if (product?.slug) {
-    updateTag(`product-${product.slug}`);
-  }
-}
-
 export async function updateProductAction({
   id,
   product,
