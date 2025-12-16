@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
     viewTransition: true,
   },
   cacheComponents: true,
+  serverExternalPackages: [
+    "better-auth",
+    "kysely",
+    "@better-auth/core",
+    "@better-auth/utils",
+  ],
   images: {
     remotePatterns: [BLOB_STORE_URL],
     formats: ["image/avif", "image/webp"],
