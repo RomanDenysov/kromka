@@ -54,6 +54,7 @@ export async function getWeeklyRevenue(): Promise<{
       .where(
         and(
           eq(orders.paymentStatus, "paid"),
+          ne(orders.orderStatus, "cancelled"),
           gte(orders.createdAt, currentWeekStart),
           lte(orders.createdAt, currentWeekEnd)
         )
@@ -68,6 +69,7 @@ export async function getWeeklyRevenue(): Promise<{
       .where(
         and(
           eq(orders.paymentStatus, "paid"),
+          ne(orders.orderStatus, "cancelled"),
           gte(orders.createdAt, previousWeekStart),
           lte(orders.createdAt, previousWeekEnd)
         )
@@ -115,6 +117,7 @@ export async function getAverageOrderValue(): Promise<{
       .where(
         and(
           eq(orders.paymentStatus, "paid"),
+          ne(orders.orderStatus, "cancelled"),
           gte(orders.createdAt, thirtyDaysAgo)
         )
       ),
@@ -126,7 +129,12 @@ export async function getAverageOrderValue(): Promise<{
         orderCount: count(),
       })
       .from(orders)
-      .where(gte(orders.createdAt, thirtyDaysAgo)),
+      .where(
+        and(
+          ne(orders.orderStatus, "cancelled"),
+          gte(orders.createdAt, thirtyDaysAgo)
+        )
+      ),
   ]);
 
   return {
@@ -135,6 +143,25 @@ export async function getAverageOrderValue(): Promise<{
     allOrdersAverageCents: Math.round(allResult[0]?.avgValue ?? 0),
     allOrdersCount: allResult[0]?.orderCount ?? 0,
   };
+}
+
+/**
+ * Count of orders created in the last 7 days (excluding cancelled)
+ */
+export async function getOrdersCreatedLast7Days(): Promise<number> {
+  const sevenDaysAgo = subDays(new Date(), 7);
+
+  const result = await db
+    .select({ count: count() })
+    .from(orders)
+    .where(
+      and(
+        gte(orders.createdAt, sevenDaysAgo),
+        ne(orders.orderStatus, "cancelled")
+      )
+    );
+
+  return result[0]?.count ?? 0;
 }
 
 /**
@@ -155,7 +182,12 @@ export async function getTomorrowOrdersSummary(): Promise<{
           sql<number>`COALESCE(sum(${orders.totalCents}), 0)`.mapWith(Number),
       })
       .from(orders)
-      .where(eq(orders.pickupDate, tomorrow)),
+      .where(
+        and(
+          eq(orders.pickupDate, tomorrow),
+          ne(orders.orderStatus, "cancelled")
+        )
+      ),
     db
       .select({
         totalProducts:
@@ -163,7 +195,12 @@ export async function getTomorrowOrdersSummary(): Promise<{
       })
       .from(orderItems)
       .innerJoin(orders, eq(orderItems.orderId, orders.id))
-      .where(eq(orders.pickupDate, tomorrow)),
+      .where(
+        and(
+          eq(orders.pickupDate, tomorrow),
+          ne(orders.orderStatus, "cancelled")
+        )
+      ),
   ]);
 
   return {
@@ -177,23 +214,30 @@ export async function getTomorrowOrdersSummary(): Promise<{
  * Combined new dashboard metrics for top cards
  */
 export async function getNewDashboardMetrics() {
-  const [weeklyRevenue, newOrdersCount, averageOrderValue, tomorrowSummary] =
-    await Promise.all([
-      getWeeklyRevenue(),
-      db
-        .select({ count: count() })
-        .from(orders)
-        .where(eq(orders.orderStatus, "new"))
-        .then((res) => res[0]?.count ?? 0),
-      getAverageOrderValue(),
-      getTomorrowOrdersSummary(),
-    ]);
+  const [
+    weeklyRevenue,
+    newOrdersCount,
+    averageOrderValue,
+    tomorrowSummary,
+    ordersLast7Days,
+  ] = await Promise.all([
+    getWeeklyRevenue(),
+    db
+      .select({ count: count() })
+      .from(orders)
+      .where(eq(orders.orderStatus, "new"))
+      .then((res) => res[0]?.count ?? 0),
+    getAverageOrderValue(),
+    getTomorrowOrdersSummary(),
+    getOrdersCreatedLast7Days(),
+  ]);
 
   return {
     weeklyRevenue,
     newOrdersCount,
     averageOrderValue,
     tomorrowSummary,
+    ordersLast7Days,
   };
 }
 
@@ -344,7 +388,9 @@ export async function getPopularPickupDays(days: number = 90): Promise<
       ),
     })
     .from(orders)
-    .where(gte(orders.createdAt, startDate))
+    .where(
+      and(gte(orders.createdAt, startDate), ne(orders.orderStatus, "cancelled"))
+    )
     .groupBy(sql`EXTRACT(DOW FROM ${orders.pickupDate}::date)`)
     .orderBy(sql`EXTRACT(DOW FROM ${orders.pickupDate}::date)`);
 
@@ -406,6 +452,7 @@ export async function getCustomerRetention(days: number = 30): Promise<{
     .where(
       and(
         gte(orders.createdAt, startDate),
+        ne(orders.orderStatus, "cancelled"),
         sql`${orders.createdBy} IS NOT NULL`
       )
     )
@@ -419,6 +466,7 @@ export async function getCustomerRetention(days: number = 30): Promise<{
       and(
         lt(orders.createdAt, startDate),
         gte(orders.createdAt, previousPeriodStart),
+        ne(orders.orderStatus, "cancelled"),
         sql`${orders.createdBy} IS NOT NULL`
       )
     )
@@ -489,6 +537,7 @@ export async function getPromoCodeEffectiveness(limit: number = 10): Promise<
     .from(promoCodeUsages)
     .innerJoin(promoCodes, eq(promoCodeUsages.promoCodeId, promoCodes.id))
     .innerJoin(orders, eq(promoCodeUsages.orderId, orders.id))
+    .where(ne(orders.orderStatus, "cancelled"))
     .groupBy(promoCodes.id, promoCodes.code)
     .orderBy(desc(sql`count(*)`))
     .limit(limit);
@@ -558,7 +607,8 @@ export async function getGrowthComparison(): Promise<{
       .where(
         and(
           gte(orders.createdAt, currentMonthStart),
-          lte(orders.createdAt, currentMonthEnd)
+          lte(orders.createdAt, currentMonthEnd),
+          ne(orders.orderStatus, "cancelled")
         )
       )
       .then((res) => res[0]),
@@ -575,7 +625,8 @@ export async function getGrowthComparison(): Promise<{
       .where(
         and(
           gte(orders.createdAt, previousMonthStart),
-          lte(orders.createdAt, previousMonthEnd)
+          lte(orders.createdAt, previousMonthEnd),
+          ne(orders.orderStatus, "cancelled")
         )
       )
       .then((res) => res[0]),
@@ -588,11 +639,13 @@ export async function getGrowthComparison(): Promise<{
         and(
           gte(orders.createdAt, currentMonthStart),
           lte(orders.createdAt, currentMonthEnd),
+          ne(orders.orderStatus, "cancelled"),
           sql`${orders.createdBy} IS NOT NULL`,
           sql`${orders.createdBy} NOT IN (
               SELECT DISTINCT created_by FROM orders 
               WHERE created_at < ${currentMonthStart} 
               AND created_by IS NOT NULL
+              AND order_status != 'cancelled'
             )`
         )
       )
@@ -606,11 +659,13 @@ export async function getGrowthComparison(): Promise<{
         and(
           gte(orders.createdAt, previousMonthStart),
           lte(orders.createdAt, previousMonthEnd),
+          ne(orders.orderStatus, "cancelled"),
           sql`${orders.createdBy} IS NOT NULL`,
           sql`${orders.createdBy} NOT IN (
               SELECT DISTINCT created_by FROM orders 
               WHERE created_at < ${previousMonthStart} 
               AND created_by IS NOT NULL
+              AND order_status != 'cancelled'
             )`
         )
       )
@@ -691,7 +746,12 @@ export async function getSeasonalTrends(days: number = 14): Promise<{
       .from(orderItems)
       .innerJoin(orders, eq(orderItems.orderId, orders.id))
       .innerJoin(products, eq(orderItems.productId, products.id))
-      .where(gte(orders.createdAt, currentPeriodStart))
+      .where(
+        and(
+          gte(orders.createdAt, currentPeriodStart),
+          ne(orders.orderStatus, "cancelled")
+        )
+      )
       .groupBy(products.id, products.name),
 
     db
@@ -708,7 +768,8 @@ export async function getSeasonalTrends(days: number = 14): Promise<{
       .where(
         and(
           gte(orders.createdAt, previousPeriodStart),
-          lt(orders.createdAt, previousPeriodEnd)
+          lt(orders.createdAt, previousPeriodEnd),
+          ne(orders.orderStatus, "cancelled")
         )
       )
       .groupBy(products.id, products.name),
@@ -722,7 +783,7 @@ export async function getSeasonalTrends(days: number = 14): Promise<{
     const previousQty = previousMap.get(p.productId) ?? 0;
     const changePercent =
       previousQty === 0
-        ? // biome-ignore lint/style/noNestedTernary: <explanation>
+        ? // biome-ignore lint/style/noNestedTernary: Ignore it for now
           p.quantity > 0
           ? 100
           : 0
@@ -785,6 +846,7 @@ export async function getUnusedProducts(days: number = 30): Promise<
     })
     .from(orderItems)
     .innerJoin(orders, eq(orderItems.orderId, orders.id))
+    .where(ne(orders.orderStatus, "cancelled"))
     .groupBy(orderItems.productId);
 
   const lastOrderMap = new Map(
@@ -958,7 +1020,13 @@ export async function getStoreDashboard(storeId: string): Promise<{
         ),
       })
       .from(orders)
-      .where(and(eq(orders.storeId, storeId), eq(orders.pickupDate, today)))
+      .where(
+        and(
+          eq(orders.storeId, storeId),
+          eq(orders.pickupDate, today),
+          ne(orders.orderStatus, "cancelled")
+        )
+      )
       .then((res) => res[0]),
 
     // Tomorrow's data
@@ -967,7 +1035,13 @@ export async function getStoreDashboard(storeId: string): Promise<{
         orderCount: count(),
       })
       .from(orders)
-      .where(and(eq(orders.storeId, storeId), eq(orders.pickupDate, tomorrow)))
+      .where(
+        and(
+          eq(orders.storeId, storeId),
+          eq(orders.pickupDate, tomorrow),
+          ne(orders.orderStatus, "cancelled")
+        )
+      )
       .then((res) => res[0]),
 
     // Pending pickup (ready but not completed)
@@ -993,7 +1067,13 @@ export async function getStoreDashboard(storeId: string): Promise<{
       })
       .from(orderItems)
       .innerJoin(orders, eq(orderItems.orderId, orders.id))
-      .where(and(eq(orders.storeId, storeId), eq(orders.pickupDate, today)))
+      .where(
+        and(
+          eq(orders.storeId, storeId),
+          eq(orders.pickupDate, today),
+          ne(orders.orderStatus, "cancelled")
+        )
+      )
       .then((res) => res[0]?.total ?? 0),
 
     db
@@ -1004,7 +1084,13 @@ export async function getStoreDashboard(storeId: string): Promise<{
       })
       .from(orderItems)
       .innerJoin(orders, eq(orderItems.orderId, orders.id))
-      .where(and(eq(orders.storeId, storeId), eq(orders.pickupDate, tomorrow)))
+      .where(
+        and(
+          eq(orders.storeId, storeId),
+          eq(orders.pickupDate, tomorrow),
+          ne(orders.orderStatus, "cancelled")
+        )
+      )
       .then((res) => res[0]?.total ?? 0),
   ]);
 

@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
   type ColumnFiltersState,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -13,64 +11,15 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDownIcon, FileIcon, TablePropertiesIcon } from "lucide-react";
-import { Fragment, useState } from "react";
-import { DataTablePagination } from "@/components/data-table/data-table-pagination";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  type ExportColumnConfig,
-  exportAsCsv,
-  exportAsXlsx,
-} from "@/lib/export-utils";
+import { useMemo, useState } from "react";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
+import { DataTableSearch } from "@/components/data-table/data-table-search";
+import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
+import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants";
 import type { Order } from "@/lib/queries/orders";
-import { cn } from "@/lib/utils";
 import { columns } from "./columns";
-
-const orderExportColumns: ExportColumnConfig<Order>[] = [
-  {
-    key: "orderNumber",
-    header: "Objednávka",
-  },
-  {
-    key: "orderStatus",
-    header: "Stav",
-  },
-  {
-    key: "createdBy.email",
-    header: "Email zákazníka",
-  },
-  {
-    key: "store.name",
-    header: "Predajňa",
-  },
-  {
-    key: "totalCents",
-    header: "Spolu (EUR)",
-    format: (value) =>
-      // biome-ignore lint/style/noMagicNumbers: Ignore it for now
-      typeof value === "number" ? (value / 100).toFixed(2) : "",
-  },
-  {
-    key: "createdAt",
-    header: "Vytvorené",
-    format: (value) =>
-      value instanceof Date ? value.toLocaleString("sk-SK") : "",
-  },
-];
+import { OrdersTableActions } from "./table-actions";
 
 export function OrdersTable({ orders }: { orders: Order[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -80,14 +29,51 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
     pageSize: 16,
   });
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [globalFilter, setGlobalFilter] = useState("");
+
+  const memoizedOrders = useMemo(() => orders, [orders]);
 
   const table = useReactTable<Order>({
-    data: orders,
+    data: memoizedOrders,
     columns,
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
     onRowSelectionChange: setRowSelection,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, _columnId, filterValue: string) => {
+      if (!filterValue || filterValue.trim() === "") {
+        return true;
+      }
+
+      const searchValue = filterValue.toLowerCase();
+      const order = row.original;
+
+      // Search in order number
+      if (order.orderNumber?.toLowerCase().includes(searchValue)) {
+        return true;
+      }
+
+      // Search in customer info
+      const customerName = order.createdBy?.name ?? order.customerInfo?.name;
+      const customerEmail = order.createdBy?.email ?? order.customerInfo?.email;
+      const customerPhone = order.createdBy?.phone ?? order.customerInfo?.phone;
+
+      if (
+        customerName?.toLowerCase().includes(searchValue) ||
+        customerEmail?.toLowerCase().includes(searchValue) ||
+        customerPhone?.toLowerCase().includes(searchValue)
+      ) {
+        return true;
+      }
+
+      // Search in store name
+      if (order.store?.name?.toLowerCase().includes(searchValue)) {
+        return true;
+      }
+
+      return false;
+    },
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     state: {
@@ -95,104 +81,55 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
       sorting,
       rowSelection,
       pagination,
+      globalFilter,
     },
-    getRowId: ({ id }) => id,
+    getRowId: (row) => row.id,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     enableRowSelection: true,
   });
 
-  const handleExport = async (format: "csv" | "xlsx") => {
-    const selectedRows = table.getSelectedRowModel().rows;
-    const exportData = selectedRows.length
-      ? selectedRows.map((r) => r.original)
-      : table.getFilteredRowModel().rows.map((r) => r.original);
+  const statusOptions = Object.entries(ORDER_STATUS_LABELS).map(
+    ([value, label]) => ({
+      label,
+      value,
+    })
+  );
 
-    if (!exportData.length) {
-      return;
-    }
-
-    if (format === "csv") {
-      exportAsCsv(exportData, orderExportColumns, "orders");
-    } else {
-      await exportAsXlsx(exportData, orderExportColumns, "orders");
-    }
-  };
+  const paymentStatusOptions = Object.entries(PAYMENT_STATUS_LABELS).map(
+    ([value, label]) => ({
+      label,
+      value,
+    })
+  );
 
   return (
-    <div className="size-full overflow-hidden">
-      <div className="flex items-center justify-between p-3">
-        <div className="ml-auto flex items-center justify-end gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline">
-                <ArrowDownIcon />
-                Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleExport("csv")}>
-                <FileIcon />
-                CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
-                <TablePropertiesIcon />
-                XLSX
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <DataTable table={table}>
+      <div className="flex items-center justify-between gap-2 p-3">
+        <div className="flex items-center gap-2">
+          <DataTableSearch
+            onSearch={setGlobalFilter}
+            placeholder="Hľadať objednávky..."
+            value={globalFilter}
+          />
+          <DataTableMultiSelectFilter
+            columnId="status"
+            options={statusOptions}
+            table={table}
+            title="Stav"
+          />
+          <DataTableMultiSelectFilter
+            columnId="paymentStatus"
+            options={paymentStatusOptions}
+            table={table}
+            title="Stav platby"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <DataTableViewOptions table={table} />
+          <OrdersTableActions table={table} />
         </div>
       </div>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  className="text-xs"
-                  key={header.id}
-                  style={{ width: header.getSize() }}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <Fragment key={row.id}>
-                <TableRow
-                  className={cn("transition-colors hover:bg-muted/50")}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </Fragment>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell className="h-24 text-center" colSpan={columns.length}>
-                Žiadne objednávky.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <DataTablePagination table={table} />
-    </div>
+    </DataTable>
   );
 }

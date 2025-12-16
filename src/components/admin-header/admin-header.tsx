@@ -13,7 +13,7 @@ type Props = {
 
 export function AdminHeader({ breadcrumbs, className, children }: Props) {
   return (
-    <header className="sticky inset-x-0 top-0 z-30 bg-sidebar">
+    <header className="sticky inset-x-0 top-0 z-30 bg-background">
       <div
         className={cn(
           "flex h-(--header-height) items-center px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)",
@@ -23,7 +23,9 @@ export function AdminHeader({ breadcrumbs, className, children }: Props) {
         <div className="flex shrink-0 items-center gap-1 lg:gap-2">
           <AdminBreadcrumbs breadcrumbs={breadcrumbs} />
         </div>
-        <div className="ml-auto flex items-center gap-2">{children}</div>
+        <div className="flex flex-1 items-center justify-end gap-2">
+          {children}
+        </div>
       </div>
       <hr />
     </header>

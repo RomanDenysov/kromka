@@ -6,7 +6,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-
+import type { ComponentProps } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -15,18 +15,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const PAGE_SIZES = [16, 25, 50, 100];
 
 type DataTablePaginationProps<TData> = {
   table: Table<TData>;
-};
+  pageSizeOptions?: number[];
+} & ComponentProps<"div">;
 
 export function DataTablePagination<TData>({
   table,
+  pageSizeOptions = PAGE_SIZES,
+  className,
+  ...props
 }: DataTablePaginationProps<TData>) {
+  "use no memo";
   return (
-    <div className="flex items-center justify-between p-2">
+    <div
+      className={cn("flex items-center justify-between p-3", className)}
+      {...props}
+    >
       <div className="flex-1 text-muted-foreground text-sm">
         {table.getFilteredSelectedRowModel().rows.length} z{" "}
         {table.getFilteredRowModel().rows.length} riadkov vybraných.
@@ -44,7 +53,7 @@ export function DataTablePagination<TData>({
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {PAGE_SIZES.map((pageSize) => (
+              {pageSizeOptions.map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
                 </SelectItem>

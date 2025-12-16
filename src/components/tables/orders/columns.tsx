@@ -59,6 +59,10 @@ export const columns: ColumnDef<Order>[] = [
         title="Objednávka"
       />
     ),
+    meta: {
+      label: "Číslo objednávky",
+      variant: "text",
+    },
     enableSorting: true,
     cell: ({ row }) => (
       <Link
@@ -81,6 +85,20 @@ export const columns: ColumnDef<Order>[] = [
       />
     ),
     enableSorting: true,
+    filterFn: (row, columnId, filterValue: string[]) => {
+      if (!filterValue || filterValue.length === 0) {
+        return true;
+      }
+      return filterValue.includes(row.getValue(columnId));
+    },
+    meta: {
+      label: "Stav",
+      variant: "multiSelect",
+      options: Object.entries(ORDER_STATUS_LABELS).map(([value, label]) => ({
+        label,
+        value,
+      })),
+    },
     cell: ({ row }) => (
       <Badge
         size="xs"
@@ -99,6 +117,10 @@ export const columns: ColumnDef<Order>[] = [
         title="Zákazník"
       />
     ),
+    meta: {
+      label: "Zákazník",
+      variant: "text",
+    },
     enableSorting: true,
     cell: ({ row }) => {
       const createdByData = row.original.createdBy;
@@ -128,6 +150,10 @@ export const columns: ColumnDef<Order>[] = [
     ),
     enableSorting: true,
     accessorFn: (row) => row.store?.name ?? "",
+    meta: {
+      label: "Predajňa",
+      variant: "text",
+    },
     cell: ({ row }) => (
       <span className="font-medium text-xs">{row.original.store?.name}</span>
     ),
@@ -143,6 +169,10 @@ export const columns: ColumnDef<Order>[] = [
     ),
     enableSorting: true,
     accessorKey: "totalCents",
+    meta: {
+      label: "Spolu (EUR)",
+      variant: "text",
+    },
     cell: ({ row }) => (
       <span className="font-medium font-mono text-xs tracking-tighter">
         {formatPrice(row.original.totalCents ?? 0)}
@@ -160,6 +190,20 @@ export const columns: ColumnDef<Order>[] = [
     ),
     enableSorting: true,
     accessorKey: "paymentMethod",
+    filterFn: (row, columnId, filterValue: string[]) => {
+      if (!filterValue || filterValue.length === 0) {
+        return true;
+      }
+      return filterValue.includes(row.getValue(columnId));
+    },
+    meta: {
+      label: "Metóda platby",
+      variant: "multiSelect",
+      options: Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => ({
+        label,
+        value,
+      })),
+    },
     cell: ({ row }) => {
       const Icon = PAYMENT_METHOD_ICONS[row.original.paymentMethod];
       return (
@@ -181,6 +225,20 @@ export const columns: ColumnDef<Order>[] = [
     ),
     enableSorting: true,
     accessorKey: "paymentStatus",
+    filterFn: (row, columnId, filterValue: string[]) => {
+      if (!filterValue || filterValue.length === 0) {
+        return true;
+      }
+      return filterValue.includes(row.getValue(columnId));
+    },
+    meta: {
+      label: "Stav platby",
+      variant: "multiSelect",
+      options: Object.entries(PAYMENT_STATUS_LABELS).map(([value, label]) => ({
+        label,
+        value,
+      })),
+    },
     cell: ({ row }) => (
       <Badge
         size="xs"
@@ -201,6 +259,10 @@ export const columns: ColumnDef<Order>[] = [
     ),
     enableSorting: true,
     accessorKey: "pickupDate",
+    meta: {
+      label: "Vyzdvihnúťie",
+      variant: "text",
+    },
     cell: ({ row }) => (
       <div className="flex flex-col">
         <span className="font-medium font-mono text-xs tracking-tighter">
@@ -225,6 +287,10 @@ export const columns: ColumnDef<Order>[] = [
       />
     ),
     enableSorting: true,
+    meta: {
+      label: "Aktualizované",
+      variant: "text",
+    },
     cell: ({ row }) => (
       <span className="font-medium font-mono text-xs tracking-tighter">
         {format(row.original.updatedAt, "dd.MM.yyyy HH:mm")}

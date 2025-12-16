@@ -1,9 +1,8 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+/** biome-ignore-all lint/style/noMagicNumbers: Ignore magic numbers for pagination and table sizing */
 "use client";
 
 import {
   type ColumnFiltersState,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -13,18 +12,12 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronsLeftIcon,
-  ChevronsRightIcon,
-  PackageOpenIcon,
-  PlusIcon,
-  Trash2Icon,
-} from "lucide-react";
-import { Fragment, useCallback, useMemo, useState, useTransition } from "react";
-import { SearchInput } from "@/components/shared/search-input";
-import { TableEmptyState } from "@/components/table-empty-state";
+import { PlusIcon, Trash2Icon } from "lucide-react";
+import { useCallback, useMemo, useState, useTransition } from "react";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
+import { DataTableSearch } from "@/components/data-table/data-table-search";
+import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,22 +30,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useProductParams } from "@/hooks/use-product-params";
 import {
   copyProductAction,
@@ -61,7 +39,6 @@ import {
   toggleIsActiveProductAction,
 } from "@/lib/actions/products";
 import type { AdminProduct } from "@/lib/queries/products";
-import { cn } from "@/lib/utils";
 import { columns } from "./columns";
 
 export function ProductsTable({ products }: { products: AdminProduct[] }) {
@@ -85,6 +62,18 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
     onRowSelectionChange: setRowSelection,
     onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, _columnId, filterValue: string) => {
+      if (!filterValue || filterValue.trim() === "") {
+        return true;
+      }
+      const searchValue = filterValue.toLowerCase();
+      const product = row.original;
+      return (
+        product.name?.toLowerCase().includes(searchValue) ||
+        product.category?.name?.toLowerCase().includes(searchValue) ||
+        product.status?.toLowerCase().includes(searchValue)
+      );
+    },
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getCoreRowModel: getCoreRowModel(),
@@ -103,7 +92,7 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
     enableRowSelection: true,
     enableMultiSort: true,
     meta: {
-      onEdit: (id: string) => {
+      onOpen: (id: string) => {
         setParams({ productId: id });
       },
       onToggleActive: async (id: string) => {
@@ -122,18 +111,38 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
     await deleteProductsAction({ ids: Object.keys(rowSelection) });
   }, [rowSelection]);
 
+  const statusOptions = [
+    { label: "Návrh", value: "draft" },
+    { label: "Aktívny", value: "active" },
+    { label: "Predaný", value: "sold" },
+    { label: "Archivovaný", value: "archived" },
+  ];
+
+  const isActiveOptions = [
+    { label: "Aktívny", value: "true" },
+    { label: "Neaktívny", value: "false" },
+  ];
+
   return (
-    <div className="size-full overflow-hidden">
+    <DataTable table={table}>
       <div className="flex items-center justify-between p-3">
-        <div className="max-w-sm">
-          <SearchInput
-            className="h-8 max-w-xs"
-            isLoading={isPending}
-            onChange={(e) => {
-              setGlobalFilter(e.target.value);
-            }}
+        <div className="flex items-center gap-2">
+          <DataTableSearch
+            onSearch={setGlobalFilter}
             placeholder="Hľadať produkty, kategórie, status..."
             value={globalFilter}
+          />
+          <DataTableMultiSelectFilter
+            columnId="status"
+            options={statusOptions}
+            table={table}
+            title="Status"
+          />
+          <DataTableMultiSelectFilter
+            columnId="isActive"
+            options={isActiveOptions}
+            table={table}
+            title="Stav"
           />
         </div>
         <div className="flex items-center justify-end gap-2">
@@ -177,7 +186,7 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
                 await createDraftProductAction();
               })
             }
-            size="xs"
+            size="sm"
           >
             {isPending ? (
               <>
@@ -191,156 +200,9 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
               </>
             )}
           </Button>
+          <DataTableViewOptions table={table} />
         </div>
       </div>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead
-                  className="text-xs"
-                  key={header.id}
-                  style={{ width: header.getSize() }}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <Fragment key={row.id}>
-                <TableRow
-                  className={cn("transition-colors hover:bg-muted/50")}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </Fragment>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell className="h-24 text-center" colSpan={columns.length}>
-                <TableEmptyState icon={PackageOpenIcon}>
-                  <Button
-                    disabled={isPending}
-                    onClick={() =>
-                      startTransition(async () => {
-                        await createDraftProductAction();
-                      })
-                    }
-                    size="xs"
-                    variant="outline"
-                  >
-                    {isPending ? (
-                      <>
-                        <Spinner />
-                        Pridávame produkt...
-                      </>
-                    ) : (
-                      <>
-                        <PlusIcon />
-                        Pridať
-                      </>
-                    )}
-                  </Button>
-                </TableEmptyState>
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <div className="flex items-center justify-between p-2">
-        <div className="flex-1 text-muted-foreground text-sm">
-          {table.getFilteredSelectedRowModel().rows.length} z{" "}
-          {table.getFilteredRowModel().rows.length} riadkov vybraných.
-        </div>
-        <div className="flex items-center space-x-6 lg:space-x-8">
-          <div className="flex items-center space-x-2">
-            <p className="font-medium text-sm">Riadkov na stránke</p>
-            <Select
-              onValueChange={(value) => {
-                table.setPageSize(Number(value));
-              }}
-              value={`${table.getState().pagination.pageSize}`}
-            >
-              <SelectTrigger size="xs">
-                <SelectValue
-                  placeholder={table.getState().pagination.pageSize}
-                />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[16, 25, 50, 100].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex w-[100px] items-center justify-center font-medium text-sm">
-            Stránka {table.getState().pagination.pageIndex + 1} z{" "}
-            {table.getPageCount()}
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              className="hidden lg:flex"
-              disabled={!table.getCanPreviousPage()}
-              onClick={() => table.setPageIndex(0)}
-              size="icon-xs"
-              variant="outline"
-            >
-              <span className="sr-only">Prejsť na prvú stránku</span>
-              <ChevronsLeftIcon />
-            </Button>
-            <Button
-              className=""
-              disabled={!table.getCanPreviousPage()}
-              onClick={() => table.previousPage()}
-              size="icon-xs"
-              variant="outline"
-            >
-              <span className="sr-only">Prejsť na predchádzajúcu stránku</span>
-              <ChevronLeftIcon />
-            </Button>
-            <Button
-              className=""
-              disabled={!table.getCanNextPage()}
-              onClick={() => table.nextPage()}
-              size="icon-xs"
-              variant="outline"
-            >
-              <span className="sr-only">Prejsť na ďalšiu stránku</span>
-              <ChevronRightIcon />
-            </Button>
-            <Button
-              className="hidden lg:flex"
-              disabled={!table.getCanNextPage()}
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              size="icon-xs"
-              variant="outline"
-            >
-              <span className="sr-only">Prejsť na poslednú stránku</span>
-              <ChevronsRightIcon />
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    </DataTable>
   );
 }

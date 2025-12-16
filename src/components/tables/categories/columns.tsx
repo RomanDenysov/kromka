@@ -45,7 +45,6 @@ type CategoryTableMeta = {
 export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
   {
     id: "select",
-    enableSorting: false,
     enableHiding: false,
     header: ({ table }) => (
       <Checkbox
@@ -65,6 +64,7 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
       />
     ),
     size: 32,
+    enableSorting: false,
   },
   {
     header: ({ column, table }) => (
@@ -74,6 +74,10 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
         title="Názov"
       />
     ),
+    meta: {
+      label: "Názov",
+      variant: "text",
+    },
     accessorKey: "name",
     cell: ({ row }) => (
       <div className="flex items-center gap-1.5">
@@ -104,7 +108,22 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
         title="Stav"
       />
     ),
+    meta: {
+      label: "Stav",
+      variant: "multiSelect",
+      options: [
+        { label: "Aktívna", value: "active" },
+        { label: "Neaktívna", value: "inactive" },
+      ],
+    },
     accessorKey: "isActive",
+    filterFn: (row, columnId, filterValue: string[]) => {
+      if (!filterValue || filterValue.length === 0) {
+        return true;
+      }
+      const rowValue = String(row.getValue(columnId));
+      return filterValue.includes(rowValue);
+    },
     cell: ({ row, table }) => {
       const meta = table.options.meta as CategoryTableMeta;
       return (
@@ -138,6 +157,14 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
         title="Viditeľná"
       />
     ),
+    meta: {
+      label: "Viditeľná",
+      variant: "multiSelect",
+      options: [
+        { label: "Viditeľná", value: "visible" },
+        { label: "Neviditeľná", value: "invisible" },
+      ],
+    },
     accessorKey: "isVisible",
     cell: ({ row }) => (
       <Badge
@@ -158,6 +185,14 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
       />
     ),
     enableSorting: true,
+    meta: {
+      label: "Katalog",
+      variant: "multiSelect",
+      options: [
+        { label: "B2C", value: "b2c" },
+        { label: "B2B", value: "b2b" },
+      ],
+    },
     accessorKey: "showInB2b",
     cell: ({ row }) => (
       <span className="font-medium font-mono text-xs">
@@ -179,6 +214,10 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
         title="Produktov"
       />
     ),
+    meta: {
+      label: "Produktov",
+      variant: "number",
+    },
     accessorKey: "products",
     cell: ({ row }) => (
       <span className="font-medium text-xs">
@@ -196,6 +235,10 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
         title="Upravené"
       />
     ),
+    meta: {
+      label: "Upravené",
+      variant: "date",
+    },
     accessorKey: "updatedAt",
     enableSorting: true,
     cell: ({ row }) => (

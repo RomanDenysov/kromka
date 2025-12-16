@@ -120,6 +120,15 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
     ),
     enableSorting: true,
     accessorKey: "role",
+    filterFn: (row, columnId, filterValue: string[]) => {
+      if (!filterValue || filterValue.length === 0) {
+        return true;
+      }
+      const rowValue = row.getValue(columnId) as string | null | undefined;
+      return rowValue
+        ? filterValue.includes(rowValue)
+        : filterValue.includes("user");
+    },
     cell: ({ row }) => (
       <Badge size="xs" variant="outline">
         {row.original.role ?? "Uživatel"}
@@ -146,10 +155,6 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
   {
     id: "actions",
     header: "",
-    meta: {
-      className:
-        "text-right sticky right-0 bg-background group-hover:bg-[#F2F1EF] group-hover:dark:bg-secondary z-30 before:absolute before:left-0 before:top-0 before:bottom-0 before:w-px before:bg-border after:absolute after:left-[-24px] after:top-0 after:bottom-0 after:w-6 after:bg-gradient-to-r after:from-transparent after:to-background group-hover:after:to-muted after:z-[-1]",
-    },
     cell: ({ row, table }) => {
       const meta = table.options.meta as UserTableMeta;
       return (

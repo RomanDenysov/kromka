@@ -7,11 +7,13 @@ import {
   CheckIcon,
   CircleIcon,
   CopyIcon,
+  ImageIcon,
   MoreHorizontalIcon,
   PencilIcon,
   Trash2Icon,
   XIcon,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import {
@@ -37,8 +39,8 @@ import {
 import type { AdminProduct } from "@/lib/queries/products";
 import { formatPrice } from "@/lib/utils";
 
-type ProductTableMeta = {
-  onEdit: (id: string) => void;
+export type ProductTableMeta = {
+  onOpen: (id: string) => void;
   onDelete: (id: string) => void;
   onCopy: (id: string) => void;
   onToggleActive: (id: string) => void;
@@ -69,6 +71,33 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
     enableHiding: false,
   },
   {
+    id: "image",
+    header: "Obrázok",
+    meta: {
+      label: "Obrázok",
+      variant: "text",
+    },
+    accessorKey: "images",
+    cell: ({ row }) => {
+      const product = row.original;
+      const image = product.images[0];
+      return image ? (
+        <Image
+          alt={product.name}
+          className="rounded-sm"
+          height={60}
+          quality={60}
+          src={image}
+          width={60}
+        />
+      ) : (
+        <div className="flex size-[60px] items-center justify-center rounded-sm bg-muted">
+          <ImageIcon className="size-6 stroke-2 text-muted-foreground" />
+        </div>
+      );
+    },
+  },
+  {
     header: ({ column, table }) => (
       <TableColumnHeader
         column={column}
@@ -76,6 +105,10 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Produkt"
       />
     ),
+    meta: {
+      label: "Produkt",
+      variant: "text",
+    },
     accessorKey: "name",
     enableSorting: true,
     enableGlobalFilter: true,
@@ -102,7 +135,23 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
     ),
     accessorKey: "status",
     enableSorting: true,
+    meta: {
+      label: "Status",
+      variant: "multiSelect",
+      options: [
+        { label: "Návrh", value: "draft" },
+        { label: "Aktívny", value: "active" },
+        { label: "Predaný", value: "sold" },
+        { label: "Archivovaný", value: "archived" },
+      ],
+    },
     enableGlobalFilter: true,
+    filterFn: (row, columnId, filterValue: string[]) => {
+      if (!filterValue || filterValue.length === 0) {
+        return true;
+      }
+      return filterValue.includes(row.getValue(columnId));
+    },
     cell: ({ row }) => (
       <Badge className="capitalize" size="xs">
         <CircleIcon className="size-3" />
@@ -120,6 +169,21 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
     ),
     accessorKey: "isActive",
     enableSorting: true,
+    meta: {
+      label: "Stav",
+      variant: "multiSelect",
+      options: [
+        { label: "Aktívny", value: "true" },
+        { label: "Neaktívny", value: "false" },
+      ],
+    },
+    filterFn: (row, columnId, filterValue: string[]) => {
+      if (!filterValue || filterValue.length === 0) {
+        return true;
+      }
+      const rowValue = String(row.getValue(columnId));
+      return filterValue.includes(rowValue);
+    },
     cell: ({ row, table }) => {
       const meta = table.options.meta as ProductTableMeta;
       return (
@@ -152,6 +216,10 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Cena"
       />
     ),
+    meta: {
+      label: "Cena",
+      variant: "number",
+    },
     accessorKey: "priceCents",
     enableSorting: true,
     cell: ({ row }) => (
@@ -168,6 +236,10 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Kategórie"
       />
     ),
+    meta: {
+      label: "Kategórie",
+      variant: "text",
+    },
     accessorKey: "categories",
     enableSorting: true,
     enableGlobalFilter: true,
@@ -188,6 +260,14 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Katalog"
       />
     ),
+    meta: {
+      label: "Katalog",
+      variant: "multiSelect",
+      options: [
+        { label: "B2C", value: "b2c" },
+        { label: "B2B", value: "b2b" },
+      ],
+    },
     accessorKey: "showInB2cAndB2b",
     enableSorting: true,
     cell: ({ row }) => {
@@ -213,6 +293,10 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Vytvorené"
       />
     ),
+    meta: {
+      label: "Vytvorené",
+      variant: "date",
+    },
     accessorKey: "createdAt",
     enableSorting: true,
     cell: ({ row }) => (

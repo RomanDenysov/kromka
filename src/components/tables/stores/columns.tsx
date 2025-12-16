@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,6 +40,29 @@ type StoreTableMeta = {
 
 export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
   {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        aria-label="Select all"
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        aria-label="Select row"
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+      />
+    ),
+    size: 32,
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
     id: "name",
     header: ({ column, table }) => (
       <TableColumnHeader
@@ -47,8 +71,13 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         title="Názov"
       />
     ),
+    meta: {
+      label: "Názov",
+      variant: "text",
+    },
     accessorKey: "name",
     enableSorting: true,
+    enableGlobalFilter: true,
     cell: ({ row }) => (
       <Link
         className={buttonVariants({ variant: "link", size: "xs" })}
@@ -68,6 +97,21 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         title="Stav"
       />
     ),
+    meta: {
+      label: "Stav",
+      variant: "multiSelect",
+      options: [
+        { label: "Aktívny", value: "true" },
+        { label: "Neaktívny", value: "false" },
+      ],
+    },
+    filterFn: (row, columnId, filterValue: string[]) => {
+      if (!filterValue || filterValue.length === 0) {
+        return true;
+      }
+      const rowValue = String(row.getValue(columnId));
+      return filterValue.includes(rowValue);
+    },
     cell: ({ row, table }) => {
       const meta = table.options.meta as StoreTableMeta;
       return (
@@ -101,6 +145,10 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         title="Zákazníci"
       />
     ),
+    meta: {
+      label: "Zákazníci",
+      variant: "number",
+    },
     enableSorting: true,
     accessorKey: "usersCount",
     cell: ({ row }) => (
@@ -118,6 +166,10 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         title="Objednávky"
       />
     ),
+    meta: {
+      label: "Objednávky",
+      variant: "number",
+    },
     enableSorting: true,
     accessorKey: "ordersCount",
     cell: ({ row }) => (
