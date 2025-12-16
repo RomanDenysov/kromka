@@ -10,6 +10,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
+import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
+import { DataTableSearch } from "@/components/data-table/data-table-search";
 import {
   Table,
   TableBody,
@@ -36,16 +38,31 @@ export function UsersTable({
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const table = useReactTable<UserList[number]>({
     data: processedUsers,
     columns,
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, _columnId, filterValue: string) => {
+      if (!filterValue || filterValue.trim() === "") {
+        return true;
+      }
+      const searchValue = filterValue.toLowerCase();
+      const user = row.original;
+      return (
+        user.name?.toLowerCase().includes(searchValue) ||
+        user.email?.toLowerCase().includes(searchValue) ||
+        user.phone?.toLowerCase().includes(searchValue)
+      );
+    },
     getSortedRowModel: getSortedRowModel(),
     state: {
       columnFilters,
       sorting,
+      globalFilter,
     },
     meta: {
       onOpen: (id: string) => {
@@ -61,10 +78,28 @@ export function UsersTable({
     getFilteredRowModel: getFilteredRowModel(),
   });
 
+  const roleOptions = [
+    { label: "Admin", value: "admin" },
+    { label: "Manažér", value: "manager" },
+    { label: "Užívateľ", value: "user" },
+  ];
+
   return (
     <div className={cn("size-full", className)}>
       <div className="flex items-center justify-between border-t p-3">
-        <div className="flex items-center justify-end gap-2" />
+        <div className="flex items-center gap-2">
+          <DataTableSearch
+            onSearch={setGlobalFilter}
+            placeholder="Hľadať používateľov..."
+            value={globalFilter}
+          />
+          <DataTableMultiSelectFilter
+            columnId="role"
+            options={roleOptions}
+            table={table}
+            title="Pozícia"
+          />
+        </div>
       </div>
       <div className="size-full overflow-hidden border-t">
         <Table>

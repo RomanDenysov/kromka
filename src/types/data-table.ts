@@ -1,15 +1,16 @@
-/** biome-ignore-all lint/style/useConsistentTypeDefinitions: <explanation> */
+/** biome-ignore-all lint/style/useConsistentTypeDefinitions: Module augmentation requires interface */
 import type { RowData } from "@tanstack/react-table";
 import type { LucideIcon } from "lucide-react";
 import type { DataTableConfig } from "@/components/data-table/config/data-table";
 
 declare module "@tanstack/react-table" {
-  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
+  // biome-ignore lint/correctness/noUnusedVariables: false positive
   interface TableMeta<TData extends RowData> {
     queryKeys?: QueryKeys;
+    [key: string]: unknown;
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: <explanation>
+  // biome-ignore lint/correctness/noUnusedVariables: false positive
   interface ColumnMeta<TData extends RowData, TValue> {
     label?: string;
     placeholder?: string;

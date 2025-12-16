@@ -120,6 +120,15 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
     ),
     enableSorting: true,
     accessorKey: "role",
+    filterFn: (row, columnId, filterValue: string[]) => {
+      if (!filterValue || filterValue.length === 0) {
+        return true;
+      }
+      const rowValue = row.getValue(columnId) as string | null | undefined;
+      return rowValue
+        ? filterValue.includes(rowValue)
+        : filterValue.includes("user");
+    },
     cell: ({ row }) => (
       <Badge size="xs" variant="outline">
         {row.original.role ?? "Uživatel"}
