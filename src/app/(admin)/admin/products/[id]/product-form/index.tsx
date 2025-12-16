@@ -16,7 +16,7 @@ export function ProductForm() {
   const form = useProductForm();
 
   const onSubmit = (data: ProductSchema) => {
-    // biome-ignore lint/suspicious/noConsole: <explanation>
+    // biome-ignore lint/suspicious/noConsole: Ignore it for now
     console.log(data);
   };
   return (

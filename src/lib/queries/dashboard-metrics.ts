@@ -783,7 +783,7 @@ export async function getSeasonalTrends(days: number = 14): Promise<{
     const previousQty = previousMap.get(p.productId) ?? 0;
     const changePercent =
       previousQty === 0
-        ? // biome-ignore lint/style/noNestedTernary: <explanation>
+        ? // biome-ignore lint/style/noNestedTernary: Ignore it for now
           p.quantity > 0
           ? 100
           : 0

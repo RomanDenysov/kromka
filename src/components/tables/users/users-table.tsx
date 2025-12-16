@@ -52,11 +52,13 @@ export function UsersTable({
       }
       const searchValue = filterValue.toLowerCase();
       const user = row.original;
-      return (
-        user.name?.toLowerCase().includes(searchValue) ||
-        user.email?.toLowerCase().includes(searchValue) ||
-        user.phone?.toLowerCase().includes(searchValue)
-      );
+      const matchesName =
+        user.name?.toLowerCase().includes(searchValue) ?? false;
+      const matchesEmail =
+        user.email?.toLowerCase().includes(searchValue) ?? false;
+      const matchesPhone =
+        user.phone?.toLowerCase().includes(searchValue) ?? false;
+      return matchesName || matchesEmail || matchesPhone;
     },
     getSortedRowModel: getSortedRowModel(),
     state: {

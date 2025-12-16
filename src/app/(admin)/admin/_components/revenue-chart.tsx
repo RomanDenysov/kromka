@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/style/noMagicNumbers: <explanation> */
+/** biome-ignore-all lint/style/noMagicNumbers: Ignore it for now */
 "use client";
 
 import {
