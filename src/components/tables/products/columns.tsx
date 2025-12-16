@@ -173,8 +173,8 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
       label: "Stav",
       variant: "multiSelect",
       options: [
-        { label: "Aktívny", value: "active" },
-        { label: "Neaktívny", value: "inactive" },
+        { label: "Aktívny", value: "true" },
+        { label: "Neaktívny", value: "false" },
       ],
     },
     filterFn: (row, columnId, filterValue: string[]) => {
