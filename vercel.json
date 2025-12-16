@@ -8,5 +8,6 @@
       "source": "/ph/:path(.*)",
       "destination": "https://eu.i.posthog.com/:path"
     }
-  ]
+  ],
+  "bunVersion": "1.x"
 }
