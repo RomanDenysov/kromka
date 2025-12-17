@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { getMedia } from "@/lib/queries/media";
-import { AspectRatio } from "../ui/aspect-ratio";
 
 export async function MediaList() {
   const media = await getMedia();
@@ -11,9 +10,13 @@ export async function MediaList() {
           className="relative aspect-square overflow-hidden rounded-md bg-muted"
           key={item.id}
         >
-          <AspectRatio ratio={1}>
-            <Image alt={item.name} height={160} src={item.url} width={160} />
-          </AspectRatio>
+          <Image
+            alt={item.name}
+            className="aspect-square size-full object-cover"
+            height={160}
+            src={item.url}
+            width={160}
+          />
         </div>
       ))}
     </div>
