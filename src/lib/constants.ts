@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 
 export const ORDER_STATUS_LABELS = {
-  cart: "Košík",
   new: "Nová",
   in_progress: "Spracováva sa",
   ready_for_pickup: "Pripravená",

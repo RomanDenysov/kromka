@@ -11,8 +11,6 @@ import {
   UserIcon,
   XCircleIcon,
 } from "lucide-react";
-import { useRef, useState, useTransition } from "react";
-import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +32,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
   Stepper,
@@ -53,8 +58,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { OrderStatus } from "@/db/types";
-import { updateOrderStatusAction } from "@/lib/actions/orders";
+import type { OrderStatus, PaymentStatus } from "@/db/types";
 import {
   ORDER_STATUS_ICONS,
   ORDER_STATUS_LABELS,
@@ -64,10 +68,10 @@ import {
   WORKFLOW_STATUSES,
 } from "@/lib/constants";
 import type { Order } from "@/lib/queries/orders";
-import { formatPrice, getInitials } from "@/lib/utils";
+import { formatPrice, getInitials, getItemsLabel } from "@/lib/utils";
+import { useOrderStatusManagement } from "./use-order-status-management";
 
 const ORDER_ID_LENGTH = 8;
-const ITEMS_PLURAL_THRESHOLD = 5;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Utility Components
@@ -359,16 +363,6 @@ function ProductsCard({ items }: { items: OrderItemData[] }) {
   );
 }
 
-function getItemsLabel(count: number): string {
-  if (count === 1) {
-    return "položka";
-  }
-  if (count < ITEMS_PLURAL_THRESHOLD) {
-    return "položky";
-  }
-  return "položiek";
-}
-
 type CustomerData = {
   id: string;
   name: string | null;
@@ -468,10 +462,16 @@ function PaymentCard({
   paymentMethod,
   paymentStatus,
   paymentId,
+  onPaymentStatusChange,
+  onValidatePaymentStatus,
+  isUpdating,
 }: {
   paymentMethod: string;
   paymentStatus: string;
   paymentId: string | null;
+  onPaymentStatusChange: (status: PaymentStatus) => void;
+  onValidatePaymentStatus: (status: PaymentStatus) => Promise<boolean>;
+  isUpdating: boolean;
 }) {
   return (
     <Card>
@@ -492,20 +492,35 @@ function PaymentCard({
           </span>
         </InfoRow>
         <InfoRow label="Stav">
-          <Badge
-            size="sm"
-            variant={
-              PAYMENT_STATUS_VARIANTS[
-                paymentStatus as keyof typeof PAYMENT_STATUS_VARIANTS
-              ]
-            }
+          <Select
+            disabled={isUpdating}
+            onValueChange={async (value) => {
+              const confirmed = await onValidatePaymentStatus(
+                value as PaymentStatus
+              );
+              if (confirmed) {
+                onPaymentStatusChange(value as PaymentStatus);
+              }
+            }}
+            value={paymentStatus}
           >
-            {
-              PAYMENT_STATUS_LABELS[
-                paymentStatus as keyof typeof PAYMENT_STATUS_LABELS
-              ]
-            }
-          </Badge>
+            <SelectTrigger className="w-fit" size="sm">
+              <SelectValue>
+                {
+                  PAYMENT_STATUS_LABELS[
+                    paymentStatus as keyof typeof PAYMENT_STATUS_LABELS
+                  ]
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(PAYMENT_STATUS_LABELS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </InfoRow>
         {paymentId && (
           <InfoRow label="ID platby">
@@ -597,32 +612,15 @@ function StatusHistoryCard({ events }: { events: StatusEventData[] }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function OrderDetail({ order }: { order: Order | undefined }) {
-  const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const validationResolverRef = useRef<((value: boolean) => void) | null>(null);
-
-  const [isPending, startTransition] = useTransition();
-
-  const updateStatus = ({
-    id,
-    status,
-    note,
-  }: {
-    id: string;
-    status: OrderStatus;
-    note?: string;
-  }) => {
-    startTransition(async () => {
-      try {
-        await updateOrderStatusAction({ orderId: id, status, note });
-        toast.success("Stav objednávky bol aktualizovaný");
-      } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : "Chyba pri aktualizácii"
-        );
-      }
-    });
-  };
+  const {
+    optimisticOrderStatus,
+    optimisticPaymentStatus,
+    isPending,
+    statusDialog,
+    paymentDialog,
+    handleStatusChange,
+    handlePaymentStatusChange,
+  } = useOrderStatusManagement(order);
 
   if (!order) {
     return (
@@ -632,42 +630,18 @@ export function OrderDetail({ order }: { order: Order | undefined }) {
     );
   }
 
-  const handleValidate = (status: string): Promise<boolean> => {
-    if (status === order.orderStatus) {
-      return Promise.resolve(false);
-    }
-
-    setPendingStatus(status as OrderStatus);
-    setIsDialogOpen(true);
-
-    return new Promise((resolve) => {
-      validationResolverRef.current = resolve;
-    });
-  };
-
-  const handleStatusChange = (status: OrderStatus) => {
-    updateStatus({ id: order.id, status });
-  };
-
-  const handleStatusChangeConfirm = () => {
-    validationResolverRef.current?.(true);
-    validationResolverRef.current = null;
-    setIsDialogOpen(false);
-    setPendingStatus(null);
-  };
-
-  const handleDialogClose = () => {
-    validationResolverRef.current?.(false);
-    validationResolverRef.current = null;
-    setIsDialogOpen(false);
-    setPendingStatus(null);
-  };
-
   const customerEmail = order.createdBy?.email ?? "zákazník";
 
   return (
     <div className="flex flex-col gap-6">
-      <AlertDialog onOpenChange={setIsDialogOpen} open={isDialogOpen}>
+      <AlertDialog
+        onOpenChange={(open) => {
+          if (!open) {
+            statusDialog.onCancel();
+          }
+        }}
+        open={statusDialog.isOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Zmeniť stav objednávky?</AlertDialogTitle>
@@ -676,9 +650,9 @@ export function OrderDetail({ order }: { order: Order | undefined }) {
               <strong>{customerEmail}</strong> dostane e-mail s upozornením o
               zmene stavu objednávky na{" "}
               <strong>
-                {pendingStatus
+                {statusDialog.pendingStatus
                   ? ORDER_STATUS_LABELS[
-                      pendingStatus as keyof typeof ORDER_STATUS_LABELS
+                      statusDialog.pendingStatus as keyof typeof ORDER_STATUS_LABELS
                     ]
                   : ""}
               </strong>
@@ -686,10 +660,44 @@ export function OrderDetail({ order }: { order: Order | undefined }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleDialogClose}>
+            <AlertDialogCancel onClick={statusDialog.onCancel}>
               Zrušiť
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleStatusChangeConfirm}>
+            <AlertDialogAction onClick={statusDialog.onConfirm}>
+              Potvrdiť zmenu
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        onOpenChange={(open) => {
+          if (!open) {
+            paymentDialog.onCancel();
+          }
+        }}
+        open={paymentDialog.isOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Zmeniť stav platby?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ste si istí, že chcete zmeniť stav platby na{" "}
+              <strong>
+                {paymentDialog.pendingStatus
+                  ? PAYMENT_STATUS_LABELS[
+                      paymentDialog.pendingStatus as keyof typeof PAYMENT_STATUS_LABELS
+                    ]
+                  : ""}
+              </strong>
+              ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={paymentDialog.onCancel}>
+              Zrušiť
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={paymentDialog.onConfirm}>
               Potvrdiť zmenu
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -700,16 +708,16 @@ export function OrderDetail({ order }: { order: Order | undefined }) {
         createdAt={order.createdAt}
         orderId={order.id}
         orderNumber={order.orderNumber}
-        orderStatus={order.orderStatus}
-        paymentStatus={order.paymentStatus}
+        orderStatus={optimisticOrderStatus}
+        paymentStatus={optimisticPaymentStatus}
       />
 
       <StatusStepperCard
         isUpdating={isPending}
         onStatusChange={handleStatusChange}
-        onValidate={handleValidate}
-        orderStatus={order.orderStatus}
-        paymentStatus={order.paymentStatus}
+        onValidate={statusDialog.onValidate}
+        orderStatus={optimisticOrderStatus}
+        paymentStatus={optimisticPaymentStatus}
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -723,9 +731,13 @@ export function OrderDetail({ order }: { order: Order | undefined }) {
             store={order.store}
           />
           <PaymentCard
+            isUpdating={isPending}
+            key={order.id}
+            onPaymentStatusChange={handlePaymentStatusChange}
+            onValidatePaymentStatus={paymentDialog.onValidate}
             paymentId={order.paymentId}
             paymentMethod={order.paymentMethod}
-            paymentStatus={order.paymentStatus}
+            paymentStatus={optimisticPaymentStatus}
           />
         </div>
       </div>

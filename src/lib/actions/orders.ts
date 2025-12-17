@@ -1,9 +1,10 @@
 "use server";
 
 import { eq, inArray } from "drizzle-orm";
+import { refresh } from "next/cache";
 import { db } from "@/db";
 import { orderItems, orderStatusEvents, orders, products } from "@/db/schema";
-import type { OrderStatus, PaymentMethod } from "@/db/types";
+import type { OrderStatus, PaymentMethod, PaymentStatus } from "@/db/types";
 import { getAuth } from "../auth/session";
 import { clearCart, getCart } from "../cart/cookies";
 import { sendEmail } from "../email";
@@ -200,9 +201,33 @@ export async function updateOrderStatusAction({
     throw new Error("Unauthorized");
   }
 
+  // Get current order to check payment status
+  const currentOrder = await db.query.orders.findFirst({
+    where: eq(orders.id, orderId),
+  });
+
+  if (!currentOrder) {
+    throw new Error("Order not found");
+  }
+
+  // Auto-update payment status based on order status
+  const updates: { orderStatus: OrderStatus; paymentStatus?: PaymentStatus } = {
+    orderStatus: status,
+  };
+
+  // Set payment status to "paid" if order is completed and payment wasn't already set
+  if (status === "completed" && currentOrder.paymentStatus !== "paid") {
+    updates.paymentStatus = "paid";
+  }
+
+  // Set payment status to "refunded" if order is refunded and payment wasn't already refunded
+  if (status === "refunded" && currentOrder.paymentStatus !== "refunded") {
+    updates.paymentStatus = "refunded";
+  }
+
   const [updatedOrder] = await db
     .update(orders)
-    .set({ orderStatus: status })
+    .set(updates)
     .where(eq(orders.id, orderId))
     .returning();
 
@@ -215,5 +240,27 @@ export async function updateOrderStatusAction({
 
   await sendEmailBasedOnOrderStatus(updatedOrder.id, status);
 
+  refresh();
+
   return updatedOrder;
+}
+
+export async function updateOrderPaymentStatusAction({
+  orderId,
+  status,
+}: {
+  orderId: string;
+  status: PaymentStatus;
+}) {
+  const { user } = await getAuth();
+  if (!user || user.role !== "admin") {
+    throw new Error("Unauthorized");
+  }
+
+  await db
+    .update(orders)
+    .set({ paymentStatus: status })
+    .where(eq(orders.id, orderId));
+
+  refresh();
 }

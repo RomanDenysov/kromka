@@ -10,10 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { OrderStatus, PaymentStatus } from "@/db/types";
 import {
   ORDER_STATUS_LABELS,
   ORDER_STATUS_VARIANTS,
@@ -24,6 +30,11 @@ import {
 } from "@/lib/constants";
 import type { Order } from "@/lib/queries/orders";
 import { formatPrice } from "@/lib/utils";
+
+type OrdersTableMeta = {
+  onStatusChange: (id: string, status: OrderStatus) => Promise<void>;
+  onPaymentStatusChange: (id: string, status: PaymentStatus) => Promise<void>;
+};
 
 export const columns: ColumnDef<Order>[] = [
   {
@@ -300,8 +311,30 @@ export const columns: ColumnDef<Order>[] = [
   {
     id: "actions",
     header: "",
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as OrdersTableMeta;
+      const onStatusChange = meta?.onStatusChange;
+      const onPaymentStatusChange = meta?.onPaymentStatusChange;
       const order = row.original;
+      const orderStatuses = Object.entries(ORDER_STATUS_LABELS).map(
+        ([value, label]) => ({
+          label,
+          value,
+        })
+      ) as { label: string; value: OrderStatus }[];
+      const currentOrderStatus = order.orderStatus;
+      const isCurrentOrderStatus = (status: OrderStatus) =>
+        status === currentOrderStatus;
+
+      const paymentStatuses = Object.entries(PAYMENT_STATUS_LABELS).map(
+        ([value, label]) => ({
+          label,
+          value,
+        })
+      ) as { label: string; value: PaymentStatus }[];
+      const currentPaymentStatus = order.paymentStatus;
+      const isCurrentPaymentStatus = (status: PaymentStatus) =>
+        status === currentPaymentStatus;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -315,6 +348,50 @@ export const columns: ColumnDef<Order>[] = [
                 <SquareArrowOutUpRight />
                 Otvoriť
               </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>Stav objednávky</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    {orderStatuses.map((status) => (
+                      <DropdownMenuCheckboxItem
+                        checked={isCurrentOrderStatus(status.value)}
+                        key={status.value}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            onStatusChange(order.id, status.value);
+                          }
+                        }}
+                      >
+                        {status.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>Stav platby</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    {paymentStatuses.map((status) => (
+                      <DropdownMenuCheckboxItem
+                        checked={isCurrentPaymentStatus(status.value)}
+                        key={status.value}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            onPaymentStatusChange(order.id, status.value);
+                          }
+                        }}
+                      >
+                        {status.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

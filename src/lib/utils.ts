@@ -60,3 +60,18 @@ export function getSiteUrl(path?: string) {
 
   return new URL(path ?? "", url).toString();
 }
+
+/**
+ * Slovak pluralization for "položka" (item)
+ * @param count - Number of items
+ * @returns Singular "položka", plural "položky" (2-4), or "položiek" (5+)
+ */
+export function getItemsLabel(count: number): string {
+  if (count === 1) {
+    return "položka";
+  }
+  if (count < 5) {
+    return "položky";
+  }
+  return "položiek";
+}

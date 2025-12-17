@@ -16,6 +16,11 @@ import { DataTable } from "@/components/data-table/data-table";
 import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
 import { DataTableSearch } from "@/components/data-table/data-table-search";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
+import type { OrderStatus, PaymentStatus } from "@/db/types";
+import {
+  updateOrderPaymentStatusAction,
+  updateOrderStatusAction,
+} from "@/lib/actions/orders";
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants";
 import type { Order } from "@/lib/queries/orders";
 import { columns } from "./columns";
@@ -87,6 +92,14 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     enableRowSelection: true,
+    meta: {
+      onStatusChange: async (id: string, status: OrderStatus) => {
+        await updateOrderStatusAction({ orderId: id, status });
+      },
+      onPaymentStatusChange: async (id: string, status: PaymentStatus) => {
+        await updateOrderPaymentStatusAction({ orderId: id, status });
+      },
+    },
   });
 
   const statusOptions = Object.entries(ORDER_STATUS_LABELS).map(
