@@ -10,7 +10,6 @@ export const consent = createConsentify({
   },
   cookie: {
     name: "kromka-consent",
-    // biome-ignore lint/style/noMagicNumbers: we need to use magic numbers for the consent cookie max age
     maxAgeSec: 60 * 60 * 24 * 365, // 1 year
   },
 });

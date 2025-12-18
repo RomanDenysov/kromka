@@ -7,7 +7,7 @@ import { Toolbar } from "./toolbar/toolbar";
 import type { ToolbarVariant } from "./toolbar/toolbar-config";
 
 type EditorProps = {
-  content?: JSONContent | string;
+  content?: JSONContent | string | null;
   placeholder?: string;
   variant?: ToolbarVariant;
   onChange?: (content: JSONContent) => void;

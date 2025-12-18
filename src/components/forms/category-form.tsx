@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { SingleImageUpload } from "@/components/image-upload/single-image-upload";
 import {
   Field,
   FieldDescription,
@@ -23,12 +22,14 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { updateCategoryAction } from "@/lib/actions/categories";
+import { uploadMedia } from "@/lib/actions/media";
 import { getSlug } from "@/lib/get-slug";
 import { cn } from "@/lib/utils";
 import type { AdminCategory } from "@/types/categories";
 import { updateCategorySchema } from "@/validation/categories";
 import { useAppForm } from "../shared/form";
 import { Hint } from "../shared/hint";
+import { ImageInput } from "../shared/image-input";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import {
@@ -46,8 +47,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-// biome-ignore lint/style/noMagicNumbers: Image aspect ratio
-const IMAGE_ASPECT_RATIO = 16 / 9;
+const _IMAGE_ASPECT_RATIO = 16 / 9;
 
 export function CategoryForm({
   category,
@@ -149,12 +149,20 @@ export function CategoryForm({
             <form.AppField name="imageId">
               {(field) => (
                 <Field className="flex flex-col gap-2">
-                  <SingleImageUpload
-                    aspect={IMAGE_ASPECT_RATIO}
+                  <ImageInput
                     className="w-full"
                     disabled={isPending}
-                    onChange={(val) => field.handleChange(val)}
-                    value={field.state.value}
+                    onChange={() => {
+                      return;
+                    }}
+                    onUpload={async (file) => {
+                      const media = await uploadMedia(file, "categories");
+                      field.handleChange(media.id);
+                      return { id: media.id, url: media.url };
+                    }}
+                    value={
+                      field.state.value as { id: string; url: string } | null
+                    }
                   />
                 </Field>
               )}

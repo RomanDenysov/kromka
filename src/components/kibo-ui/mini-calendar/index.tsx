@@ -40,7 +40,6 @@ const useMiniCalendar = () => {
 // Helper function to get array of consecutive dates
 const getDays = (startDate: Date, count: number): Date[] => {
   const days: Date[] = [];
-  // biome-ignore lint/nursery/noIncrementDecrement: we need to increment the loop counter
   for (let i = 0; i < count; i++) {
     days.push(addDays(startDate, i));
   }

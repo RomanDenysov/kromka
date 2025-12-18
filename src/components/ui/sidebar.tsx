@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/style/noMagicNumbers: we need to use magic numbers for the sidebar width */
-/** biome-ignore-all lint/nursery/noShadow: we need to use shadow for the sidebar */
 "use client";
 
 import { Slot } from "@radix-ui/react-slot";
@@ -104,6 +102,11 @@ function SidebarProvider({
         event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
         (event.metaKey || event.ctrlKey)
       ) {
+        const target = event.target as HTMLElement;
+        if(target.closest("[contenteditable], .ProseMirror, input, textarea")) {
+          return
+        }
+
         event.preventDefault();
         toggleSidebar();
       }

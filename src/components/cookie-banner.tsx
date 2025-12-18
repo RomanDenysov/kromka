@@ -21,7 +21,6 @@ export function CookieBanner() {
 
   useEffect(() => {
     if (!consentGiven) {
-      // biome-ignore lint/style/noMagicNumbers: we need to use magic numbers for the timeout
       const timer = setTimeout(() => setShow(true), 500);
       return () => clearTimeout(timer);
     }

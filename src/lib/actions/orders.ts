@@ -152,7 +152,6 @@ export async function createOrderFromCart(data: {
       orderNumber,
     };
   } catch (error) {
-    // biome-ignore lint/suspicious/noConsole: TODO: replace with error logging later
     console.error("[SERVER] Create ORDER failed:", error);
     return {
       success: false,

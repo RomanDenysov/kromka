@@ -54,7 +54,6 @@ export function PriceInputField({
             field.handleChange(0);
             return;
           }
-          // biome-ignore lint/style/noMagicNumbers: we need to convert the price to cents
           const cents = Math.round(price * 100);
           field.handleChange(cents);
         }}

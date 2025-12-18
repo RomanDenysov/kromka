@@ -1,15 +1,34 @@
+import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
+import { EditProductSheet } from "@/components/sheets/edit-product-sheet";
 import { ProductsTable } from "@/components/tables/products/table";
-import { getAdminProducts } from "@/lib/queries/products";
+import { getAdminCategories } from "@/lib/queries/categories";
+import { getAdminProductById, getAdminProducts } from "@/lib/queries/products";
 
 async function ProductsLoader() {
   const products = await getAdminProducts();
   return <ProductsTable products={products} />;
 }
 
-export default function ProductsPage() {
+async function ProductSheetLoader({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const { productId } = await searchParams;
+  const product = await getAdminProductById(productId as string);
+  const categories = await getAdminCategories();
+  if (!product) {
+    return null;
+  }
+  return <EditProductSheet categories={categories} product={product} />;
+}
+
+export default function ProductsPage({
+  searchParams,
+}: PageProps<"/admin/products">) {
   return (
     <>
       <AdminHeader
@@ -23,6 +42,9 @@ export default function ProductsPage() {
           <ProductsLoader />
         </Suspense>
       </section>
+      <Suspense fallback={null}>
+        <ProductSheetLoader searchParams={searchParams} />
+      </Suspense>
     </>
   );
 }

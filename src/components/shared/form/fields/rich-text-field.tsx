@@ -2,7 +2,7 @@
 
 import type { JSONContent } from "@tiptap/react";
 import { useCallback } from "react";
-import { Editor } from "@/components/editor";
+import { Editor } from "@/components/editor/editor";
 import { useFieldContext } from "@/components/shared/form";
 import { Field, FieldLabel } from "@/components/ui/field";
 
@@ -24,13 +24,8 @@ export function RichTextField({
   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
   const handleUpdate = useCallback(
-    (
-      editor: Parameters<
-        NonNullable<React.ComponentProps<typeof Editor>["onUpdate"]>
-      >[0]
-    ) => {
-      const jsonContent = editor.getJSON();
-      field.handleChange(jsonContent);
+    (content: JSONContent) => {
+      field.handleChange(content);
     },
     [field]
   );
@@ -40,10 +35,10 @@ export function RichTextField({
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
       <div className="rounded-md border border-input bg-background">
         <Editor
-          className="prose prose-sm min-h-[120px] max-w-none rounded-md px-4 py-3 focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+          className="prose prose-sm min-h-[120px] max-w-none px-2 py-1 focus-within:outline-none"
           content={field.state.value ?? undefined}
           onBlur={field.handleBlur}
-          onUpdate={handleUpdate}
+          onChange={handleUpdate}
           placeholder={placeholder}
           variant={variant}
         />

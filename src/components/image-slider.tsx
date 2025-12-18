@@ -105,7 +105,7 @@ export function ImageSlider({
       >
         {urls.map((url, index) => (
           <SwiperSlide
-            className="-z-10 relative size-full"
+            className="relative -z-10 size-full"
             key={`image-${url}`}
           >
             <ProductImage

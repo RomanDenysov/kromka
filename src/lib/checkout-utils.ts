@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/style/noMagicNumbers: Date calculation constants */
-/** biome-ignore-all lint/nursery/noIncrementDecrement: we need to use increment/decrement */
 import { addDays, format, getDay, isAfter, startOfToday } from "date-fns";
 import type { StoreSchedule, TimeRange } from "@/db/types";
 import type { DetailedCartItem } from "@/lib/cart/queries";

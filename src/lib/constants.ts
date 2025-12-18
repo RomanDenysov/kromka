@@ -73,3 +73,10 @@ export const PAYMENT_STATUS_LABELS = {
   failed: "Zlyhala",
   refunded: "Vrátená",
 } as const;
+
+export const PRODUCT_STATUSES_LABELS = {
+  draft: "Draft",
+  active: "Aktívny",
+  sold: "Predaný",
+  archived: "Archivovaný",
+} as const;

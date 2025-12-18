@@ -77,7 +77,6 @@ export async function updateProfileAction(input: UpdateProfileInput) {
     revalidatePath("/profil");
     return { success: true };
   } catch (error) {
-    // biome-ignore lint/suspicious/noConsole: Error reporting
     console.error(error);
     return { success: false, error: "Nepodarilo sa aktualizovať profil" };
   }

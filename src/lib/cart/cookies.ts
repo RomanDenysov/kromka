@@ -2,7 +2,6 @@ import { cookies } from "next/headers";
 import { type CartItem, cartSchema } from "./schema";
 
 const CART_COOKIE = "krmk-kosik";
-// biome-ignore lint/style/noMagicNumbers: ignore it for now
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 export async function getCart(): Promise<CartItem[]> {

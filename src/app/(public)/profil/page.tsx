@@ -59,7 +59,6 @@ async function ProfilPageContent() {
               {totalOrders === 1
                 ? "objednávka"
                 : // biome-ignore lint/style/noNestedTernary: TODL: fix later
-                  // biome-ignore lint/style/noMagicNumbers: TODL: fix later
                   totalOrders >= 2 && totalOrders <= 4
                   ? "objednávky"
                   : "objednávok"}

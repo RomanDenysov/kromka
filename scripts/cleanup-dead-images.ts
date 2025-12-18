@@ -17,7 +17,6 @@ async function cleanupDeadImages() {
   for (const item of allMedia) {
     try {
       const res = await fetch(item.url, { method: "HEAD" });
-      // biome-ignore lint/style/noMagicNumbers: TODO: fix this in a future
       if (res.status === 404) {
         console.log(`Deleting dead media: ${item.url}`);
         await dbClient.delete(media).where(eq(media.id, item.id));

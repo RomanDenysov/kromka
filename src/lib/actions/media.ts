@@ -1,51 +1,40 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { put } from "@vercel/blob";
+import sharp from "sharp";
 import { db } from "@/db";
 import { media } from "@/db/schema";
-import { getAuth } from "../auth/session";
 
-export async function getMediaByIdAction({ id }: { id: string }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+const imageExtensions = /\.(jpg|jpeg|png|gif|webp)$/i;
 
-  return await db.query.media.findFirst({
-    where: (mediaTable, { eq: eqFn }) => eqFn(mediaTable.id, id),
-  });
-}
+const MAX_SIZE = 1600;
+const TARGET_QUALITY = 85;
 
-export async function uploadMediaAction({
-  name,
-  url,
-  path,
-  type,
-  size,
-}: {
-  name: string;
-  url: string;
-  path: string;
-  type: string;
-  size: number;
-}) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+export async function uploadMedia(file: File, folder: string) {
+  const buffer = Buffer.from(await file.arrayBuffer());
 
-  const results = await db
+  const optimized = await sharp(buffer)
+    .rotate()
+    .resize(MAX_SIZE, MAX_SIZE, { fit: "inside", withoutEnlargement: true })
+    .jpeg({ quality: TARGET_QUALITY, mozjpeg: true })
+    .toBuffer();
+
+  const blob = await put(
+    `${folder}/${file.name.replace(imageExtensions, ".jpg")}`,
+    optimized,
+    { access: "public", addRandomSuffix: true }
+  );
+
+  const [created] = await db
     .insert(media)
     .values({
-      name,
-      path,
-      url,
-      type,
-      size,
+      name: file.name,
+      url: blob.url,
+      path: blob.pathname,
+      type: blob.contentType,
+      size: optimized.length,
     })
     .returning();
 
-  revalidatePath("/admin/media");
-
-  return results;
+  return created;
 }

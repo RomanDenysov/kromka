@@ -71,7 +71,6 @@ export function UsersTable({
         setParams({ customerId: id });
       },
       onLock: (id: string) => {
-        // biome-ignore lint/suspicious/noConsole: Ignore it for now
         console.log(id);
       },
     },

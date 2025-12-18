@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ProductForm } from "@/app/(admin)/admin/products/[id]/product-form";
-// import { ProductForm as ProductForm2 } from "@/app/(admin)/admin/products/[id]/product-form/index";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { getAdminCategories } from "@/lib/queries/categories";
 import { getAdminProductById } from "@/lib/queries/products";
+import { FormContainer } from "./form-container";
 
 type Props = {
   params: Promise<{
@@ -23,7 +22,7 @@ async function ProductLoader({ params }: Props) {
   if (!product) {
     notFound();
   }
-  return <ProductForm categories={categories} product={product} />;
+  return <FormContainer categories={categories} product={product} />;
 }
 export default function B2CProductPage({ params }: Props) {
   return (

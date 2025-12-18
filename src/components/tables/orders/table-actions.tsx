@@ -62,7 +62,6 @@ const orderExportColumns: ExportColumnConfig<Order>[] = [
     key: "totalCents",
     header: "Spolu (EUR)",
     format: (value) =>
-      // biome-ignore lint/style/noMagicNumbers: Ignore it for now
       typeof value === "number" ? (value / 100).toFixed(2) : "",
   },
   {
@@ -110,14 +109,12 @@ const orderItemsExportColumns: ExportColumnConfig<OrderItemExportRow>[] = [
     key: "unitPriceCents",
     header: "Cena/ks (EUR)",
     format: (value) =>
-      // biome-ignore lint/style/noMagicNumbers: Ignore it for now
       typeof value === "number" ? (value / 100).toFixed(2) : "",
   },
   {
     key: "lineTotalCents",
     header: "Spolu (EUR)",
     format: (value) =>
-      // biome-ignore lint/style/noMagicNumbers: Ignore it for now
       typeof value === "number" ? (value / 100).toFixed(2) : "",
   },
 ];

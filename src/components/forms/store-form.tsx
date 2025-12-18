@@ -16,13 +16,14 @@ import {
   FieldLegend,
   FieldSet,
 } from "@/components/ui/field";
+import { uploadMedia } from "@/lib/actions/media";
 import { updateStoreAction } from "@/lib/actions/stores";
 import { getSlug } from "@/lib/get-slug";
 import type { AdminStore } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
 import { storeSchema } from "@/validation/stores";
-import { SingleImageUpload } from "../image-upload/single-image-upload";
 import { useAppForm } from "../shared/form";
+import { ImageInput } from "../shared/image-input";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -32,8 +33,7 @@ import {
 } from "../ui/dropdown-menu";
 import { TestHoursField } from "./stores/test-hours-field";
 
-// biome-ignore lint/style/noMagicNumbers: Image aspect ratio
-const IMAGE_ASPECT_RATIO = 16 / 9;
+const _IMAGE_ASPECT_RATIO = 16 / 9;
 
 export function StoreForm({
   store,
@@ -142,12 +142,20 @@ export function StoreForm({
               <form.AppField name="imageId">
                 {(field) => (
                   <Field className="flex flex-col gap-2">
-                    <SingleImageUpload
-                      aspect={IMAGE_ASPECT_RATIO}
+                    <ImageInput
                       className="w-full"
                       disabled={isPending}
-                      onChange={(val) => field.handleChange(val)}
-                      value={field.state.value}
+                      onChange={() => {
+                        return;
+                      }}
+                      onUpload={async (file) => {
+                        const media = await uploadMedia(file, "stores");
+                        field.handleChange(media.id);
+                        return { id: media.id, url: media.url };
+                      }}
+                      value={
+                        field.state.value as { id: string; url: string } | null
+                      }
                     />
                   </Field>
                 )}
