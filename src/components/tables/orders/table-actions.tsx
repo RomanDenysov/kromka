@@ -1,9 +1,8 @@
 "use client";
 
 import type { Table } from "@tanstack/react-table";
-import { format as formatDate } from "date-fns";
 import { ArrowDownIcon } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -20,181 +19,77 @@ import {
   Field,
   FieldContent,
   FieldDescription,
+  FieldGroup,
   FieldLabel,
   FieldTitle,
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  type ExportColumnConfig,
-  exportAsCsv,
-  exportAsXlsx,
-  exportAsXlsxSheets,
-} from "@/lib/export-utils";
+import { exportAsCsv, exportAsXlsxSheets } from "@/lib/export-utils";
 import type { Order } from "@/lib/queries/orders";
-
-const orderExportColumns: ExportColumnConfig<Order>[] = [
-  {
-    key: "orderNumber",
-    header: "Objednávka",
-  },
-  {
-    key: "orderStatus",
-    header: "Stav",
-  },
-  {
-    key: "createdBy.email",
-    header: "Email zákazníka",
-  },
-  {
-    key: "store.name",
-    header: "Predajňa",
-  },
-  {
-    key: "pickupDate",
-    header: "Vyzdvihnúťie",
-    format: (value) => formatDate(value, "dd.MM.yyyy HH:mm"),
-  },
-  {
-    key: "pickupTime",
-    header: "Čas vyzdvihnutia",
-  },
-  {
-    key: "totalCents",
-    header: "Spolu (EUR)",
-    format: (value) =>
-      typeof value === "number" ? (value / 100).toFixed(2) : "",
-  },
-  {
-    key: "createdAt",
-    header: "Vytvorené",
-    format: (value) =>
-      value instanceof Date ? value.toLocaleString("sk-SK") : "",
-  },
-];
-
-type OrderItemExportRow = {
-  orderNumber: string | null;
-  orderId: string;
-  orderStatus: Order["orderStatus"];
-  customerEmail: string | null;
-  storeName: string | null;
-  pickupDate: string | null;
-  pickupTime: string | null;
-  productId: string;
-  productName: string;
-  quantity: number;
-  unitPriceCents: number;
-  lineTotalCents: number;
-};
-
-const orderItemsExportColumns: ExportColumnConfig<OrderItemExportRow>[] = [
-  { key: "orderNumber", header: "Objednávka" },
-  // { key: "orderId", header: "Order ID" },
-  { key: "orderStatus", header: "Stav" },
-  { key: "customerEmail", header: "Email zákazníka" },
-  { key: "storeName", header: "Predajňa" },
-  {
-    key: "pickupDate",
-    header: "Vyzdvihnúťie",
-    format: (value) =>
-      typeof value === "string" && value
-        ? formatDate(new Date(value), "dd.MM.yyyy HH:mm")
-        : "",
-  },
-  { key: "pickupTime", header: "Čas vyzdvihnutia" },
-  // { key: "productId", header: "Produkt ID" },
-  { key: "productName", header: "Produkt" },
-  { key: "quantity", header: "Množstvo" },
-  {
-    key: "unitPriceCents",
-    header: "Cena/ks (EUR)",
-    format: (value) =>
-      typeof value === "number" ? (value / 100).toFixed(2) : "",
-  },
-  {
-    key: "lineTotalCents",
-    header: "Spolu (EUR)",
-    format: (value) =>
-      typeof value === "number" ? (value / 100).toFixed(2) : "",
-  },
-];
+import {
+  bakingSheetColumns,
+  buildBakingSheet,
+  buildFulfillmentSheet,
+  buildOrderItemsSheet,
+  fulfillmentColumns,
+  orderExportColumns,
+  orderItemsExportColumns,
+} from "./export-order-utils";
 
 export function OrdersTableActions({ table }: { table: Table<Order> }) {
   const [exportFormat, setExportFormat] = useState<"csv" | "xlsx">("xlsx");
   const [includeProducts, setIncludeProducts] = useState(true);
+  const [includeBakingSheet, setIncludeBakingSheet] = useState(true);
+  const [includeFulfillment, setIncludeFulfillment] = useState(true);
 
-  const handleExport = async (format: "csv" | "xlsx") => {
-    const selectedRows = table.getSelectedRowModel().rows;
-    const exportData = selectedRows.length
-      ? selectedRows.map((r) => r.original)
-      : table.getFilteredRowModel().rows.map((r) => r.original);
+  const handleExport = useCallback(
+    async (format: "csv" | "xlsx") => {
+      const exportData = table
+        .getFilteredSelectedRowModel()
+        .rows.map((r) => r.original);
 
-    if (!exportData.length) {
-      return;
-    }
+      if (!exportData.length) {
+        return;
+      }
 
-    if (includeProducts) {
-      const itemRows: OrderItemExportRow[] = exportData.flatMap((order) => {
-        const customerEmail =
-          order.createdBy?.email ?? order.customerInfo?.email ?? null;
+      if (format === "xlsx") {
+        const sheets: Parameters<typeof exportAsXlsxSheets>[0] = [
+          { name: "Objednávky", rows: exportData, columns: orderExportColumns },
+        ];
 
-        const storeName = order.store?.name ?? null;
-        const pickupDate = order.pickupDate ?? null;
-        const pickupTime = order.pickupTime ?? null;
-
-        const items = order.items ?? [];
-        if (items.length === 0) {
-          return [];
+        if (includeProducts) {
+          const itemRows = buildOrderItemsSheet(exportData);
+          sheets.push({
+            name: "Produkty",
+            rows: itemRows,
+            columns: orderItemsExportColumns,
+          });
         }
 
-        return items.map((item) => {
-          const productName =
-            item.product?.name ??
-            item.productSnapshot?.name ??
-            "Neznámy produkt";
+        if (includeBakingSheet) {
+          sheets.push({
+            name: "Pre pekáreň",
+            rows: buildBakingSheet(exportData),
+            columns: bakingSheetColumns,
+          });
+        }
 
-          const unitPriceCents =
-            typeof item.price === "number" ? item.price : 0;
-          const quantity =
-            typeof item.quantity === "number" ? item.quantity : 0;
+        if (includeFulfillment) {
+          sheets.push({
+            name: "Pre výdaj",
+            rows: buildFulfillmentSheet(exportData),
+            columns: fulfillmentColumns,
+          });
+        }
 
-          return {
-            orderNumber: order.orderNumber,
-            orderId: order.id,
-            orderStatus: order.orderStatus,
-            customerEmail,
-            storeName,
-            pickupDate,
-            pickupTime,
-            productId: item.productId,
-            productName,
-            quantity,
-            unitPriceCents,
-            lineTotalCents: unitPriceCents * quantity,
-          };
-        });
-      });
-
-      if (format === "csv") {
-        exportAsCsv(itemRows, orderItemsExportColumns, "orders-items");
+        await exportAsXlsxSheets(sheets, "orders");
       } else {
-        await exportAsXlsxSheets(
-          [
-            { name: "Orders", rows: exportData, columns: orderExportColumns },
-            { name: "Items", rows: itemRows, columns: orderItemsExportColumns },
-          ],
-          "orders"
-        );
+        // CSV — можна експортувати тільки один лист
+        exportAsCsv(exportData, orderExportColumns, "orders");
       }
-      return;
-    }
-
-    if (format === "csv") {
-      exportAsCsv(exportData, orderExportColumns, "orders");
-    } else {
-      await exportAsXlsx(exportData, orderExportColumns, "orders");
-    }
-  };
+    },
+    [table, includeProducts, includeBakingSheet, includeFulfillment]
+  );
 
   return (
     <div className="ml-auto flex items-center justify-end gap-2">
@@ -207,7 +102,7 @@ export function OrdersTableActions({ table }: { table: Table<Order> }) {
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Export</DialogTitle>
+            <DialogTitle>Export objednávok</DialogTitle>
             <DialogDescription>
               Exportujte vybrané objednávky do CSV alebo XLSX. Vyberte formát
               exportu a stlačte tlačidlo Export.
@@ -243,23 +138,52 @@ export function OrdersTableActions({ table }: { table: Table<Order> }) {
                 <RadioGroupItem className="peer sr-only" id="csv" value="csv" />
               </FieldLabel>
             </RadioGroup>
-            <Field
-              className="rounded-md border bg-card px-4 py-3"
-              orientation="horizontal"
+            <FieldGroup
+              className="gap-4 rounded-md border p-3"
+              data-slot="checkbox-group"
             >
-              <Checkbox
-                checked={includeProducts}
-                id="add-products"
-                name="add-products"
-                onCheckedChange={(value) => setIncludeProducts(!!value)}
-              />
-              <FieldContent>
-                <FieldLabel>Produkty</FieldLabel>
-                <FieldDescription>
-                  Pridáte produkty do exportu.
-                </FieldDescription>
-              </FieldContent>
-            </Field>
+              <Field orientation="horizontal">
+                <Checkbox
+                  checked={includeProducts}
+                  id="add-products"
+                  name="add-products"
+                  onCheckedChange={(value) => setIncludeProducts(!!value)}
+                />
+                <FieldContent>
+                  <FieldLabel>Produkty</FieldLabel>
+                  <FieldDescription>
+                    Pridáte produkty do exportu.
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
+              <Field orientation="horizontal">
+                <Checkbox
+                  checked={includeBakingSheet}
+                  id="baking-sheet"
+                  onCheckedChange={(v) => setIncludeBakingSheet(!!v)}
+                />
+                <FieldContent>
+                  <FieldLabel>Pre pekáreň</FieldLabel>
+                  <FieldDescription>
+                    Súhrn produktov podľa dátumu a času
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
+
+              <Field orientation="horizontal">
+                <Checkbox
+                  checked={includeFulfillment}
+                  id="fulfillment"
+                  onCheckedChange={(v) => setIncludeFulfillment(!!v)}
+                />
+                <FieldContent>
+                  <FieldLabel>Pre výdaj</FieldLabel>
+                  <FieldDescription>
+                    Prehľad pre výdaj objednávok podľa dátumu a času
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
+            </FieldGroup>
           </div>
           <DialogFooter>
             <DialogClose asChild>
