@@ -305,6 +305,7 @@ export const mediaRelations = relations(media, ({ many }) => ({
   stores: many(stores),
   categories: many(categories),
   posts: many(posts),
+  products: many(products),
 }));
 
 // #endregion Media
@@ -764,6 +765,10 @@ export const products = pgTable(
       onDelete: "set null",
     }),
 
+    imageId: text("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+
     priceCents: integer("price_cents").notNull().default(0),
 
     showInB2c: boolean("show_in_b2c").default(true).notNull(),
@@ -815,6 +820,10 @@ export const productsRelations = relations(products, ({ many, one }) => ({
   cartItems: many(cartItems),
   favorites: many(favorites),
   reviews: many(reviews),
+  image: one(media, {
+    fields: [products.imageId],
+    references: [media.id],
+  }),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({
