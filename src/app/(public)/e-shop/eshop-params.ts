@@ -8,6 +8,7 @@ import {
 import { createTypedLink } from "@/lib/typed-links";
 
 export const SORT_OPTIONS = [
+  "sort_order",
   "price_asc",
   "price_desc",
   "name_asc",
@@ -19,7 +20,7 @@ export type SortOption = (typeof SORT_OPTIONS)[number];
 const eshopParams = {
   q: parseAsString.withDefault(""),
   category: parseAsString.withDefault(""),
-  sort: parseAsStringEnum([...SORT_OPTIONS]).withDefault("name_asc"),
+  sort: parseAsStringEnum([...SORT_OPTIONS]).withDefault("sort_order"),
 };
 
 export const loadEshopParams = createLoader(eshopParams);

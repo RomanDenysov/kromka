@@ -16,6 +16,9 @@ export function filterProducts(products: Product[], filters: EshopParams) {
 
   if (filters.sort) {
     switch (filters.sort) {
+      case "sort_order":
+        result = result.sort((a, b) => b.sortOrder - a.sortOrder);
+        break;
       case "price_asc":
         result = result.sort((a, b) => a.priceCents - b.priceCents);
         break;

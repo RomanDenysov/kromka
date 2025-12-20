@@ -18,14 +18,14 @@ export function SortToggles() {
     startTransition,
   });
 
-  const [sortBy, direction] = (sort ?? "name_asc").split("_") as [
-    "name" | "price",
-    "asc" | "desc",
-  ];
+  const isDefaultSort = sort === "sort_order";
+  const [sortBy, direction] = isDefaultSort
+    ? ([null, null] as const)
+    : ((sort ?? "name_asc").split("_") as ["name" | "price", "asc" | "desc"]);
 
   const handleSort = (type: "name" | "price") => {
     startTransition(async () => {
-      if (sortBy === type) {
+      if (sortBy === type && direction) {
         // Toggle direction
         await setSearchParams({
           sort: `${type}_${direction === "asc" ? "desc" : "asc"}`,
@@ -37,8 +37,8 @@ export function SortToggles() {
     });
   };
 
-  const NameIcon = direction === "asc" ? ArrowUpAzIcon : ArrowDownAzIcon;
-  const PriceIcon = direction === "asc" ? ArrowUp01Icon : ArrowDown01Icon;
+  const NameIcon = direction === "desc" ? ArrowDownAzIcon : ArrowUpAzIcon;
+  const PriceIcon = direction === "desc" ? ArrowDown01Icon : ArrowUp01Icon;
 
   return (
     <div className="flex gap-1">
