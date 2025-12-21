@@ -175,11 +175,17 @@ export function buildBakingSheet(orders: Order[]): BakingSheetRow[] {
   const map = new Map<string, BakingSheetRow>();
 
   for (const order of orders) {
+    // Skip cancelled orders to match dashboard aggregation logic
+    if (order.orderStatus === "cancelled") {
+      continue;
+    }
+
     const date = order.pickupDate ?? "unknown";
     for (const item of order.items ?? []) {
       const productName =
         item.product?.name ?? item.productSnapshot?.name ?? "Neznámy produkt";
-      const key = `${date}|${productName}`;
+      // Use productId as key to avoid name collision issues
+      const key = `${date}|${item.productId}`;
 
       const existing = map.get(key);
       if (existing) {
@@ -207,14 +213,18 @@ export function buildBakingSheet(orders: Order[]): BakingSheetRow[] {
 export function buildFulfillmentSheet(orders: Order[]): FulfillmentRow[] {
   const rows: FulfillmentRow[] = [];
 
-  // Sorting by date -> time
-  const sorted = [...orders].sort((a, b) => {
-    const dateCompare = (a.pickupDate ?? "").localeCompare(b.pickupDate ?? "");
-    if (dateCompare !== 0) {
-      return dateCompare;
-    }
-    return (a.pickupTime ?? "").localeCompare(b.pickupTime ?? "");
-  });
+  // Filter out cancelled orders and sort by date -> time
+  const sorted = orders
+    .filter((order) => order.orderStatus !== "cancelled")
+    .sort((a, b) => {
+      const dateCompare = (a.pickupDate ?? "").localeCompare(
+        b.pickupDate ?? ""
+      );
+      if (dateCompare !== 0) {
+        return dateCompare;
+      }
+      return (a.pickupTime ?? "").localeCompare(b.pickupTime ?? "");
+    });
 
   for (const order of sorted) {
     const items = order.items ?? [];
@@ -263,46 +273,48 @@ export function buildFulfillmentSheet(orders: Order[]): FulfillmentRow[] {
 }
 
 export function buildOrderItemsSheet(orders: Order[]): OrderItemExportRow[] {
-  return orders.flatMap((order) => {
-    const customerName =
-      order.customerInfo?.name ?? order.createdBy?.name ?? null;
-    const customerEmail =
-      order.customerInfo?.email ?? order.createdBy?.email ?? null;
-    const customerPhone =
-      order.customerInfo?.phone ?? order.createdBy?.phone ?? null;
+  return orders
+    .filter((order) => order.orderStatus !== "cancelled")
+    .flatMap((order) => {
+      const customerName =
+        order.customerInfo?.name ?? order.createdBy?.name ?? null;
+      const customerEmail =
+        order.customerInfo?.email ?? order.createdBy?.email ?? null;
+      const customerPhone =
+        order.customerInfo?.phone ?? order.createdBy?.phone ?? null;
 
-    const storeName = order.store?.name ?? null;
-    const pickupDate = order.pickupDate ?? null;
-    const pickupTime = order.pickupTime ?? null;
+      const storeName = order.store?.name ?? null;
+      const pickupDate = order.pickupDate ?? null;
+      const pickupTime = order.pickupTime ?? null;
 
-    const items = order.items ?? [];
-    if (items.length === 0) {
-      return [];
-    }
+      const items = order.items ?? [];
+      if (items.length === 0) {
+        return [];
+      }
 
-    return items.map((item) => {
-      const productName =
-        item.product?.name ?? item.productSnapshot?.name ?? "Neznámy produkt";
+      return items.map((item) => {
+        const productName =
+          item.product?.name ?? item.productSnapshot?.name ?? "Neznámy produkt";
 
-      const unitPriceCents = typeof item.price === "number" ? item.price : 0;
-      const quantity = typeof item.quantity === "number" ? item.quantity : 0;
+        const unitPriceCents = typeof item.price === "number" ? item.price : 0;
+        const quantity = typeof item.quantity === "number" ? item.quantity : 0;
 
-      return {
-        orderNumber: order.orderNumber,
-        orderId: order.id,
-        orderStatus: order.orderStatus,
-        customerName,
-        customerEmail,
-        customerPhone,
-        storeName,
-        pickupDate,
-        pickupTime,
-        productId: item.productId,
-        productName,
-        quantity,
-        unitPriceCents,
-        lineTotalCents: unitPriceCents * quantity,
-      };
+        return {
+          orderNumber: order.orderNumber,
+          orderId: order.id,
+          orderStatus: order.orderStatus,
+          customerName,
+          customerEmail,
+          customerPhone,
+          storeName,
+          pickupDate,
+          pickupTime,
+          productId: item.productId,
+          productName,
+          quantity,
+          unitPriceCents,
+          lineTotalCents: unitPriceCents * quantity,
+        };
+      });
     });
-  });
 }
