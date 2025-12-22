@@ -9,7 +9,7 @@ import {
   SortToggles,
   SortTogglesSkeleton,
 } from "@/components/filters/sort-toggles";
-import { ProductsGrid } from "@/components/products-grid";
+import { ProductsGrid, ProductsGridSkeleton } from "@/components/products-grid";
 import { PageWrapper } from "@/components/shared/container";
 import { defaultMetadata } from "@/lib/metadata";
 import { getCategories } from "@/lib/queries/categories";
@@ -69,7 +69,7 @@ export default function EshopPage({ searchParams }: Props) {
             <SortToggles />
           </Suspense>
         </div>
-        <Suspense>
+        <Suspense fallback={<ProductsGridSkeleton />}>
           <ProductsGrid searchParams={eshopParams} />
         </Suspense>
       </div>
