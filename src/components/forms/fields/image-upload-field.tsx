@@ -1,15 +1,14 @@
 "use client";
 
 import {
-  type Control,
   Controller,
   type FieldPath,
   type FieldValues,
+  useFormContext,
 } from "react-hook-form";
 import { ImageInput } from "@/components/shared/image-input";
 
 type ImageUploadFieldProps<T extends FieldValues> = {
-  control: Control<T>;
   name: FieldPath<T>;
   disabled?: boolean;
   className?: string;
@@ -17,12 +16,12 @@ type ImageUploadFieldProps<T extends FieldValues> = {
 };
 
 export function ImageUploadField<T extends FieldValues>({
-  control,
   name,
   disabled,
   className,
   onUpload,
 }: ImageUploadFieldProps<T>) {
+  const { control } = useFormContext();
   return (
     <Controller
       control={control}

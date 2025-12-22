@@ -1,49 +1,35 @@
 "use client";
 
 import type { JSONContent } from "@tiptap/react";
-import { RefreshCwIcon } from "lucide-react";
 import { type ReactNode, useRef } from "react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 import z from "zod";
-import { Editor } from "@/components/editor/editor";
+import { CheckboxField } from "@/components/forms/fields/checkbox-field";
+import { ComboboxField } from "@/components/forms/fields/combobox-field";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
-import { ComboboxInput } from "@/components/shared/combobox-input";
-import { QuantityInput } from "@/components/shared/quantity-input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { PriceField } from "@/components/forms/fields/price-field";
+import { QuantityField } from "@/components/forms/fields/quantity-field";
+import { RichTextField } from "@/components/forms/fields/rich-text-field";
+import { SelectField } from "@/components/forms/fields/select-field";
+import { SlugField } from "@/components/forms/fields/slug-field";
+import { SwitchField } from "@/components/forms/fields/switch-field";
+import { TextField } from "@/components/forms/fields/text-field";
 import {
-  Field,
-  FieldContent,
   FieldDescription,
-  FieldError,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
   FieldSet,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import { MaskInput } from "@/components/ui/mask-input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { PRODUCT_STATUSES, type ProductStatus } from "@/db/types";
+import { PRODUCT_STATUSES } from "@/db/types";
 import { uploadMedia } from "@/lib/actions/media";
 import { updateProductAction } from "@/lib/actions/products";
 import { PRODUCT_STATUSES_LABELS } from "@/lib/constants";
 import type { Category } from "@/lib/queries/categories";
 import type { AdminProduct } from "@/lib/queries/products";
-import { cn, formatCentsToPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { MAX_STRING_LENGTH } from "@/validation/constants";
 
 export const productSchema = z.object({
@@ -119,7 +105,7 @@ export function ProductForm({
   };
   return (
     <FormProvider {...form}>
-      <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
+      <form id={formId} onSubmit={form.handleSubmit(onSubmit)} ref={formRef}>
         <div
           className={cn(
             "grid @xl/page:max-w-5xl max-w-full gap-6 @lg/page:p-5 @xl/page:p-8 p-4",
@@ -130,7 +116,6 @@ export function ProductForm({
             <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-4">
               <ImageUploadField
                 className="@xl/page:col-span-3 col-span-full @xl/page:row-span-2"
-                control={form.control}
                 name="imageId"
                 onUpload={async (file) => {
                   const media = await uploadMedia(file, "products");
@@ -138,170 +123,36 @@ export function ProductForm({
                   return { id: media.id, url: media.url };
                 }}
               />
-              <Controller
-                control={form.control}
+              <TextField
+                label="Názov"
                 name="name"
-                render={({ field, fieldState }) => (
-                  <Field className="gap-1" data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Názov</FieldLabel>
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      className="max-w-xs"
-                      volume="xs"
-                    />
-                    {fieldState.error && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+                placeholder="Názov produktu"
               />
-              <Controller
-                control={form.control}
-                name="slug"
-                render={({ field, fieldState }) => (
-                  <Field className="gap-1" data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Slug</FieldLabel>
-                    <InputGroup className="h-7 max-w-xs py-0.5 text-xs md:text-sm">
-                      <InputGroupInput
-                        {...field}
-                        aria-invalid={fieldState.invalid}
-                        className="px-1.5"
-                      />
-                      <InputGroupButton
-                        size="icon-xs"
-                        type="button"
-                        variant="ghost"
-                      >
-                        <RefreshCwIcon className="size-3" />
-                      </InputGroupButton>
-                    </InputGroup>
-                    {fieldState.error && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
-              <Controller
-                control={form.control}
+              <SlugField label="Slug" name="slug" />
+              <RichTextField
+                label="Popis"
                 name="description"
-                render={({ field, fieldState }) => (
-                  <Field
-                    className="@xl/page:col-span-full col-span-full @xl/page:row-span-2 row-span-2 gap-1 overflow-y-hidden"
-                    data-invalid={fieldState.invalid}
-                  >
-                    <FieldLabel htmlFor={field.name}>Popis</FieldLabel>
-                    <Editor
-                      className="min-h-30"
-                      content={field.value ?? undefined}
-                      onBlur={field.onBlur}
-                      onChange={(content) =>
-                        field.onChange(content as JSONContent)
-                      }
-                      placeholder="Popis produktu"
-                      variant="simple"
-                    />
-                    {fieldState.error && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+                placeholder="Popis produktu"
+                variant="simple"
               />
-              <Controller
-                control={form.control}
+              <ComboboxField
+                label="Kategória"
                 name="categoryId"
-                render={({ field, fieldState }) => (
-                  <Field className="gap-1" data-invalid={fieldState.invalid}>
-                    <FieldContent className="gap-0.5">
-                      <FieldLabel htmlFor={field.name}>Kategória</FieldLabel>
-                    </FieldContent>
-                    <ComboboxInput
-                      onChange={field.onChange}
-                      options={categories.map((category) => ({
-                        value: category.id,
-                        label: category.name,
-                      }))}
-                      value={field.value ?? null}
-                    />
-                    {fieldState.error && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+                options={categories.map((category) => ({
+                  value: category.id,
+                  label: category.name,
+                }))}
               />
-              <Controller
-                control={form.control}
+
+              <SelectField
+                label="Status"
                 name="status"
-                render={({ field, fieldState }) => (
-                  <Field className="gap-1" data-invalid={fieldState.invalid}>
-                    <FieldContent className="gap-0.5">
-                      <FieldLabel htmlFor={field.name}>Status</FieldLabel>
-                    </FieldContent>
-                    <Select
-                      aria-invalid={fieldState.invalid}
-                      name={field.name}
-                      onValueChange={field.onChange}
-                      value={field.value as ProductStatus}
-                    >
-                      <SelectTrigger
-                        aria-invalid={fieldState.invalid}
-                        className="px-1.5 py-0.5"
-                        id={`${field.name}-${formId}`}
-                        name={field.name}
-                        size="xs"
-                      >
-                        <SelectValue placeholder="Vyberte status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {PRODUCT_STATUSES.map((status) => (
-                          <SelectItem
-                            className="capitalize"
-                            key={status}
-                            value={status}
-                          >
-                            {PRODUCT_STATUSES_LABELS[status]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {fieldState.error && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+                options={PRODUCT_STATUSES.map((status) => ({
+                  value: status,
+                  label: PRODUCT_STATUSES_LABELS[status],
+                }))}
               />
-              <Controller
-                control={form.control}
-                name="priceCents"
-                render={({ field, fieldState }) => (
-                  <Field className="gap-1" data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor={field.name}>Cena</FieldLabel>
-                    <MaskInput
-                      aria-invalid={fieldState.invalid}
-                      className="h-7 max-w-xs px-1.5 py-0.5 text-xs md:text-sm"
-                      currency="EUR"
-                      id={`${field.name}-${formId}`}
-                      locale="sk-SK"
-                      mask="currency"
-                      name={field.name}
-                      onBlur={field.onBlur}
-                      onValueChange={(_maskedValue, unmaskedValue) => {
-                        const price = Number.parseFloat(unmaskedValue);
-                        if (Number.isNaN(price)) {
-                          field.onChange(0);
-                          return;
-                        }
-                        const cents = Math.round(price * 100);
-                        field.onChange(cents);
-                      }}
-                      value={formatCentsToPrice(field.value).toString()}
-                    />
-                    {fieldState.error && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+              <PriceField label="Cena" name="priceCents" />
             </FieldGroup>
           </FieldSet>
           <FieldSeparator />
@@ -315,102 +166,20 @@ export function ProductForm({
               className="flex-row gap-3 rounded-md border p-3"
               data-slot="checkbox-group"
             >
-              <Controller
-                control={form.control}
-                name="showInB2b"
-                render={({ field, fieldState }) => (
-                  <Field
-                    data-invalid={fieldState.invalid}
-                    orientation="horizontal"
-                  >
-                    <Checkbox
-                      checked={field.value}
-                      id={`${field.value}-${formId}`}
-                      onCheckedChange={field.onChange}
-                    />
-                    <FieldLabel
-                      className="font-normal"
-                      htmlFor={`${field.value}-${formId}`}
-                    >
-                      B2B
-                    </FieldLabel>
-                  </Field>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name="showInB2c"
-                render={({ field, fieldState }) => (
-                  <Field
-                    data-invalid={fieldState.invalid}
-                    orientation="horizontal"
-                  >
-                    <Checkbox
-                      checked={field.value}
-                      id={`${field.value}-${formId}`}
-                      onCheckedChange={field.onChange}
-                    />
-                    <FieldLabel
-                      className="font-normal"
-                      htmlFor={`${field.value}-${formId}`}
-                    >
-                      B2C
-                    </FieldLabel>
-                  </Field>
-                )}
-              />
+              <CheckboxField label="B2B" name="showInB2b" />
+              <CheckboxField label="B2C" name="showInB2c" />
             </FieldGroup>
             <FieldGroup className="flex-row gap-3">
-              <Controller
-                control={form.control}
+              <SwitchField
+                className="grow"
+                description="Zobraziť produkt na stránkach?"
+                label="Aktívny"
                 name="isActive"
-                render={({ field, fieldState }) => (
-                  <Field
-                    className="grow rounded-md border p-3"
-                    data-invalid={fieldState.invalid}
-                    orientation="horizontal"
-                  >
-                    <FieldContent className="gap-0.5">
-                      <FieldLabel htmlFor={field.name}>Aktívny</FieldLabel>
-                      <FieldDescription className="text-xs">
-                        Je produkt aktívny? Zobrazuje sa na stránkach.
-                      </FieldDescription>
-                      {fieldState.error && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </FieldContent>
-                    <Switch
-                      aria-invalid={fieldState.invalid}
-                      checked={field.value}
-                      id={`${field.name}-${formId}`}
-                      name={field.name}
-                      onCheckedChange={field.onChange}
-                    />
-                  </Field>
-                )}
               />
-              <Controller
-                control={form.control}
+              <QuantityField
+                className="flex-1"
+                label="Poradie"
                 name="sortOrder"
-                render={({ field, fieldState }) => (
-                  <Field
-                    className="flex-1 gap-1 rounded-md border p-3"
-                    data-invalid={fieldState.invalid}
-                  >
-                    <FieldLabel htmlFor={field.name}>Poradie</FieldLabel>
-
-                    <QuantityInput
-                      id={`${field.name}-${formId}`}
-                      max={100}
-                      min={0}
-                      onChange={field.onChange}
-                      value={field.value}
-                    />
-                    {fieldState.error && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
               />
             </FieldGroup>
           </FieldSet>
