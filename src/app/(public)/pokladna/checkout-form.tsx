@@ -503,14 +503,24 @@ export function CheckoutForm({
             </Card>
 
             <CheckoutTotalPrice items={items} />
+            <Alert variant="destructive">
+              <AlertCircleIcon className="size-4" />
+              <AlertTitle>Aktuálne nie je možné objednať na stránke</AlertTitle>
+              <AlertDescription className="text-xs">
+                Prosím, kontaktujte nás cez email alebo telefón. Alebo na
+                predajni.
+              </AlertDescription>
+            </Alert>
 
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}
             >
-              {([canSubmit, isSubmitting]) => (
+              {/* {([canSubmit, isSubmitting]) => ( */}
+              {() => (
                 <Button
                   className="w-full text-base"
-                  disabled={isSubmitting || !canSubmit || isPending}
+                  // disabled={isSubmitting || !canSubmit || isPending}
+                  disabled={true}
                   size="xl"
                   type="submit"
                 >
