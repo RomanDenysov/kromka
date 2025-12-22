@@ -31,7 +31,7 @@ export function ProductCard({
       )}
       title={isActive ? product.name : `${product.name} (neaktívny produkt)`}
     >
-      <Link href={`/product/${product.slug}`} prefetch>
+      <Link href={`/product/${product.slug}`}>
         <div className="relative">
           <div className="absolute top-1 right-1 z-20 md:top-2 md:right-2">
             <Suspense>

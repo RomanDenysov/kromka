@@ -30,7 +30,6 @@ export function CategoryLink({
         "h-7 cursor-pointer gap-0.5 whitespace-nowrap rounded-md px-2 text-xs has-[>svg]:px-1.5 md:h-8 md:gap-1.5 md:rounded-md md:px-3 md:text-sm md:has-[>svg]:px-2.5"
       )}
       href={link}
-      prefetch
       scroll={false}
     >
       <LinkStatus variant="spinner">{label}</LinkStatus>

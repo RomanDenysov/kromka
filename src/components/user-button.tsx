@@ -51,7 +51,6 @@ export function UserButton() {
           pathname: "/prihlasenie",
           query: callbackURL ? { origin: callbackURL } : undefined,
         }}
-        prefetch
       >
         <LogInIcon />
         <span className="sr-only">Prihlásiť sa</span>
@@ -82,13 +81,13 @@ export function UserButton() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/profil/nastavenia" prefetch>
+          <Link href="/profil/nastavenia">
             <SettingsIcon />
             Nastavenia
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/profil/objednavky" prefetch>
+          <Link href="/profil/objednavky">
             <PackageIcon />
             Objednavky
           </Link>
@@ -97,7 +96,7 @@ export function UserButton() {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/admin" prefetch>
+              <Link href="/admin">
                 <Icons.logo className="size-4" />
                 Admin panel
               </Link>

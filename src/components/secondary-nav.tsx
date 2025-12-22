@@ -31,7 +31,6 @@ export function SecondaryNav({ items, className }: Props) {
                 })
               )}
               href={item.href}
-              prefetch
             >
               {item.label}
             </Link>

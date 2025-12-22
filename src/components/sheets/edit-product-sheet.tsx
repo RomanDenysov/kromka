@@ -3,7 +3,7 @@
 import { SquareArrowOutUpLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { useId } from "react";
-import { ProductForm } from "@/app/(admin)/admin/products/[id]/product-form/index";
+import { ProductForm } from "@/app/(admin)/admin/products/[id]/_components/product-form";
 import { useProductParams } from "@/hooks/use-product-params";
 import type { Category } from "@/lib/queries/categories";
 import type { AdminProduct } from "@/lib/queries/products";
@@ -56,7 +56,6 @@ export function EditProductSheet({
                     "ml-auto"
                   )}
                   href={`/admin/products/${productId}`}
-                  prefetch
                 >
                   <SquareArrowOutUpLeftIcon />
                   Otvoriť

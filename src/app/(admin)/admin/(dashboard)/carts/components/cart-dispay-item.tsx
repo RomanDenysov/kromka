@@ -78,7 +78,6 @@ export function CartDisplayItem({ cart }: { cart: ActiveCart }) {
         <Link
           className={buttonVariants({ variant: "link", size: "xs" })}
           href={`/admin/carts/${cart.id}`}
-          prefetch
         >
           Zobraziť viac &gt;
         </Link>

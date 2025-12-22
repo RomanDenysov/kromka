@@ -45,7 +45,6 @@ export function CategoryEditDrawer() {
           <Link
             className={buttonVariants({ size: "sm" })}
             href={`categories/${categoryId}` as Route}
-            prefetch
           >
             <SquareArrowOutUpLeftIcon />
             Otvoriť

@@ -12,7 +12,7 @@ type CardWrapperProps = {
 export function CardWrapper({ children, href, className }: CardWrapperProps) {
   if (href) {
     return (
-      <Link className={cn(className)} href={href} prefetch>
+      <Link className={cn(className)} href={href}>
         {children}
       </Link>
     );

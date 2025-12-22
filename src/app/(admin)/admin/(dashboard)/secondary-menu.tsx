@@ -30,7 +30,6 @@ export function SecondaryMenu({ items, className }: Props) {
             )}
             href={item.href}
             key={item.href}
-            prefetch
           >
             <span>{item.label}</span>
           </Link>

@@ -90,7 +90,7 @@ function NavMenuItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
         onMouseEnter={() => router.prefetch(item.href)}
         tooltip={item.label}
       >
-        <Link href={item.href} prefetch>
+        <Link href={item.href}>
           <Icon />
           <span>{item.label}</span>
         </Link>
@@ -115,7 +115,7 @@ function OrdersMenuItem({
         isActive={isActive}
         tooltip={count > 0 ? `Objednávky (${count} nových)` : "Objednávky"}
       >
-        <Link href="/admin/orders" prefetch>
+        <Link href="/admin/orders">
           <ShoppingBasketIcon />
           <span>Objednávky</span>
         </Link>

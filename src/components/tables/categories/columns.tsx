@@ -84,7 +84,6 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
         <Link
           className={buttonVariants({ variant: "link", size: "xs" })}
           href={`/admin/categories/${row.original.id}`}
-          prefetch
         >
           {row.original.name}
         </Link>
@@ -263,7 +262,7 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/categories/${row.original.id}`} prefetch>
+              <Link href={`/admin/categories/${row.original.id}`}>
                 <PencilIcon />
                 Upraviť
               </Link>

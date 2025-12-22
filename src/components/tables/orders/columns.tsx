@@ -79,7 +79,6 @@ export const columns: ColumnDef<Order>[] = [
       <Link
         className="font-medium text-xs underline-offset-2 hover:underline"
         href={`/admin/orders/${row.original.id}`}
-        prefetch
       >
         #{row.original.orderNumber}
       </Link>
@@ -344,7 +343,7 @@ export const columns: ColumnDef<Order>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/orders/${order.id}`} prefetch>
+              <Link href={`/admin/orders/${order.id}`}>
                 <SquareArrowOutUpRight />
                 Otvoriť
               </Link>

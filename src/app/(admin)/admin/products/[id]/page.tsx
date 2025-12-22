@@ -12,7 +12,7 @@ type Props = {
   }>;
 };
 
-async function ProductLoader({ params }: Props) {
+async function ProductFormLoader({ params }: Props) {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
   const [product, categories] = await Promise.all([
@@ -37,10 +37,9 @@ export default function B2CProductPage({ params }: Props) {
 
       <section className="@container/page h-full flex-1 p-4">
         <Suspense fallback={<FormSkeleton />}>
-          <ProductLoader params={params} />
+          <ProductFormLoader params={params} />
         </Suspense>
       </section>
-      {/* <ProductForm2 /> */}
     </>
   );
 }

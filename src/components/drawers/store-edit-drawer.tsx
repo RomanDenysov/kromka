@@ -82,7 +82,7 @@ export function StoreEditDrawer() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <Link href={`/admin/stores/${storeId}` as Route} prefetch>
+                    <Link href={`/admin/stores/${storeId}` as Route}>
                       <SquareArrowOutUpLeftIcon />
                       Otvoriť
                     </Link>

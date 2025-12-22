@@ -1,10 +1,10 @@
 import "server-only";
 
 import { count, desc, eq } from "drizzle-orm";
+import { cache } from "react";
 import { db } from "@/db";
 import { favorites } from "@/db/schema";
 import { getAuth } from "../auth/session";
-import type { Product } from "../queries/products";
 import { getProducts } from "../queries/products";
 
 export async function getFavoriteIds(): Promise<string[]> {
@@ -23,7 +23,7 @@ export async function getFavoriteIds(): Promise<string[]> {
   return userFavorites.map((f) => f.productId);
 }
 
-export async function getFavorites(): Promise<Product[]> {
+export const getFavorites = cache(async () => {
   const productIds = await getFavoriteIds();
 
   if (productIds.length === 0) {
@@ -32,7 +32,7 @@ export async function getFavorites(): Promise<Product[]> {
 
   const allProducts = await getProducts();
   return allProducts.filter((p) => productIds.includes(p.id));
-}
+});
 
 export async function getFavoritesCount(): Promise<number> {
   const { user } = await getAuth();
@@ -48,3 +48,6 @@ export async function getFavoritesCount(): Promise<number> {
 
   return result?.count ?? 0;
 }
+
+// biome-ignore lint/complexity/noVoid: We need to preload the favorites for the server component
+export const preloadFavorites = () => void getFavorites();

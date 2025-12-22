@@ -6,7 +6,7 @@ import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import type { Category } from "@/lib/queries/categories";
 import type { AdminProduct } from "@/lib/queries/products";
-import { ProductForm } from "./product-form/index";
+import { ProductForm } from "./_components/product-form";
 
 type Props = {
   categories: Category[];

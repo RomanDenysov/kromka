@@ -118,7 +118,6 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         <Link
           className={buttonVariants({ variant: "link", size: "xs" })}
           href={`/admin/products?productId=${product.id}`}
-          prefetch
         >
           {product.name}
         </Link>
