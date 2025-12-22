@@ -1,4 +1,5 @@
 import { Analytics } from "@vercel/analytics/next";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import { Providers } from "@/app/providers";
 import { CookieBanner } from "@/components/cookie-banner";
@@ -16,11 +17,13 @@ export default function RootLayout({ children }: Props) {
   return (
     <html lang="sk" suppressHydrationWarning>
       <body className={cn(fonts, "min-h-svh scroll-smooth")}>
-        <Providers>
-          {children}
-          <Toaster richColors />
-          <CookieBanner />
-        </Providers>
+        <NuqsAdapter>
+          <Providers>
+            {children}
+            <Toaster richColors />
+            <CookieBanner />
+          </Providers>
+        </NuqsAdapter>
         <Analytics />
         {/* TODO: add speed insights back when we have a better way to measure performance */}
         {/* <SpeedInsights /> */}

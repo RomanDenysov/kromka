@@ -93,10 +93,12 @@ export function CheckoutForm({
   user,
   stores,
   items,
+  ordersEnabled,
 }: {
   user?: User;
   stores: Store[];
   items: DetailedCartItem[];
+  ordersEnabled: boolean;
 }) {
   const customer = useCustomerStore((state) => state.customer);
   const customerStore = useCustomerStore((state) => state.customerStore);
@@ -503,24 +505,28 @@ export function CheckoutForm({
             </Card>
 
             <CheckoutTotalPrice items={items} />
-            <Alert variant="destructive">
-              <AlertCircleIcon className="size-4" />
-              <AlertTitle>Aktuálne nie je možné objednať na stránke</AlertTitle>
-              <AlertDescription className="text-xs">
-                Prosím, kontaktujte nás cez email alebo telefón. Alebo na
-                predajni.
-              </AlertDescription>
-            </Alert>
+            {!ordersEnabled && (
+              <Alert variant="destructive">
+                <AlertCircleIcon className="size-4" />
+                <AlertTitle>
+                  Aktuálne nie je možné objednať na stránke
+                </AlertTitle>
+                <AlertDescription className="text-xs">
+                  Prosím, kontaktujte nás cez email alebo telefón. Alebo na
+                  predajni.
+                </AlertDescription>
+              </Alert>
+            )}
 
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}
             >
-              {/* {([canSubmit, isSubmitting]) => ( */}
-              {() => (
+              {([canSubmit, isSubmitting]) => (
                 <Button
                   className="w-full text-base"
-                  // disabled={isSubmitting || !canSubmit || isPending}
-                  disabled={true}
+                  disabled={
+                    isSubmitting || !canSubmit || isPending || !ordersEnabled
+                  }
                   size="xl"
                   type="submit"
                 >

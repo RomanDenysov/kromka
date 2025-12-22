@@ -1,3 +1,5 @@
+"use client";
+
 import { ProductCard } from "@/components/cards/product-card";
 import { GridView } from "@/components/views/grid-view";
 import type { Product } from "@/lib/queries/products";

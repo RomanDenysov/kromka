@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import { Suspense } from "react";
 import type { Product } from "@/lib/queries/products";
 import { cn, formatPrice } from "@/lib/utils";
 import { FavoriteButton } from "../favorites/favorite-button";
@@ -34,13 +33,15 @@ export function ProductCard({
       <Link href={`/product/${product.slug}`} prefetch>
         <div className="relative">
           <div className="absolute top-1 right-1 z-20 md:top-2 md:right-2">
-            <FavoriteButton
-              className="hover:bg-accent/50 [&_svg:not([class*='size-'])]:size-5"
-              initialIsFavorite={isFavorite}
-              productId={product.id}
-              size="icon"
-              variant="ghost"
-            />
+            <Suspense>
+              <FavoriteButton
+                className="hover:bg-accent/50 [&_svg:not([class*='size-'])]:size-5"
+                initialIsFavorite={isFavorite}
+                productId={product.id}
+                size="icon"
+                variant="ghost"
+              />
+            </Suspense>
           </div>
           <ImageSlider
             disabled={!isActive}

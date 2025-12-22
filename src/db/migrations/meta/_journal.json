@@ -8,6 +8,13 @@
       "when": 1766133698265,
       "tag": "0000_daffy_terror",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766392270086,
+      "tag": "0001_eager_stardust",
+      "breakpoints": true
     }
   ]
 }

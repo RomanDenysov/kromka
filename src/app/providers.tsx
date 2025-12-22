@@ -1,6 +1,5 @@
 "use client";
 
-import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import { PostHogProvider } from "@/components/posthog-provider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -18,7 +17,7 @@ export function Providers({ children }: Props) {
         disableTransitionOnChange
         enableSystem
       >
-        <NuqsAdapter>{children}</NuqsAdapter>
+        {children}
       </ThemeProvider>
     </PostHogProvider>
   );

@@ -1164,3 +1164,16 @@ export const postLikesRelations = relations(postLikes, ({ one }) => ({
 }));
 
 // #endregion Social features
+
+// #region Site settings
+
+export const siteSettings = pgTable("site_settings", {
+  key: text("key").primaryKey(),
+  value: boolean("value").notNull().default(false),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// #endregion Site settings

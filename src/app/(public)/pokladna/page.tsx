@@ -6,10 +6,12 @@ import {
 import { CheckoutRecommendations } from "@/components/lists/checkout-recommendations";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { getAuth } from "@/lib/auth/session";
 import { getDetailedCart } from "@/lib/cart/queries";
 import { getProductsByCategory } from "@/lib/queries/products";
-import { CheckoutFormSkeleton } from "./checkout-form";
-import { CheckoutFormContainer } from "./checkout-form-container";
+import { getStores } from "@/lib/queries/stores";
+import { getSiteConfig } from "@/lib/site-config/queries";
+import { CheckoutForm, CheckoutFormSkeleton } from "./checkout-form";
 
 const CHECKOUT_UPSELL_CATEGORY = "trvanlive-potraviny";
 const CHECKOUT_UPSELL_LIMIT = 4;
@@ -27,6 +29,24 @@ async function CheckoutRecommendationsServer() {
       .slice(0, CHECKOUT_UPSELL_LIMIT) ?? [];
 
   return <CheckoutRecommendations products={upsellProducts ?? []} />;
+}
+
+async function CheckoutFormLoader() {
+  const [{ user }, items, stores, ordersEnabled] = await Promise.all([
+    getAuth(),
+    getDetailedCart(),
+    getStores(),
+    getSiteConfig("orders_enabled"),
+  ]);
+
+  return (
+    <CheckoutForm
+      items={items}
+      ordersEnabled={ordersEnabled}
+      stores={stores}
+      user={user}
+    />
+  );
 }
 
 export default function CheckoutPage() {
@@ -48,7 +68,7 @@ export default function CheckoutPage() {
 
         <section className="size-full sm:col-span-3 md:col-span-3 lg:col-span-4">
           <Suspense fallback={<CheckoutFormSkeleton />}>
-            <CheckoutFormContainer />
+            <CheckoutFormLoader />
           </Suspense>
         </section>
 

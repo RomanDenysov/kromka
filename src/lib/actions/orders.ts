@@ -10,6 +10,7 @@ import { clearCart, getCart } from "../cart/cookies";
 import { sendEmail } from "../email";
 import { createPrefixedNumericId } from "../ids";
 import { getOrderById } from "../queries/orders";
+import { getSiteConfig } from "../site-config/queries";
 
 type CreateOrderResult =
   | { success: true; orderId: string; orderNumber: string }
@@ -38,6 +39,15 @@ export async function createOrderFromCart(data: {
   customerInfo?: GuestCustomerInfo;
 }): Promise<CreateOrderResult> {
   try {
+    // Check if orders are enabled
+    const ordersEnabled = await getSiteConfig("orders_enabled");
+    if (!ordersEnabled) {
+      return {
+        success: false,
+        error: "Objednávky sú momentálne vypnuté",
+      };
+    }
+
     const { user } = await getAuth();
     const isGuest = !user;
 
