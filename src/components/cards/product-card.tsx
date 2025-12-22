@@ -6,6 +6,7 @@ import { FavoriteButton } from "../favorites/favorite-button";
 import { ImageSlider } from "../image-slider";
 import { AddToCartButton } from "../shared/add-to-cart-button";
 import { Badge } from "../ui/badge";
+import { Skeleton } from "../ui/skeleton";
 
 type Props = {
   product: Product;
@@ -77,5 +78,18 @@ export function ProductCard({
         </div>
       </div>
     </article>
+  );
+}
+
+export function ProductCardSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 overflow-hidden rounded-md p-0.5">
+      <Skeleton className="aspect-square w-full rounded-sm" />
+      <div className="flex flex-col gap-2 px-1 pb-1">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-6 w-full" />
+        <Skeleton className="h-6 w-24" />
+      </div>
+    </div>
   );
 }

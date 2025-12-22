@@ -45,7 +45,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { PAYMENT_METHODS, type PaymentMethod } from "@/db/types";
-import { useLoginModalParams } from "@/hooks/use-login-modal-params";
 import {
   createOrderFromCart,
   type GuestCustomerInfo,
@@ -62,6 +61,7 @@ import {
 import type { Store } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
 import { useCustomerStore } from "@/store/customer-store";
+import { useLoginModalOpen } from "@/store/login-modal-store";
 
 function buildGuestCustomerInfo(
   value: { name: string; email: string; phone: string },
@@ -107,7 +107,7 @@ export function CheckoutForm({
   );
   const router = useRouter();
   const pathname = usePathname();
-  const { open: openLogin } = useLoginModalParams();
+  const openLogin = useLoginModalOpen();
 
   const [isPending, startTransition] = useTransition();
 

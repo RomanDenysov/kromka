@@ -6,6 +6,7 @@ import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { signIn } from "@/lib/auth/client";
+import { useLoginModal } from "@/store/login-modal-store";
 
 const PROVIDERS = ["google"] as const;
 
@@ -18,8 +19,9 @@ const providerItems = PROVIDERS.map((provider) => ({
 }));
 
 export function ProvidersForm() {
+  const { origin } = useLoginModal();
   const searchParams = useSearchParams();
-  const callbackURL = searchParams.get("origin") || "/";
+  const callbackURL = searchParams.get("origin") || origin || "/";
   const [isPending, startTransition] = useTransition();
 
   const handleProviderLogin = useCallback(

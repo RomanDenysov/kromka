@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import {
   CategoriesSidebar,
@@ -13,10 +14,11 @@ import { PageWrapper } from "@/components/shared/container";
 import { defaultMetadata } from "@/lib/metadata";
 import { getCategories } from "@/lib/queries/categories";
 import { CategoriesChips, CategoriesChipsSkeleton } from "./categories-chips";
+import { loadEshopParams } from "./eshop-params";
 import { ProductSearch, ProductSearchSkeleton } from "./product-search";
 
 type Props = {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams: Promise<SearchParams>;
 };
 
 export const metadata: Metadata = {
@@ -41,6 +43,7 @@ export const metadata: Metadata = {
 
 export default function EshopPage({ searchParams }: Props) {
   const categories = getCategories();
+  const eshopParams = loadEshopParams(searchParams);
 
   return (
     <PageWrapper className="relative grid min-h-[calc(100svh-5rem)] w-full items-start gap-8 pt-2 md:grid-cols-[12rem_1fr]">
@@ -67,7 +70,7 @@ export default function EshopPage({ searchParams }: Props) {
           </Suspense>
         </div>
         <Suspense>
-          <ProductsGrid searchParams={searchParams} />
+          <ProductsGrid searchParams={eshopParams} />
         </Suspense>
       </div>
     </PageWrapper>

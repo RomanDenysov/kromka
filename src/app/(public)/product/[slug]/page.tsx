@@ -12,7 +12,6 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ProductCard } from "@/components/cards/product-card";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { ImageSlider } from "@/components/image-slider";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
@@ -22,12 +21,12 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GridView } from "@/components/views/grid-view";
 import { createMetadata } from "@/lib/metadata";
 import { getProducts, type Product } from "@/lib/queries/products";
 import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
 import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
+import { ProductRecommendations } from "./product-recommendations";
 
 type Props = {
   params: Promise<{
@@ -122,6 +121,7 @@ export default async function ProductPage({ params }: Props) {
   if (!result) {
     notFound();
   }
+
   const validUrls = result.images;
   const isInStock = result.status === "active";
   const pickupDates = result.category?.pickupDates;
@@ -235,31 +235,7 @@ export default async function ProductPage({ params }: Props) {
           >
             Mohlo by vás tiež zaujať
           </h2>
-          <Suspense
-            fallback={
-              <GridView>
-                {recommendations.map((product) => (
-                  <div
-                    className="flex flex-col gap-3 overflow-hidden rounded-md p-0.5"
-                    key={product.id}
-                  >
-                    <Skeleton className="aspect-square w-full rounded-sm" />
-                    <div className="flex flex-col gap-2 px-1 pb-1">
-                      <Skeleton className="h-4 w-20" />
-                      <Skeleton className="h-6 w-full" />
-                      <Skeleton className="h-6 w-24" />
-                    </div>
-                  </div>
-                ))}
-              </GridView>
-            }
-          >
-            <GridView>
-              {recommendations.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </GridView>
-          </Suspense>
+          <ProductRecommendations recommendations={recommendations} />
         </section>
       )}
     </PageWrapper>

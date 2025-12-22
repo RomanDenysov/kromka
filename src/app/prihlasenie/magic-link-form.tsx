@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { signIn } from "@/lib/auth/client";
+import { useLoginModal } from "@/store/login-modal-store";
 
 const emailSchema = z.object({
   email: z
@@ -18,8 +19,9 @@ const emailSchema = z.object({
 });
 
 export function MagicLinkForm() {
+  const { origin } = useLoginModal();
   const searchParams = useSearchParams();
-  const callbackURL = searchParams.get("origin") || "/";
+  const callbackURL = searchParams.get("origin") || origin || "/";
   const [isSuccess, setIsSuccess] = useState(false);
   const form = useAppForm({
     defaultValues: {

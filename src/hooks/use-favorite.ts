@@ -5,10 +5,10 @@ import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth/client";
 import { isFavorite, toggleFavorite } from "@/lib/favorites/actions";
-import { useLoginModalParams } from "./use-login-modal-params";
+import { useLoginModalOpen } from "@/store/login-modal-store";
 
 export function useFavorite(productId: string, initialValue?: boolean) {
-  const { open: openLogin } = useLoginModalParams();
+  const openLogin = useLoginModalOpen();
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
