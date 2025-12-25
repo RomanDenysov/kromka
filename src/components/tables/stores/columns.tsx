@@ -30,6 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getAdminStoresLink } from "@/hooks/use-store-params";
 import type { AdminStore } from "@/lib/queries/stores";
 
 type StoreTableMeta = {
@@ -81,7 +82,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
     cell: ({ row }) => (
       <Link
         className={buttonVariants({ variant: "link", size: "xs" })}
-        href={`/admin/stores/${row.original.id}`}
+        href={getAdminStoresLink({ storeId: row.original.id })}
       >
         {row.original.name}
       </Link>
@@ -191,7 +192,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/stores?storeId=${row.original.id}`}>
+              <Link href={getAdminStoresLink({ storeId: row.original.id })}>
                 <PencilIcon />
                 Upraviť
               </Link>

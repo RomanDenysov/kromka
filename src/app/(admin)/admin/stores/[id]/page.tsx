@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { StoreForm } from "@/components/forms/store-form";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
 import { Separator } from "@/components/ui/separator";
 import { getAdminStoreById } from "@/lib/queries/stores";
+import { StoreFormContainer } from "./_components/store-form-container";
 
 type Props = {
   params: Promise<{
@@ -20,7 +20,7 @@ async function StoreLoader({ params }: Props) {
     notFound();
   }
   return (
-    <StoreForm
+    <StoreFormContainer
       className="w-full @md/page:max-w-md shrink-0 p-4"
       store={store}
     />

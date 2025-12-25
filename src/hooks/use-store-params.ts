@@ -1,15 +1,22 @@
-import { parseAsBoolean, parseAsString, useQueryStates } from "nuqs";
+import {
+  type Options,
+  parseAsBoolean,
+  parseAsString,
+  useQueryStates,
+} from "nuqs";
+import { createTypedLink } from "@/lib/typed-links";
 
-export function useStoreParams() {
-  const [params, setParams] = useQueryStates({
-    storeId: parseAsString,
-    q: parseAsString,
-    name: parseAsString,
-    isActive: parseAsBoolean,
+const storeParams = {
+  storeId: parseAsString,
+  q: parseAsString,
+  name: parseAsString,
+  isActive: parseAsBoolean,
+};
+
+export const getAdminStoresLink = createTypedLink("/admin/stores", storeParams);
+
+export const useStoreParams = (options: Options = {}) =>
+  useQueryStates(storeParams, {
+    ...options,
+    shallow: false,
   });
-
-  return {
-    ...params,
-    setParams,
-  };
-}
