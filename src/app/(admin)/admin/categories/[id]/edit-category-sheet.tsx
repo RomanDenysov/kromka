@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "date-fns";
 import { SquareArrowOutUpLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { CategoryForm } from "@/app/(admin)/admin/categories/[id]/_components/category-form";
@@ -25,7 +26,7 @@ export function EditCategorySheet({
   category: AdminCategory;
   categories: AdminCategory[];
 }) {
-  const { categoryId, setParams } = useCategoryParams();
+  const [{ categoryId }, setSearchParams] = useCategoryParams();
 
   if (!categoryId) {
     return null;
@@ -33,18 +34,24 @@ export function EditCategorySheet({
 
   return (
     <Sheet
-      onOpenChange={(open) => !open && setParams({ categoryId: null })}
+      onOpenChange={(open) => !open && setSearchParams({ categoryId: null })}
       open
     >
       <SheetContent className="flex flex-col sm:max-w-lg">
         <SheetHeader className="shrink-0 border-b">
-          <SheetTitle>Upraviť kategóriu</SheetTitle>
-          <SheetDescription>{categoryId}</SheetDescription>
+          <SheetTitle>{category.name}</SheetTitle>
+          <SheetDescription className="text-muted-foreground text-xs">
+            Upravené: {formatDate(category.updatedAt, "dd.MM.yyyy HH:mm")}
+          </SheetDescription>
         </SheetHeader>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <CategoryForm categories={categories} category={category}>
+          <CategoryForm
+            categories={categories}
+            category={category}
+            className="h-full flex-1"
+          >
             {({ isPending }) => (
-              <SheetFooter className="shrink-0 flex-row gap-2 border-t bg-background">
+              <SheetFooter className="sticky bottom-0 mt-auto shrink-0 flex-row gap-2 border-t bg-background">
                 <Link
                   className={cn(
                     buttonVariants({ variant: "outline", size: "sm" }),

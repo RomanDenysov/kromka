@@ -1,9 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { type ReactNode, useRef } from "react";
-import { FormProvider } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
+import z from "zod";
 import { ComboboxField } from "@/components/forms/fields/combobox-field";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
 import { PickupDatesField } from "@/components/forms/fields/pickup-dates-field";
@@ -15,18 +17,39 @@ import { TextareaField } from "@/components/forms/fields/textarea-field";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { updateCategoryAction } from "@/lib/actions/categories";
 import { uploadMedia } from "@/lib/actions/media";
+import { cn } from "@/lib/utils";
 import type { AdminCategory } from "@/types/categories";
-import { type CategorySchema, useCategoryForm } from "../use-category-form";
+
+type Props = {
+  category: AdminCategory;
+  children: (props: { isPending: boolean }) => ReactNode;
+  categories: AdminCategory[];
+  className?: string;
+};
+
+export const categorySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  parentId: z.string().nullable(),
+  showInMenu: z.boolean(),
+  isActive: z.boolean(),
+  showInB2c: z.boolean(),
+  showInB2b: z.boolean(),
+  imageId: z.string().nullable(),
+  sortOrder: z.number(),
+  pickupDates: z.array(z.string()).optional(),
+});
+
+export type CategorySchema = z.infer<typeof categorySchema>;
 
 export function CategoryForm({
   category,
   children,
   categories,
-}: {
-  category: AdminCategory;
-  children: (props: { isPending: boolean }) => ReactNode;
-  categories: AdminCategory[];
-}) {
+  className,
+}: Props) {
   const formRef = useRef<HTMLFormElement>(null);
 
   useHotkeys(
@@ -38,7 +61,23 @@ export function CategoryForm({
     { enableOnFormTags: true }
   );
 
-  const form = useCategoryForm(category);
+  const form = useForm<CategorySchema>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: {
+      id: category.id,
+      name: category.name ?? "",
+      slug: category.slug ?? "",
+      description: category.description ?? "",
+      parentId: category.parentId ?? null,
+      pickupDates: category.pickupDates ?? [],
+      isActive: category.isActive ?? false,
+      showInMenu: category.showInMenu ?? true,
+      showInB2c: category.showInB2c ?? true,
+      showInB2b: category.showInB2b ?? true,
+      imageId: category.imageId ?? null,
+      sortOrder: category.sortOrder ?? 0,
+    },
+  });
 
   const filteredCategories = categories.filter((c) => c.id !== category.id);
 
@@ -59,9 +98,15 @@ export function CategoryForm({
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} ref={formRef}>
-        <FieldSet className="@md/page:max-w-md max-w-full gap-5">
-          <FieldGroup className="gap-4">
+        <FieldSet
+          className={cn(
+            "grid @xl/page:max-w-5xl max-w-full gap-6 @lg/page:p-5 @xl/page:p-8 p-4",
+            className
+          )}
+        >
+          <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-4">
             <ImageUploadField
+              className="@xl/page:col-span-3 col-span-full @xl/page:row-span-2"
               name="imageId"
               onUpload={async (file) => {
                 const media = await uploadMedia(file, "categories");
@@ -75,11 +120,13 @@ export function CategoryForm({
             />
             <SlugField label="Slug" name="slug" />
             <TextareaField
+              className="@xl/page:col-span-2 col-span-full"
               label="Popis"
               name="description"
               placeholder="Popis kategórie..."
             />
             <ComboboxField
+              className="@xl/page:col-span-2 col-span-full"
               label="Rodičovská kategória"
               name="parentId"
               options={filteredCategories.map((c) => ({
@@ -87,10 +134,14 @@ export function CategoryForm({
                 label: c.name,
               }))}
             />
-            <PickupDatesField label="Dátumy vyzdvihnutia" name="pickupDates" />
+            <PickupDatesField
+              className="@xl/page:col-span-2 col-span-full"
+              label="Dátumy vyzdvihnutia"
+              name="pickupDates"
+            />
           </FieldGroup>
           <FieldGroup className="gap-4">
-            <div className="grid grid-cols-2 gap-x-2 gap-y-4">
+            <div className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-4">
               <SwitchField
                 description="Je kategória aktívna?"
                 label="Aktívna"
@@ -112,7 +163,11 @@ export function CategoryForm({
                 name="showInB2b"
               />
             </div>
-            <QuantityField label="Poradie" name="sortOrder" />
+            <QuantityField
+              className="@xl/page:col-span-2 col-span-full"
+              label="Poradie"
+              name="sortOrder"
+            />
           </FieldGroup>
         </FieldSet>
         {children({ isPending: form.formState.isSubmitting })}

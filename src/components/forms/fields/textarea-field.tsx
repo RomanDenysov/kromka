@@ -43,7 +43,7 @@ export function TextareaField<T extends FieldValues>({
           <Textarea
             {...field}
             aria-invalid={fieldState.invalid}
-            className="max-w-xs p-1.5"
+            className="max-w-full p-1.5"
             placeholder={placeholder}
             rows={rows}
           />

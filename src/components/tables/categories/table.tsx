@@ -12,7 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
 import { DataTableSearch } from "@/components/data-table/data-table-search";
@@ -56,6 +56,22 @@ export function CategoriesTable({
 
   const [isPending, startTransition] = useTransition();
 
+  const toggleActive = useCallback(async (id: string) => {
+    await toggleIsActiveCategoryAction({ id });
+  }, []);
+
+  const onCopy = useCallback(async (id: string) => {
+    await copyCategoryAction({ id });
+  }, []);
+
+  const onDelete = useCallback(async (id: string) => {
+    await deleteCategoriesAction({ ids: [id] });
+  }, []);
+
+  const toggleFeatured = useCallback(async (id: string) => {
+    await toggleIsFeaturedCategoryAction({ id });
+  }, []);
+
   const table = useReactTable<AdminCategory>({
     data: categories,
     columns,
@@ -87,18 +103,10 @@ export function CategoriesTable({
       globalFilter,
     },
     meta: {
-      toggleActive: async (id: string) => {
-        await toggleIsActiveCategoryAction({ id });
-      },
-      onCopy: async (id: string) => {
-        await copyCategoryAction({ id });
-      },
-      onDelete: async (id: string) => {
-        await deleteCategoriesAction({ ids: [id] });
-      },
-      toggleFeatured: async (id: string) => {
-        await toggleIsFeaturedCategoryAction({ id });
-      },
+      toggleActive,
+      onCopy,
+      onDelete,
+      toggleFeatured,
     },
   });
 
