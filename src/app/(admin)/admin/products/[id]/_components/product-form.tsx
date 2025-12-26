@@ -20,7 +20,6 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
   FieldSet,
 } from "@/components/ui/field";
 import { PRODUCT_STATUSES } from "@/db/types";
@@ -155,7 +154,7 @@ export function ProductForm({
               <PriceField label="Cena" name="priceCents" />
             </FieldGroup>
           </FieldSet>
-          <FieldSeparator />
+
           <FieldSet className="@xl/page:gap-8 gap-4">
             <FieldLabel>Zobrazenie</FieldLabel>
             <FieldDescription>
