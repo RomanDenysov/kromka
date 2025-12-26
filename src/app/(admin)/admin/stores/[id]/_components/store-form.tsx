@@ -15,15 +15,16 @@ import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { uploadMedia } from "@/lib/actions/media";
 import { updateStoreAction } from "@/lib/actions/stores";
 import type { AdminStore } from "@/lib/queries/stores";
+import { cn } from "@/lib/utils";
 import { type StoreSchema, useStoreForm } from "../use-store-form";
 
-export function StoreForm({
-  store,
-  children,
-}: {
+type Props = {
   store: AdminStore;
   children: (props: { isPending: boolean }) => ReactNode;
-}) {
+  className?: string;
+};
+
+export function StoreForm({ store, children, className }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
 
   useHotkeys(
@@ -54,12 +55,19 @@ export function StoreForm({
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} ref={formRef}>
-        <FieldSet className="@md/page:max-w-md max-w-full gap-5">
-          <FieldGroup className="gap-4">
+        <FieldSet
+          className={cn(
+            "grid @xl/page:max-w-5xl max-w-full gap-6 @lg/page:p-5 @xl/page:p-8 p-4",
+            className
+          )}
+        >
+          <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-3">
             <ImageUploadField
+              className="@xl/page:col-span-3 col-span-full @xl/page:row-span-2"
               name="imageId"
               onUpload={async (file) => {
                 const media = await uploadMedia(file, "stores");
+                form.setValue("imageId", media.id);
                 return { id: media.id, url: media.url };
               }}
             />
@@ -71,18 +79,26 @@ export function StoreForm({
             <SlugField label="Slug" name="slug" />
             <RichTextField label="Popis obchodu" name="description" />
           </FieldGroup>
-          <FieldGroup className="gap-4">
+          <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-3">
             <TextField label="Telefón" name="phone" placeholder="Telefón" />
             <TextField label="Email" name="email" placeholder="Email" />
-            <OpeningHoursField name="openingHours" />
+            <OpeningHoursField
+              className="@xl/page:col-span-2 col-span-full"
+              name="openingHours"
+            />
           </FieldGroup>
-          <FieldGroup className="grid grid-cols-2 gap-4">
+          <FieldGroup className="flex flex-row gap-3">
             <SwitchField
+              className="grow"
               description="Je obchod aktívny?"
               label="Aktívny"
               name="isActive"
             />
-            <QuantityField label="Poradie" name="sortOrder" />
+            <QuantityField
+              className="flex-1 shrink-0"
+              label="Poradie"
+              name="sortOrder"
+            />
           </FieldGroup>
         </FieldSet>
         {children({ isPending: form.formState.isSubmitting })}

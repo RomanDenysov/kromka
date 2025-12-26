@@ -3,11 +3,8 @@
 import { SquareArrowOutUpLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { StoreForm } from "@/app/(admin)/admin/stores/[id]/_components/store-form";
-import { useStoreParams } from "@/hooks/use-store-params";
-import type { AdminStore } from "@/lib/queries/stores";
-import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "../ui/button";
-import { Kbd } from "../ui/kbd";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import {
   Sheet,
   SheetContent,
@@ -15,8 +12,11 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "../ui/sheet";
-import { Spinner } from "../ui/spinner";
+} from "@/components/ui/sheet";
+import { Spinner } from "@/components/ui/spinner";
+import { useStoreParams } from "@/hooks/use-store-params";
+import type { AdminStore } from "@/lib/queries/stores";
+import { cn } from "@/lib/utils";
 
 export function EditStoreSheet({ store }: { store: AdminStore }) {
   const [{ storeId }, setSearchParams] = useStoreParams();
@@ -36,8 +36,8 @@ export function EditStoreSheet({ store }: { store: AdminStore }) {
           <SheetDescription>{storeId}</SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto">
-          <StoreForm store={store}>
+        <div className="flex flex-1 flex-col overflow-y-auto">
+          <StoreForm className="h-full flex-1" store={store}>
             {({ isPending }) => (
               <SheetFooter className="sticky bottom-0 mt-auto flex-row border-t bg-background">
                 <Link
