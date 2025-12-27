@@ -13,7 +13,6 @@ import { SlugField } from "@/components/forms/fields/slug-field";
 import { SwitchField } from "@/components/forms/fields/switch-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
-import { uploadMedia } from "@/lib/actions/media";
 import { updateStoreAction } from "@/lib/actions/stores";
 import type { AdminStore } from "@/lib/queries/stores";
 import type { StoreSchema } from "@/lib/stores/types";
@@ -93,12 +92,9 @@ export function StoreForm({ store, children, className }: Props) {
           <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-3">
             <ImageUploadField
               className="@xl/page:col-span-3 col-span-full @xl/page:row-span-2"
+              folder="stores"
+              imageUrl={store.image?.url}
               name="imageId"
-              onUpload={async (file) => {
-                const media = await uploadMedia(file, "stores");
-                form.setValue("imageId", media.id);
-                return { id: media.id, url: media.url };
-              }}
             />
             <TextField
               label="Názov obchodu"

@@ -23,7 +23,6 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { PRODUCT_STATUSES } from "@/db/types";
-import { uploadMedia } from "@/lib/actions/media";
 import { updateProductAction } from "@/lib/actions/products";
 import { PRODUCT_STATUSES_LABELS } from "@/lib/constants";
 import type { Category } from "@/lib/queries/categories";
@@ -115,12 +114,9 @@ export function ProductForm({
             <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-4">
               <ImageUploadField
                 className="@xl/page:col-span-3 col-span-full @xl/page:row-span-2"
+                folder="products"
+                imageUrl={product.images[0]}
                 name="imageId"
-                onUpload={async (file) => {
-                  const media = await uploadMedia(file, "products");
-                  form.setValue("imageId", media.id);
-                  return { id: media.id, url: media.url };
-                }}
               />
               <TextField
                 label="Názov"

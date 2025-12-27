@@ -15,7 +15,6 @@ import { TextField } from "@/components/forms/fields/text-field";
 import { TextareaField } from "@/components/forms/fields/textarea-field";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { updateCategoryAction } from "@/lib/actions/categories";
-import { uploadMedia } from "@/lib/actions/media";
 import type { CategorySchema } from "@/lib/categories/types";
 import { categorySchema } from "@/lib/categories/validation";
 import { cn } from "@/lib/utils";
@@ -91,11 +90,9 @@ export function CategoryForm({
           <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-4">
             <ImageUploadField
               className="@xl/page:col-span-3 col-span-full @xl/page:row-span-2"
+              folder="categories"
+              imageUrl={category.image?.url}
               name="imageId"
-              onUpload={async (file) => {
-                const media = await uploadMedia(file, "categories");
-                return { id: media.id, url: media.url };
-              }}
             />
             <TextField
               label="Názov kategórie"

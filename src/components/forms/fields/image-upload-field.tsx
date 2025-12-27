@@ -6,46 +6,44 @@ import {
   type FieldValues,
   useFormContext,
 } from "react-hook-form";
-import { ImageInput } from "@/components/shared/image-input";
+import { MediaInput } from "@/components/shared/media-input";
+
+type MediaFolder = "products" | "categories" | "stores" | "posts";
 
 type ImageUploadFieldProps<T extends FieldValues> = {
   name: FieldPath<T>;
+  imageUrl?: string;
+  folder: MediaFolder;
   disabled?: boolean;
   className?: string;
-  onUpload: (file: File) => Promise<{ id: string; url: string }>;
-  value?: { id: string; url: string } | null;
 };
 
+/**
+ * Form field wrapper for MediaInput.
+ * Stores only the media ID in the form field.
+ */
 export function ImageUploadField<T extends FieldValues>({
   name,
-  disabled,
+  imageUrl,
+  folder,
+  disabled = false,
   className,
-  onUpload,
-  value: externalValue,
 }: ImageUploadFieldProps<T>) {
   const { control } = useFormContext();
+
   return (
     <Controller
       control={control}
       name={name}
-      render={({ field }) => {
-        // Use external value if provided, otherwise use field value
-        // If field value is a string (imageId), we need external value for the URL
-        const displayValue = externalValue ?? field.value;
-
-        return (
-          <ImageInput
-            className={className}
-            disabled={disabled ?? false}
-            onChange={(newValue) => {
-              // Store only the ID in the form field
-              field.onChange(newValue?.id ?? null);
-            }}
-            onUpload={onUpload}
-            value={displayValue}
-          />
-        );
-      }}
+      render={({ field }) => (
+        <MediaInput
+          className={className}
+          disabled={disabled}
+          folder={folder}
+          imageUrl={imageUrl}
+          onChange={field.onChange}
+        />
+      )}
     />
   );
 }
