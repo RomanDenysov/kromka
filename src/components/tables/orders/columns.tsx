@@ -269,6 +269,26 @@ export const columns: ColumnDef<Order>[] = [
     ),
     enableSorting: true,
     accessorKey: "pickupDate",
+    filterFn: (
+      row,
+      _columnId,
+      filterValue: { from: string; to: string } | undefined
+    ) => {
+      if (!(filterValue?.from || filterValue?.to)) {
+        return true;
+      }
+      const date = row.original.pickupDate;
+      if (!date) {
+        return false;
+      }
+      if (filterValue.from && date < filterValue.from) {
+        return false;
+      }
+      if (filterValue.to && date > filterValue.to) {
+        return false;
+      }
+      return true;
+    },
     meta: {
       label: "Vyzdvihnúťie",
       variant: "text",

@@ -13,8 +13,6 @@ import {
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { DataTable } from "@/components/data-table/data-table";
-import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
-import { DataTableSearch } from "@/components/data-table/data-table-search";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
 import {
@@ -25,6 +23,7 @@ import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants";
 import type { Order } from "@/lib/queries/orders";
 import { columns } from "./columns";
 import { OrdersTableActions } from "./table-actions";
+import { OrdersTableFilters } from "./table-filters";
 
 export function OrdersTable({ orders }: { orders: Order[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -127,14 +126,14 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
     setRowSelection({});
   };
 
-  const statusOptions = Object.entries(ORDER_STATUS_LABELS).map(
+  const _statusOptions = Object.entries(ORDER_STATUS_LABELS).map(
     ([value, label]) => ({
       label,
       value,
     })
   );
 
-  const paymentStatusOptions = Object.entries(PAYMENT_STATUS_LABELS).map(
+  const _paymentStatusOptions = Object.entries(PAYMENT_STATUS_LABELS).map(
     ([value, label]) => ({
       label,
       value,
@@ -144,25 +143,11 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
   return (
     <DataTable table={table}>
       <div className="flex items-center justify-between gap-2 p-3">
-        <div className="flex items-center gap-2">
-          <DataTableSearch
-            onSearch={setGlobalFilter}
-            placeholder="Hľadať objednávky..."
-            value={globalFilter}
-          />
-          <DataTableMultiSelectFilter
-            columnId="status"
-            options={statusOptions}
-            table={table}
-            title="Stav"
-          />
-          <DataTableMultiSelectFilter
-            columnId="paymentStatus"
-            options={paymentStatusOptions}
-            table={table}
-            title="Stav platby"
-          />
-        </div>
+        <OrdersTableFilters
+          globalFilter={globalFilter}
+          onGlobalFilterChange={setGlobalFilter}
+          table={table}
+        />
         <div className="flex items-center gap-2">
           <DataTableViewOptions table={table} />
           <OrdersTableActions
