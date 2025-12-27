@@ -7,17 +7,12 @@ const imagesDir = "public/images";
 
 const imagesToOptimize = [
   {
-    name: "breads-1.jpg",
+    name: "chliebicky.JPG",
     maxWidth: 1920,
     quality: 80,
   },
   {
-    name: "stores.jpg",
-    maxWidth: 1920,
-    quality: 80,
-  },
-  {
-    name: "kromka-vianoce-hero-min.jpeg",
+    name: "prosecco.jpeg",
     maxWidth: 1920,
     quality: 80,
   },
