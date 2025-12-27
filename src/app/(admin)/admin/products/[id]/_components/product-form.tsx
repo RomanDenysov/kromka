@@ -83,7 +83,7 @@ export function ProductForm({
       showInB2c: product.showInB2c,
       showInB2b: product.showInB2b,
       priceCents: product.priceCents,
-      imageId: product.images[0] ?? null,
+      imageId: product.imageId ?? null,
       categoryId: product.category?.id ?? null,
     },
   });
@@ -115,7 +115,7 @@ export function ProductForm({
               <ImageUploadField
                 className="@xl/page:col-span-3 col-span-full @xl/page:row-span-2"
                 folder="products"
-                imageUrl={product.images[0]}
+                imageUrl={product.imageUrl ?? undefined}
                 name="imageId"
               />
               <TextField

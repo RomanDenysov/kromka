@@ -20,6 +20,7 @@ export const productSchema = z.object({
 export const updateProductSchema = z.object({
   ...productSchema.shape,
   categoryId: z.string().nullable(),
+  imageId: z.string().nullable(),
 });
 
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>;

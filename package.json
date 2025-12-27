@@ -17,6 +17,8 @@
     "db:studio": "drizzle-kit studio",
     "cleanup:images": "pnpm dlx tsx scripts/cleanup-dead-images.ts",
     "generate:icons": "pnpm dlx tsx scripts/generate-metadata-icons.ts",
+    "migrate:images": "pnpm dlx tsx scripts/migrate-product-images.ts",
+    "migrate:images:prod": "pnpm dlx tsx scripts/migrate-product-images.ts prod",
     "typecheck": "pnpm tsc --noEmit && echo '✓ Types OK'"
   },
   "dependencies": {

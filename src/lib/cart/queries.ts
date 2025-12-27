@@ -24,12 +24,8 @@ export async function getDetailedCart() {
       priceCents: true,
     },
     with: {
-      images: {
-        limit: 1,
-        orderBy: (img, { asc }) => [asc(img.sortOrder)],
-        with: {
-          media: { columns: { url: true } },
-        },
+      image: {
+        columns: { url: true },
       },
       category: {
         columns: { name: true, pickupDates: true },
@@ -51,7 +47,7 @@ export async function getDetailedCart() {
         name: product.name,
         slug: product.slug,
         priceCents: product.priceCents,
-        imageUrl: product.images[0]?.media.url ?? null,
+        imageUrl: product.image?.url ?? null,
         category: product.category,
       };
     })

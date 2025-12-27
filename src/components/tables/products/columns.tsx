@@ -80,7 +80,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
     accessorKey: "images",
     cell: ({ row }) => {
       const product = row.original;
-      const image = product.images[0];
+      const image = product.imageUrl;
       return image ? (
         <Image
           alt={product.name}
