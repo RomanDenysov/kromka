@@ -47,7 +47,7 @@ const gridItems: GridItemConfig[] = [
     subtitle: "Silvester stoji na chlebíčkoch",
     href: "/e-shop?category=silvester" as Route,
     images: ["/images/chliebicky.JPG", "/images/prosecco.jpeg"],
-    autoplayDelay: 4000,
+    autoplayDelay: 7000,
     autoplay: true,
     size: "hero",
   },
