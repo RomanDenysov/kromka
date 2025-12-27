@@ -1,6 +1,5 @@
 "use client";
 
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import {
   ExpandIcon,
   ImageIcon,
@@ -23,6 +22,7 @@ import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
@@ -130,9 +130,9 @@ export function MediaInput({
               className="max-h-[90vh] max-w-fit overflow-hidden p-0 sm:max-w-fit"
               showCloseButton={false}
             >
-              <VisuallyHidden>
-                <DialogTitle>Náhľad obrázku</DialogTitle>
-              </VisuallyHidden>
+              <DialogHeader>
+                <DialogTitle className="sr-only">Náhľad obrázku</DialogTitle>
+              </DialogHeader>
               <div className="relative aspect-auto max-h-[85vh]">
                 <Image
                   alt=""
