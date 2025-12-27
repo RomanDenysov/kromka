@@ -1,7 +1,8 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { type ReactNode, useRef } from "react";
-import { FormProvider } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
@@ -15,8 +16,9 @@ import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { uploadMedia } from "@/lib/actions/media";
 import { updateStoreAction } from "@/lib/actions/stores";
 import type { AdminStore } from "@/lib/queries/stores";
+import type { StoreSchema } from "@/lib/stores/types";
+import { storeSchema } from "@/lib/stores/validation";
 import { cn } from "@/lib/utils";
-import { type StoreSchema, useStoreForm } from "../use-store-form";
 
 type Props = {
   store: AdminStore;
@@ -36,7 +38,34 @@ export function StoreForm({ store, children, className }: Props) {
     { enableOnFormTags: true }
   );
 
-  const form = useStoreForm(store);
+  const form = useForm<StoreSchema>({
+    resolver: zodResolver(storeSchema),
+    defaultValues: {
+      name: store?.name ?? "",
+      slug: store?.slug ?? "",
+      description: store?.description ?? null,
+      phone: store?.phone ?? "",
+      email: store?.email ?? "kromka@kavejo.sk",
+      isActive: store?.isActive ?? false,
+      sortOrder: store?.sortOrder ?? 0,
+      imageId: store?.imageId ?? null,
+      address: store?.address ?? null,
+      latitude: store?.latitude ?? null,
+      longitude: store?.longitude ?? null,
+      openingHours: store?.openingHours ?? {
+        regularHours: {
+          monday: "closed",
+          tuesday: "closed",
+          wednesday: "closed",
+          thursday: "closed",
+          friday: "closed",
+          saturday: "closed",
+          sunday: "closed",
+        },
+        exceptions: {},
+      },
+    },
+  });
 
   const onSubmit = async (data: StoreSchema) => {
     const result = await updateStoreAction({
@@ -87,7 +116,7 @@ export function StoreForm({ store, children, className }: Props) {
               name="openingHours"
             />
           </FieldGroup>
-          <FieldGroup className="flex flex-row gap-3">
+          <FieldGroup className="flex h-fit flex-row gap-3">
             <SwitchField
               className="grow"
               description="Je obchod aktívny?"

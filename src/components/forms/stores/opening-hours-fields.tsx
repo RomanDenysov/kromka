@@ -3,7 +3,7 @@
 import type z from "zod";
 import { withFieldGroup } from "@/components/shared/form";
 import { FieldGroup } from "@/components/ui/field";
-import type { openingHoursSchema } from "@/validation/stores";
+import type { openingHoursSchema } from "@/lib/stores/validation";
 
 type OpeningHoursFieldGroupValues = z.infer<typeof openingHoursSchema>;
 

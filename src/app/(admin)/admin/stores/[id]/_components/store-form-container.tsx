@@ -12,7 +12,7 @@ type Props = {
 
 export function StoreFormContainer({ store }: Props) {
   return (
-    <StoreForm store={store}>
+    <StoreForm className="h-full" store={store}>
       {({ isPending }) => (
         <div className="flex items-center justify-end gap-2">
           <Button disabled={isPending} size="sm" type="submit">

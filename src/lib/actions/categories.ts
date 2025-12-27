@@ -3,10 +3,10 @@
 import { eq, inArray, not } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import type { CategorySchema } from "@/app/(admin)/admin/categories/[id]/use-category-form";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
+import type { CategorySchema } from "@/lib/categories/types";
 import { getAuth } from "../auth/session";
 
 export async function updateCategoryAction({

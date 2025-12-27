@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
-import { Separator } from "@/components/ui/separator";
 import { getAdminStoreById } from "@/lib/queries/stores";
 import { StoreFormContainer } from "./_components/store-form-container";
 
@@ -19,12 +18,7 @@ async function StoreLoader({ params }: Props) {
   if (!store) {
     notFound();
   }
-  return (
-    <StoreFormContainer
-      className="w-full @md/page:max-w-md shrink-0 p-4"
-      store={store}
-    />
-  );
+  return <StoreFormContainer store={store} />;
 }
 
 export default function StorePage({ params }: Props) {
@@ -37,7 +31,7 @@ export default function StorePage({ params }: Props) {
           { label: "Upraviť obchod" },
         ]}
       />
-      <section className="@container/page flex size-full flex-1 flex-col sm:flex-row">
+      <section className="@container/page h-full flex-1 p-4">
         <Suspense
           fallback={
             <FormSkeleton className="w-full @md/page:max-w-md shrink-0 p-4" />
@@ -45,7 +39,6 @@ export default function StorePage({ params }: Props) {
         >
           <StoreLoader params={params} />
         </Suspense>
-        <Separator className="h-full" orientation="vertical" />
       </section>
     </>
   );

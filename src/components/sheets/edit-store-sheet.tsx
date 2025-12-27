@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "date-fns";
 import { SquareArrowOutUpLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { StoreForm } from "@/app/(admin)/admin/stores/[id]/_components/store-form";
@@ -32,8 +33,10 @@ export function EditStoreSheet({ store }: { store: AdminStore }) {
     >
       <SheetContent className="flex flex-col sm:max-w-lg">
         <SheetHeader className="border-b">
-          <SheetTitle>Upraviť obchod</SheetTitle>
-          <SheetDescription>{storeId}</SheetDescription>
+          <SheetTitle>{store.name}</SheetTitle>
+          <SheetDescription className="text-muted-foreground text-xs">
+            Upravené: {formatDate(store.updatedAt, "dd.MM.yyyy HH:mm")}
+          </SheetDescription>
         </SheetHeader>
 
         <div className="flex flex-1 flex-col overflow-y-auto">

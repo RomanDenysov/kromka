@@ -1,8 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import type { JSONContent } from "@tiptap/react";
-import { useForm } from "react-hook-form";
 import z from "zod";
-import type { AdminStore } from "@/lib/queries/stores";
 import { MAX_STRING_LENGTH } from "@/validation/constants";
 
 const POSTAL_CODE_LENGTH = 6;
@@ -35,7 +32,7 @@ const addressSchema = z.object({
   googleId: z.string(),
   postalCode: z.string().max(POSTAL_CODE_LENGTH),
 });
-const storeSchema = z.object({
+export const storeSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1).max(MAX_STRING_LENGTH),
   slug: z.string().min(1).max(MAX_STRING_LENGTH),
@@ -50,36 +47,3 @@ const storeSchema = z.object({
   longitude: z.string().nullable(),
   openingHours: openingHoursSchema,
 });
-
-export type StoreSchema = z.infer<typeof storeSchema>;
-
-export function useStoreForm(store: AdminStore) {
-  return useForm<StoreSchema>({
-    resolver: zodResolver(storeSchema),
-    defaultValues: {
-      name: store?.name ?? "",
-      slug: store?.slug ?? "",
-      description: store?.description ?? null,
-      phone: store?.phone ?? "",
-      email: store?.email ?? "kromka@kavejo.sk",
-      isActive: store?.isActive ?? false,
-      sortOrder: store?.sortOrder ?? 0,
-      imageId: store?.imageId ?? null,
-      address: store?.address ?? null,
-      latitude: store?.latitude ?? null,
-      longitude: store?.longitude ?? null,
-      openingHours: store?.openingHours ?? {
-        regularHours: {
-          monday: "closed",
-          tuesday: "closed",
-          wednesday: "closed",
-          thursday: "closed",
-          friday: "closed",
-          saturday: "closed",
-          sunday: "closed",
-        },
-        exceptions: {},
-      },
-    },
-  });
-}

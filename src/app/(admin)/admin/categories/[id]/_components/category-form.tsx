@@ -5,7 +5,6 @@ import { type ReactNode, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
-import z from "zod";
 import { ComboboxField } from "@/components/forms/fields/combobox-field";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
 import { PickupDatesField } from "@/components/forms/fields/pickup-dates-field";
@@ -17,6 +16,8 @@ import { TextareaField } from "@/components/forms/fields/textarea-field";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { updateCategoryAction } from "@/lib/actions/categories";
 import { uploadMedia } from "@/lib/actions/media";
+import type { CategorySchema } from "@/lib/categories/types";
+import { categorySchema } from "@/lib/categories/validation";
 import { cn } from "@/lib/utils";
 import type { AdminCategory } from "@/types/categories";
 
@@ -26,23 +27,6 @@ type Props = {
   categories: AdminCategory[];
   className?: string;
 };
-
-export const categorySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  slug: z.string(),
-  description: z.string(),
-  parentId: z.string().nullable(),
-  showInMenu: z.boolean(),
-  isActive: z.boolean(),
-  showInB2c: z.boolean(),
-  showInB2b: z.boolean(),
-  imageId: z.string().nullable(),
-  sortOrder: z.number(),
-  pickupDates: z.array(z.string()).optional(),
-});
-
-export type CategorySchema = z.infer<typeof categorySchema>;
 
 export function CategoryForm({
   category,
