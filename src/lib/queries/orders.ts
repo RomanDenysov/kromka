@@ -1,6 +1,6 @@
 import "server-only";
 
-import { count, desc, eq } from "drizzle-orm";
+import { count, desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { orderStatusEvents, orders } from "@/db/schema";
 import type { OrderStatus } from "@/db/types";
@@ -42,6 +42,16 @@ export function getAllOrders() {
 export function getOrderById(id: string) {
   return db.query.orders.findFirst({
     where: eq(orders.id, id),
+    with: orderRelations,
+  });
+}
+
+export function getOrdersByIds(ids: string[]) {
+  if (ids.length === 0) {
+    return Promise.resolve([]);
+  }
+  return db.query.orders.findMany({
+    where: inArray(orders.id, ids),
     with: orderRelations,
   });
 }

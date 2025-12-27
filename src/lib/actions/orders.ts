@@ -9,7 +9,7 @@ import { getAuth } from "../auth/session";
 import { clearCart, getCart } from "../cart/cookies";
 import { sendEmail } from "../email";
 import { createPrefixedNumericId } from "../ids";
-import { getOrderById } from "../queries/orders";
+import { getOrderById, getOrdersByIds, type Order } from "../queries/orders";
 import { getSiteConfig } from "../site-config/queries";
 
 type CreateOrderResult =
@@ -172,10 +172,12 @@ export async function createOrderFromCart(data: {
 // "in_progress" | "ready_for_pickup" | "completed" | "cancelled" | "refunded";
 
 async function sendEmailBasedOnOrderStatus(
-  orderId: string,
+  orderOrId: string | Order,
   status: OrderStatus
 ) {
-  const order = await getOrderById(orderId);
+  const order =
+    typeof orderOrId === "string" ? await getOrderById(orderOrId) : orderOrId;
+
   if (!order) {
     throw new Error("Order not found");
   }
@@ -279,6 +281,71 @@ type BulkUpdateResult =
   | { success: false; error: string };
 
 /**
+ * Helper to handle bulk status notifications and events
+ */
+async function handleBulkStatusNotifications(
+  orderIds: string[],
+  orderStatus: OrderStatus,
+  userId: string
+) {
+  // Create status events for each order
+  await db.insert(orderStatusEvents).values(
+    orderIds.map((orderId) => ({
+      orderId,
+      status: orderStatus,
+      createdBy: userId,
+      note: `Hromadná zmena stavu (${orderIds.length} objednávok)`,
+    }))
+  );
+
+  // Fetch all orders in one go for email sending
+  const allOrders = await getOrdersByIds(orderIds);
+
+  // Send emails in chunks to prevent SMTP issues
+  const CHUNK_SIZE = 5;
+  for (let i = 0; i < allOrders.length; i += CHUNK_SIZE) {
+    const chunk = allOrders.slice(i, i + CHUNK_SIZE);
+    await Promise.allSettled(
+      chunk.map((order) => sendEmailBasedOnOrderStatus(order, orderStatus))
+    );
+
+    // Small delay between chunks if there are more
+    if (i + CHUNK_SIZE < allOrders.length) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+}
+
+/**
+ * Helper to build update fields for bulk order updates
+ */
+function getBulkUpdateFields(
+  orderStatus?: OrderStatus,
+  paymentStatus?: PaymentStatus
+) {
+  const updates: { orderStatus?: OrderStatus; paymentStatus?: PaymentStatus } =
+    {};
+
+  if (orderStatus) {
+    updates.orderStatus = orderStatus;
+    // Auto-update payment status based on order status if not explicitly provided
+    if (!paymentStatus) {
+      if (orderStatus === "completed") {
+        updates.paymentStatus = "paid";
+      } else if (orderStatus === "refunded") {
+        updates.paymentStatus = "refunded";
+      }
+    }
+  }
+
+  if (paymentStatus) {
+    updates.paymentStatus = paymentStatus;
+  }
+
+  return updates;
+}
+
+/**
  * Bulk update order status and/or payment status for multiple orders (admin)
  * Sends email notifications for order status changes
  */
@@ -293,62 +360,23 @@ export async function bulkUpdateOrdersAction(data: {
   }
 
   const { orderIds, orderStatus, paymentStatus } = data;
-
   if (orderIds.length === 0) {
     return { success: false, error: "Neboli vybrané žiadne objednávky" };
   }
-
   if (!(orderStatus || paymentStatus)) {
     return { success: false, error: "Vyberte aspoň jeden stav na zmenu" };
   }
 
   try {
-    // Build update object
-    const updates: {
-      orderStatus?: OrderStatus;
-      paymentStatus?: PaymentStatus;
-    } = {};
+    const updates = getBulkUpdateFields(orderStatus, paymentStatus);
 
-    if (orderStatus) {
-      updates.orderStatus = orderStatus;
-
-      // Auto-update payment status based on order status
-      if (orderStatus === "completed" && !paymentStatus) {
-        updates.paymentStatus = "paid";
-      }
-      if (orderStatus === "refunded" && !paymentStatus) {
-        updates.paymentStatus = "refunded";
-      }
-    }
-
-    if (paymentStatus) {
-      updates.paymentStatus = paymentStatus;
-    }
-
-    // Update all orders in a single query
     await db.update(orders).set(updates).where(inArray(orders.id, orderIds));
 
-    // Create status events for each order if order status changed
     if (orderStatus) {
-      await db.insert(orderStatusEvents).values(
-        orderIds.map((orderId) => ({
-          orderId,
-          status: orderStatus,
-          createdBy: user.id,
-          note: `Hromadná zmena stavu (${orderIds.length} objednávok)`,
-        }))
-      );
-
-      // Send emails for each order (in parallel)
-      await Promise.all(
-        orderIds.map((orderId) =>
-          sendEmailBasedOnOrderStatus(orderId, orderStatus)
-        )
-      );
+      await handleBulkStatusNotifications(orderIds, orderStatus, user.id);
     }
 
     refresh();
-
     return { success: true, updatedCount: orderIds.length };
   } catch (error) {
     console.error("[SERVER] Bulk update orders failed:", error);
