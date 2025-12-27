@@ -273,3 +273,88 @@ export async function updateOrderPaymentStatusAction({
 
   refresh();
 }
+
+type BulkUpdateResult =
+  | { success: true; updatedCount: number }
+  | { success: false; error: string };
+
+/**
+ * Bulk update order status and/or payment status for multiple orders (admin)
+ * Sends email notifications for order status changes
+ */
+export async function bulkUpdateOrdersAction(data: {
+  orderIds: string[];
+  orderStatus?: OrderStatus;
+  paymentStatus?: PaymentStatus;
+}): Promise<BulkUpdateResult> {
+  const { user } = await getAuth();
+  if (!user || user.role !== "admin") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const { orderIds, orderStatus, paymentStatus } = data;
+
+  if (orderIds.length === 0) {
+    return { success: false, error: "Neboli vybrané žiadne objednávky" };
+  }
+
+  if (!(orderStatus || paymentStatus)) {
+    return { success: false, error: "Vyberte aspoň jeden stav na zmenu" };
+  }
+
+  try {
+    // Build update object
+    const updates: {
+      orderStatus?: OrderStatus;
+      paymentStatus?: PaymentStatus;
+    } = {};
+
+    if (orderStatus) {
+      updates.orderStatus = orderStatus;
+
+      // Auto-update payment status based on order status
+      if (orderStatus === "completed" && !paymentStatus) {
+        updates.paymentStatus = "paid";
+      }
+      if (orderStatus === "refunded" && !paymentStatus) {
+        updates.paymentStatus = "refunded";
+      }
+    }
+
+    if (paymentStatus) {
+      updates.paymentStatus = paymentStatus;
+    }
+
+    // Update all orders in a single query
+    await db.update(orders).set(updates).where(inArray(orders.id, orderIds));
+
+    // Create status events for each order if order status changed
+    if (orderStatus) {
+      await db.insert(orderStatusEvents).values(
+        orderIds.map((orderId) => ({
+          orderId,
+          status: orderStatus,
+          createdBy: user.id,
+          note: `Hromadná zmena stavu (${orderIds.length} objednávok)`,
+        }))
+      );
+
+      // Send emails for each order (in parallel)
+      await Promise.all(
+        orderIds.map((orderId) =>
+          sendEmailBasedOnOrderStatus(orderId, orderStatus)
+        )
+      );
+    }
+
+    refresh();
+
+    return { success: true, updatedCount: orderIds.length };
+  } catch (error) {
+    console.error("[SERVER] Bulk update orders failed:", error);
+    return {
+      success: false,
+      error: "Nastala chyba pri aktualizácii objednávok",
+    };
+  }
+}

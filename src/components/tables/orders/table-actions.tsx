@@ -1,7 +1,6 @@
 "use client";
 
-import type { Table } from "@tanstack/react-table";
-import { ArrowDownIcon } from "lucide-react";
+import { ArrowDownIcon, PencilIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { exportAsCsv, exportAsXlsxSheets } from "@/lib/export-utils";
 import type { Order } from "@/lib/queries/orders";
+import { BulkEditDialog } from "./bulk-edit-dialog";
 import {
   bakingSheetColumns,
   buildBakingSheet,
@@ -67,8 +67,19 @@ const SHEET_OPTIONS = [
 
 type SheetId = (typeof SHEET_OPTIONS)[number]["id"];
 
-export function OrdersTableActions({ table }: { table: Table<Order> }) {
+type OrdersTableActionsProps = {
+  filteredOrders: Order[];
+  selectedOrders: Order[];
+  resetSelection: () => void;
+};
+
+export function OrdersTableActions({
+  filteredOrders,
+  selectedOrders,
+  resetSelection,
+}: OrdersTableActionsProps) {
   const [open, setOpen] = useState(false);
+  const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [format, setFormat] = useState<ExportFormat>("xlsx");
   const [sheets, setSheets] = useState<Record<SheetId, boolean>>({
     products: true,
@@ -76,12 +87,13 @@ export function OrdersTableActions({ table }: { table: Table<Order> }) {
     fulfillment: true,
   });
 
-  const getOrders = () => {
-    const selected = table.getFilteredSelectedRowModel().rows;
-    const rows =
-      selected.length > 0 ? selected : table.getFilteredRowModel().rows;
-    return rows.map((r) => r.original);
-  };
+  const hasSelection = selectedOrders.length > 0;
+  const selectedOrderIds = selectedOrders.map((o) => o.id);
+  const exportCount = hasSelection
+    ? selectedOrders.length
+    : filteredOrders.length;
+
+  const getOrders = () => (hasSelection ? selectedOrders : filteredOrders);
 
   const toggleSheet = (id: SheetId) => {
     setSheets((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -140,6 +152,24 @@ export function OrdersTableActions({ table }: { table: Table<Order> }) {
 
   return (
     <div className="ml-auto flex items-center justify-end gap-2">
+      {hasSelection && (
+        <Button
+          onClick={() => setBulkEditOpen(true)}
+          size="sm"
+          variant="outline"
+        >
+          <PencilIcon />
+          Upraviť ({selectedOrderIds.length})
+        </Button>
+      )}
+
+      <BulkEditDialog
+        onOpenChange={setBulkEditOpen}
+        onSuccess={resetSelection}
+        open={bulkEditOpen}
+        selectedOrderIds={selectedOrderIds}
+      />
+
       <Dialog onOpenChange={setOpen} open={open}>
         <DialogTrigger asChild>
           <Button size="sm" variant="outline">
@@ -149,9 +179,11 @@ export function OrdersTableActions({ table }: { table: Table<Order> }) {
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Export objednávok</DialogTitle>
+            <DialogTitle>Export objednávok ({exportCount})</DialogTitle>
             <DialogDescription>
-              Exportujte vybrané alebo všetky odfiltrované objednávky.
+              {hasSelection
+                ? `Exportujte ${exportCount} vybraných objednávok.`
+                : `Exportujte všetkých ${exportCount} odfiltrovaných objednávok.`}
             </DialogDescription>
           </DialogHeader>
 

@@ -102,6 +102,31 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
     },
   });
 
+  // Derive selected IDs from rowSelection state (reactive)
+  const selectedOrderIds = useMemo(
+    () => Object.keys(rowSelection),
+    [rowSelection]
+  );
+
+  // Derive orders from table state (memoized to avoid render-time side effects)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are state values that affect filtering
+  const filteredOrders = useMemo(
+    () => table.getFilteredRowModel().rows.map((r) => r.original),
+    [memoizedOrders, columnFilters, globalFilter]
+  );
+
+  const selectedOrders = useMemo(
+    () =>
+      selectedOrderIds
+        .map((id) => filteredOrders.find((o) => o.id === id))
+        .filter((o): o is Order => o !== undefined),
+    [selectedOrderIds, filteredOrders]
+  );
+
+  const resetSelection = () => {
+    setRowSelection({});
+  };
+
   const statusOptions = Object.entries(ORDER_STATUS_LABELS).map(
     ([value, label]) => ({
       label,
@@ -140,7 +165,11 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
         </div>
         <div className="flex items-center gap-2">
           <DataTableViewOptions table={table} />
-          <OrdersTableActions table={table} />
+          <OrdersTableActions
+            filteredOrders={filteredOrders}
+            resetSelection={resetSelection}
+            selectedOrders={selectedOrders}
+          />
         </div>
       </div>
     </DataTable>
