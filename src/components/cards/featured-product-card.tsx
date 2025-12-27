@@ -28,7 +28,7 @@ export function FeaturedProductCard({ product, className }: Props) {
           !isActive && "opacity-60 grayscale"
         )}
         height={600}
-        src={product?.images[0] || ""}
+        src={product?.imageUrl || ""}
         width={600}
       />
 

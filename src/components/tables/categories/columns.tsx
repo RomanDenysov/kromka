@@ -33,6 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getAdminCategoriesLink } from "@/hooks/use-category-params";
 import type { AdminCategory } from "@/lib/queries/categories";
 
 type CategoryTableMeta = {
@@ -83,7 +84,7 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
       <div className="flex items-center gap-1.5">
         <Link
           className={buttonVariants({ variant: "link", size: "xs" })}
-          href={`/admin/categories/${row.original.id}`}
+          href={getAdminCategoriesLink({ categoryId: row.original.id })}
         >
           {row.original.name}
         </Link>
@@ -250,6 +251,7 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
     id: "actions",
     header: "",
     enableSorting: false,
+    size: 32,
     enableHiding: false,
     cell: ({ row, table }) => {
       const meta = table.options.meta as CategoryTableMeta;
@@ -262,7 +264,9 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/categories/${row.original.id}`}>
+              <Link
+                href={getAdminCategoriesLink({ categoryId: row.original.id })}
+              >
                 <PencilIcon />
                 Upraviť
               </Link>

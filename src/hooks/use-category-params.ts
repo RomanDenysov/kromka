@@ -1,17 +1,27 @@
 "use client";
 
-import { parseAsBoolean, parseAsString, useQueryStates } from "nuqs";
+import {
+  type Options,
+  parseAsBoolean,
+  parseAsString,
+  useQueryStates,
+} from "nuqs";
+import { createTypedLink } from "@/lib/typed-links";
 
-export function useCategoryParams() {
-  const [params, setParams] = useQueryStates({
-    categoryId: parseAsString,
-    q: parseAsString,
-    name: parseAsString,
-    isActive: parseAsBoolean,
+const categoryParams = {
+  categoryId: parseAsString,
+  q: parseAsString,
+  name: parseAsString,
+  isActive: parseAsBoolean,
+};
+
+export const useCategoryParams = (options: Options = {}) =>
+  useQueryStates(categoryParams, {
+    ...options,
+    shallow: false,
   });
 
-  return {
-    ...params,
-    setParams,
-  };
-}
+export const getAdminCategoriesLink = createTypedLink(
+  "/admin/categories",
+  categoryParams
+);

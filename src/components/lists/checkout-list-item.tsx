@@ -20,7 +20,7 @@ export function CheckoutListItem({ item }: { item: DetailedCartItem }) {
         alt={`${item.name} foto produktu`}
         className="aspect-square rounded-sm object-cover"
         height={120}
-        src={item.imageUrl}
+        src={item.imageUrl ?? "/images/cooperation.jpg"}
         width={120}
       />
 

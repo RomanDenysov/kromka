@@ -3,7 +3,6 @@ import { type CSSProperties, type ReactNode, Suspense } from "react";
 import AppSidebar, {
   AppSidebarSkeleton,
 } from "@/components/admin-sidebar/app-sidebar";
-import { AdminDrawersProvider } from "@/components/drawers/admin-drawers-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getNewOrdersCount } from "@/lib/queries/orders";
 
@@ -39,9 +38,6 @@ export default function AdminLayout({ children }: Props) {
         <AdminSidebarLoader />
       </Suspense>
       <SidebarInset>{children}</SidebarInset>
-      <Suspense>
-        <AdminDrawersProvider />
-      </Suspense>
     </SidebarProvider>
   );
 }

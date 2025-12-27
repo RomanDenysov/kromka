@@ -1,8 +1,11 @@
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { CategoryForm } from "@/components/forms/category-form";
 import { FormSkeleton } from "@/components/shared/form/form-skeleton";
-import { getAdminCategoryById } from "@/lib/queries/categories";
+import {
+  getAdminCategories,
+  getAdminCategoryById,
+} from "@/lib/queries/categories";
+import { CategoryFormContainer } from "./_components/category-form-container";
 
 type Props = {
   params: Promise<{
@@ -13,8 +16,16 @@ type Props = {
 async function CategoryLoader({ params }: Props) {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
-  const category = await getAdminCategoryById(decodedId);
-  return <CategoryForm category={category} />;
+  const [category, categories] = await Promise.all([
+    getAdminCategoryById(decodedId),
+    getAdminCategories(),
+  ]);
+
+  if (!category) {
+    return <div>Kategória nebola nájdená</div>;
+  }
+
+  return <CategoryFormContainer categories={categories} category={category} />;
 }
 
 export default function CategoryPage({ params }: Props) {

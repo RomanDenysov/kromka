@@ -7,13 +7,13 @@ import { cache } from "react";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 
-// Helper to transform product images
-function transformProduct<T extends { images: { media: { url: string } }[] }>(
+// Helper to transform product image
+function transformProduct<T extends { image: { url: string } | null }>(
   product: T
 ) {
   return {
     ...product,
-    images: product.images.map((img) => img.media.url),
+    imageUrl: product.image?.url ?? null,
   };
 }
 
@@ -28,10 +28,7 @@ export const getProducts = cache(async () => {
     where: (p, { eq: eqOp, and, notInArray }) =>
       and(eqOp(p.isActive, true), notInArray(p.status, ["archived", "draft"])),
     with: {
-      images: {
-        with: { media: true },
-        orderBy: (image, { asc }) => [asc(image.sortOrder)],
-      },
+      image: true,
       category: {
         columns: { id: true, name: true, slug: true, pickupDates: true },
       },
@@ -52,10 +49,7 @@ export const getProductBySlug = cache(async (slug: string) => {
   const product = await db.query.products.findFirst({
     where: (p, { eq: eqOp }) => eqOp(p.slug, slug),
     with: {
-      images: {
-        with: { media: true },
-        orderBy: (image, { asc }) => [asc(image.sortOrder)],
-      },
+      image: true,
       category: true,
       prices: {
         with: { priceTier: true },
@@ -90,20 +84,14 @@ export async function getAdminProducts() {
           priceTier: true,
         },
       },
-      images: {
-        with: {
-          media: true,
-        },
-      },
+      image: true,
     },
     orderBy: (product, { desc }) => desc(product.createdAt),
   });
 
   return fetchedProducts.map((p) => ({
     ...p,
-    images: p.images
-      .sort((a, b) => a.sortOrder - b.sortOrder)
-      .map((img) => img.media.url),
+    imageUrl: p.image?.url ?? null,
     prices: p.prices.map((pt) => ({
       priceCents: pt.priceCents,
       priceTier: pt.priceTier,
@@ -116,11 +104,7 @@ export async function getAdminProductById(id: string) {
     where: eq(products.id, id),
     with: {
       category: true,
-      images: {
-        with: {
-          media: true,
-        },
-      },
+      image: true,
       prices: {
         with: {
           priceTier: true,
@@ -135,9 +119,7 @@ export async function getAdminProductById(id: string) {
 
   return {
     ...product,
-    images: product.images
-      .sort((a, b) => a.sortOrder - b.sortOrder)
-      .map((img) => img.media.url),
+    imageUrl: product.image?.url ?? null,
     category: product.category,
     prices: product.prices.map((p) => ({
       priceCents: p.priceCents,

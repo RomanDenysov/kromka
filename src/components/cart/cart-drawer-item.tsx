@@ -16,7 +16,7 @@ export function CartDrawerItem({ item }: Props) {
         alt={item.name}
         className="size-20 rounded-md object-cover"
         height={80}
-        src={item.imageUrl}
+        src={item.imageUrl ?? "/images/cooperation.jpg"}
         width={80}
       />
 

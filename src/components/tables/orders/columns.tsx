@@ -310,6 +310,9 @@ export const columns: ColumnDef<Order>[] = [
   {
     id: "actions",
     header: "",
+    enableSorting: false,
+    enableHiding: false,
+    size: 32,
     cell: ({ row, table }) => {
       const meta = table.options.meta as OrdersTableMeta;
       const onStatusChange = meta?.onStatusChange;

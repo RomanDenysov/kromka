@@ -17,20 +17,3 @@ export const updateCategorySchema = z.object({
 });
 
 export type UpdateCategorySchema = z.infer<typeof updateCategorySchema>;
-
-export const categorySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  slug: z.string(),
-  description: z.string(),
-  parentId: z.string().nullable(),
-  showInMenu: z.boolean(),
-  isActive: z.boolean(),
-  showInB2c: z.boolean(),
-  showInB2b: z.boolean(),
-  imageId: z.string().nullable(),
-  sortOrder: z.number(),
-  pickupDates: z.array(z.string()).optional(),
-});
-
-export type CategorySchema = z.infer<typeof categorySchema>;

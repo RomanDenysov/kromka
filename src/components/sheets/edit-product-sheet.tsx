@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "date-fns";
 import { SquareArrowOutUpLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { useId } from "react";
@@ -39,13 +40,16 @@ export function EditProductSheet({
     <Sheet onOpenChange={(open) => !open && setParams(null)} open>
       <SheetContent className="flex flex-col sm:max-w-lg">
         <SheetHeader className="border-b">
-          <SheetTitle>Upraviť produkt</SheetTitle>
-          <SheetDescription>{productId}</SheetDescription>
+          <SheetTitle>{product.name}</SheetTitle>
+          <SheetDescription className="text-muted-foreground text-xs">
+            Upravené: {formatDate(product.updatedAt, "dd.MM.yyyy HH:mm")}
+          </SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex flex-1 flex-col overflow-y-auto">
           <ProductForm
             categories={categories}
+            className=""
             formId={formId}
             product={product}
             renderFooter={({ isPending }) => (

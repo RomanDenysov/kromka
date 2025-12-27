@@ -47,7 +47,7 @@ export function ProductCard({
           <ImageSlider
             disabled={!isActive}
             preload={preload}
-            urls={product.images}
+            urls={product.imageUrl ? [product.imageUrl] : []}
           />
         </div>
       </Link>

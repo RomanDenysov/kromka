@@ -1,8 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
-import { categorySchema } from "./categories";
 import { MAX_STRING_LENGTH } from "./constants";
-import { mediaSchema } from "./media";
 
 const PRODUCT_STATUSES = ["draft", "active", "sold", "archived"] as const;
 
@@ -22,31 +20,7 @@ export const productSchema = z.object({
 export const updateProductSchema = z.object({
   ...productSchema.shape,
   categoryId: z.string().nullable(),
+  imageId: z.string().nullable(),
 });
 
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>;
-
-export const priceSchema = z.object({
-  priceCents: z.number(),
-  priceTier: z.object({
-    id: z.string(),
-    name: z.string(),
-  }),
-});
-
-export const outputProductSchema = productSchema.extend({
-  category: categorySchema.nullable(),
-  images: z.array(z.string()),
-  prices: z.array(priceSchema),
-
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
-export const productWithRelationsSchema = outputProductSchema.extend({
-  category: categorySchema.nullable(),
-  images: z.array(mediaSchema),
-});
-
-export type ProductSchema = z.infer<typeof productSchema>;
-export type OutputProductSchema = z.infer<typeof outputProductSchema>;

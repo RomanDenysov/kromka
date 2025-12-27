@@ -1,17 +1,8 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
-
-const MAX_STRING_LENGTH = 255;
+import { MAX_STRING_LENGTH } from "@/validation/constants";
 
 const POSTAL_CODE_LENGTH = 6;
-
-const addressSchema = z.object({
-  street: z.string(),
-  city: z.string(),
-  country: z.string(),
-  googleId: z.string(),
-  postalCode: z.string().max(POSTAL_CODE_LENGTH),
-});
 
 const timeRangeSchema = z
   .object({
@@ -34,8 +25,15 @@ export const openingHoursSchema = z.object({
   }),
   exceptions: z.record(z.string(), dayScheduleSchema).optional(),
 });
-
+const addressSchema = z.object({
+  street: z.string(),
+  city: z.string(),
+  country: z.string(),
+  googleId: z.string(),
+  postalCode: z.string().max(POSTAL_CODE_LENGTH),
+});
 export const storeSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(1).max(MAX_STRING_LENGTH),
   slug: z.string().min(1).max(MAX_STRING_LENGTH),
   description: z.custom<JSONContent>().nullable(),
@@ -49,5 +47,3 @@ export const storeSchema = z.object({
   longitude: z.string().nullable(),
   openingHours: openingHoursSchema,
 });
-
-export type StoreSchema = z.infer<typeof storeSchema>;

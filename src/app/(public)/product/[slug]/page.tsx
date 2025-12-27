@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: Props) {
   return createMetadata({
     title: result.name,
     description: descriptionText,
-    image: result.images[0],
+    image: result.imageUrl ?? undefined,
     canonicalUrl: getSiteUrl(`/product/${result.slug}`),
   });
 }
@@ -122,7 +122,7 @@ export default async function ProductPage({ params }: Props) {
     notFound();
   }
 
-  const validUrls = result.images;
+  const validUrls = result.imageUrl ? [result.imageUrl] : [];
   const isInStock = result.status === "active";
   const pickupDates = result.category?.pickupDates;
   const hasPickupRestriction = pickupDates && pickupDates.length > 0;
