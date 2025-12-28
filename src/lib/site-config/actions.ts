@@ -3,16 +3,13 @@
 import { refresh, updateTag } from "next/cache";
 import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
-import { getAuth } from "@/lib/auth/session";
+import { requireAdmin } from "../auth/guards";
 
 export async function updateSiteConfig(
   key: string,
   value: boolean
 ): Promise<{ success: boolean; error?: string }> {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    return { success: false, error: "Unauthorized" };
-  }
+  await requireAdmin();
 
   await db
     .insert(siteSettings)

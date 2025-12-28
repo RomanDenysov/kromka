@@ -4,11 +4,11 @@ import { count, desc, eq } from "drizzle-orm";
 import { cache } from "react";
 import { db } from "@/db";
 import { favorites } from "@/db/schema";
-import { getAuth } from "../auth/session";
+import { getUser } from "../auth/session";
 import { getProducts } from "../queries/products";
 
 export async function getFavoriteIds(): Promise<string[]> {
-  const { user } = await getAuth();
+  const user = await getUser();
 
   if (!user) {
     return [];
@@ -35,7 +35,7 @@ export const getFavorites = cache(async () => {
 });
 
 export async function getFavoritesCount(): Promise<number> {
-  const { user } = await getAuth();
+  const user = await getUser();
 
   if (!user) {
     return 0;

@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { getAuth } from "../auth/session";
+import { requireAuth } from "../auth/guards";
 
 type UpdateCurrentUserProfileInput = {
   name: string;
@@ -25,11 +25,7 @@ type UpdateCurrentUserProfileResult =
 export async function updateCurrentUserProfile(
   input: UpdateCurrentUserProfileInput
 ): Promise<UpdateCurrentUserProfileResult> {
-  const { user } = await getAuth();
-
-  if (!user) {
-    return { success: false, error: "Unauthorized" } as const;
-  }
+  const user = await requireAuth();
 
   const updateData: Partial<typeof users.$inferInsert> = {
     name: input.name,
@@ -60,11 +56,7 @@ type UpdateProfileInput = {
 
 export async function updateProfileAction(input: UpdateProfileInput) {
   try {
-    const { user } = await getAuth();
-
-    if (!user) {
-      return { success: false, error: "Nie ste prihlásený" };
-    }
+    const user = await requireAuth();
 
     await db
       .update(users)

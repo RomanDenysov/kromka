@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { prices, products } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
 import type { UpdateProductSchema } from "@/validation/products";
-import { getAuth } from "../auth/session";
+import { requireAdmin } from "../auth/guards";
 
 export async function updateProductAction({
   id,
@@ -16,10 +16,7 @@ export async function updateProductAction({
   id: string;
   product: UpdateProductSchema;
 }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   // Remove id from update data since it's used in the where clause
   const { id: _id, ...updateData } = product;
@@ -61,10 +58,7 @@ export async function updateProductAction({
 }
 
 export async function createDraftProductAction() {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const [newDraftProduct] = await db
     .insert(products)
@@ -78,10 +72,7 @@ export async function createDraftProductAction() {
 }
 
 export async function copyProductAction({ productId }: { productId: string }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const referenceProduct = await db.query.products.findFirst({
     where: (product, { eq: eqFn }) => eqFn(product.id, productId),
@@ -137,10 +128,7 @@ export async function copyProductAction({ productId }: { productId: string }) {
 }
 
 export async function toggleIsActiveProductAction({ id }: { id: string }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const [updatedProduct] = await db
     .update(products)
@@ -159,10 +147,7 @@ export async function toggleIsActiveProductAction({ id }: { id: string }) {
 }
 
 export async function deleteProductsAction({ ids }: { ids: string[] }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const deletedProducts = await db
     .delete(products)

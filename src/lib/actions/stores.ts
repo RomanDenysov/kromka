@@ -7,16 +7,12 @@ import { db } from "@/db";
 import { stores, users } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
 import type { StoreSchema } from "@/lib/stores/types";
-import { getAuth } from "../auth/session";
+import { requireAdmin, requireAuth } from "../auth/guards";
 
 export async function setUserStore(
   storeId: string
 ): Promise<{ success: boolean }> {
-  const { user } = await getAuth();
-
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
+  const user = await requireAuth();
 
   await db.update(users).set({ storeId }).where(eq(users.id, user.id));
 
@@ -24,10 +20,7 @@ export async function setUserStore(
 }
 
 export async function createDraftStoreAction() {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const [newDraftStore] = await db
     .insert(stores)
@@ -46,10 +39,7 @@ export async function updateStoreAction({
   id: string;
   store: StoreSchema;
 }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   // Check if slug is taken by another store
   if (store.slug) {
@@ -77,10 +67,7 @@ export async function updateStoreAction({
 }
 
 export async function copyStoreAction({ storeId }: { storeId: string }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const referenceStore = await db.query.stores.findFirst({
     where: (store, { eq: eqFn }) => eqFn(store.id, storeId),
@@ -107,10 +94,7 @@ export async function copyStoreAction({ storeId }: { storeId: string }) {
 }
 
 export async function toggleIsActiveStoresAction({ ids }: { ids: string[] }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const updatedStores = await db
     .update(stores)
@@ -136,10 +120,7 @@ export async function toggleIsActiveStoresAction({ ids }: { ids: string[] }) {
 }
 
 export async function deleteStoresAction({ ids }: { ids: string[] }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const deletedStores = await db
     .delete(stores)

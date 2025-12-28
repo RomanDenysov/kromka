@@ -5,7 +5,7 @@ import { type ReactNode, Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getAuth } from "@/lib/auth/session";
+import { getUser } from "@/lib/auth/session";
 import { getInitials } from "@/lib/utils";
 import { ProfileNavLink } from "./_components/profile-nav-link";
 
@@ -20,9 +20,8 @@ type Props = {
 };
 
 async function ProfileLayoutContent({ children }: Props) {
-  const { user, session } = await getAuth();
-
-  if (!(session && user)) {
+  const user = await getUser();
+  if (!user) {
     redirect("/prihlasenie?origin=/profil");
   }
 

@@ -1,16 +1,16 @@
 import { MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getAuth } from "@/lib/auth/session";
+import { getUserDetails } from "@/lib/auth/session";
 
 export async function QuickStoreSelector() {
-  const { user, store } = await getAuth();
-  if (!user) {
+  const userDetails = await getUserDetails();
+  if (!userDetails) {
     return null;
   }
-
+  const { store } = userDetails;
   return (
     <div className="mt-8">
-      {store ? (
+      {store?.name ? (
         <button
           className="inline-flex items-center gap-3 rounded-full bg-white px-5 py-3 font-medium text-neutral-900 transition-transform hover:scale-105"
           type="button"

@@ -16,15 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getAuth } from "@/lib/auth/session";
+import { getUser } from "@/lib/auth/session";
 import { getUserOrders } from "@/lib/queries/profile";
 import { formatPrice } from "@/lib/utils";
 
 const RECENT_ORDERS_COUNT = 3;
 
 async function ProfilPageContent() {
-  const { user } = await getAuth();
-
+  const user = await getUser();
   if (!user) {
     return null;
   }

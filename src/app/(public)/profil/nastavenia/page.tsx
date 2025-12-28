@@ -1,10 +1,9 @@
 import { Suspense } from "react";
-import { getAuth } from "@/lib/auth/session";
+import { getUserDetails } from "@/lib/auth/session";
 import { ProfileSettingsForm } from "./_components/profile-settings-form";
 
 async function NastaveniaPageContent() {
-  const { user } = await getAuth();
-
+  const user = await getUserDetails();
   if (!user) {
     return null;
   }

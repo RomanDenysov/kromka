@@ -7,7 +7,7 @@ import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
 import type { CategorySchema } from "@/lib/categories/types";
-import { getAuth } from "../auth/session";
+import { requireAdmin } from "../auth/guards";
 
 export async function updateCategoryAction({
   id,
@@ -16,10 +16,7 @@ export async function updateCategoryAction({
   id: string;
   category: CategorySchema;
 }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const { id: _id, ...updateData } = category;
 
@@ -53,10 +50,7 @@ export async function updateCategoryAction({
 }
 
 export async function createDraftCategoryAction() {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const [newDraftCategory] = await db
     .insert(categories)
@@ -103,10 +97,7 @@ export async function copyCategoryAction({ id }: { id: string }) {
 }
 
 export async function toggleIsActiveCategoryAction({ id }: { id: string }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const [updatedCategory] = await db
     .update(categories)
@@ -129,10 +120,7 @@ export async function toggleIsActiveCategoriesAction({
 }: {
   ids: string[];
 }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const updatedCategories = await db
     .update(categories)
@@ -156,10 +144,7 @@ export async function toggleIsActiveCategoriesAction({
 }
 
 export async function toggleIsFeaturedCategoryAction({ id }: { id: string }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const [updatedCategory] = await db
     .update(categories)
@@ -182,10 +167,7 @@ export async function toggleIsFeaturedCategoryAction({ id }: { id: string }) {
 }
 
 export async function deleteCategoriesAction({ ids }: { ids: string[] }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
 
   const deletedCategories = await db
     .delete(categories)

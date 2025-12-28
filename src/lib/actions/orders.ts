@@ -5,7 +5,7 @@ import { refresh } from "next/cache";
 import { db } from "@/db";
 import { orderItems, orderStatusEvents, orders, products } from "@/db/schema";
 import type { OrderStatus, PaymentMethod, PaymentStatus } from "@/db/types";
-import { getAuth } from "../auth/session";
+import { requireAdmin, requireAuth } from "../auth/guards";
 import { clearCart, getCart } from "../cart/cookies";
 import { sendEmail } from "../email";
 import { createPrefixedNumericId } from "../ids";
@@ -48,7 +48,7 @@ export async function createOrderFromCart(data: {
       };
     }
 
-    const { user } = await getAuth();
+    const user = await requireAuth();
     const isGuest = !user;
 
     // Require either authenticated user or guest customer info
@@ -207,10 +207,7 @@ export async function updateOrderStatusAction({
   status: OrderStatus;
   note?: string;
 }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
+  const admin = await requireAdmin();
 
   // Get current order to check payment status
   const currentOrder = await db.query.orders.findFirst({
@@ -245,7 +242,7 @@ export async function updateOrderStatusAction({
   await db.insert(orderStatusEvents).values({
     orderId,
     status,
-    createdBy: user.id,
+    createdBy: admin.id,
     note: note ?? null,
   });
 
@@ -263,11 +260,7 @@ export async function updateOrderPaymentStatusAction({
   orderId: string;
   status: PaymentStatus;
 }) {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    throw new Error("Unauthorized");
-  }
-
+  await requireAuth();
   await db
     .update(orders)
     .set({ paymentStatus: status })
@@ -354,10 +347,7 @@ export async function bulkUpdateOrdersAction(data: {
   orderStatus?: OrderStatus;
   paymentStatus?: PaymentStatus;
 }): Promise<BulkUpdateResult> {
-  const { user } = await getAuth();
-  if (!user || user.role !== "admin") {
-    return { success: false, error: "Unauthorized" };
-  }
+  const admin = await requireAdmin();
 
   const { orderIds, orderStatus, paymentStatus } = data;
   if (orderIds.length === 0) {
@@ -373,7 +363,7 @@ export async function bulkUpdateOrdersAction(data: {
     await db.update(orders).set(updates).where(inArray(orders.id, orderIds));
 
     if (orderStatus) {
-      await handleBulkStatusNotifications(orderIds, orderStatus, user.id);
+      await handleBulkStatusNotifications(orderIds, orderStatus, admin.id);
     }
 
     refresh();

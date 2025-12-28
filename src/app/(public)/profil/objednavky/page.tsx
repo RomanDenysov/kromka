@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getAuth } from "@/lib/auth/session";
+import { getUser } from "@/lib/auth/session";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
 import { getUserOrders } from "@/lib/queries/profile";
 import { formatPrice } from "@/lib/utils";
@@ -19,7 +19,7 @@ import { formatPrice } from "@/lib/utils";
 const RECENT_ORDER_ITEMS_COUNT = 3;
 
 async function ObjednavkyPageContent() {
-  const { user } = await getAuth();
+  const user = await getUser();
 
   if (!user) {
     return null;

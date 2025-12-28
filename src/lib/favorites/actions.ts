@@ -4,14 +4,10 @@ import { and, eq } from "drizzle-orm";
 import { refresh } from "next/cache";
 import { db } from "@/db";
 import { favorites } from "@/db/schema";
-import { getAuth } from "../auth/session";
+import { requireAuth } from "../auth/guards";
 
 export async function toggleFavorite(productId: string) {
-  const { user } = await getAuth();
-
-  if (!user) {
-    return { success: false, error: "UNAUTHORIZED" as const };
-  }
+  const user = await requireAuth();
 
   const existing = await db.query.favorites.findFirst({
     where: and(
@@ -37,11 +33,7 @@ export async function toggleFavorite(productId: string) {
 }
 
 export async function isFavorite(productId: string): Promise<boolean> {
-  const { user } = await getAuth();
-
-  if (!user) {
-    return false;
-  }
+  const user = await requireAuth();
 
   const favorite = await db.query.favorites.findFirst({
     where: and(

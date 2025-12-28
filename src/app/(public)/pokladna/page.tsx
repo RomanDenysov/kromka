@@ -6,7 +6,7 @@ import {
 import { CheckoutRecommendations } from "@/components/lists/checkout-recommendations";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
-import { getAuth } from "@/lib/auth/session";
+import { getUserDetails } from "@/lib/auth/session";
 import { getDetailedCart } from "@/lib/cart/queries";
 import { getProductsByCategory } from "@/lib/queries/products";
 import { getStores } from "@/lib/queries/stores";
@@ -32,8 +32,8 @@ async function CheckoutRecommendationsServer() {
 }
 
 async function CheckoutFormLoader() {
-  const [{ user }, items, stores, ordersEnabled] = await Promise.all([
-    getAuth(),
+  const [user, items, stores, ordersEnabled] = await Promise.all([
+    getUserDetails(),
     getDetailedCart(),
     getStores(),
     getSiteConfig("orders_enabled"),

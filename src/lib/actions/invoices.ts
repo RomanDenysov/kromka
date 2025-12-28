@@ -3,7 +3,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { invoices, orders, organizations } from "@/db/schema";
-import { getAuth } from "../auth/session";
+import { requireAdmin } from "../auth/guards";
 
 const INVOICE_NUMBER_PADDING = 4;
 
@@ -47,12 +47,7 @@ export async function generateInvoiceForCompany(
   periodStart: Date,
   periodEnd: Date
 ) {
-  const { user } = await getAuth();
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
-
-  // TODO: Check admin permissions
+  await requireAdmin();
 
   // Get all unpaid invoice orders for this company in the period
   const unpaidOrders = await db.query.orders.findMany({
@@ -126,13 +121,7 @@ export async function generateInvoiceForCompany(
  * Mark invoice as issued (PDF generated and sent)
  */
 export async function issueInvoice(invoiceId: string, pdfUrl: string) {
-  const { user } = await getAuth();
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
-
-  // TODO: Check admin permissions
-
+  await requireAdmin();
   await db
     .update(invoices)
     .set({
@@ -147,13 +136,7 @@ export async function issueInvoice(invoiceId: string, pdfUrl: string) {
  * Mark invoice as paid (updates all linked orders' paymentStatus)
  */
 export async function markInvoiceAsPaid(invoiceId: string) {
-  const { user } = await getAuth();
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
-
-  // TODO: Check admin permissions
-
+  await requireAdmin();
   // Update invoice
   await db
     .update(invoices)

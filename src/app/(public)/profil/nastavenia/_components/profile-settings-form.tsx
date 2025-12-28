@@ -22,10 +22,10 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { updateProfileAction } from "@/lib/actions/user-profile";
-import type { User } from "@/lib/auth/session";
+import type { UserDetails } from "@/lib/auth/session";
 
 type Props = {
-  user: NonNullable<User>;
+  user: NonNullable<UserDetails>;
 };
 
 export function ProfileSettingsForm({ user }: Props) {

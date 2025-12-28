@@ -16,7 +16,7 @@ import { PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
 import type { DaySchedule, StoreSchedule } from "@/db/types";
-import { getAuth } from "@/lib/auth/session";
+import { getUserDetails } from "@/lib/auth/session";
 
 const DAYS_ORDER = [
   "monday",
@@ -71,7 +71,8 @@ async function StorePageContent({
 }: {
   store: NonNullable<Awaited<ReturnType<typeof getStoreBySlug>>>;
 }) {
-  const { store: userStore } = await getAuth();
+  const userDetails = await getUserDetails();
+  const { store: userStore } = userDetails ?? {};
 
   const { regularHours } = store.openingHours || {};
   const todayKey = format(new Date(), "EEEE", { locale: sk }).toLowerCase();
