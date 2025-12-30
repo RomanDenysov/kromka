@@ -3,7 +3,7 @@
 "use client";
 
 import { useStore } from "@tanstack/react-form";
-import { format } from "date-fns";
+import { addDays, format, startOfToday } from "date-fns";
 import {
   AlertCircleIcon,
   ArrowLeftIcon,
@@ -128,7 +128,7 @@ export function CheckoutForm({
       email: user?.email ?? customer?.email ?? "",
       phone: user?.phone ?? customer?.phone ?? "",
       paymentMethod: "in_store" as PaymentMethod,
-      pickupDate: new Date(),
+      pickupDate: addDays(startOfToday(), 1),
       pickupTime: "",
       storeId: user?.storeId ?? customerStore?.id ?? "",
     }),
