@@ -337,7 +337,7 @@ export function CheckoutForm({
                     />
                   )}
                 </form.Field>
-                {hasNoAvailableDates && (
+                {/* {hasNoAvailableDates && (
                   <Alert variant="destructive">
                     <AlertCircleIcon className="size-4" />
                     <AlertTitle>Žiadne dostupné dátumy</AlertTitle>
@@ -348,7 +348,7 @@ export function CheckoutForm({
                       produkty z košíka alebo kontaktujte nás.
                     </AlertDescription>
                   </Alert>
-                )}
+                )} */}
                 {restrictedPickupDates &&
                   restrictedPickupDates.size > 0 &&
                   !hasNoAvailableDates && (
