@@ -62,12 +62,8 @@ export function useFavorite(productId: string, initialValue?: boolean) {
 
       if (!result.success) {
         setFavorite(previousFavorite);
-
-        if (result.error === "UNAUTHORIZED") {
-          openLogin("favorites", pathname);
-        } else {
-          toast.error("Nastala chyba pri aktualizácii obľúbených");
-        }
+        openLogin("favorites", pathname);
+        toast.error("Nastala chyba pri aktualizácii obľúbených");
       }
     });
   };
