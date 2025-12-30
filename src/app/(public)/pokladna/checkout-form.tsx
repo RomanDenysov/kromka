@@ -320,14 +320,16 @@ export function CheckoutForm({
                         schedule,
                         restrictedPickupDates
                       );
-                      form.setFieldValue("pickupDate", firstDate ?? new Date());
 
-                      // Set first available time
                       if (firstDate) {
+                        form.setFieldValue("pickupDate", firstDate);
                         const range = getTimeRangeForDate(firstDate, schedule);
-                        const firstTime = getFirstAvailableTime(range);
-                        form.setFieldValue("pickupTime", firstTime);
+                        form.setFieldValue(
+                          "pickupTime",
+                          getFirstAvailableTime(range)
+                        );
                       } else {
+                        // No valid dates available - clear the time, keep date for UI feedback
                         form.setFieldValue("pickupTime", "");
                       }
                     },
@@ -530,7 +532,11 @@ export function CheckoutForm({
                 <Button
                   className="w-full text-base"
                   disabled={
-                    isSubmitting || !canSubmit || isPending || !ordersEnabled
+                    isSubmitting ||
+                    !canSubmit ||
+                    isPending ||
+                    !ordersEnabled ||
+                    hasNoAvailableDates
                   }
                   size="xl"
                   type="submit"

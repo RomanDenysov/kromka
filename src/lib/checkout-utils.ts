@@ -221,6 +221,59 @@ export function isDateAllowedByCart(
 }
 
 /**
+ * Validates if a date is valid for pickup considering all requirements:
+ * - Not in the past
+ * - Not today
+ * - Not tomorrow if past cutoff
+ * - Within 30 days
+ * - Store is open
+ * - Allowed by cart restrictions
+ */
+export function isValidPickupDate(
+  date: Date,
+  schedule: StoreSchedule | null,
+  restrictedDates: Set<string> | null
+): boolean {
+  const today = startOfToday();
+  const tomorrow = addDays(today, 1);
+  const maxDate = addDays(today, 30);
+  const canOrderForTomorrow = isBeforeDailyCutoff();
+
+  // Past dates or today
+  if (
+    isAfter(today, date) ||
+    format(date, "yyyy-MM-dd") === format(today, "yyyy-MM-dd")
+  ) {
+    return false;
+  }
+
+  // Tomorrow only if before cutoff
+  if (
+    format(date, "yyyy-MM-dd") === format(tomorrow, "yyyy-MM-dd") &&
+    !canOrderForTomorrow
+  ) {
+    return false;
+  }
+
+  // Max 30 days ahead
+  if (isAfter(date, maxDate)) {
+    return false;
+  }
+
+  // Store closed
+  if (isStoreClosed(date, schedule)) {
+    return false;
+  }
+
+  // Cart restrictions
+  if (!isDateAllowedByCart(date, restrictedDates)) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Finds the first available pickup date considering both store schedule
  * and cart category restrictions.
  */
