@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { orderItems, orderStatusEvents, orders, products } from "@/db/schema";
 import type { OrderStatus, PaymentMethod, PaymentStatus } from "@/db/types";
 import { requireAdmin, requireAuth } from "../auth/guards";
+import { getUser } from "../auth/session";
 import { clearCart, getCart } from "../cart/cookies";
 import { sendEmail } from "../email";
 import { createPrefixedNumericId } from "../ids";
@@ -48,7 +49,7 @@ export async function createOrderFromCart(data: {
       };
     }
 
-    const user = await requireAuth();
+    const user = await getUser();
     const isGuest = !user;
 
     // Require either authenticated user or guest customer info
