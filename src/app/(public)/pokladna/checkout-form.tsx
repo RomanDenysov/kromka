@@ -57,6 +57,7 @@ import {
   getFirstAvailableTime,
   getRestrictedPickupDates,
   getTimeRangeForDate,
+  isBeforeDailyCutoff,
 } from "@/lib/checkout-utils";
 import type { Store } from "@/lib/queries/stores";
 import { cn } from "@/lib/utils";
@@ -122,18 +123,22 @@ export function CheckoutForm({
   );
 
   // Derive initial values from user (DB) or local customer store fallback
-  const initialValues = useMemo(
-    () => ({
+  const initialValues = useMemo(() => {
+    const canOrderForTomorrow = isBeforeDailyCutoff();
+    const defaultDate = canOrderForTomorrow
+      ? addDays(startOfToday(), 1)
+      : addDays(startOfToday(), 2);
+
+    return {
       name: user?.name ?? customer?.name ?? "",
       email: user?.email ?? customer?.email ?? "",
       phone: user?.phone ?? customer?.phone ?? "",
       paymentMethod: "in_store" as PaymentMethod,
-      pickupDate: addDays(startOfToday(), 1),
+      pickupDate: defaultDate,
       pickupTime: "",
       storeId: user?.storeId ?? customerStore?.id ?? "",
-    }),
-    [user, customer, customerStore]
-  );
+    };
+  }, [user, customer, customerStore]);
 
   const form = useAppForm({
     defaultValues: initialValues,
@@ -337,7 +342,7 @@ export function CheckoutForm({
                     />
                   )}
                 </form.Field>
-                {/* {hasNoAvailableDates && (
+                {hasNoAvailableDates && (
                   <Alert variant="destructive">
                     <AlertCircleIcon className="size-4" />
                     <AlertTitle>Žiadne dostupné dátumy</AlertTitle>
@@ -348,7 +353,7 @@ export function CheckoutForm({
                       produkty z košíka alebo kontaktujte nás.
                     </AlertDescription>
                   </Alert>
-                )} */}
+                )}
                 {restrictedPickupDates &&
                   restrictedPickupDates.size > 0 &&
                   !hasNoAvailableDates && (

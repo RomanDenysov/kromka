@@ -13,7 +13,11 @@ import { sk } from "date-fns/locale/sk";
 import { Calendar1Icon, ChevronDownIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { StoreSchedule } from "@/db/types";
-import { isDateAllowedByCart, isStoreClosed } from "@/lib/checkout-utils";
+import {
+  isBeforeDailyCutoff,
+  isDateAllowedByCart,
+  isStoreClosed,
+} from "@/lib/checkout-utils";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -34,13 +38,10 @@ export function OrderPickupDatePicker({
 }: OrderPickupDatePickerProps) {
   const [open, setOpen] = useState(false);
 
-  // TODO: Temporary change for today's event - revert back to 12 after event
-  const isBeforeNoon = useMemo(() => {
-    const now = new Date();
-    const cutoff = new Date();
-    cutoff.setHours(20, 0, 0, 0); // Changed from 12 (noon) to 20 (8 PM)
-    return isBefore(now, cutoff);
-  }, []);
+  const canOrderForTomorrow = useMemo(() => isBeforeDailyCutoff(), []);
+
+  const today = useMemo(() => startOfToday(), []);
+  const maxDate = useMemo(() => addDays(today, 30), [today]);
 
   const handleSelectDate = useCallback(
     (newDate: Date | undefined) => {
@@ -48,7 +49,6 @@ export function OrderPickupDatePicker({
         return;
       }
 
-      const today = startOfToday();
       const tomorrow = addDays(today, 1);
 
       // Past dates
@@ -61,13 +61,12 @@ export function OrderPickupDatePicker({
         return;
       }
 
-      // Tomorrow only if before noon
-      if (isSameDay(newDate, tomorrow) && !isBeforeNoon) {
+      // Tomorrow only if before cutoff
+      if (isSameDay(newDate, tomorrow) && !canOrderForTomorrow) {
         return;
       }
 
       // Max 30 days ahead
-      const maxDate = addDays(today, 30);
       if (isAfter(newDate, maxDate)) {
         return;
       }
@@ -85,25 +84,30 @@ export function OrderPickupDatePicker({
       onDateSelect(newDate);
       setOpen(false);
     },
-    [isBeforeNoon, storeSchedule, restrictedDates, onDateSelect]
+    [
+      today,
+      maxDate,
+      canOrderForTomorrow,
+      storeSchedule,
+      restrictedDates,
+      onDateSelect,
+    ]
   );
 
   const disabledDays = useCallback(
     (d: Date) => {
-      const today = startOfToday();
       const tomorrow = addDays(today, 1);
-      const maxDate = addDays(today, 30);
 
       return (
-        isBefore(d, today) ||
+        isAfter(today, d) ||
         isSameDay(d, today) ||
-        (isSameDay(d, tomorrow) && !isBeforeNoon) ||
+        (isSameDay(d, tomorrow) && !canOrderForTomorrow) ||
         isAfter(d, maxDate) ||
         isStoreClosed(d, storeSchedule) ||
         !isDateAllowedByCart(d, restrictedDates)
       );
     },
-    [isBeforeNoon, storeSchedule, restrictedDates]
+    [today, maxDate, canOrderForTomorrow, storeSchedule, restrictedDates]
   );
 
   return (
@@ -126,11 +130,13 @@ export function OrderPickupDatePicker({
         <Calendar
           captionLayout="dropdown"
           disabled={disabledDays}
+          endMonth={maxDate}
           locale={sk}
           mode="single"
           onSelect={handleSelectDate}
           required
           selected={selectedDate}
+          startMonth={today}
           timeZone="Europe/Bratislava"
           weekStartsOn={1}
         />

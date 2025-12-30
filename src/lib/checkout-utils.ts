@@ -1,6 +1,26 @@
-import { addDays, format, getDay, isAfter, startOfToday } from "date-fns";
+import {
+  addDays,
+  format,
+  getDay,
+  isAfter,
+  isBefore,
+  startOfToday,
+} from "date-fns";
 import type { StoreSchedule, TimeRange } from "@/db/types";
 import type { DetailedCartItem } from "@/lib/cart/queries";
+
+// TODO: Temporary change for today's event - revert back to 12 after event
+const ORDER_CUTOFF_HOUR = 20;
+
+/**
+ * Checks if the current time is before the daily cutoff for next-day orders.
+ */
+export function isBeforeDailyCutoff(): boolean {
+  const now = new Date();
+  const cutoff = new Date();
+  cutoff.setHours(ORDER_CUTOFF_HOUR, 0, 0, 0);
+  return isBefore(now, cutoff);
+}
 
 export const DAY_KEYS = [
   "sunday",
@@ -50,11 +70,10 @@ export function getFirstAvailableDate(
   schedule: StoreSchedule | null
 ): Date | null {
   const today = startOfToday();
-  const now = new Date();
-  const isBeforeNoon = now.getHours() < 12;
+  const canOrderForTomorrow = isBeforeDailyCutoff();
 
-  // Start from tomorrow, or day after if past noon
-  const startDate = isBeforeNoon ? addDays(today, 1) : addDays(today, 2);
+  // Start from tomorrow, or day after if past cutoff
+  const startDate = canOrderForTomorrow ? addDays(today, 1) : addDays(today, 2);
   const maxDate = addDays(today, 30);
 
   let currentDate = startDate;
@@ -210,11 +229,10 @@ export function getFirstAvailableDateWithRestrictions(
   restrictedDates: Set<string> | null
 ): Date | null {
   const today = startOfToday();
-  const now = new Date();
-  const isBeforeNoon = now.getHours() < 12;
+  const canOrderForTomorrow = isBeforeDailyCutoff();
 
-  // Start from tomorrow, or day after if past noon
-  const startDate = isBeforeNoon ? addDays(today, 1) : addDays(today, 2);
+  // Start from tomorrow, or day after if past cutoff
+  const startDate = canOrderForTomorrow ? addDays(today, 1) : addDays(today, 2);
   const maxDate = addDays(today, 30);
 
   let currentDate = startDate;
