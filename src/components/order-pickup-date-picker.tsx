@@ -34,11 +34,12 @@ export function OrderPickupDatePicker({
 }: OrderPickupDatePickerProps) {
   const [open, setOpen] = useState(false);
 
+  // TODO: Temporary change for today's event - revert back to 12 after event
   const isBeforeNoon = useMemo(() => {
     const now = new Date();
-    const noon = new Date();
-    noon.setHours(12, 0, 0, 0);
-    return isBefore(now, noon);
+    const cutoff = new Date();
+    cutoff.setHours(20, 0, 0, 0); // Changed from 12 (noon) to 20 (8 PM)
+    return isBefore(now, cutoff);
   }, []);
 
   const handleSelectDate = useCallback(

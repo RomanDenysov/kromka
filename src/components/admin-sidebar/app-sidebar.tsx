@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { ComponentProps } from "react";
 import { Icons } from "@/components/icons";
 import {
@@ -28,7 +28,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 type NavItem<T extends string = string> = {
@@ -72,7 +71,6 @@ function SidebarLogo() {
               </span>
             </Link>
           </SidebarMenuButton>
-          <SidebarTrigger className="group-data-[state=collapsed]:size-8" />
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarHeader>
@@ -81,15 +79,9 @@ function SidebarLogo() {
 
 function NavMenuItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
   const Icon = item.icon;
-  const router = useRouter();
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton
-        asChild
-        isActive={isActive}
-        onMouseEnter={() => router.prefetch(item.href)}
-        tooltip={item.label}
-      >
+      <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
         <Link href={item.href}>
           <Icon />
           <span>{item.label}</span>
