@@ -9,7 +9,6 @@ import {
 import type { StoreSchedule, TimeRange } from "@/db/types";
 import type { DetailedCartItem } from "@/lib/cart/queries";
 
-// TODO: Temporary change for today's event - revert back to 12 after event
 const ORDER_CUTOFF_HOUR = 12;
 
 /**
