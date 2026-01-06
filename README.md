@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pekáreň Kromka
 
-## Getting Started
+Online store and blog for a bakery chain in eastern Slovakia. Sells bread, coffee, rolls, and other delicacies. Most establishments belong to Kavejo s.r.o. and Kromka s.r.o.
 
-First, run the development server:
+The store is built on a pick-up system - customers order online and pick up at a store. B2B segment has delivery available.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Solo project - I handle development, design, and product decisions with help from AI tools (Cursor, Claude).
+
+## Stack
+
+- Next.js 16 with App Router and Server Actions
+- React 19 with React Compiler
+- PostgreSQL (Neon) + Drizzle ORM
+- Better-auth for authentication
+- Tailwind CSS + Radix UI components
+- Vercel Blob for image storage
+- PostHog for analytics
+
+## Structure
+
+```
+src/
+├── app/           # Routes (public + admin)
+├── components/    # UI components
+├── lib/
+│   ├── actions/   # Server Actions
+│   ├── queries/   # Database queries
+│   ├── auth/      # Auth config
+│   └── email/     # Email templates
+├── db/            # Schema + migrations
+└── config/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+cp .env.example .env
+pnpm db:push
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## What it does
 
-## Learn More
+- Product catalog with categories
+- Shopping cart and checkout (pickup date selection)
+- Order tracking
+- Multiple store locations
+- B2B ordering with invoices
+- Blog (Tiptap editor)
+- Admin dashboard
+- Email notifications (orders, receipts, pickup ready)
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Hosted on Vercel.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [pekarenkromka.sk](https://pekarenkromka.sk)
+- [shop.pekarenkromka.sk](https://shop.pekarenkromka.sk)
 
-## Deploy on Vercel
+## Status
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Working on admin improvements, order workflow, and B2B features. Payment integration coming.
