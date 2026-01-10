@@ -23,10 +23,10 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { PRODUCT_STATUSES } from "@/db/types";
-import { updateProductAction } from "@/lib/actions/products";
+import type { Category } from "@/features/categories/queries";
+import { updateProductAction } from "@/features/products/actions";
+import type { AdminProduct } from "@/features/products/queries";
 import { PRODUCT_STATUSES_LABELS } from "@/lib/constants";
-import type { Category } from "@/lib/queries/categories";
-import type { AdminProduct } from "@/lib/queries/products";
 import { cn } from "@/lib/utils";
 import { MAX_STRING_LENGTH } from "@/validation/constants";
 

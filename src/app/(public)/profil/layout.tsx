@@ -5,7 +5,7 @@ import { type ReactNode, Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getUser } from "@/lib/auth/session";
+import { getUser } from "@/features/auth/session";
 import { getInitials } from "@/lib/utils";
 import { ProfileNavLink } from "./_components/profile-nav-link";
 

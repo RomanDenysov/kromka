@@ -2,13 +2,6 @@ import { MenuIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { CartBadge, CartBadgeSkeleton } from "@/components/cart/cart-badge";
-import { CartDrawerContent } from "@/components/cart/cart-drawer-content";
-import {
-  CartDrawerFooter,
-  CartDrawerFooterLoader,
-} from "@/components/cart/cart-drawer-footer";
-import { CartDrawer } from "@/components/drawers/cart-drawer";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { StoreSelectModal } from "@/components/modal/store-select-modal";
@@ -16,7 +9,17 @@ import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserButton } from "@/components/user-button";
-import { getStores } from "@/lib/queries/stores";
+import {
+  CartBadge,
+  CartBadgeSkeleton,
+} from "@/features/cart/components/cart-badge";
+import { CartDrawer } from "@/features/cart/components/cart-drawer";
+import { CartDrawerContent } from "@/features/cart/components/cart-drawer-content";
+import {
+  CartDrawerFooter,
+  CartDrawerFooterLoader,
+} from "@/features/cart/components/cart-drawer-footer";
+import { getStores } from "@/features/stores/queries";
 import { cn } from "@/lib/utils";
 import { FavoritesLink } from "./favorites-link";
 

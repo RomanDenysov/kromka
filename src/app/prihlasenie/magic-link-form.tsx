@@ -8,7 +8,7 @@ import { useAppForm } from "@/components/shared/form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { signIn } from "@/lib/auth/client";
+import { signIn } from "@/features/auth/client";
 import { useLoginModal } from "@/store/login-modal-store";
 
 const emailSchema = z.object({

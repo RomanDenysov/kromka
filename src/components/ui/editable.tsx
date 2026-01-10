@@ -20,9 +20,9 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { VisuallyHiddenInput } from "@/components/shared/visually-hidden-input";
 import { useComposedRefs } from "@/lib/compose-refs";
 import { cn } from "@/lib/utils";
+import { VisuallyHiddenInput } from "@/components/shared/visually-hidden-input";
 
 const ROOT_NAME = "Editable";
 const LABEL_NAME = "EditableLabel";
@@ -586,7 +586,7 @@ function EditableInput(props: EditableInputProps) {
         target.style.height = `${target.scrollHeight}px`;
       } else {
         target.style.width = "0";
-        // biome-ignore lint: magic number
+
         target.style.width = `${target.scrollWidth + 4}px`;
       }
     },

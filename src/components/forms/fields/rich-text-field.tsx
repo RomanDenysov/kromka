@@ -2,9 +2,9 @@
 
 import type { FieldPath } from "react-hook-form";
 import { Controller, type FieldValues, useFormContext } from "react-hook-form";
-import { Editor } from "@/components/editor/editor";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
+import { Editor } from "@/widgets/editor/editor";
 
 type Props<T extends FieldValues> = {
   name: FieldPath<T>;

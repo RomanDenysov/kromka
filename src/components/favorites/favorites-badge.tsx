@@ -1,6 +1,6 @@
-import { getFavoritesCount } from "@/lib/favorites/queries";
-import { Badge } from "../ui/badge";
-import { Skeleton } from "../ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getFavoritesCount } from "@/features/favorites/queries";
 
 export async function FavoritesBadge() {
   const count = await getFavoritesCount();
@@ -11,7 +11,7 @@ export async function FavoritesBadge() {
 
   return (
     <Badge
-      className="absolute -top-1.5 -right-1.5 aspect-square h-4 w-auto px-0.5 py-0 font-semibold text-[10px]"
+      className="-top-1.5 -right-1.5 absolute aspect-square h-4 w-auto px-0.5 py-0 font-semibold text-[10px]"
       variant="default"
     >
       {count}
@@ -20,5 +20,5 @@ export async function FavoritesBadge() {
 }
 
 export const FavoritesBadgeSkeleton = (
-  <Skeleton className="absolute -top-1.5 -right-1.5 size-4 rounded-full" />
+  <Skeleton className="-top-1.5 -right-1.5 absolute size-4 rounded-full" />
 );

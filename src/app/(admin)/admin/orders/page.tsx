@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { OrdersTable } from "@/components/tables/orders/table";
-import { getAllOrders } from "@/lib/queries/orders";
+import { getAllOrders } from "@/features/orders/queries";
+import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
 async function OrdersLoader() {
   const orders = await getAllOrders();

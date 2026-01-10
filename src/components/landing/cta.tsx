@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
+import { Container } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
-import { Container } from "../shared/container";
 
 export function CallToAction() {
   // TODO: Link to actual registration flow

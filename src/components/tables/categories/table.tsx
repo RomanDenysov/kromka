@@ -13,10 +13,6 @@ import {
 } from "@tanstack/react-table";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useState, useTransition } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
-import { DataTableSearch } from "@/components/data-table/data-table-search";
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,8 +32,12 @@ import {
   deleteCategoriesAction,
   toggleIsActiveCategoryAction,
   toggleIsFeaturedCategoryAction,
-} from "@/lib/actions/categories";
-import type { AdminCategory } from "@/lib/queries/categories";
+} from "@/features/categories/actions";
+import type { AdminCategory } from "@/features/categories/queries";
+import { DataTable } from "@/widgets/data-table/data-table";
+import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
+import { DataTableSearch } from "@/widgets/data-table/data-table-search";
+import { DataTableViewOptions } from "@/widgets/data-table/data-table-view-options";
 import { columns } from "./columns";
 
 export function CategoriesTable({

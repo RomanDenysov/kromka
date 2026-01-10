@@ -3,7 +3,7 @@ import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { StoresMap } from "@/components/stores-map";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getStores } from "@/lib/queries/stores";
+import { getStores } from "@/features/stores/queries";
 import { StoresGrid, StoresGridSkeleton } from "./stores-grid";
 
 export default async function StoresPage() {

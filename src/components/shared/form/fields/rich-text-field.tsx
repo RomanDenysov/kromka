@@ -2,9 +2,9 @@
 
 import type { JSONContent } from "@tiptap/react";
 import { useCallback } from "react";
-import { Editor } from "@/components/editor/editor";
 import { useFieldContext } from "@/components/shared/form";
 import { Field, FieldLabel } from "@/components/ui/field";
+import { Editor } from "@/widgets/editor/editor";
 
 type Props = {
   label?: string;

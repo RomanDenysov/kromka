@@ -1,8 +1,8 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef } from "react";
-import { NumberField } from "@/components/shared/fields/number-field";
 import { cn } from "@/lib/utils";
+import { NumberField } from "@/shared/components/fields/number-field";
 
 const numberInputGroupVariants = cva(
   "flex w-fit items-center overflow-hidden rounded-md border border-input bg-transparent shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 has-[input:disabled]:pointer-events-none has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50 [&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-input [&>*:not(:last-child)]:rounded-r-none [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-input [&>*]:focus-visible:relative [&>*]:focus-visible:z-10",
@@ -52,7 +52,10 @@ const numberInputButtonVariants = cva(
   }
 );
 
-type NumberInputRootProps = Omit<ComponentPropsWithoutRef<"div">, "onChange"> & {
+type NumberInputRootProps = Omit<
+  ComponentPropsWithoutRef<"div">,
+  "onChange"
+> & {
   value?: number;
   defaultValue?: number;
   onChange?: (value: number) => void;
@@ -86,40 +89,33 @@ const NumberInput = forwardRef<HTMLDivElement, NumberInputProps>(
       ...rootProps
     },
     ref
-  ) => {
-    return (
-      <div className={cn("inline-flex flex-col gap-1", className)}>
-        {showLabel && label ? (
-          <span className="text-sm font-medium leading-snug text-foreground">
-            {label}
-          </span>
-        ) : null}
+  ) => (
+    <div className={cn("inline-flex flex-col gap-1", className)}>
+      {showLabel && label ? (
+        <span className="font-medium text-foreground text-sm leading-snug">
+          {label}
+        </span>
+      ) : null}
 
-        <NumberField.Root
-          ref={ref}
-          {...rootProps}
-        >
-          <NumberField.Group
-            className={cn(numberInputGroupVariants({ size }))}
-          >
-            <NumberField.Decrement
-              className={cn(numberInputButtonVariants({ size }), buttonClassName)}
-            />
-            <NumberField.Input
-              className={cn(
-                numberInputFieldVariants({ size }),
-                "max-w-12 px-0.5 py-0 font-mono",
-                inputClassName
-              )}
-            />
-            <NumberField.Increment
-              className={cn(numberInputButtonVariants({ size }), buttonClassName)}
-            />
-          </NumberField.Group>
-        </NumberField.Root>
-      </div>
-    );
-  }
+      <NumberField.Root ref={ref} {...rootProps}>
+        <NumberField.Group className={cn(numberInputGroupVariants({ size }))}>
+          <NumberField.Decrement
+            className={cn(numberInputButtonVariants({ size }), buttonClassName)}
+          />
+          <NumberField.Input
+            className={cn(
+              numberInputFieldVariants({ size }),
+              "max-w-12 px-0.5 py-0 font-mono",
+              inputClassName
+            )}
+          />
+          <NumberField.Increment
+            className={cn(numberInputButtonVariants({ size }), buttonClassName)}
+          />
+        </NumberField.Group>
+      </NumberField.Root>
+    </div>
+  )
 );
 
 NumberInput.displayName = "NumberInput";

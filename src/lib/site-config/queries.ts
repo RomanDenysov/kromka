@@ -3,22 +3,22 @@ import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
 
-const CONFIG_DEFAULTS: Record<string, boolean> = {
+type SiteConfigKey = "orders_enabled" | "registration_enabled" | "promo_banner";
+
+const CONFIG_DEFAULTS: Record<SiteConfigKey, boolean> = {
   orders_enabled: false,
   registration_enabled: true,
   promo_banner: false,
 };
 
-export async function getSiteConfig(key: string) {
+export async function getSiteConfig(key: SiteConfigKey) {
   "use cache";
   cacheLife("max");
   cacheTag(`site-setting-${key}`);
 
-  const result = await db
-    .select()
-    .from(siteSettings)
-    .where(eq(siteSettings.key, key))
-    .limit(1);
+  const setting = await db.query.siteSettings.findFirst({
+    where: eq(siteSettings.key, key),
+  });
 
-  return result[0]?.value ?? CONFIG_DEFAULTS[key] ?? false;
+  return setting?.value ?? CONFIG_DEFAULTS[key];
 }

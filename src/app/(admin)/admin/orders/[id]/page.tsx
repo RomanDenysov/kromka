@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { FormSkeleton } from "@/components/shared/form/form-skeleton";
-import { getOrderById } from "@/lib/queries/orders";
+import { getOrderById } from "@/features/orders/queries";
+import { FormSkeleton } from "@/shared/components/form/form-skeleton";
 import { OrderDetail } from "./_components/order-detail";
 
 type Props = {

@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,8 +35,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { AdminProduct } from "@/lib/queries/products";
+import type { AdminProduct } from "@/features/products/queries";
 import { formatPrice } from "@/lib/utils";
+import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 export type ProductTableMeta = {
   onOpen: (id: string) => void;

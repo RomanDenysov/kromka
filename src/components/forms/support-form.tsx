@@ -4,7 +4,6 @@ import { useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { useEffect, useTransition } from "react";
 import { toast } from "sonner";
-import { useAppForm } from "@/components/shared/form";
 import {
   Card,
   CardContent,
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { submitSupportRequest } from "@/lib/actions/contact";
+import { useAppForm } from "@/shared/components/form";
 import { supportRequestSchema } from "@/validation/contact";
 
 export function SupportForm() {

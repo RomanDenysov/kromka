@@ -6,8 +6,11 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import type { TimeRange } from "@/db/types";
-import { getTimeRangeForDate, parseTimeToMinutes } from "@/lib/checkout-utils";
-import type { Store } from "@/lib/queries/stores";
+import {
+  getTimeRangeForDate,
+  parseTimeToMinutes,
+} from "@/features/checkout/utils";
+import type { Store } from "@/features/stores/queries";
 import { cn } from "@/lib/utils";
 
 type StoreCardProps = {

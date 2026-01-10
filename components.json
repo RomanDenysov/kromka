@@ -21,6 +21,7 @@
   "registries": {
     "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json",
     "@ncdai": "https://chanhdai.com/r/{name}.json",
-    "@shadcn-map": "http://shadcn-map.vercel.app/r/{name}.json"
+    "@shadcn-map": "http://shadcn-map.vercel.app/r/{name}.json",
+    "@diceui": "https://diceui.com/r/{name}.json"
   }
 }

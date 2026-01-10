@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { FormSkeleton } from "@/components/shared/form/form-skeleton";
-import { getAdminCategories } from "@/lib/queries/categories";
-import { getAdminProductById } from "@/lib/queries/products";
+import { getAdminCategories } from "@/features/categories/queries";
+import { getAdminProductById } from "@/features/products/queries";
+import { FormSkeleton } from "@/shared/components/form/form-skeleton";
 import { FormContainer } from "./form-container";
 
 type Props = {

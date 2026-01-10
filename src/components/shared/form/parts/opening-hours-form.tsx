@@ -1,6 +1,6 @@
-import { withFieldGroup } from "@/components/shared/form";
 import { FieldGroup } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
+import { withFieldGroup } from "@/shared/components/form";
 
 type TimeSlot = {
   open: string;

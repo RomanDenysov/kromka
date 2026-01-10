@@ -2,9 +2,9 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { useAppForm } from "@/components/shared/form";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { submitB2BRequest } from "@/lib/actions/b2b";
+import { useAppForm } from "@/shared/components/form";
 import { b2bRequestSchema } from "@/validation/contact";
 
 const BUSINESS_TYPE_OPTIONS: Array<{ label: string; value: string }> = [

@@ -15,8 +15,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
+import type { AdminCategory } from "@/features/categories/queries";
 import { useCategoryParams } from "@/hooks/use-category-params";
-import type { AdminCategory } from "@/lib/queries/categories";
 import { cn } from "@/lib/utils";
 
 export function EditCategorySheet({

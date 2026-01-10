@@ -1,4 +1,4 @@
-import { withForm } from "@/components/shared/form";
+import { withForm } from "@/shared/components/form";
 
 export const SortStateForm = withForm({
   defaultValues: {

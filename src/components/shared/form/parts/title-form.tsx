@@ -1,5 +1,5 @@
-import { withFieldGroup } from "@/components/shared/form";
 import { getSlug } from "@/lib/get-slug";
+import { withFieldGroup } from "@/shared/components/form";
 
 type TitleFormProps = {
   name: string;

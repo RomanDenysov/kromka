@@ -1,12 +1,18 @@
 "use client";
 
+// biome-ignore lint/performance/noNamespaceImport: This is a valid use case
 import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group";
 import type { VariantProps } from "class-variance-authority";
-import * as React from "react";
-import { toggleVariants } from "@/components/ui/toggle";
+import {
+  type ComponentProps,
+  type CSSProperties,
+  createContext,
+  useContext,
+} from "react";
 import { cn } from "@/lib/utils";
+import { toggleVariants } from "@/components/ui/toggle";
 
-const ToggleGroupContext = React.createContext<
+const ToggleGroupContext = createContext<
   VariantProps<typeof toggleVariants> & {
     spacing?: number;
   }
@@ -23,7 +29,7 @@ function ToggleGroup({
   spacing = 0,
   children,
   ...props
-}: React.ComponentProps<typeof ToggleGroupPrimitive.Root> &
+}: ComponentProps<typeof ToggleGroupPrimitive.Root> &
   VariantProps<typeof toggleVariants> & {
     spacing?: number;
   }) {
@@ -37,7 +43,7 @@ function ToggleGroup({
       data-slot="toggle-group"
       data-spacing={spacing}
       data-variant={variant}
-      style={{ "--gap": spacing } as React.CSSProperties}
+      style={{ "--gap": spacing } as CSSProperties}
       {...props}
     >
       <ToggleGroupContext.Provider value={{ variant, size, spacing }}>
@@ -53,9 +59,9 @@ function ToggleGroupItem({
   variant,
   size,
   ...props
-}: React.ComponentProps<typeof ToggleGroupPrimitive.Item> &
+}: ComponentProps<typeof ToggleGroupPrimitive.Item> &
   VariantProps<typeof toggleVariants>) {
-  const context = React.useContext(ToggleGroupContext);
+  const context = useContext(ToggleGroupContext);
 
   return (
     <ToggleGroupPrimitive.Item

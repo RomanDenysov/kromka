@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getCategoriesLink } from "@/app/(public)/e-shop/eshop-params";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LinkStatus } from "../shared/link-status";
-import { buttonVariants } from "../ui/button";
 
 export function CategoryLink({
   slug,

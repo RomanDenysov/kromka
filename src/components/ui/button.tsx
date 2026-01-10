@@ -1,7 +1,6 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import type * as React from "react";
-
+import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
@@ -40,7 +39,7 @@ const buttonVariants = cva(
   }
 );
 
-type ButtonProps = React.ComponentProps<"button"> &
+type ButtonProps = ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
   };

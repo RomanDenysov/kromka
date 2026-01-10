@@ -59,6 +59,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
+import type { Order } from "@/features/orders/queries";
 import {
   ORDER_STATUS_ICONS,
   ORDER_STATUS_LABELS,
@@ -67,7 +68,6 @@ import {
   PAYMENT_STATUS_VARIANTS,
   WORKFLOW_STATUSES,
 } from "@/lib/constants";
-import type { Order } from "@/lib/queries/orders";
 import { formatPrice, getInitials, getItemsLabel } from "@/lib/utils";
 import { useOrderStatusManagement } from "./use-order-status-management";
 

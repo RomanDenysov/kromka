@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Order } from "@/lib/queries/orders";
+import type { Order } from "@/features/orders/queries";
 
 export function OrdersTableOptions({ table }: { table: Table<Order> }) {
   return (

@@ -1,5 +1,5 @@
-import { withFieldGroup } from "@/components/shared/form";
 import { FieldGroup } from "@/components/ui/field";
+import { withFieldGroup } from "@/shared/components/form";
 
 type AddressFieldGroupValues = {
   street: string;

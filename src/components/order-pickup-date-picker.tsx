@@ -12,15 +12,19 @@ import {
 import { sk } from "date-fns/locale/sk";
 import { Calendar1Icon, ChevronDownIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import type { StoreSchedule } from "@/db/types";
 import {
   isBeforeDailyCutoff,
   isDateAllowedByCart,
   isStoreClosed,
-} from "@/lib/checkout-utils";
-import { Button } from "./ui/button";
-import { Calendar } from "./ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+} from "@/features/checkout/utils";
 
 type OrderPickupDatePickerProps = {
   selectedDate: Date | undefined;

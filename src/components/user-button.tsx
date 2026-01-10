@@ -11,6 +11,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,12 +20,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut, useSession } from "@/lib/auth/client";
+import { Skeleton } from "@/components/ui/skeleton";
+import { signOut, useSession } from "@/features/auth/client";
 import { getInitials } from "@/lib/utils";
 import { Icons } from "./icons";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { buttonVariants } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
 
 export function UserButton() {
   const { data: session, isPending } = useSession();

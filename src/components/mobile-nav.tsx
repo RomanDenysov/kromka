@@ -31,7 +31,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
-import { signOut, useSession } from "@/lib/auth/client";
+import { signOut, useSession } from "@/features/auth/client";
 import { cn, getInitials } from "@/lib/utils";
 
 type Props = {

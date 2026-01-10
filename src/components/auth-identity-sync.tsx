@@ -2,8 +2,8 @@
 
 import posthog from "posthog-js";
 import { useEffect, useRef } from "react";
+import { useSession } from "@/features/auth/client";
 import { useConsent } from "@/hooks/use-consent";
-import { useSession } from "@/lib/auth/client";
 
 /**
  * Syncs Better Auth user (including anonymous users) with PostHog `identify`.

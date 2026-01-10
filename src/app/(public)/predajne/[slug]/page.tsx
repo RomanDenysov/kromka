@@ -16,7 +16,7 @@ import { PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { db } from "@/db";
 import type { DaySchedule, StoreSchedule } from "@/db/types";
-import { getUserDetails } from "@/lib/auth/session";
+import { getUserDetails } from "@/features/auth/session";
 
 const DAYS_ORDER = [
   "monday",

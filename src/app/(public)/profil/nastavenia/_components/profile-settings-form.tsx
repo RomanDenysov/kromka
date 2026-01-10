@@ -4,7 +4,6 @@ import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { toast } from "sonner";
-import { useAppForm } from "@/components/shared/form";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,8 +20,9 @@ import {
   FieldLabel,
   FieldSet,
 } from "@/components/ui/field";
+import type { UserDetails } from "@/features/auth/session";
 import { updateProfileAction } from "@/lib/actions/user-profile";
-import type { UserDetails } from "@/lib/auth/session";
+import { useAppForm } from "@/shared/components/form";
 
 type Props = {
   user: NonNullable<UserDetails>;

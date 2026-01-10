@@ -1,14 +1,14 @@
 "use client";
 
-import { useCustomerParams } from "@/hooks/use-customer-params";
-import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Drawer,
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
-} from "../ui/drawer";
+} from "@/components/ui/drawer";
+import { useCustomerParams } from "@/hooks/use-customer-params";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function CustomerEditDrawer() {
   const isMobile = useIsMobile();

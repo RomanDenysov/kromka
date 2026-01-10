@@ -3,7 +3,7 @@
 import type { Route } from "next";
 import { StoreCard } from "@/components/cards/store-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Store } from "@/lib/queries/stores";
+import type { Store } from "@/features/stores/queries";
 import { useCustomerStore } from "@/store/customer-store";
 
 export function StoresGrid({ stores }: { stores: Store[] }) {

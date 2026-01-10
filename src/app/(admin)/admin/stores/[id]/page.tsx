@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { FormSkeleton } from "@/components/shared/form/form-skeleton";
-import { getAdminStoreById } from "@/lib/queries/stores";
+import { getAdminStoreById } from "@/features/stores/queries";
+import { FormSkeleton } from "@/shared/components/form/form-skeleton";
 import { StoreFormContainer } from "./_components/store-form-container";
 
 type Props = {

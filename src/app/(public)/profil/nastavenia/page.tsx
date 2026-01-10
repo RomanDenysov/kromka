@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getUserDetails } from "@/lib/auth/session";
+import { getUserDetails } from "@/features/auth/session";
 import { ProfileSettingsForm } from "./_components/profile-settings-form";
 
 async function NastaveniaPageContent() {

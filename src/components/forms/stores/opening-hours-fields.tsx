@@ -1,9 +1,9 @@
 "use client";
 
 import type z from "zod";
-import { withFieldGroup } from "@/components/shared/form";
 import { FieldGroup } from "@/components/ui/field";
 import type { openingHoursSchema } from "@/lib/stores/validation";
+import { withFieldGroup } from "@/shared/components/form";
 
 type OpeningHoursFieldGroupValues = z.infer<typeof openingHoursSchema>;
 

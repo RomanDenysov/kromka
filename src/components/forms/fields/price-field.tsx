@@ -8,8 +8,8 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
-import { MaskInput } from "@/components/ui/mask-input";
 import { cn, formatCentsToPrice } from "@/lib/utils";
+import { MaskInput } from "@/shared/ui/mask-input";
 
 type Props<T extends FieldValues> = {
   name: FieldPath<T>;
