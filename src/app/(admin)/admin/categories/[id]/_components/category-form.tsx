@@ -14,7 +14,7 @@ import { SwitchField } from "@/components/forms/fields/switch-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import { TextareaField } from "@/components/forms/fields/textarea-field";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
-import { updateCategoryAction } from "@/lib/actions/categories";
+import { updateCategoryAction } from "@/features/categories/actions";
 import type { CategorySchema } from "@/lib/categories/types";
 import { categorySchema } from "@/lib/categories/validation";
 import { cn } from "@/lib/utils";

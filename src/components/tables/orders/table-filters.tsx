@@ -1,14 +1,14 @@
 "use client";
 
 import type { Table } from "@tanstack/react-table";
+import type { Order } from "@/features/orders/queries";
+import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants";
 import {
   DataTableDateRangeFilter,
   type DateRangeFilterValue,
-} from "@/components/data-table/data-table-date-range-filter";
-import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
-import { DataTableSearch } from "@/components/data-table/data-table-search";
-import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants";
-import type { Order } from "@/lib/queries/orders";
+} from "@/widgets/data-table/data-table-date-range-filter";
+import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
+import { DataTableSearch } from "@/widgets/data-table/data-table-search";
 
 type OrdersTableFiltersProps = {
   table: Table<Order>;

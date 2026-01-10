@@ -1,14 +1,14 @@
 /** biome-ignore-all lint/nursery/noIncrementDecrement: Ignore it for now */
 /** biome-ignore-all lint/style/noMagicNumbers: Ignore it for now */
 import type { Route } from "next";
+import { Container } from "@/components/shared/container";
+import { featureFlags } from "@/config/features";
+import { homepageConfig } from "@/config/homepage";
 import {
   GridCard,
   type GridCardSize,
   type GridItemConfig,
-} from "@/components/grid-card";
-import { Container } from "@/components/shared/container";
-import { featureFlags } from "@/config/features";
-import { homepageConfig } from "@/config/homepage";
+} from "@/widgets/grid-card";
 
 // Define the entire homepage grid layout
 const gridItems: GridItemConfig[] = [

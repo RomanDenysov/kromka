@@ -14,10 +14,6 @@ import {
 } from "@tanstack/react-table";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useMemo, useState, useTransition } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
-import { DataTableSearch } from "@/components/data-table/data-table-search";
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,14 +27,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useProductParams } from "@/hooks/use-product-params";
 import {
   copyProductAction,
   createDraftProductAction,
   deleteProductsAction,
   toggleIsActiveProductAction,
-} from "@/lib/actions/products";
-import type { AdminProduct } from "@/lib/queries/products";
+} from "@/features/products/actions";
+import type { AdminProduct } from "@/features/products/queries";
+import { useProductParams } from "@/hooks/use-product-params";
+import { DataTable } from "@/widgets/data-table/data-table";
+import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
+import { DataTableSearch } from "@/widgets/data-table/data-table-search";
+import { DataTableViewOptions } from "@/widgets/data-table/data-table-view-options";
 import { columns } from "./columns";
 
 export function ProductsTable({ products }: { products: AdminProduct[] }) {

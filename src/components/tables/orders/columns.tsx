@@ -4,7 +4,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { MoreHorizontalIcon, SquareArrowOutUpRight } from "lucide-react";
 import Link from "next/link";
-import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
+import type { Order } from "@/features/orders/queries";
 import {
   ORDER_STATUS_LABELS,
   ORDER_STATUS_VARIANTS,
@@ -28,8 +28,8 @@ import {
   PAYMENT_STATUS_LABELS,
   PAYMENT_STATUS_VARIANTS,
 } from "@/lib/constants";
-import type { Order } from "@/lib/queries/orders";
 import { formatPrice } from "@/lib/utils";
+import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 type OrdersTableMeta = {
   onStatusChange: (id: string, status: OrderStatus) => Promise<void>;

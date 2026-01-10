@@ -7,7 +7,7 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-} from "./ui/empty";
+} from "@/components/ui/empty";
 
 type Props = {
   children: ReactNode;

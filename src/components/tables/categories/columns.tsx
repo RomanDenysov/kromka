@@ -12,7 +12,6 @@ import {
   XIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,8 +32,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { AdminCategory } from "@/features/categories/queries";
 import { getAdminCategoriesLink } from "@/hooks/use-category-params";
-import type { AdminCategory } from "@/lib/queries/categories";
+import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 type CategoryTableMeta = {
   toggleActive: (id: string) => void;

@@ -1,10 +1,14 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
-import { useEffect, useTransition } from "react";
+import { useEffect } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useAppForm } from "@/components/shared/form";
+import { TextField } from "@/components/forms/fields/text-field";
+import { TextareaField } from "@/components/forms/fields/textarea-field";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -14,10 +18,12 @@ import {
 } from "@/components/ui/card";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { submitSupportRequest } from "@/lib/actions/contact";
-import { supportRequestSchema } from "@/validation/contact";
+import {
+  type SupportRequestSchema,
+  supportRequestSchema,
+} from "@/validation/contact";
 
 export function SupportForm() {
-  const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
 
   const ref = searchParams.get("ref");
@@ -31,10 +37,8 @@ export function SupportForm() {
       : window.location.href;
   }
 
-  const form = useAppForm({
-    validators: {
-      onSubmit: supportRequestSchema,
-    },
+  const form = useForm<SupportRequestSchema>({
+    resolver: zodResolver(supportRequestSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -50,39 +54,38 @@ export function SupportForm() {
         posthogId: posthog.get_distinct_id() ?? undefined,
       }),
     },
-    onSubmit: ({ value }) => {
-      startTransition(async () => {
-        const result = await submitSupportRequest(value);
-
-        if (result.success) {
-          toast.success("Správa bola úspešne odoslaná");
-          form.reset();
-        } else {
-          toast.error(result.error ?? "Nastala chyba pri odosielaní správy");
-        }
-      });
-    },
   });
 
   // Update form when search params change
   useEffect(() => {
     if (path) {
-      form.setFieldValue("sourcePath", path);
+      form.setValue("sourcePath", path);
     }
     if (sourceUrl) {
-      form.setFieldValue("sourceUrl", sourceUrl);
+      form.setValue("sourceUrl", sourceUrl);
     }
     if (ref) {
-      form.setFieldValue("sourceRef", ref);
+      form.setValue("sourceRef", ref);
     }
     // Update PostHog ID in case it changes
     if (typeof window !== "undefined") {
       const posthogId = posthog.get_distinct_id();
       if (posthogId) {
-        form.setFieldValue("posthogId", posthogId);
+        form.setValue("posthogId", posthogId);
       }
     }
-  }, [ref, path, sourceUrl, form.setFieldValue]);
+  }, [ref, path, sourceUrl, form]);
+
+  const onSubmit = async (data: SupportRequestSchema) => {
+    const result = await submitSupportRequest(data);
+
+    if (result.success) {
+      toast.success("Správa bola úspešne odoslaná");
+      form.reset();
+    } else {
+      toast.error(result.error ?? "Nastala chyba pri odosielaní správy");
+    }
+  };
 
   return (
     <Card>
@@ -93,54 +96,46 @@ export function SupportForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form.AppForm>
+        <FormProvider {...form}>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              form.handleSubmit();
+              form.handleSubmit(onSubmit)(e);
             }}
           >
             <FieldSet className="gap-5">
               <FieldGroup className="gap-4">
-                <form.AppField name="name">
-                  {(field) => (
-                    <field.TextField label="Meno" placeholder="Vaše meno" />
-                  )}
-                </form.AppField>
+                <TextField label="Meno" name="name" placeholder="Vaše meno" />
 
-                <form.AppField name="email">
-                  {(field) => (
-                    <field.TextField label="Email" placeholder="vas@email.sk" />
-                  )}
-                </form.AppField>
+                <TextField
+                  label="Email"
+                  name="email"
+                  placeholder="vas@email.sk"
+                />
 
-                <form.AppField name="rootCause">
-                  {(field) => (
-                    <field.TextField
-                      label="Dôvod správy"
-                      placeholder="Napríklad: Problém s objednávkou, otázka k produktu, nahlásenie chyby..."
-                    />
-                  )}
-                </form.AppField>
+                <TextField
+                  label="Dôvod správy"
+                  name="rootCause"
+                  placeholder="Napríklad: Problém s objednávkou, otázka k produktu, nahlásenie chyby..."
+                />
 
-                <form.AppField name="message">
-                  {(field) => (
-                    <field.TextareaField
-                      label="Vysvetlenie"
-                      placeholder="Napíšte krátke vysvetlenie..."
-                      rows={6}
-                    />
-                  )}
-                </form.AppField>
+                <TextareaField
+                  label="Vysvetlenie"
+                  name="message"
+                  placeholder="Napíšte krátke vysvetlenie..."
+                  rows={6}
+                />
               </FieldGroup>
 
-              <form.SubmitButton disabled={isPending}>
-                {isPending ? "Odosiela sa..." : "Odoslať správu"}
-              </form.SubmitButton>
+              <Button disabled={form.formState.isSubmitting} type="submit">
+                {form.formState.isSubmitting
+                  ? "Odosiela sa..."
+                  : "Odoslať správu"}
+              </Button>
             </FieldSet>
           </form>
-        </form.AppForm>
+        </FormProvider>
       </CardContent>
     </Card>
   );

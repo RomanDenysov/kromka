@@ -1,9 +1,9 @@
 import { formatDate } from "date-fns";
 import { sk } from "date-fns/locale";
 import type { OrderStatus } from "@/db/types";
+import type { Order } from "@/features/orders/queries";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import type { ExportColumnConfig } from "@/lib/export-utils";
-import type { Order } from "@/lib/queries/orders";
 
 type OrderItemExportRow = {
   orderNumber: string | null;

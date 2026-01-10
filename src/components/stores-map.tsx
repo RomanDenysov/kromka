@@ -10,7 +10,7 @@ import {
   MapTileLayer,
   MapZoomControl,
 } from "@/components/ui/map";
-import type { Store } from "@/lib/queries/stores";
+import type { Store } from "@/features/stores/queries";
 
 const CENTER_POSITION: LatLngExpression = [
   48.87668321440078, 21.256777795334994,

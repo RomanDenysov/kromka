@@ -10,7 +10,6 @@ import {
   XIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,8 +29,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { AdminStore } from "@/features/stores/queries";
 import { getAdminStoresLink } from "@/hooks/use-store-params";
-import type { AdminStore } from "@/lib/queries/stores";
+import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 type StoreTableMeta = {
   toggleActive: (id: string) => void;

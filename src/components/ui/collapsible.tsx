@@ -1,5 +1,6 @@
 "use client";
 
+// biome-ignore lint/performance/noNamespaceImport: needed to use the namespace import
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
 
 function Collapsible({

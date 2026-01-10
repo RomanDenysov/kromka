@@ -10,8 +10,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
-import { DataTableSearch } from "@/components/data-table/data-table-search";
 import {
   Table,
   TableBody,
@@ -23,6 +21,8 @@ import {
 import { useCustomerParams } from "@/hooks/use-customer-params";
 import type { UserList } from "@/lib/queries/users";
 import { cn } from "@/lib/utils";
+import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
+import { DataTableSearch } from "@/widgets/data-table/data-table-search";
 import { columns } from "./columns";
 
 export function UsersTable({

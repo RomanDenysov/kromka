@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Product } from "@/lib/queries/products";
+import type { Product } from "@/features/products/queries";
 import { cn, formatPrice } from "@/lib/utils";
 import { AddToCartButtonIcon } from "../shared/add-to-cart-button";
 import { ProductImage } from "../shared/product-image";

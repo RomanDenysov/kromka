@@ -12,15 +12,15 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
 import {
   updateOrderPaymentStatusAction,
   updateOrderStatusAction,
-} from "@/lib/actions/orders";
+} from "@/features/orders/actions";
+import type { Order } from "@/features/orders/queries";
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants";
-import type { Order } from "@/lib/queries/orders";
+import { DataTable } from "@/widgets/data-table/data-table";
+import { DataTableViewOptions } from "@/widgets/data-table/data-table-view-options";
 import { columns } from "./columns";
 import { OrdersTableActions } from "./table-actions";
 import { OrdersTableFilters } from "./table-filters";

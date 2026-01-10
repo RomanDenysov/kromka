@@ -1,11 +1,14 @@
 import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin-header/admin-header";
-import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { EditProductSheet } from "@/components/sheets/edit-product-sheet";
 import { ProductsTable } from "@/components/tables/products/table";
-import { getAdminCategories } from "@/lib/queries/categories";
-import { getAdminProductById, getAdminProducts } from "@/lib/queries/products";
+import { getAdminCategories } from "@/features/categories/queries";
+import {
+  getAdminProductById,
+  getAdminProducts,
+} from "@/features/products/queries";
+import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
 async function ProductsLoader() {
   const products = await getAdminProducts();

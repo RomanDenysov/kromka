@@ -1,16 +1,19 @@
 "use client";
 
 import { useMemo } from "react";
-import type { TimeRange } from "@/db/types";
-import { filterTimeSlots, generateAllTimeSlots } from "@/lib/checkout-utils";
-import { ScrollArea } from "./ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "@/components/ui/select";
+import type { TimeRange } from "@/db/types";
+import {
+  filterTimeSlots,
+  generateAllTimeSlots,
+} from "@/features/checkout/utils";
 
 type OrderPickupTimePickerProps = {
   selectedTime: string;

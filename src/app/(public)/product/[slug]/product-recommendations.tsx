@@ -1,11 +1,11 @@
 import { Suspense } from "react";
+import { GridView } from "@/components/views/grid-view";
+import { getFavoriteIds } from "@/features/favorites/queries";
 import {
   ProductCard,
   ProductCardSkeleton,
-} from "@/components/cards/product-card";
-import { GridView } from "@/components/views/grid-view";
-import { getFavoriteIds } from "@/lib/favorites/queries";
-import type { Product } from "@/lib/queries/products";
+} from "@/features/products/components/product-card";
+import type { Product } from "@/features/products/queries";
 
 type Props = {
   recommendations: Product[];

@@ -1,8 +1,27 @@
+/** biome-ignore-all lint/style/noNestedTernary: Ignore this for now */
 "use client";
 
 import { Slot } from "@radix-ui/react-slot";
 import { Check } from "lucide-react";
-import * as React from "react";
+import {
+  type ComponentProps,
+  type ComponentRef,
+  createContext,
+  type FocusEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useComposedRefs } from "@/lib/compose-refs";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +63,9 @@ const MAP_KEY_TO_FOCUS_INTENT: Record<string, FocusIntent> = {
 };
 
 function getDirectionAwareKey(key: string, dir?: Direction) {
-  if (dir !== "rtl") return key;
+  if (dir !== "rtl") {
+    return key;
+  }
   return key === "ArrowLeft"
     ? "ArrowRight"
     : key === "ArrowRight"
@@ -52,32 +73,40 @@ function getDirectionAwareKey(key: string, dir?: Direction) {
       : key;
 }
 
-type TriggerElement = React.ComponentRef<typeof StepperTrigger>;
+type TriggerElement = ComponentRef<typeof StepperTrigger>;
 
 function getFocusIntent(
-  event: React.KeyboardEvent<TriggerElement>,
+  event: KeyboardEvent<TriggerElement>,
   dir?: Direction,
   orientation?: Orientation
 ) {
   const key = getDirectionAwareKey(event.key, dir);
-  if (orientation === "horizontal" && ["ArrowUp", "ArrowDown"].includes(key))
+  if (orientation === "horizontal" && ["ArrowUp", "ArrowDown"].includes(key)) {
     return;
-  if (orientation === "vertical" && ["ArrowLeft", "ArrowRight"].includes(key))
+  }
+  if (orientation === "vertical" && ["ArrowLeft", "ArrowRight"].includes(key)) {
     return;
+  }
   return MAP_KEY_TO_FOCUS_INTENT[key];
 }
 
 function focusFirst(
-  candidates: React.RefObject<TriggerElement | null>[],
+  candidates: RefObject<TriggerElement | null>[],
   preventScroll = false
 ) {
   const PREVIOUSLY_FOCUSED_ELEMENT = document.activeElement;
   for (const candidateRef of candidates) {
     const candidate = candidateRef.current;
-    if (!candidate) continue;
-    if (candidate === PREVIOUSLY_FOCUSED_ELEMENT) return;
+    if (!candidate) {
+      continue;
+    }
+    if (candidate === PREVIOUSLY_FOCUSED_ELEMENT) {
+      return;
+    }
     candidate.focus({ preventScroll });
-    if (document.activeElement !== PREVIOUSLY_FOCUSED_ELEMENT) return;
+    if (document.activeElement !== PREVIOUSLY_FOCUSED_ELEMENT) {
+      return;
+    }
   }
 }
 
@@ -88,17 +117,17 @@ function wrapArray<T>(array: T[], startIndex: number) {
 }
 
 function useLazyRef<T>(fn: () => T) {
-  const ref = React.useRef<T | null>(null);
+  const ref = useRef<T | null>(null);
 
   if (ref.current === null) {
     ref.current = fn();
   }
 
-  return ref as React.RefObject<T>;
+  return ref as RefObject<T>;
 }
 
 const useIsomorphicLayoutEffect =
-  typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 type Direction = "ltr" | "rtl";
 type Orientation = "horizontal" | "vertical";
@@ -106,14 +135,15 @@ type NavigationDirection = "next" | "prev";
 type ActivationMode = "automatic" | "manual";
 type DataState = "inactive" | "active" | "completed";
 
-interface DivProps extends React.ComponentProps<"div"> {
+interface DivProps extends ComponentProps<"div"> {
   asChild?: boolean;
 }
 
-interface ButtonProps extends React.ComponentProps<"button"> {
+interface ButtonProps extends ComponentProps<"button"> {
   asChild?: boolean;
 }
 
+// biome-ignore lint/nursery/useMaxParams: Ignore this for now
 function getDataState(
   value: string | undefined,
   itemValue: string,
@@ -124,7 +154,9 @@ function getDataState(
   const stepKeys = Array.from(steps.keys());
   const currentIndex = stepKeys.indexOf(itemValue);
 
-  if (stepState?.completed) return "completed";
+  if (stepState?.completed) {
+    return "completed";
+  }
 
   if (value === itemValue) {
     return variant === "separator" ? "inactive" : "active";
@@ -133,30 +165,33 @@ function getDataState(
   if (value) {
     const activeIndex = stepKeys.indexOf(value);
 
-    if (activeIndex > currentIndex) return "completed";
+    if (activeIndex > currentIndex) {
+      return "completed";
+    }
   }
 
   return "inactive";
 }
 
-const DirectionContext = React.createContext<Direction | undefined>(undefined);
+const DirectionContext = createContext<Direction | undefined>(undefined);
 
 function useDirection(dirProp?: Direction): Direction {
-  const contextDir = React.useContext(DirectionContext);
+  const contextDir = useContext(DirectionContext);
   return dirProp ?? contextDir ?? "ltr";
 }
 
-interface StepState {
+type StepState = {
   value: string;
   completed: boolean;
   disabled: boolean;
-}
+};
 
-interface StoreState {
+type StoreState = {
   steps: Map<string, StepState>;
   value?: string;
-}
+};
 
+// biome-ignore lint/style/useConsistentTypeDefinitions: Ignore this for now
 interface Store {
   subscribe: (callback: () => void) => () => void;
   getState: () => StoreState;
@@ -172,9 +207,10 @@ interface Store {
   setStep: (value: string, completed: boolean, disabled: boolean) => void;
 }
 
+// biome-ignore lint/nursery/useMaxParams: Ignore this for now
 function createStore(
-  listenersRef: React.RefObject<Set<() => void>>,
-  stateRef: React.RefObject<StoreState>,
+  listenersRef: RefObject<Set<() => void>>,
+  stateRef: RefObject<StoreState>,
   onValueChange?: (value: string) => void,
   onValueComplete?: (value: string, completed: boolean) => void,
   onValueAdd?: (value: string) => void,
@@ -190,6 +226,7 @@ function createStore(
         listenersRef.current.add(cb);
         return () => listenersRef.current?.delete(cb);
       }
+      // biome-ignore lint/suspicious/noEmptyBlockStatements: Ignore this for now
       return () => {};
     },
     getState: () =>
@@ -199,7 +236,9 @@ function createStore(
       },
     setState: (key, value) => {
       const state = stateRef.current;
-      if (!state || Object.is(state[key], value)) return;
+      if (!state || Object.is(state[key], value)) {
+        return;
+      }
 
       if (key === "value" && typeof value === "string") {
         state.value = value;
@@ -272,10 +311,10 @@ function createStore(
   return store;
 }
 
-const StoreContext = React.createContext<Store | null>(null);
+const StoreContext = createContext<Store | null>(null);
 
 function useStoreContext(consumerName: string) {
-  const context = React.useContext(StoreContext);
+  const context = useContext(StoreContext);
   if (!context) {
     throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``);
   }
@@ -285,23 +324,23 @@ function useStoreContext(consumerName: string) {
 function useStore<T>(selector: (state: StoreState) => T): T {
   const store = useStoreContext("useStore");
 
-  const getSnapshot = React.useCallback(
+  const getSnapshot = useCallback(
     () => selector(store.getState()),
     [store, selector]
   );
 
-  return React.useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
+  return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 }
 
-interface ItemData {
+type ItemData = {
   id: string;
-  ref: React.RefObject<TriggerElement | null>;
+  ref: RefObject<TriggerElement | null>;
   value: string;
   active: boolean;
   disabled: boolean;
-}
+};
 
-interface StepperContextValue {
+type StepperContextValue = {
   id: string;
   dir: Direction;
   orientation: Orientation;
@@ -309,12 +348,12 @@ interface StepperContextValue {
   disabled: boolean;
   nonInteractive: boolean;
   loop: boolean;
-}
+};
 
-const StepperContext = React.createContext<StepperContextValue | null>(null);
+const StepperContext = createContext<StepperContextValue | null>(null);
 
 function useStepperContext(consumerName: string) {
-  const context = React.useContext(StepperContext);
+  const context = useContext(StepperContext);
   if (!context) {
     throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``);
   }
@@ -367,7 +406,7 @@ function StepperRoot(props: StepperRootProps) {
     value: value ?? defaultValue,
   }));
 
-  const store = React.useMemo(
+  const store = useMemo(
     () =>
       createStore(
         listenersRef,
@@ -397,11 +436,11 @@ function StepperRoot(props: StepperRootProps) {
 
   const dir = useDirection(dirProp);
 
-  const id = React.useId();
+  const id = useId();
 
   const rootId = idProp ?? id;
 
-  const contextValue = React.useMemo<StepperContextValue>(
+  const contextValue = useMemo<StepperContextValue>(
     () => ({
       id: rootId,
       dir,
@@ -437,7 +476,7 @@ function StepperRoot(props: StepperRootProps) {
   );
 }
 
-interface FocusContextValue {
+type FocusContextValue = {
   tabStopId: string | null;
   onItemFocus: (tabStopId: string) => void;
   onItemShiftTab: () => void;
@@ -446,12 +485,12 @@ interface FocusContextValue {
   onItemRegister: (item: ItemData) => void;
   onItemUnregister: (id: string) => void;
   getItems: () => ItemData[];
-}
+};
 
-const FocusContext = React.createContext<FocusContextValue | null>(null);
+const FocusContext = createContext<FocusContextValue | null>(null);
 
 function useFocusContext(consumerName: string) {
-  const context = React.useContext(FocusContext);
+  const context = useContext(FocusContext);
   if (!context) {
     throw new Error(
       `\`${consumerName}\` must be used within \`FocusProvider\``
@@ -460,7 +499,7 @@ function useFocusContext(consumerName: string) {
   return context;
 }
 
-type ListElement = React.ComponentRef<typeof StepperList>;
+type ListElement = ComponentRef<typeof StepperList>;
 
 interface StepperListProps extends DivProps {
   asChild?: boolean;
@@ -473,50 +512,54 @@ function StepperList(props: StepperListProps) {
   const orientation = context.orientation;
   const currentValue = useStore((state) => state.value);
 
-  const [tabStopId, setTabStopId] = React.useState<string | null>(null);
-  const [isTabbingBackOut, setIsTabbingBackOut] = React.useState(false);
-  const [focusableItemCount, setFocusableItemCount] = React.useState(0);
-  const isClickFocusRef = React.useRef(false);
-  const itemsRef = React.useRef<Map<string, ItemData>>(new Map());
-  const listRef = React.useRef<HTMLElement>(null);
+  const [tabStopId, setTabStopId] = useState<string | null>(null);
+  const [isTabbingBackOut, setIsTabbingBackOut] = useState(false);
+  const [focusableItemCount, setFocusableItemCount] = useState(0);
+  const isClickFocusRef = useRef(false);
+  const itemsRef = useRef<Map<string, ItemData>>(new Map());
+  const listRef = useRef<HTMLElement>(null);
   const composedRef = useComposedRefs(ref, listRef);
 
-  const onItemFocus = React.useCallback((tabStopId: string) => {
-    setTabStopId(tabStopId);
+  const onItemFocus = useCallback((_tabStopId: string) => {
+    setTabStopId(_tabStopId);
   }, []);
 
-  const onItemShiftTab = React.useCallback(() => {
+  const onItemShiftTab = useCallback(() => {
     setIsTabbingBackOut(true);
   }, []);
 
-  const onFocusableItemAdd = React.useCallback(() => {
+  const onFocusableItemAdd = useCallback(() => {
     setFocusableItemCount((prevCount) => prevCount + 1);
   }, []);
 
-  const onFocusableItemRemove = React.useCallback(() => {
+  const onFocusableItemRemove = useCallback(() => {
     setFocusableItemCount((prevCount) => prevCount - 1);
   }, []);
 
-  const onItemRegister = React.useCallback((item: ItemData) => {
+  const onItemRegister = useCallback((item: ItemData) => {
     itemsRef.current.set(item.id, item);
   }, []);
 
-  const onItemUnregister = React.useCallback((id: string) => {
+  const onItemUnregister = useCallback((id: string) => {
     itemsRef.current.delete(id);
   }, []);
 
-  const getItems = React.useCallback(
+  const getItems = useCallback(
     () =>
       Array.from(itemsRef.current.values())
         .filter((item) => item.ref.current)
         .sort((a, b) => {
           const elementA = a.ref.current;
           const elementB = b.ref.current;
-          if (!(elementA && elementB)) return 0;
+          if (!(elementA && elementB)) {
+            return 0;
+          }
           const position = elementA.compareDocumentPosition(elementB);
+          // biome-ignore lint/suspicious/noBitwiseOperators: Ignore this for now
           if (position & Node.DOCUMENT_POSITION_FOLLOWING) {
             return -1;
           }
+          // biome-ignore lint/suspicious/noBitwiseOperators: Ignore this for now
           if (position & Node.DOCUMENT_POSITION_PRECEDING) {
             return 1;
           }
@@ -525,20 +568,24 @@ function StepperList(props: StepperListProps) {
     []
   );
 
-  const onBlur = React.useCallback(
-    (event: React.FocusEvent<ListElement>) => {
+  const onBlur = useCallback(
+    (event: FocusEvent<ListElement>) => {
       listProps.onBlur?.(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented) {
+        return;
+      }
 
       setIsTabbingBackOut(false);
     },
     [listProps.onBlur]
   );
 
-  const onFocus = React.useCallback(
-    (event: React.FocusEvent<ListElement>) => {
+  const onFocus = useCallback(
+    (event: FocusEvent<ListElement>) => {
       listProps.onFocus?.(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented) {
+        return;
+      }
 
       const isKeyboardFocus = !isClickFocusRef.current;
       if (
@@ -574,18 +621,20 @@ function StepperList(props: StepperListProps) {
     [listProps.onFocus, isTabbingBackOut, currentValue, tabStopId]
   );
 
-  const onMouseDown = React.useCallback(
-    (event: React.MouseEvent<ListElement>) => {
+  const onMouseDown = useCallback(
+    (event: MouseEvent<ListElement>) => {
       listProps.onMouseDown?.(event);
 
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented) {
+        return;
+      }
 
       isClickFocusRef.current = true;
     },
     [listProps.onMouseDown]
   );
 
-  const focusContextValue = React.useMemo<FocusContextValue>(
+  const focusContextValue = useMemo<FocusContextValue>(
     () => ({
       tabStopId,
       onItemFocus,
@@ -638,17 +687,15 @@ function StepperList(props: StepperListProps) {
   );
 }
 
-interface StepperItemContextValue {
+type StepperItemContextValue = {
   value: string;
   stepState: StepState | undefined;
-}
+};
 
-const StepperItemContext = React.createContext<StepperItemContextValue | null>(
-  null
-);
+const StepperItemContext = createContext<StepperItemContextValue | null>(null);
 
 function useStepperItemContext(consumerName: string) {
-  const context = React.useContext(StepperItemContext);
+  const context = useContext(StepperItemContext);
   if (!context) {
     throw new Error(`\`${consumerName}\` must be used within \`${ITEM_NAME}\``);
   }
@@ -694,7 +741,7 @@ function StepperItem(props: StepperItemProps) {
   const steps = useStore((state) => state.steps);
   const dataState = getDataState(value, itemValue, stepState, steps);
 
-  const itemContextValue = React.useMemo<StepperItemContextValue>(
+  const itemContextValue = useMemo<StepperItemContextValue>(
     () => ({
       value: itemValue,
       stepState,
@@ -756,13 +803,13 @@ function StepperTrigger(props: ButtonProps) {
   const isTabStop = focusContext.tabStopId === triggerId;
   const dataState = getDataState(value, itemValue, stepState, steps);
 
-  const triggerRef = React.useRef<TriggerElement>(null);
+  const triggerRef = useRef<TriggerElement>(null);
   const composedRef = useComposedRefs(ref, triggerRef);
-  const isArrowKeyPressedRef = React.useRef(false);
-  const isMouseClickRef = React.useRef(false);
+  const isArrowKeyPressedRef = useRef(false);
+  const isMouseClickRef = useRef(false);
 
-  React.useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
+  useEffect(() => {
+    function handleKeyDown(event: globalThis.KeyboardEvent) {
       if (ARROW_KEYS.includes(event.key)) {
         isArrowKeyPressedRef.current = true;
       }
@@ -770,10 +817,10 @@ function StepperTrigger(props: ButtonProps) {
     function onKeyUp() {
       isArrowKeyPressedRef.current = false;
     }
-    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("keyup", onKeyUp);
     return () => {
-      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("keyup", onKeyUp);
     };
   }, []);
@@ -799,10 +846,12 @@ function StepperTrigger(props: ButtonProps) {
     };
   }, [focusContext, triggerId, itemValue, isTabStop, isDisabled]);
 
-  const onClick = React.useCallback(
-    async (event: React.MouseEvent<TriggerElement>) => {
+  const onClick = useCallback(
+    async (event: MouseEvent<TriggerElement>) => {
       triggerProps.onClick?.(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented) {
+        return;
+      }
 
       if (!(isDisabled || context.nonInteractive)) {
         const currentStepIndex = Array.from(steps.keys()).indexOf(value ?? "");
@@ -823,10 +872,12 @@ function StepperTrigger(props: ButtonProps) {
     ]
   );
 
-  const onFocus = React.useCallback(
-    async (event: React.FocusEvent<TriggerElement>) => {
+  const onFocus = useCallback(
+    async (event: FocusEvent<TriggerElement>) => {
       triggerProps.onFocus?.(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented) {
+        return;
+      }
 
       focusContext.onItemFocus(triggerId);
 
@@ -862,10 +913,13 @@ function StepperTrigger(props: ButtonProps) {
     ]
   );
 
-  const onKeyDown = React.useCallback(
-    async (event: React.KeyboardEvent<TriggerElement>) => {
+  const onKeyDown = useCallback(
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Ignore this for now
+    async (event: KeyboardEvent<TriggerElement>) => {
       triggerProps.onKeyDown?.(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented) {
+        return;
+      }
 
       if (event.key === "Enter" && context.nonInteractive) {
         event.preventDefault();
@@ -889,13 +943,16 @@ function StepperTrigger(props: ButtonProps) {
         return;
       }
 
-      if (event.target !== event.currentTarget) return;
+      if (event.target !== event.currentTarget) {
+        return;
+      }
 
       const focusIntent = getFocusIntent(event, context.dir, orientation);
 
       if (focusIntent !== undefined) {
-        if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey)
+        if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
           return;
+        }
         event.preventDefault();
 
         const items = focusContext.getItems().filter((item) => !item.disabled);
@@ -904,9 +961,11 @@ function StepperTrigger(props: ButtonProps) {
         if (focusIntent === "last") {
           candidateRefs.reverse();
         } else if (focusIntent === "prev" || focusIntent === "next") {
-          if (focusIntent === "prev") candidateRefs.reverse();
+          if (focusIntent === "prev") {
+            candidateRefs.reverse();
+          }
           const currentIndex = candidateRefs.findIndex(
-            (ref) => ref.current === event.currentTarget
+            (_ref) => _ref.current === event.currentTarget
           );
           candidateRefs = loop
             ? wrapArray(candidateRefs, currentIndex + 1)
@@ -935,7 +994,9 @@ function StepperTrigger(props: ButtonProps) {
                 nextItem.value,
                 direction
               );
-              if (!isValid) return;
+              if (!isValid) {
+                return;
+              }
             } else {
               store.setState("value", nextItem.value);
             }
@@ -964,10 +1025,12 @@ function StepperTrigger(props: ButtonProps) {
     ]
   );
 
-  const onMouseDown = React.useCallback(
-    (event: React.MouseEvent<TriggerElement>) => {
+  const onMouseDown = useCallback(
+    (event: MouseEvent<TriggerElement>) => {
       triggerProps.onMouseDown?.(event);
-      if (event.defaultPrevented) return;
+      if (event.defaultPrevented) {
+        return;
+      }
 
       isMouseClickRef.current = true;
 
@@ -1001,7 +1064,7 @@ function StepperTrigger(props: ButtonProps) {
       {...triggerProps}
       className={cn(
         "inline-flex items-center justify-center gap-3 rounded-md text-left outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
-        "not-has-[[data-slot=description]]:rounded-full not-has-[[data-slot=title]]:rounded-full",
+        "not-has-data-[slot=description]:rounded-full not-has-data-[slot=title]:rounded-full",
         className
       )}
       onClick={onClick}
@@ -1014,7 +1077,7 @@ function StepperTrigger(props: ButtonProps) {
 }
 
 interface StepperIndicatorProps extends Omit<DivProps, "children"> {
-  children?: React.ReactNode | ((dataState: DataState) => React.ReactNode);
+  children?: ReactNode | ((dataState: DataState) => ReactNode);
 }
 
 function StepperIndicator(props: StepperIndicatorProps) {
@@ -1114,7 +1177,7 @@ function StepperSeparator(props: StepperSeparatorProps) {
   );
 }
 
-interface StepperTitleProps extends React.ComponentProps<"span"> {
+interface StepperTitleProps extends ComponentProps<"span"> {
   asChild?: boolean;
 }
 
@@ -1140,7 +1203,7 @@ function StepperTitle(props: StepperTitleProps) {
   );
 }
 
-interface StepperDescriptionProps extends React.ComponentProps<"span"> {
+interface StepperDescriptionProps extends ComponentProps<"span"> {
   asChild?: boolean;
 }
 
@@ -1186,7 +1249,9 @@ function StepperContent(props: StepperContentProps) {
   const contentId = getId(context.id, "content", valueProp);
   const triggerId = getId(context.id, "trigger", valueProp);
 
-  if (valueProp !== value && !forceMount) return null;
+  if (valueProp !== value && !forceMount) {
+    return null;
+  }
 
   const ContentPrimitive = asChild ? Slot : "div";
 
@@ -1215,10 +1280,13 @@ function StepperPrevTrigger(props: ButtonProps) {
   const currentIndex = value ? stepKeys.indexOf(value) : -1;
   const isDisabled = disabled || currentIndex <= 0;
 
-  const onClick = React.useCallback(
-    async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const onClick = useCallback(
+    // biome-ignore lint/suspicious/useAwait: Ignore this for now
+    async (event: MouseEvent<HTMLButtonElement>) => {
       prevTriggerProps.onClick?.(event);
-      if (event.defaultPrevented || isDisabled) return;
+      if (event.defaultPrevented || isDisabled) {
+        return;
+      }
 
       const prevIndex = Math.max(currentIndex - 1, 0);
       const prevStepValue = stepKeys[prevIndex];
@@ -1254,10 +1322,12 @@ function StepperNextTrigger(props: ButtonProps) {
   const currentIndex = value ? stepKeys.indexOf(value) : -1;
   const isDisabled = disabled || currentIndex >= stepKeys.length - 1;
 
-  const onClick = React.useCallback(
-    async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const onClick = useCallback(
+    async (event: MouseEvent<HTMLButtonElement>) => {
       nextTriggerProps.onClick?.(event);
-      if (event.defaultPrevented || isDisabled) return;
+      if (event.defaultPrevented || isDisabled) {
+        return;
+      }
 
       const nextIndex = Math.min(currentIndex + 1, stepKeys.length - 1);
       const nextStepValue = stepKeys[nextIndex];

@@ -1,3 +1,5 @@
+// Re-export from features/checkout for backward compatibility
+
 import {
   addDays,
   format,
@@ -7,7 +9,7 @@ import {
   startOfToday,
 } from "date-fns";
 import type { StoreSchedule, TimeRange } from "@/db/types";
-import type { DetailedCartItem } from "@/lib/cart/queries";
+import type { DetailedCartItem } from "@/features/cart/queries";
 
 const ORDER_CUTOFF_HOUR = 12;
 

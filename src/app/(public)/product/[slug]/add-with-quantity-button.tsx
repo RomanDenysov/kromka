@@ -9,8 +9,8 @@ import {
   ButtonGroupText,
 } from "@/components/ui/button-group";
 import { Spinner } from "@/components/ui/spinner";
+import { addToCart } from "@/features/cart/actions";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { addToCart } from "@/lib/cart/actions";
 
 type Props = {
   id: string;

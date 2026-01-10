@@ -1,11 +1,14 @@
 "use client";
 
-import { useTransition } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useAppForm } from "@/components/shared/form";
+import { SelectField } from "@/components/forms/fields/select-field";
+import { TextField } from "@/components/forms/fields/text-field";
+import { Button } from "@/components/ui/button";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { submitB2BRequest } from "@/lib/actions/b2b";
-import { b2bRequestSchema } from "@/validation/contact";
+import { type B2BRequestSchema, b2bRequestSchema } from "@/validation/contact";
 
 const BUSINESS_TYPE_OPTIONS: Array<{ label: string; value: string }> = [
   { label: "Reštaurácia", value: "restaurant" },
@@ -16,12 +19,8 @@ const BUSINESS_TYPE_OPTIONS: Array<{ label: string; value: string }> = [
 ];
 
 export function B2BForm() {
-  const [isPending, startTransition] = useTransition();
-
-  const form = useAppForm({
-    validators: {
-      onSubmit: b2bRequestSchema,
-    },
+  const form = useForm<B2BRequestSchema>({
+    resolver: zodResolver(b2bRequestSchema),
     defaultValues: {
       companyName: "",
       businessType: "",
@@ -29,70 +28,55 @@ export function B2BForm() {
       email: "",
       phone: "",
     },
-    onSubmit: ({ value }) => {
-      startTransition(async () => {
-        const result = await submitB2BRequest(value);
-
-        if (result.success) {
-          toast.success("Žiadosť bola úspešne odoslaná");
-          form.reset();
-        } else {
-          toast.error(result.error ?? "Nastala chyba pri odosielaní žiadosti");
-        }
-      });
-    },
   });
 
+  const onSubmit = async (data: B2BRequestSchema) => {
+    const result = await submitB2BRequest(data);
+
+    if (result.success) {
+      toast.success("Žiadosť bola úspešne odoslaná");
+      form.reset();
+    } else {
+      toast.error(result.error ?? "Nastala chyba pri odosielaní žiadosti");
+    }
+  };
+
   return (
-    <form.AppForm>
+    <FormProvider {...form}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          form.handleSubmit();
+          form.handleSubmit(onSubmit)(e);
         }}
       >
         <FieldSet className="gap-5">
           <FieldGroup className="gap-4">
-            <form.AppField name="companyName">
-              {(field) => <field.TextField label="Názov spoločnosti" />}
-            </form.AppField>
+            <TextField label="Názov spoločnosti" name="companyName" />
 
-            <form.AppField name="businessType">
-              {(field) => (
-                <field.SelectField
-                  label="Typ podniku"
-                  options={BUSINESS_TYPE_OPTIONS}
-                  placeholder="Vyberte typ podniku"
-                />
-              )}
-            </form.AppField>
+            <SelectField
+              label="Typ podniku"
+              name="businessType"
+              options={BUSINESS_TYPE_OPTIONS}
+              placeholder="Vyberte typ podniku"
+            />
 
-            <form.AppField name="userName">
-              {(field) => <field.TextField label="Meno a priezvisko" />}
-            </form.AppField>
+            <TextField label="Meno a priezvisko" name="userName" />
 
-            <form.AppField name="email">
-              {(field) => (
-                <field.TextField label="Email" placeholder="vas@email.sk" />
-              )}
-            </form.AppField>
+            <TextField label="Email" name="email" placeholder="vas@email.sk" />
 
-            <form.AppField name="phone">
-              {(field) => (
-                <field.TextField
-                  label="Telefónne číslo"
-                  placeholder="+421 900 000 000"
-                />
-              )}
-            </form.AppField>
+            <TextField
+              label="Telefónne číslo"
+              name="phone"
+              placeholder="+421 900 000 000"
+            />
           </FieldGroup>
 
-          <form.SubmitButton disabled={isPending}>
-            {isPending ? "Odosiela sa..." : "Odoslať žiadosť"}
-          </form.SubmitButton>
+          <Button disabled={form.formState.isSubmitting} type="submit">
+            {form.formState.isSubmitting ? "Odosiela sa..." : "Odoslať žiadosť"}
+          </Button>
         </FieldSet>
       </form>
-    </form.AppForm>
+    </FormProvider>
   );
 }

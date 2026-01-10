@@ -4,7 +4,7 @@ import { CategoryForm } from "@/app/(admin)/admin/categories/[id]/_components/ca
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
-import type { AdminCategory } from "@/lib/queries/categories";
+import type { AdminCategory } from "@/features/categories/queries";
 
 type Props = {
   category: AdminCategory;

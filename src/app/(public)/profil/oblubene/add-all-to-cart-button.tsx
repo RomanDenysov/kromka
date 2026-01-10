@@ -5,7 +5,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { addToCart } from "@/lib/cart/actions";
+import { addToCart } from "@/features/cart/actions";
 
 type Props = {
   productIds: string[];

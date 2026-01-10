@@ -6,11 +6,11 @@ import {
   POLICY_LINKS,
 } from "@/app/(public)/(policies)/policies-config";
 import { AnimatedBackground } from "@/components/motion-primitives/animated-background";
+import { Container } from "@/components/shared/container";
+import { buttonVariants } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { Icons } from "../icons";
-import { Container } from "../shared/container";
-import { buttonVariants } from "../ui/button";
-import { Separator } from "../ui/separator";
 
 type FooterLinkItem = {
   name: string;

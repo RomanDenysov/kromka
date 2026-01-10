@@ -24,8 +24,8 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { Order } from "@/features/orders/queries";
 import { exportAsCsv, exportAsXlsxSheets } from "@/lib/export-utils";
-import type { Order } from "@/lib/queries/orders";
 import { BulkEditDialog } from "./bulk-edit-dialog";
 import {
   bakingSheetColumns,

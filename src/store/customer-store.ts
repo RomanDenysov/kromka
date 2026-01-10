@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { type PersistOptions, persist } from "zustand/middleware";
-import type { Store } from "@/lib/queries/stores";
+import type { Store } from "@/features/stores/queries";
 
 type Customer = {
   id: string;

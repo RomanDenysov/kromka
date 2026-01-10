@@ -25,7 +25,7 @@ export const openingHoursSchema = z.object({
   }),
   exceptions: z.record(z.string(), dayScheduleSchema).optional(),
 });
-const addressSchema = z.object({
+export const addressSchema = z.object({
   street: z.string(),
   city: z.string(),
   country: z.string(),

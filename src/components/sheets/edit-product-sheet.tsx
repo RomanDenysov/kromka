@@ -5,12 +5,8 @@ import { SquareArrowOutUpLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { useId } from "react";
 import { ProductForm } from "@/app/(admin)/admin/products/[id]/_components/product-form";
-import { useProductParams } from "@/hooks/use-product-params";
-import type { Category } from "@/lib/queries/categories";
-import type { AdminProduct } from "@/lib/queries/products";
-import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "../ui/button";
-import { Kbd } from "../ui/kbd";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import {
   Sheet,
   SheetContent,
@@ -18,8 +14,12 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "../ui/sheet";
-import { Spinner } from "../ui/spinner";
+} from "@/components/ui/sheet";
+import { Spinner } from "@/components/ui/spinner";
+import type { Category } from "@/features/categories/queries";
+import type { AdminProduct } from "@/features/products/queries";
+import { useProductParams } from "@/hooks/use-product-params";
+import { cn } from "@/lib/utils";
 
 export function EditProductSheet({
   product,

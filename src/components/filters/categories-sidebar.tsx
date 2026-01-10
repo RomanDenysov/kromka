@@ -6,10 +6,10 @@ import {
   getCategoriesLink,
   useEshopParams,
 } from "@/app/(public)/e-shop/eshop-params";
-import type { Category } from "@/lib/queries/categories";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Category } from "@/features/categories/queries";
 import { cn } from "@/lib/utils";
 import { LinkStatus } from "../shared/link-status";
-import { Skeleton } from "../ui/skeleton";
 
 type Props = {
   categories: Promise<Category[]>;

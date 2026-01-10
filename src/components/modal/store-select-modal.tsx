@@ -2,11 +2,7 @@
 
 import { StoreIcon } from "lucide-react";
 import { use, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import type { Store } from "@/lib/queries/stores";
-import { cn } from "@/lib/utils";
-import { useCustomerStore } from "@/store/customer-store";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -16,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
+} from "@/components/ui/dialog";
 import {
   Field,
   FieldContent,
@@ -25,9 +21,13 @@ import {
   FieldLabel,
   FieldSet,
   FieldTitle,
-} from "../ui/field";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { ScrollArea } from "../ui/scroll-area";
+} from "@/components/ui/field";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import type { Store } from "@/features/stores/queries";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { useCustomerStore } from "@/store/customer-store";
 
 type StoreSelectModalProps = {
   storesPromise: Promise<Store[]>;

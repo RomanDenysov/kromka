@@ -12,10 +12,6 @@ import {
 } from "@tanstack/react-table";
 import { PlusIcon } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableMultiSelectFilter } from "@/components/data-table/data-table-multi-select-filter";
-import { DataTableSearch } from "@/components/data-table/data-table-search";
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -23,8 +19,12 @@ import {
   createDraftStoreAction,
   deleteStoresAction,
   toggleIsActiveStoresAction,
-} from "@/lib/actions/stores";
-import type { AdminStore } from "@/lib/queries/stores";
+} from "@/features/stores/actions";
+import type { AdminStore } from "@/features/stores/queries";
+import { DataTable } from "@/widgets/data-table/data-table";
+import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
+import { DataTableSearch } from "@/widgets/data-table/data-table-search";
+import { DataTableViewOptions } from "@/widgets/data-table/data-table-view-options";
 import { columns } from "./columns";
 
 export function StoresTable({ stores }: { stores: AdminStore[] }) {

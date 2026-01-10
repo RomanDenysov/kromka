@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { DetailedCartItem } from "@/lib/cart/queries";
+import type { DetailedCartItem } from "@/features/cart/queries";
+import { RemoveItemButton } from "@/features/checkout/components/remove-item-button";
 import { formatPrice } from "@/lib/utils";
-import { RemoveItemButton } from "../checkout/remove-item-button";
 import { Badge } from "../ui/badge";
 import { QuantitySetter } from "./quantity-setter";
 

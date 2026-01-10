@@ -8,7 +8,6 @@ import {
   MoreHorizontalIcon,
   SquareArrowOutUpRightIcon,
 } from "lucide-react";
-import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { UserList } from "@/lib/queries/users";
 import { cn, getInitials } from "@/lib/utils";
+import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 type UserTableMeta = {
   onOpen: (id: string) => void;

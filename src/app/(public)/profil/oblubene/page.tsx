@@ -1,12 +1,12 @@
 import { HeartIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ProductCard } from "@/components/cards/product-card";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GridView } from "@/components/views/grid-view";
-import { getFavorites } from "@/lib/favorites/queries";
+import { getFavorites } from "@/features/favorites/queries";
+import { ProductCard } from "@/features/products/components/product-card";
 import { AddAllToCartButton } from "./add-all-to-cart-button";
 
 const PRELOAD_LIMIT = 15;

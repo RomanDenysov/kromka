@@ -2,12 +2,12 @@
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
-import { useMemo } from "react";
+import { type ComponentProps, type ReactNode, useMemo } from "react";
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
-function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
+function FieldSet({ className, ...props }: ComponentProps<"fieldset">) {
   return (
     <fieldset
       className={cn(
@@ -25,7 +25,7 @@ function FieldLegend({
   className,
   variant = "legend",
   ...props
-}: React.ComponentProps<"legend"> & { variant?: "legend" | "label" }) {
+}: ComponentProps<"legend"> & { variant?: "legend" | "label" }) {
   return (
     <legend
       className={cn(
@@ -41,7 +41,7 @@ function FieldLegend({
   );
 }
 
-function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
+function FieldGroup({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
@@ -82,7 +82,7 @@ function Field({
   className,
   orientation = "vertical",
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
+}: ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
   return (
     <div
       className={cn(fieldVariants({ orientation }), className)}
@@ -94,7 +94,7 @@ function Field({
   );
 }
 
-function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
+function FieldContent({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
@@ -107,10 +107,7 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function FieldLabel({
-  className,
-  ...props
-}: React.ComponentProps<typeof Label>) {
+function FieldLabel({ className, ...props }: ComponentProps<typeof Label>) {
   return (
     <Label
       className={cn(
@@ -125,7 +122,7 @@ function FieldLabel({
   );
 }
 
-function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
+function FieldTitle({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
@@ -138,12 +135,12 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
+function FieldDescription({ className, ...props }: ComponentProps<"p">) {
   return (
     <p
       className={cn(
         "font-normal text-muted-foreground text-sm leading-normal group-has-data-[orientation=horizontal]/field:text-balance",
-        "nth-last-2:-mt-1 [[data-variant=legend]+&]:-mt-1.5 last:mt-0",
+        "nth-last-2:-mt-1 last:mt-0 [[data-variant=legend]+&]:-mt-1.5",
         "[&>a:hover]:text-primary [&>a]:underline [&>a]:underline-offset-4",
         className
       )}
@@ -157,13 +154,13 @@ function FieldSeparator({
   children,
   className,
   ...props
-}: React.ComponentProps<"div"> & {
-  children?: React.ReactNode;
+}: ComponentProps<"div"> & {
+  children?: ReactNode;
 }) {
   return (
     <div
       className={cn(
-        "-my-2 group-data-[variant=outline]/field-group:-mb-2 relative h-5 text-sm",
+        "relative -my-2 h-5 text-sm group-data-[variant=outline]/field-group:-mb-2",
         className
       )}
       data-content={!!children}
@@ -188,7 +185,7 @@ function FieldError({
   children,
   errors,
   ...props
-}: React.ComponentProps<"div"> & {
+}: ComponentProps<"div"> & {
   errors?: Array<{ message?: string } | undefined>;
 }) {
   const content = useMemo(() => {
