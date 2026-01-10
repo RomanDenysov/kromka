@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
-import { requireAdmin } from "@/features/auth/guards";
+import { requireAdmin } from "@/lib/auth/guards";
 import type { CategorySchema } from "@/lib/categories/types";
 
 export async function updateCategoryAction({

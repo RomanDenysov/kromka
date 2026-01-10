@@ -5,7 +5,7 @@ import { useCallback, useTransition } from "react";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { signIn } from "@/features/auth/client";
+import { signIn } from "@/lib/auth/client";
 import { useLoginModal } from "@/store/login-modal-store";
 
 const PROVIDERS = ["google"] as const;

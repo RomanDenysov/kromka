@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { requireAuth } from "@/features/auth/guards";
+import { requireAuth } from "@/lib/auth/guards";
 
 type UpdateCurrentUserProfileInput = {
   name: string;

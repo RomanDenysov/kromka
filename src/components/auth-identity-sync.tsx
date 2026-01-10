@@ -2,7 +2,7 @@
 
 import posthog from "posthog-js";
 import { useEffect, useRef } from "react";
-import { useSession } from "@/features/auth/client";
+import { useSession } from "@/lib/auth/client";
 import { useConsent } from "@/hooks/use-consent";
 
 /**

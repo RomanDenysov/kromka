@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { refresh } from "next/cache";
 import { db } from "@/db";
 import { favorites } from "@/db/schema";
-import { requireAuth } from "@/features/auth/guards";
+import { requireAuth } from "@/lib/auth/guards";
 
 export async function toggleFavorite(productId: string) {
   const user = await requireAuth();

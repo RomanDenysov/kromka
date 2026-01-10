@@ -39,8 +39,7 @@ pnpm db:studio    # Open Drizzle Studio
 - `src/app/api/` - API routes (auth, webhooks)
 
 ### Feature Modules (`src/features/`)
-Domain-specific logic organized by feature:
-- `auth/` - Better-auth setup (`server.ts`), guards (`guards.ts`), client (`client.ts`)
+Domain-specific business logic organized by feature:
 - `cart/` - Cookie-based cart with server actions
 - `checkout/` - Order creation, pickup date logic
 - `products/`, `categories/`, `stores/`, `orders/`, `favorites/`
@@ -52,7 +51,8 @@ Each feature typically contains:
 - `components/` - Feature-specific components
 
 ### Shared Code
-- `src/lib/` - Utilities, email templates, remaining queries/actions being migrated to features
+- `src/lib/auth/` - Better-auth setup (`server.ts`), guards (`guards.ts`), client (`client.ts`), session utilities
+- `src/lib/` - Utilities, email templates, remaining queries/actions
 - `src/components/` - Shared UI components
 - `src/db/` - Drizzle schema (`schema.ts`), types, migrations
 - `src/validation/` - Shared Zod schemas

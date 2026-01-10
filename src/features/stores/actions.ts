@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { stores, users } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
-import { requireAdmin, requireAuth } from "@/features/auth/guards";
+import { requireAdmin, requireAuth } from "@/lib/auth/guards";
 import type { StoreSchema } from "@/lib/stores/types";
 
 export async function setUserStore(

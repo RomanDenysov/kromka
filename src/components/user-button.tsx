@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { signOut, useSession } from "@/features/auth/client";
+import { signOut, useSession } from "@/lib/auth/client";
 import { getInitials } from "@/lib/utils";
 import { Icons } from "./icons";
 

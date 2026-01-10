@@ -1,6 +1,6 @@
 import { MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getUserDetails } from "@/features/auth/session";
+import { getUserDetails } from "@/lib/auth/session";
 
 export async function QuickStoreSelector() {
   const userDetails = await getUserDetails();

@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { cache } from "react";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { auth } from "@/features/auth/server";
+import { auth } from "@/lib/auth/server";
 
 export const getSession = cache(
   async () =>

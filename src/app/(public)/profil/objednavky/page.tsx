@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getUser } from "@/features/auth/session";
+import { getUser } from "@/lib/auth/session";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
 import { getUserOrders } from "@/lib/queries/profile";
 import { formatPrice } from "@/lib/utils";

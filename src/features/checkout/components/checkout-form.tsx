@@ -44,7 +44,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import type { PaymentMethod } from "@/db/types";
-import type { User } from "@/features/auth/session";
+import type { User } from "@/lib/auth/session";
 import type { DetailedCartItem } from "@/features/cart/queries";
 import { CheckoutTotalPrice } from "@/features/checkout/components/checkout-total-price";
 import {

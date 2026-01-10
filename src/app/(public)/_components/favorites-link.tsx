@@ -7,7 +7,7 @@ import {
   FavoritesBadgeSkeleton,
 } from "@/components/favorites/favorites-badge";
 import { buttonVariants } from "@/components/ui/button";
-import { auth } from "@/features/auth/server";
+import { auth } from "@/lib/auth/server";
 import { cn } from "@/lib/utils";
 
 export async function FavoritesLink() {

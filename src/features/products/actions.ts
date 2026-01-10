@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { prices, products } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
-import { requireAdmin } from "@/features/auth/guards";
+import { requireAdmin } from "@/lib/auth/guards";
 import type { UpdateProductSchema } from "@/features/products/schema";
 
 export async function updateProductAction({
