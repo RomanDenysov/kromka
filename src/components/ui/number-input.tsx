@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
-import { NumberField } from "@/shared/components/fields/number-field";
+import { NumberField } from "@/components/shared/fields/number-field";
 
 const numberInputGroupVariants = cva(
   "flex w-fit items-center overflow-hidden rounded-md border border-input bg-transparent shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 has-[input:disabled]:pointer-events-none has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-50 [&>*:not(:first-child)]:rounded-l-none [&>*:not(:first-child)]:border-l [&>*:not(:first-child)]:border-l-input [&>*:not(:last-child)]:rounded-r-none [&>*:not(:last-child)]:border-r [&>*:not(:last-child)]:border-r-input [&>*]:focus-visible:relative [&>*]:focus-visible:z-10",

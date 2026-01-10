@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useFieldContext } from "@/components/shared/form";
+import type { FieldPath } from "react-hook-form";
+import { Controller, type FieldValues, useFormContext } from "react-hook-form";
 import {
   Field,
   FieldContent,
@@ -14,7 +15,8 @@ import { formatCentsToPrice } from "@/lib/utils";
 const CURRENCY_SYMBOL = "€";
 const DECIMAL_SEPARATOR = ",";
 
-type Props = {
+type Props<T extends FieldValues> = {
+  name: FieldPath<T>;
   label?: string;
   className?: string;
   description?: string;
@@ -44,17 +46,32 @@ function parseInputToCents(input: string): number {
   return Math.round(price * 100);
 }
 
-export function PriceInputField({
+type PriceInputInnerProps = {
+  field: {
+    value: unknown;
+    onChange: (value: number) => void;
+    onBlur: () => void;
+    name: string;
+  };
+  isInvalid: boolean;
+  label?: string;
+  className?: string;
+  description?: string;
+  placeholder?: string;
+};
+
+function PriceInputInner({
+  field,
+  isInvalid,
   label,
   className,
   description,
   placeholder,
-}: Props) {
-  const field = useFieldContext<number>();
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+}: PriceInputInnerProps) {
+  const cents = (field.value as number) ?? 0;
 
   const [displayValue, setDisplayValue] = useState(() =>
-    formatDisplayValue(field.state.value)
+    formatDisplayValue(cents)
   );
 
   const handleChange = useCallback(
@@ -64,29 +81,29 @@ export function PriceInputField({
       const filtered = raw.replace(/[^\d.,€\s]/g, "");
       setDisplayValue(filtered);
 
-      const cents = parseInputToCents(filtered);
-      field.handleChange(cents);
+      const parsedCents = parseInputToCents(filtered);
+      field.onChange(parsedCents);
     },
     [field]
   );
 
   const handleBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
-      field.handleBlur();
+      field.onBlur();
       // Format display value on blur
-      const cents = parseInputToCents(event.target.value);
-      setDisplayValue(formatDisplayValue(cents || undefined));
+      const parsedCents = parseInputToCents(event.target.value);
+      setDisplayValue(formatDisplayValue(parsedCents || undefined));
     },
     [field]
   );
 
   const handleFocus = useCallback(() => {
     // Strip formatting on focus for easier editing
-    if (field.state.value) {
-      const price = formatCentsToPrice(field.state.value);
+    if (cents) {
+      const price = formatCentsToPrice(cents);
       setDisplayValue(price.toFixed(2).replace(".", DECIMAL_SEPARATOR));
     }
-  }, [field.state.value]);
+  }, [cents]);
 
   return (
     <Field
@@ -112,5 +129,32 @@ export function PriceInputField({
         volume="sm"
       />
     </Field>
+  );
+}
+
+export function PriceInputField<T extends FieldValues>({
+  name,
+  label,
+  className,
+  description,
+  placeholder,
+}: Props<T>) {
+  const { control } = useFormContext<T>();
+
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <PriceInputInner
+          className={className}
+          description={description}
+          field={field}
+          isInvalid={fieldState.invalid}
+          label={label}
+          placeholder={placeholder}
+        />
+      )}
+    />
   );
 }

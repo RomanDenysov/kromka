@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getUserDetails } from "@/features/auth/session";
 import { getDetailedCart } from "@/features/cart/queries";
 import { CheckoutCartHeader } from "@/features/checkout/components/checkout-cart-header";
@@ -15,6 +15,7 @@ import {
 import { CheckoutRecommendations } from "@/features/checkout/components/checkout-recommendations";
 import { getStores } from "@/features/stores/queries";
 import { getSiteConfig } from "@/lib/site-config/queries";
+import { AppBreadcrumbs } from "@/shared/app-breadcrumbs";
 
 async function CheckoutFormLoader() {
   const [user, items, stores, ordersEnabled] = await Promise.all([
@@ -34,6 +35,24 @@ async function CheckoutFormLoader() {
   );
 }
 
+function CheckoutCartHeaderSkeleton() {
+  return <Skeleton className="h-7 w-32" />;
+}
+
+function CheckoutRecommendationsSkeleton() {
+  return (
+    <section className="col-span-full flex size-full flex-col gap-4">
+      <Skeleton className="h-7 w-48" />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <Skeleton className="aspect-square w-full rounded-lg" />
+        <Skeleton className="aspect-square w-full rounded-lg" />
+        <Skeleton className="aspect-square w-full rounded-lg" />
+        <Skeleton className="aspect-square w-full rounded-lg" />
+      </div>
+    </section>
+  );
+}
+
 export default function CheckoutPage() {
   return (
     <PageWrapper>
@@ -46,7 +65,9 @@ export default function CheckoutPage() {
       <h2 className="font-bold text-2xl">Vaša objednávka</h2>
       <div className="@container/summary grid size-full grid-cols-1 gap-5 sm:grid-cols-7 md:grid-cols-9 lg:grid-cols-12">
         <div className="col-span-full">
-          <CheckoutCartHeader />
+          <Suspense fallback={<CheckoutCartHeaderSkeleton />}>
+            <CheckoutCartHeader />
+          </Suspense>
         </div>
         <section className="size-full sm:col-span-4 md:col-span-6 lg:col-span-8">
           <Suspense fallback={<CheckoutListSkeleton />}>
@@ -61,7 +82,7 @@ export default function CheckoutPage() {
         </section>
 
         {/* Recommendations after form on mobile only (below sm breakpoint) */}
-        <Suspense>
+        <Suspense fallback={<CheckoutRecommendationsSkeleton />}>
           <CheckoutRecommendations className="col-span-full flex size-full flex-col gap-4" />
         </Suspense>
       </div>

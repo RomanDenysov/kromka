@@ -9,7 +9,7 @@ import z from "zod";
 import { CheckboxField } from "@/components/forms/fields/checkbox-field";
 import { ComboboxField } from "@/components/forms/fields/combobox-field";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
-import { PriceField } from "@/components/forms/fields/price-field";
+import { PriceInputField } from "@/components/forms/fields/price-input-field";
 import { QuantityField } from "@/components/forms/fields/quantity-field";
 import { RichTextField } from "@/components/forms/fields/rich-text-field";
 import { SelectField } from "@/components/forms/fields/select-field";
@@ -147,7 +147,7 @@ export function ProductForm({
                   label: PRODUCT_STATUSES_LABELS[status],
                 }))}
               />
-              <PriceField label="Cena" name="priceCents" />
+              <PriceInputField label="Cena" name="priceCents" />
             </FieldGroup>
           </FieldSet>
 

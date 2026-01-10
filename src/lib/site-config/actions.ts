@@ -3,7 +3,7 @@
 import { refresh, updateTag } from "next/cache";
 import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
-import { requireAdmin } from "../auth/guards";
+import { requireAdmin } from "@/features/auth/guards";
 
 export async function updateSiteConfig(
   key: string,

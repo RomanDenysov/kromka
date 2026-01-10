@@ -4,7 +4,8 @@ import { format, parse } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import { CalendarIcon, PlusIcon, TrashIcon, XIcon } from "lucide-react";
 import { useCallback, useState } from "react";
-import { useFieldContext } from "@/components/shared/form";
+import type { FieldPath } from "react-hook-form";
+import { Controller, type FieldValues, useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -23,18 +24,23 @@ import type { DaySchedule } from "@/db/types";
 
 type ExceptionsRecord = Record<string, DaySchedule>;
 
-type Props = {
+type Props<T extends FieldValues> = {
+  name: FieldPath<T>;
   label?: string;
 };
 
-/**
- * Field component for managing store schedule exceptions.
- * Allows admins to add special dates with custom hours or mark as closed.
- */
-export function StoreExceptionsField({ label }: Props) {
-  const field = useFieldContext<ExceptionsRecord | undefined>();
-  const exceptions = field.state.value ?? {};
-  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+type ExceptionsInnerProps = {
+  field: {
+    value: unknown;
+    onChange: (value: ExceptionsRecord) => void;
+    name: string;
+  };
+  isInvalid: boolean;
+  label?: string;
+};
+
+function ExceptionsInner({ field, isInvalid, label }: ExceptionsInnerProps) {
+  const exceptions = (field.value as ExceptionsRecord | undefined) ?? {};
 
   const [isAdding, setIsAdding] = useState(false);
   const [newDate, setNewDate] = useState<Date | undefined>(undefined);
@@ -54,7 +60,7 @@ export function StoreExceptionsField({ label }: Props) {
       ? "closed"
       : { start: newStart, end: newEnd };
 
-    field.handleChange({
+    field.onChange({
       ...exceptions,
       [dateKey]: schedule,
     });
@@ -71,7 +77,7 @@ export function StoreExceptionsField({ label }: Props) {
     (dateKey: string) => {
       const updated = { ...exceptions };
       delete updated[dateKey];
-      field.handleChange(updated);
+      field.onChange(updated);
     },
     [exceptions, field]
   );
@@ -234,5 +240,30 @@ export function StoreExceptionsField({ label }: Props) {
         )}
       </FieldContent>
     </Field>
+  );
+}
+
+/**
+ * Field component for managing store schedule exceptions.
+ * Allows admins to add special dates with custom hours or mark as closed.
+ */
+export function StoreExceptionsField<T extends FieldValues>({
+  name,
+  label,
+}: Props<T>) {
+  const { control } = useFormContext<T>();
+
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <ExceptionsInner
+          field={field}
+          isInvalid={fieldState.invalid}
+          label={label}
+        />
+      )}
+    />
   );
 }

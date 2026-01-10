@@ -2,7 +2,7 @@
 /** biome-ignore-all lint/suspicious/noConsole: allow debugging logs in checkout */
 "use client";
 
-import { useStore } from "@tanstack/react-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays, format, startOfToday } from "date-fns";
 import {
   AlertCircleIcon,
@@ -13,15 +13,16 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useTransition } from "react";
+import { useEffect, useMemo } from "react";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { TextField } from "@/components/forms/fields/text-field";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
 import {
   OrderStorePicker,
   type StoreOption,
 } from "@/components/order-store-picker";
-import { useAppForm } from "@/components/shared/form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -46,7 +47,10 @@ import type { PaymentMethod } from "@/db/types";
 import type { User } from "@/features/auth/session";
 import type { DetailedCartItem } from "@/features/cart/queries";
 import { CheckoutTotalPrice } from "@/features/checkout/components/checkout-total-price";
-import { checkoutFormSchema } from "@/features/checkout/schema";
+import {
+  type CheckoutFormData,
+  checkoutFormSchema,
+} from "@/features/checkout/schema";
 import {
   getFirstAvailableDateWithRestrictions,
   getFirstAvailableTime,
@@ -98,8 +102,6 @@ export function CheckoutForm({
   const pathname = usePathname();
   const openLogin = useLoginModalOpen();
 
-  const [isPending, startTransition] = useTransition();
-
   const storeOptions: StoreOption[] = useMemo(
     () =>
       stores?.map((store) => ({
@@ -128,53 +130,13 @@ export function CheckoutForm({
     };
   }, [user, customer, customerStore]);
 
-  const form = useAppForm({
+  const form = useForm<CheckoutFormData>({
+    resolver: zodResolver(checkoutFormSchema),
     defaultValues: initialValues,
-    validators: {
-      onSubmit: checkoutFormSchema,
-    },
-    onSubmit: ({ value }) =>
-      startTransition(async () => {
-        const isGuest = !user;
-
-        // Save customer profile + storeId to DB (only for authenticated users)
-        if (user) {
-          await updateCurrentUserProfile({
-            name: value.name,
-            email: value.email,
-            phone: value.phone,
-            storeId: value.storeId,
-          });
-        }
-
-        // Sync selected store to local state
-        const selectedStore = findStoreById(stores, value.storeId);
-        if (selectedStore && !user?.storeId) {
-          setCustomerStore({ id: selectedStore.id, name: selectedStore.name });
-        }
-        const formattedDate = format(value.pickupDate, "yyyy-MM-dd");
-
-        const guestInfo = buildGuestCustomerInfo(value, isGuest);
-        const result = await createOrderFromCart({
-          storeId: value.storeId,
-          pickupDate: formattedDate,
-          pickupTime: value.pickupTime,
-          paymentMethod: value.paymentMethod,
-          customerInfo: guestInfo ?? undefined,
-        });
-
-        if (result.success) {
-          toast.success("Vaša objednávka bola vytvorená");
-          router.push(`/pokladna/${result.orderId}` as Route);
-        } else {
-          toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
-        }
-      }),
   });
 
-  const pickupDate = useStore(form.store, (state) => state.values.pickupDate);
-
-  const storeId = useStore(form.store, (state) => state.values.storeId);
+  const pickupDate = form.watch("pickupDate");
+  const storeId = form.watch("storeId");
 
   // Derived from form value, not from hook
   const selectedStoreInForm =
@@ -205,6 +167,44 @@ export function CheckoutForm({
     );
   }, [selectedStoreInForm, restrictedPickupDates]);
 
+  // Handle storeId change - update pickupDate and pickupTime
+  useEffect(() => {
+    if (!storeId) {
+      return;
+    }
+
+    const store = storeOptions.find((s) => s.id === storeId);
+    const schedule = store?.openingHours ?? null;
+
+    // Set first available date (considering cart restrictions)
+    const firstDate = getFirstAvailableDateWithRestrictions(
+      schedule,
+      restrictedPickupDates
+    );
+
+    if (firstDate) {
+      form.setValue("pickupDate", firstDate);
+      const range = getTimeRangeForDate(firstDate, schedule);
+      form.setValue("pickupTime", getFirstAvailableTime(range));
+    } else {
+      // No valid dates available - clear the time, keep date for UI feedback
+      form.setValue("pickupTime", "");
+    }
+  }, [storeId, storeOptions, restrictedPickupDates, form]);
+
+  // Handle pickupDate change - update pickupTime
+  useEffect(() => {
+    if (!pickupDate) {
+      form.setValue("pickupTime", "");
+      return;
+    }
+
+    // Set first available time for new date
+    const range = getTimeRangeForDate(pickupDate, storeSchedule);
+    const firstTime = getFirstAvailableTime(range);
+    form.setValue("pickupTime", firstTime);
+  }, [pickupDate, storeSchedule, form]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: we want to memoize by all values
   useEffect(() => {
     const defaultStoreId = user?.storeId;
@@ -224,22 +224,63 @@ export function CheckoutForm({
     );
 
     if (firstDate) {
-      form.setFieldValue("pickupDate", firstDate);
+      form.setValue("pickupDate", firstDate);
       const range = getTimeRangeForDate(firstDate, schedule);
-      form.setFieldValue("pickupTime", getFirstAvailableTime(range));
+      form.setValue("pickupTime", getFirstAvailableTime(range));
     }
   }, [user?.storeId, storeOptions, restrictedPickupDates]);
 
+  const onSubmit = async (value: CheckoutFormData) => {
+    const isGuest = !user;
+
+    // Save customer profile + storeId to DB (only for authenticated users)
+    if (user) {
+      await updateCurrentUserProfile({
+        name: value.name,
+        email: value.email,
+        phone: value.phone,
+        storeId: value.storeId,
+      });
+    }
+
+    // Sync selected store to local state
+    const selectedStore = findStoreById(stores, value.storeId);
+    if (selectedStore && !user?.storeId) {
+      setCustomerStore({ id: selectedStore.id, name: selectedStore.name });
+    }
+    const formattedDate = format(value.pickupDate, "yyyy-MM-dd");
+
+    const guestInfo = buildGuestCustomerInfo(value, isGuest);
+    const result = await createOrderFromCart({
+      storeId: value.storeId,
+      pickupDate: formattedDate,
+      pickupTime: value.pickupTime,
+      paymentMethod: value.paymentMethod,
+      customerInfo: guestInfo ?? undefined,
+    });
+
+    if (result.success) {
+      toast.success("Vaša objednávka bola vytvorená");
+      router.push(`/pokladna/${result.orderId}` as Route);
+    } else {
+      toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
+    }
+  };
+
+  const { formState } = form;
+  const canSubmit = formState.isValid;
+  const isSubmitting = formState.isSubmitting;
+
   return (
     <div className="sticky top-14 size-full">
-      <form.AppForm>
+      <FormProvider {...form}>
         <form
           id="checkout-form"
           name="checkout-form"
           onSubmit={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            form.handleSubmit();
+            form.handleSubmit(onSubmit)(e);
           }}
         >
           <div className="flex flex-col gap-5">
@@ -252,15 +293,9 @@ export function CheckoutForm({
               </CardHeader>
               <CardContent>
                 <FieldGroup>
-                  <form.AppField name="name">
-                    {(field) => <field.TextField label="Meno" />}
-                  </form.AppField>
-                  <form.AppField name="email">
-                    {(field) => <field.TextField label="Email" />}
-                  </form.AppField>
-                  <form.AppField name="phone">
-                    {(field) => <field.TextField label="Telefón" />}
-                  </form.AppField>
+                  <TextField label="Meno" name="name" />
+                  <TextField label="Email" name="email" />
+                  <TextField label="Telefón" name="phone" />
                 </FieldGroup>
                 {!user && (
                   <div className="mt-4 flex items-start justify-between gap-3 rounded-md border bg-muted/30 px-3 py-2">
@@ -293,45 +328,17 @@ export function CheckoutForm({
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <form.Field
-                  listeners={{
-                    onChange: ({ value }) => {
-                      if (!value) {
-                        return;
-                      }
-
-                      const store = storeOptions.find((s) => s.id === value);
-                      const schedule = store?.openingHours ?? null;
-
-                      // Set first available date (considering cart restrictions)
-                      const firstDate = getFirstAvailableDateWithRestrictions(
-                        schedule,
-                        restrictedPickupDates
-                      );
-
-                      if (firstDate) {
-                        form.setFieldValue("pickupDate", firstDate);
-                        const range = getTimeRangeForDate(firstDate, schedule);
-                        form.setFieldValue(
-                          "pickupTime",
-                          getFirstAvailableTime(range)
-                        );
-                      } else {
-                        // No valid dates available - clear the time, keep date for UI feedback
-                        form.setFieldValue("pickupTime", "");
-                      }
-                    },
-                  }}
+                <Controller
+                  control={form.control}
                   name="storeId"
-                >
-                  {(field) => (
+                  render={({ field }) => (
                     <OrderStorePicker
-                      onValueChange={(id) => field.handleChange(id)}
+                      onValueChange={(id) => field.onChange(id)}
                       storeOptions={storeOptions}
-                      value={field.state.value}
+                      value={field.value}
                     />
                   )}
-                </form.Field>
+                />
                 {hasNoAvailableDates && (
                   <Alert variant="destructive">
                     <AlertCircleIcon className="size-4" />
@@ -357,47 +364,36 @@ export function CheckoutForm({
                     </Alert>
                   )}
                 <FieldGroup className="grid w-full gap-2 md:grid-cols-5">
-                  <form.Field
-                    listeners={{
-                      onChange: ({ value }) => {
-                        if (!value) {
-                          form.setFieldValue("pickupTime", "");
-                          return;
-                        }
-
-                        // Set first available time for new date
-                        const range = getTimeRangeForDate(value, storeSchedule);
-                        const firstTime = getFirstAvailableTime(range);
-                        form.setFieldValue("pickupTime", firstTime);
-                      },
-                    }}
+                  <Controller
+                    control={form.control}
                     name="pickupDate"
-                  >
-                    {(field) => {
+                    render={({ field, fieldState }) => {
                       const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
+                        fieldState.isTouched && fieldState.invalid;
                       return (
                         <Field
                           className="w-full md:col-span-3"
                           data-invalid={isInvalid}
                         >
                           <OrderPickupDatePicker
-                            onDateSelect={(date) => field.handleChange(date)}
+                            onDateSelect={(date) => field.onChange(date)}
                             restrictedDates={restrictedPickupDates}
-                            selectedDate={field.state.value}
+                            selectedDate={field.value}
                             storeSchedule={storeSchedule}
                           />
                           {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
+                            <FieldError errors={[fieldState.error]} />
                           )}
                         </Field>
                       );
                     }}
-                  </form.Field>
-                  <form.Field name="pickupTime">
-                    {(field) => {
+                  />
+                  <Controller
+                    control={form.control}
+                    name="pickupTime"
+                    render={({ field, fieldState }) => {
                       const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
+                        fieldState.isTouched && fieldState.invalid;
                       return (
                         <Field
                           className="w-full md:col-span-2"
@@ -405,17 +401,17 @@ export function CheckoutForm({
                         >
                           <OrderPickupTimePicker
                             disabled={!pickupDate}
-                            onTimeSelect={(time) => field.handleChange(time)}
-                            selectedTime={field.state.value}
+                            onTimeSelect={(time) => field.onChange(time)}
+                            selectedTime={field.value}
                             timeRange={timeRange}
                           />
                           {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
+                            <FieldError errors={[fieldState.error]} />
                           )}
                         </Field>
                       );
                     }}
-                  </form.Field>
+                  />
                 </FieldGroup>
               </CardContent>
             </Card>
@@ -436,10 +432,12 @@ export function CheckoutForm({
                   </AlertTitle>
                 </Alert>
                 <FieldGroup>
-                  <form.Field name="paymentMethod">
-                    {(field) => {
+                  <Controller
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field, fieldState }) => {
                       const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
+                        fieldState.isTouched && fieldState.invalid;
                       return (
                         <Field data-invalid={isInvalid}>
                           <FieldContent>
@@ -447,9 +445,9 @@ export function CheckoutForm({
                               aria-label="Spôsob platby"
                               className="md:grid-cols-2"
                               onValueChange={(value) =>
-                                field.handleChange(value as PaymentMethod)
+                                field.onChange(value as PaymentMethod)
                               }
-                              value={field.state.value}
+                              value={field.value}
                             >
                               <FieldLabel htmlFor="in_store">
                                 <Field
@@ -489,12 +487,12 @@ export function CheckoutForm({
                             </RadioGroup>
                           </FieldContent>
                           {isInvalid && (
-                            <FieldError errors={field.state.meta.errors} />
+                            <FieldError errors={[fieldState.error]} />
                           )}
                         </Field>
                       );
                     }}
-                  </form.Field>
+                  />
                 </FieldGroup>
               </CardContent>
             </Card>
@@ -513,39 +511,35 @@ export function CheckoutForm({
               </Alert>
             )}
 
-            <form.Subscribe
-              selector={(state) => [state.canSubmit, state.isSubmitting]}
+            <Button
+              className="w-full text-base"
+              disabled={
+                isSubmitting ||
+                !canSubmit ||
+                !ordersEnabled ||
+                hasNoAvailableDates
+              }
+              size="xl"
+              type="submit"
             >
-              {([canSubmit, isSubmitting]) => (
-                <Button
-                  className="w-full text-base"
-                  disabled={
-                    isSubmitting ||
-                    !canSubmit ||
-                    isPending ||
-                    !ordersEnabled ||
-                    hasNoAvailableDates
-                  }
-                  size="xl"
-                  type="submit"
-                >
-                  {isPending && <Spinner />}
-                  Objednať
-                </Button>
-              )}
-            </form.Subscribe>
-            {form.state.errors && form.state.errors.length > 0 && (
+              {isSubmitting && <Spinner />}
+              Objednať
+            </Button>
+            {formState.errors && Object.keys(formState.errors).length > 0 && (
               <Alert variant="destructive">
                 <AlertCircleIcon className="size-4" />
                 <AlertTitle>Chyba</AlertTitle>
                 <AlertDescription className="text-xs">
-                  {form.state.errors
+                  {Object.values(formState.errors)
                     .slice(0, 1)
                     .map((error) => error?.message)
+                    .filter(Boolean)
                     .join(", ")}
-                  {form.state.errors.length > 1 && (
+                  {Object.keys(formState.errors).length > 1 && (
                     <span className="text-xs">
-                      a {form.state.errors.length - 1} ďalších chybách
+                      {" "}
+                      a {Object.keys(formState.errors).length - 1} ďalších
+                      chybách
                     </span>
                   )}
                 </AlertDescription>
@@ -566,7 +560,7 @@ export function CheckoutForm({
             </Link>
           </div>
         </form>
-      </form.AppForm>
+      </FormProvider>
     </div>
   );
 }
