@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { createMetadata } from "@/lib/metadata";
+import { getSiteUrl } from "@/lib/utils";
+
+export const metadata: Metadata = createMetadata({
+  title: "Používanie cookies",
+  description:
+    "Zásady používania súborov cookies na webovej stránke Pekárne Kromka. Informácie o typoch cookies a správe nastavení.",
+  canonicalUrl: getSiteUrl("/pouzivanie-cookies"),
+});
 
 export default function PouzivanieCookiesPage() {
   return (

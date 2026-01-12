@@ -24,6 +24,11 @@ export const defaultMetadata: Metadata = {
     siteName,
     locale: "sk_SK",
   },
+  twitter: {
+    card: "summary_large_image",
+    site: "@pekaren_kromka",
+    creator: "@pekaren_kromka",
+  },
   icons: {
     icon: [
       { url: "/icons/icon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -65,7 +70,15 @@ export function createMetadata(props: MetadataGenerator): Metadata {
     ...props,
     openGraph: {
       ...defaultMetadata.openGraph,
+      title: props.title,
+      description: props.description,
       images: props.image ? [{ url: props.image }] : [],
+    },
+    twitter: {
+      ...defaultMetadata.twitter,
+      title: props.title,
+      description: props.description,
+      images: props.image ? [props.image] : undefined,
     },
     alternates: {
       ...defaultMetadata.alternates,

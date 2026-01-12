@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { createMetadata } from "@/lib/metadata";
+import { getSiteUrl } from "@/lib/utils";
+
+export const metadata: Metadata = createMetadata({
+  title: "Obchodné podmienky",
+  description:
+    "Obchodné podmienky spoločnosti KROMKA s.r.o. pre nákup v našom e-shope. Informácie o platobných podmienkach, právach a povinnostiach.",
+  canonicalUrl: getSiteUrl("/obchodne-podmienky"),
+});
 
 export default function ObchodnePodmienkyPage() {
   return (

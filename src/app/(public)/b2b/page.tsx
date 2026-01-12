@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { B2BForm } from "@/components/forms/b2b-form";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { createMetadata } from "@/lib/metadata";
+import { getSiteUrl } from "@/lib/utils";
+
+export const metadata: Metadata = createMetadata({
+  title: "B2B Spolupráca",
+  description:
+    "Záujem o spoluprácu s Pekárňou Kromka? Ponúkame B2B riešenia pre kaviarne, reštaurácie a obchody. Vyplňte registračný formulár.",
+  canonicalUrl: getSiteUrl("/b2b"),
+});
 
 export default function B2BPage() {
   return (

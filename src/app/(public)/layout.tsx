@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { type ReactNode, Suspense } from "react";
 import { Footer } from "@/components/landing/footer";
 import { LoginModal } from "@/components/modal/login-modal";
+import { JsonLd } from "@/components/seo/json-ld";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
 import { defaultMetadata } from "@/lib/metadata";
+import { getOrganizationSchema, getWebSiteSchema } from "@/lib/seo/json-ld";
 import { Header } from "./_components/header";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ type Props = {
 export default function PublicLayout({ children }: Props) {
   return (
     <>
+      <JsonLd data={[getOrganizationSchema(), getWebSiteSchema()]} />
       <Header />
       <main className="min-h-svh">{children}</main>
       <Footer />
