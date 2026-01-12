@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
@@ -16,6 +17,12 @@ import { CheckoutRecommendations } from "@/features/checkout/components/checkout
 import { getStores } from "@/features/stores/queries";
 import { getUserDetails } from "@/lib/auth/session";
 import { getSiteConfig } from "@/lib/site-config/queries";
+
+export const metadata: Metadata = {
+  title: "Pokladňa",
+  description: "Dokončite vašu objednávku v Pekárni Kromka.",
+  robots: { index: false, follow: false },
+};
 
 async function CheckoutFormLoader() {
   const [user, items, stores, ordersEnabled] = await Promise.all([

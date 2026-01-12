@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { eq } from "drizzle-orm";
 import { CheckCircleIcon, ChevronLeftIcon } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
@@ -9,6 +10,12 @@ import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { formatPrice } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Potvrdenie objednávky",
+  description: "Vaša objednávka bola úspešne vytvorená.",
+  robots: { index: false, follow: false },
+};
 
 function getOrderById(orderId: string) {
   return db.query.orders.findFirst({

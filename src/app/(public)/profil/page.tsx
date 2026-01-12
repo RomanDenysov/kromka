@@ -6,7 +6,7 @@ import {
   PackageIcon,
   ShoppingBagIcon,
 } from "lucide-react";
-import type { Route } from "next";
+import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
@@ -19,6 +19,12 @@ import {
 import { getUser } from "@/lib/auth/session";
 import { getUserOrders } from "@/lib/queries/profile";
 import { formatPrice } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Môj profil",
+  description: "Prehľad vášho účtu a posledných aktivít v Pekárni Kromka.",
+  robots: { index: false, follow: false },
+};
 
 const RECENT_ORDERS_COUNT = 3;
 

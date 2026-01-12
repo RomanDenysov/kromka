@@ -1,4 +1,5 @@
 import { HeartIcon } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,12 @@ import { GridView } from "@/components/views/grid-view";
 import { getFavorites } from "@/features/favorites/queries";
 import { ProductCard } from "@/features/products/components/product-card";
 import { AddAllToCartButton } from "./add-all-to-cart-button";
+
+export const metadata: Metadata = {
+  title: "Obľúbené produkty",
+  description: "Produkty, ktoré ste si uložili do obľúbených v Pekárni Kromka.",
+  robots: { index: false, follow: false },
+};
 
 const PRELOAD_LIMIT = 15;
 

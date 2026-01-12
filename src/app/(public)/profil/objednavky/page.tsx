@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { MapPinIcon, PackageIcon } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,12 @@ import { getUser } from "@/lib/auth/session";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
 import { getUserOrders } from "@/lib/queries/profile";
 import { formatPrice } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Moje objednávky",
+  description: "História všetkých vašich objednávok v Pekárni Kromka.",
+  robots: { index: false, follow: false },
+};
 
 const RECENT_ORDER_ITEMS_COUNT = 3;
 
