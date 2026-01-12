@@ -21,8 +21,8 @@ import {
   FieldLabel,
   FieldSet,
 } from "@/components/ui/field";
-import type { UserDetails } from "@/lib/auth/session";
 import { updateProfileAction } from "@/lib/actions/user-profile";
+import type { UserDetails } from "@/lib/auth/session";
 
 type Props = {
   user: NonNullable<UserDetails>;

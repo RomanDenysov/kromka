@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FieldPath } from "react-hook-form";
 import { Controller, type FieldValues, useFormContext } from "react-hook-form";
 import {
@@ -69,10 +69,18 @@ function PriceInputInner({
   placeholder,
 }: PriceInputInnerProps) {
   const cents = (field.value as number) ?? 0;
+  const isFocusedRef = useRef(false);
 
   const [displayValue, setDisplayValue] = useState(() =>
     formatDisplayValue(cents)
   );
+
+  // Sync display value when form value changes externally (e.g., form.setValue, form.reset)
+  useEffect(() => {
+    if (!isFocusedRef.current) {
+      setDisplayValue(formatDisplayValue(cents || undefined));
+    }
+  }, [cents]);
 
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,6 +97,7 @@ function PriceInputInner({
 
   const handleBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
+      isFocusedRef.current = false;
       field.onBlur();
       // Format display value on blur
       const parsedCents = parseInputToCents(event.target.value);
@@ -98,6 +107,7 @@ function PriceInputInner({
   );
 
   const handleFocus = useCallback(() => {
+    isFocusedRef.current = true;
     // Strip formatting on focus for easier editing
     if (cents) {
       const price = formatCentsToPrice(cents);

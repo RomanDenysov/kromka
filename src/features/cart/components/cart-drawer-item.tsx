@@ -14,7 +14,7 @@ export function CartDrawerItem({ item }: Props) {
     <div className="flex gap-3">
       <ProductImage
         alt={item.name}
-        className="size-20 rounded-md object-cover"
+        className="aspect-square size-20 rounded-sm object-cover"
         height={80}
         src={item.imageUrl ?? "/images/cooperation.jpg"}
         width={80}

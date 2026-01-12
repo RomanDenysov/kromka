@@ -144,11 +144,11 @@ export default async function ProductPage({ params }: Props) {
       />
       <section className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-x-12 md:grid-cols-5">
         <div className="col-span-1 md:col-span-2">
-          <div className="aspect-square rounded-lg">
+          <div className="aspect-square rounded-sm">
             <ProductImage
               alt={`Product image: ${result.name}`}
               className={cn(
-                "-z-10 size-full object-cover object-center transition-all duration-300"
+                "aspect-square size-full rounded-sm object-cover object-center transition-all duration-300"
               )}
               decoding="sync"
               height={500}

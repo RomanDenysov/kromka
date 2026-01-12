@@ -6,6 +6,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SITE_URL: z.url().min(1),
     NEXT_PUBLIC_POSTHOG_KEY: z.string().min(1),
     NEXT_PUBLIC_POSTHOG_HOST: z.url().min(1),
+    NEXT_PUBLIC_GOOGLE_PLACES_API_KEY: z.string().min(1),
   },
   server: {
     AUTH_GOOGLE_ID: z.string().min(1),
@@ -43,5 +44,7 @@ export const env = createEnv({
 
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    NEXT_PUBLIC_GOOGLE_PLACES_API_KEY:
+      process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
   },
 });

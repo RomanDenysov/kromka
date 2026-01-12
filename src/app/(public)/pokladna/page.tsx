@@ -1,7 +1,7 @@
 import { Suspense } from "react";
+import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getUserDetails } from "@/lib/auth/session";
 import { getDetailedCart } from "@/features/cart/queries";
 import { CheckoutCartHeader } from "@/features/checkout/components/checkout-cart-header";
 import {
@@ -14,8 +14,8 @@ import {
 } from "@/features/checkout/components/checkout-list";
 import { CheckoutRecommendations } from "@/features/checkout/components/checkout-recommendations";
 import { getStores } from "@/features/stores/queries";
+import { getUserDetails } from "@/lib/auth/session";
 import { getSiteConfig } from "@/lib/site-config/queries";
-import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 
 async function CheckoutFormLoader() {
   const [user, items, stores, ordersEnabled] = await Promise.all([

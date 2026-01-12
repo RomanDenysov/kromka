@@ -3,8 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { useSession } from "@/lib/auth/client";
 import { isFavorite, toggleFavorite } from "@/features/favorites/actions";
+import { useSession } from "@/lib/auth/client";
 import { useLoginModalOpen } from "@/store/login-modal-store";
 
 export function useFavorite(productId: string, initialValue?: boolean) {

@@ -47,7 +47,7 @@ export function ProductCard({
           <ProductImage
             alt={`Product image: ${product.name}`}
             className={cn(
-              "-z-10 size-full object-cover object-center transition-all duration-300"
+              "aspect-square size-full rounded-sm object-cover object-center transition-all duration-300"
             )}
             decoding="sync"
             height={500}

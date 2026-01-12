@@ -44,7 +44,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import type { PaymentMethod } from "@/db/types";
-import type { User } from "@/lib/auth/session";
 import type { DetailedCartItem } from "@/features/cart/queries";
 import { CheckoutTotalPrice } from "@/features/checkout/components/checkout-total-price";
 import {
@@ -64,6 +63,7 @@ import {
 } from "@/features/orders/actions";
 import type { Store } from "@/features/stores/queries";
 import { updateCurrentUserProfile } from "@/lib/actions/user-profile";
+import type { User } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { useCustomerStore } from "@/store/customer-store";
 import { useLoginModalOpen } from "@/store/login-modal-store";
