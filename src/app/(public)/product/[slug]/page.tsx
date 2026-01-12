@@ -13,6 +13,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
+import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Hint } from "@/components/shared/hint";
@@ -23,6 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProducts, type Product } from "@/features/products/queries";
 import { createMetadata } from "@/lib/metadata";
+import { getBreadcrumbSchema, getProductSchema } from "@/lib/seo/json-ld";
 import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
 import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
@@ -137,8 +139,47 @@ export default async function ProductPage({ params }: Props) {
 
   const recommendations = getProductRecommendations(result, products);
 
+  const descriptionText = generateText(
+    result?.description ?? {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Popis produktu chýba" }],
+        },
+      ],
+    },
+    [StarterKit]
+  );
+
+  const productSchema = getProductSchema({
+    name: result.name,
+    description: descriptionText,
+    image: result.imageUrl,
+    priceCents: result.priceCents,
+    slug: result.slug,
+    category: result.category?.name,
+    isAvailable: isInStock,
+  });
+
+  const breadcrumbItems = [
+    { name: "E-shop", href: "/e-shop" },
+    ...(result.category
+      ? [
+          {
+            name: result.category.name,
+            href: `/e-shop?category=${result.category.slug}`,
+          },
+        ]
+      : []),
+    { name: result.name },
+  ];
+
+  const breadcrumbSchema = getBreadcrumbSchema(breadcrumbItems);
+
   return (
     <PageWrapper>
+      <JsonLd data={[productSchema, breadcrumbSchema]} />
       <AppBreadcrumbs
         items={[{ label: "E-shop", href: "/e-shop" }, { label: result.name }]}
       />

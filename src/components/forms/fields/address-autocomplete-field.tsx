@@ -66,7 +66,7 @@ export function AddressAutocompleteField<T extends FieldValues>({
     }
 
     const place = autocomplete.getPlace();
-    if (!place.address_components) {
+    if (!place?.address_components) {
       return;
     }
 

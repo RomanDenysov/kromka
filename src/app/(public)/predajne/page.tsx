@@ -1,10 +1,18 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
-import { StoresMap } from "@/components/stores-map";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getStores } from "@/features/stores/queries";
-import { StoresGrid, StoresGridSkeleton } from "./stores-grid";
+import { createMetadata } from "@/lib/metadata";
+import { getSiteUrl } from "@/lib/utils";
+import { StoresSection, StoresSectionSkeleton } from "./stores-section";
+
+export const metadata: Metadata = createMetadata({
+  title: "Naše predajne",
+  description:
+    "Navštívte nás v Košiciach alebo Prešove. Čerstvé pečivo každý deň od skorého rána. Nájdite najbližšiu predajňu Pekárne Kromka.",
+  canonicalUrl: getSiteUrl("/predajne"),
+});
 
 export default async function StoresPage() {
   const stores = await getStores();
@@ -24,30 +32,10 @@ export default async function StoresPage() {
           </p>
         </section>
 
-        {/* Stores Grid */}
-        <Suspense fallback={<StoresGridSkeleton />}>
-          <StoresGrid stores={stores} />
+        {/* Stores Grid + Map Section */}
+        <Suspense fallback={<StoresSectionSkeleton />}>
+          <StoresSection stores={stores} />
         </Suspense>
-
-        {/* Map Section - Minimal */}
-        <section className="space-y-4">
-          <div className="space-y-2">
-            <h2 className="font-semibold text-2xl tracking-tight">Mapa</h2>
-            <p className="text-muted-foreground">
-              Nájdite nás na mape. Všetky naše predajne ponúkajú rovnaký
-              sortiment čerstvého pečiva.
-              <br />
-              Vyber si tú, ktorá je bližšie k tebe.
-            </p>
-          </div>
-          <div className="relative min-h-[500px] overflow-hidden rounded-md border border-border">
-            <div className="absolute inset-0">
-              <Suspense fallback={<Skeleton className="size-full" />}>
-                <StoresMap stores={stores} />
-              </Suspense>
-            </div>
-          </div>
-        </section>
       </div>
     </PageWrapper>
   );

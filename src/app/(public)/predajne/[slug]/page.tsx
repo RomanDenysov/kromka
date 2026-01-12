@@ -1,22 +1,20 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
-import {
-  ArrowLeft,
-  Clock,
-  ExternalLink,
-  MapPin,
-  Navigation,
-  Phone,
-} from "lucide-react";
+import { ArrowLeft, Clock, MapPin, Phone } from "lucide-react";
+import type { Metadata } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { JsonLd } from "@/components/seo/json-ld";
 import { PageWrapper } from "@/components/shared/container";
-import { Button } from "@/components/ui/button";
+import { StoreNavigationButton } from "@/components/store-navigation-button";
 import { db } from "@/db";
 import type { DaySchedule, StoreSchedule } from "@/db/types";
 import { getUserDetails } from "@/lib/auth/session";
+import { createMetadata } from "@/lib/metadata";
+import { getBreadcrumbSchema, getLocalBusinessSchema } from "@/lib/seo/json-ld";
+import { getSiteUrl } from "@/lib/utils";
 
 const DAYS_ORDER = [
   "monday",
@@ -66,6 +64,46 @@ const isStoreOpen = (regularHours: StoreSchedule["regularHours"]) => {
   return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
 };
 
+async function getStoreBySlug(slug: string) {
+  "use cache";
+  cacheLife("max");
+  cacheTag("stores", `store-${slug}`);
+  return await db.query.stores.findFirst({
+    where: (s, { eq, and }) => and(eq(s.slug, slug), eq(s.isActive, true)),
+    with: {
+      image: true,
+    },
+  });
+}
+
+type Props = {
+  params: Promise<{ slug: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const store = await getStoreBySlug(slug);
+
+  if (!store) {
+    return {};
+  }
+
+  const fullAddress = [store.address?.street, store.address?.city]
+    .filter(Boolean)
+    .join(", ");
+
+  const description = store.description?.content?.[0]?.content?.[0]?.text
+    ? store.description.content[0].content[0].text
+    : `Predajňa Pekáreň Kromka na adrese ${fullAddress}. Čerstvé pečivo, otváracie hodiny a kontakt.`;
+
+  return createMetadata({
+    title: store.name,
+    description,
+    canonicalUrl: getSiteUrl(`/predajne/${store.slug}`),
+    image: store.image?.url ?? undefined,
+  });
+}
+
 async function StorePageContent({
   store,
 }: {
@@ -89,12 +127,29 @@ async function StorePageContent({
     .filter(Boolean)
     .join(", ");
 
-  const googleMapsUrl = fullAddress
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`
-    : null;
+  const storeDescription = store.description?.content?.[0]?.content?.[0]?.text;
+
+  const localBusinessSchema = getLocalBusinessSchema({
+    name: store.name,
+    description: storeDescription,
+    slug: store.slug,
+    address: store.address,
+    phone: store.phone,
+    email: store.email,
+    latitude: store.latitude,
+    longitude: store.longitude,
+    openingHours: store.openingHours as StoreSchedule | null | undefined,
+    image: store.image?.url,
+  });
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: "Predajne", href: "/predajne" },
+    { name: store.name },
+  ]);
 
   return (
     <PageWrapper>
+      <JsonLd data={[localBusinessSchema, breadcrumbSchema]} />
       <div className="space-y-12 py-8">
         {/* Back Link */}
         <Link
@@ -176,16 +231,13 @@ async function StorePageContent({
             </div>
             <div className="space-y-2 border-border border-l-2 pl-4">
               <p className="text-lg">{fullAddress}</p>
-              {googleMapsUrl && (
-                <a
-                  className="inline-flex items-center gap-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground"
-                  href={googleMapsUrl}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Otvoriť v Google Maps
-                  <ExternalLink className="size-3.5" />
-                </a>
+              {fullAddress && (
+                <StoreNavigationButton
+                  address={fullAddress}
+                  latitude={store.latitude}
+                  longitude={store.longitude}
+                  variant="link"
+                />
               )}
             </div>
           </div>
@@ -221,36 +273,20 @@ async function StorePageContent({
           )}
 
           {/* Navigation Button */}
-          {googleMapsUrl && (
+          {fullAddress && (
             <div className="pt-4">
-              <Button asChild variant="outline">
-                <a
-                  href={googleMapsUrl}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  <Navigation className="size-4" />
-                  Navigovať na Google Maps
-                </a>
-              </Button>
+              <StoreNavigationButton
+                address={fullAddress}
+                latitude={store.latitude}
+                longitude={store.longitude}
+                variant="button"
+              />
             </div>
           )}
         </section>
       </div>
     </PageWrapper>
   );
-}
-
-async function getStoreBySlug(slug: string) {
-  "use cache";
-  cacheLife("max");
-  cacheTag("stores", `store-${slug}`);
-  return await db.query.stores.findFirst({
-    where: (s, { eq, and }) => and(eq(s.slug, slug), eq(s.isActive, true)),
-    with: {
-      image: true,
-    },
-  });
 }
 
 async function StorePageWrapper({

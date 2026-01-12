@@ -1,7 +1,8 @@
 "use client";
 
-import { StoreIcon } from "lucide-react";
-import { use, useState } from "react";
+import { Loader2, Navigation, StoreIcon } from "lucide-react";
+import { use, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { DistanceBadge } from "@/components/ui/distance-badge";
 import {
   Field,
   FieldContent,
@@ -25,7 +27,9 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Store } from "@/features/stores/queries";
+import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { sortStoresByDistance } from "@/lib/geo-utils";
 import { cn } from "@/lib/utils";
 import { useCustomerStore } from "@/store/customer-store";
 
@@ -37,11 +41,34 @@ export function StoreSelectModal({ storesPromise }: StoreSelectModalProps) {
   const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
   const stores = use(storesPromise);
+  const { status, position, requestLocation, isLoading } = useGeolocation();
 
   const setCustomerStore = useCustomerStore(
     (state) => state.actions.setCustomerStore
   );
   const customerStore = useCustomerStore((state) => state.customerStore);
+
+  const handleRequestLocation = () => {
+    requestLocation();
+  };
+
+  // Show error toast when permission is denied
+  if (status === "denied") {
+    toast.error("Prístup k polohe bol zamietnutý", {
+      description: "Povoľte prístup k polohe v nastaveniach prehliadača.",
+      id: "geolocation-denied-modal",
+    });
+  }
+
+  const storesWithDistance = useMemo(() => {
+    if (!position) {
+      return stores.map((store) => ({
+        ...store,
+        distance: null as number | null,
+      }));
+    }
+    return sortStoresByDistance(stores, position.latitude, position.longitude);
+  }, [stores, position]);
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
@@ -67,6 +94,22 @@ export function StoreSelectModal({ storesPromise }: StoreSelectModalProps) {
             Vyberte predajňu, v ktorej chcete nakupovať.
           </DialogDescription>
         </DialogHeader>
+
+        <Button
+          className="w-full"
+          disabled={isLoading}
+          onClick={handleRequestLocation}
+          size="sm"
+          variant={position ? "default" : "outline"}
+        >
+          {isLoading ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Navigation className="size-4" />
+          )}
+          {position ? "Aktualizovať polohu" : "Zobraziť vzdialenosti"}
+        </Button>
+
         <div className="grow">
           <ScrollArea className="h-80 pr-2.5">
             <FieldGroup>
@@ -80,13 +123,27 @@ export function StoreSelectModal({ storesPromise }: StoreSelectModalProps) {
                   }
                   value={customerStore?.id ?? null}
                 >
-                  {stores.map((store) => (
+                  {storesWithDistance.map((store) => (
                     <FieldLabel key={store.id}>
                       <Field orientation="horizontal">
                         <FieldContent>
-                          <FieldTitle>{store.name}</FieldTitle>
+                          <div className="flex items-center gap-2">
+                            <FieldTitle>{store.name}</FieldTitle>
+                            {store.distance !== null &&
+                              store.distance !== undefined &&
+                              store.distance !== Number.POSITIVE_INFINITY && (
+                                <DistanceBadge
+                                  distance={store.distance}
+                                  variant="light"
+                                />
+                              )}
+                          </div>
                           <FieldDescription>
-                            {store.description?.content?.[0]?.text}
+                            {store.address
+                              ? [store.address.street, store.address.city]
+                                  .filter(Boolean)
+                                  .join(", ")
+                              : store.description?.content?.[0]?.text}
                           </FieldDescription>
                         </FieldContent>
                         <RadioGroupItem id={store.id} value={store.id} />

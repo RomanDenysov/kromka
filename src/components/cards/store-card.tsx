@@ -5,6 +5,7 @@ import { ArrowRight, Clock, MapPin } from "lucide-react";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { DistanceBadge } from "@/components/ui/distance-badge";
 import type { TimeRange } from "@/db/types";
 import {
   getTimeRangeForDate,
@@ -19,6 +20,7 @@ type StoreCardProps = {
   isSelected?: boolean;
   href?: Route;
   variant?: "default" | "featured";
+  distance?: number | null;
 };
 
 const getTodayOpeningHours = (openingHours: Store["openingHours"]) => {
@@ -56,6 +58,7 @@ export function StoreCard({
   isSelected,
   href,
   variant = "default",
+  distance,
 }: StoreCardProps) {
   const todaySchedule = getTodayOpeningHours(store.openingHours);
   const storeIsOpen = isCurrentlyOpen(todaySchedule);
@@ -95,6 +98,11 @@ export function StoreCard({
         <span className="font-medium text-white/80 text-xs">
           {storeIsOpen ? "Otvorené" : "Zatvorené"}
         </span>
+        {distance !== null &&
+          distance !== undefined &&
+          distance !== Number.POSITIVE_INFINITY && (
+            <DistanceBadge distance={distance} />
+          )}
       </div>
 
       {/* Selected Badge */}
@@ -157,10 +165,12 @@ export function StoreCardCompact({
   store,
   isSelected,
   onClick,
+  distance,
 }: {
   store: Store;
   isSelected?: boolean;
   onClick?: () => void;
+  distance?: number | null;
 }) {
   const todaySchedule = getTodayOpeningHours(store.openingHours);
   const storeIsOpen = isCurrentlyOpen(todaySchedule);
@@ -205,6 +215,15 @@ export function StoreCardCompact({
               storeIsOpen ? "bg-green-500" : "bg-neutral-400"
             )}
           />
+          {distance !== null &&
+            distance !== undefined &&
+            distance !== Number.POSITIVE_INFINITY && (
+              <DistanceBadge
+                className="ml-auto"
+                distance={distance}
+                variant={isSelected ? "default" : "light"}
+              />
+            )}
         </div>
         {store.address && (
           <p
