@@ -1,6 +1,3 @@
-import { generateHTML } from "@tiptap/html";
-import { generateText } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import {
@@ -23,6 +20,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProducts, type Product } from "@/features/products/queries";
+import { jsonContentToHtml, jsonContentToText } from "@/lib/editor-utils";
 import { createMetadata } from "@/lib/metadata";
 import { getBreadcrumbSchema, getProductSchema } from "@/lib/seo/json-ld";
 import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
@@ -50,16 +48,8 @@ export async function generateMetadata({ params }: Props) {
   if (!result) {
     notFound();
   }
-  const description = result?.description ?? {
-    type: "doc",
-    content: [
-      {
-        type: "paragraph",
-        content: [{ type: "text", text: "Popis produktu chýba" }],
-      },
-    ],
-  };
-  const descriptionText = generateText(description, [StarterKit]);
+  const descriptionText =
+    jsonContentToText(result?.description) || "Popis produktu chýba";
 
   return createMetadata({
     title: result.name,
@@ -124,33 +114,16 @@ export default async function ProductPage({ params }: Props) {
     notFound();
   }
 
-  const _validUrls = result.imageUrl ? [result.imageUrl] : [];
   const isInStock = result.status === "active";
   const pickupDates = result.category?.pickupDates;
   const hasPickupRestriction = pickupDates && pickupDates.length > 0;
 
-  const descriptionHtml = generateHTML(
-    result?.description ?? {
-      type: "doc",
-      content: [{ type: "paragraph", content: [{ type: "text", text: "" }] }],
-    },
-    [StarterKit]
-  );
+  const descriptionHtml = jsonContentToHtml(result?.description);
 
   const recommendations = getProductRecommendations(result, products);
 
-  const descriptionText = generateText(
-    result?.description ?? {
-      type: "doc",
-      content: [
-        {
-          type: "paragraph",
-          content: [{ type: "text", text: "Popis produktu chýba" }],
-        },
-      ],
-    },
-    [StarterKit]
-  );
+  const descriptionText =
+    jsonContentToText(result?.description) || "Popis produktu chýba";
 
   const productSchema = getProductSchema({
     name: result.name,

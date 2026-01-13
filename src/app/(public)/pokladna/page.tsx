@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getDetailedCart } from "@/features/cart/queries";
+import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
 import { CheckoutCartHeader } from "@/features/checkout/components/checkout-cart-header";
 import {
   CheckoutForm,
@@ -24,7 +24,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-async function CheckoutFormLoader() {
+/**
+ * Single data loader that fetches all required data in parallel.
+ * This avoids the previous issue of fetching cart 4 times.
+ */
+async function CheckoutDataLoader() {
   const [user, items, stores, ordersEnabled] = await Promise.all([
     getUserDetails(),
     getDetailedCart(),
@@ -32,13 +36,32 @@ async function CheckoutFormLoader() {
     getSiteConfig("orders_enabled"),
   ]);
 
+  const totals = getCartTotals(items);
+  const cartProductIds = new Set(items.map((item) => item.productId));
+
   return (
-    <CheckoutForm
-      items={items}
-      ordersEnabled={ordersEnabled}
-      stores={stores}
-      user={user}
-    />
+    <>
+      <div className="col-span-full">
+        <CheckoutCartHeader totals={totals} />
+      </div>
+      <section className="size-full md:col-span-5 lg:col-span-7">
+        <CheckoutList items={items} totals={totals} />
+      </section>
+
+      <section className="size-full md:col-span-4 lg:col-span-5">
+        <CheckoutForm
+          items={items}
+          ordersEnabled={ordersEnabled}
+          stores={stores}
+          user={user}
+        />
+      </section>
+
+      <CheckoutRecommendations
+        cartProductIds={cartProductIds}
+        className="col-span-full flex size-full flex-col gap-4"
+      />
+    </>
   );
 }
 
@@ -60,6 +83,23 @@ function CheckoutRecommendationsSkeleton() {
   );
 }
 
+function CheckoutDataLoaderSkeleton() {
+  return (
+    <>
+      <div className="col-span-full">
+        <CheckoutCartHeaderSkeleton />
+      </div>
+      <section className="size-full md:col-span-5 lg:col-span-7">
+        <CheckoutListSkeleton />
+      </section>
+      <section className="size-full md:col-span-4 lg:col-span-5">
+        <CheckoutFormSkeleton />
+      </section>
+      <CheckoutRecommendationsSkeleton />
+    </>
+  );
+}
+
 export default function CheckoutPage() {
   return (
     <PageWrapper>
@@ -70,27 +110,9 @@ export default function CheckoutPage() {
         ]}
       />
       <h2 className="font-bold text-2xl">Vaša objednávka</h2>
-      <div className="@container/summary grid size-full grid-cols-1 gap-5 sm:grid-cols-7 md:grid-cols-9 lg:grid-cols-12">
-        <div className="col-span-full">
-          <Suspense fallback={<CheckoutCartHeaderSkeleton />}>
-            <CheckoutCartHeader />
-          </Suspense>
-        </div>
-        <section className="size-full sm:col-span-4 md:col-span-6 lg:col-span-8">
-          <Suspense fallback={<CheckoutListSkeleton />}>
-            <CheckoutList />
-          </Suspense>
-        </section>
-
-        <section className="size-full sm:col-span-3 md:col-span-3 lg:col-span-4">
-          <Suspense fallback={<CheckoutFormSkeleton />}>
-            <CheckoutFormLoader />
-          </Suspense>
-        </section>
-
-        {/* Recommendations after form on mobile only (below sm breakpoint) */}
-        <Suspense fallback={<CheckoutRecommendationsSkeleton />}>
-          <CheckoutRecommendations className="col-span-full flex size-full flex-col gap-4" />
+      <div className="@container/summary grid size-full grid-cols-1 gap-5 md:grid-cols-9 lg:grid-cols-12">
+        <Suspense fallback={<CheckoutDataLoaderSkeleton />}>
+          <CheckoutDataLoader />
         </Suspense>
       </div>
     </PageWrapper>

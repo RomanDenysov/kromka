@@ -1,8 +1,14 @@
-import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
+type CheckoutCartHeaderProps = {
+  totals: {
+    totalQuantity: number;
+  };
+};
 
-export async function CheckoutCartHeader() {
-  const items = await getDetailedCart();
-  const totals = getCartTotals(items);
+/**
+ * Displays cart item count in checkout header.
+ * Receives totals as props from parent to avoid duplicate data fetching.
+ */
+export function CheckoutCartHeader({ totals }: CheckoutCartHeaderProps) {
   const { totalQuantity } = totals;
 
   return (

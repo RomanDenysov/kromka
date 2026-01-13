@@ -1,12 +1,21 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
+import type { DetailedCartItem } from "@/features/cart/queries";
 import { CheckoutListClient } from "./checkout-list-client";
 import { CheckoutListItem } from "./checkout-list-item";
 
-export async function CheckoutList() {
-  const items = await getDetailedCart();
-  const totals = getCartTotals(items);
+type CheckoutListProps = {
+  items: DetailedCartItem[];
+  totals: {
+    totalCents: number;
+    totalQuantity: number;
+  };
+};
 
+/**
+ * Displays cart items in checkout.
+ * Receives items and totals as props from parent to avoid duplicate data fetching.
+ */
+export function CheckoutList({ items, totals }: CheckoutListProps) {
   return (
     <CheckoutListClient totals={totals}>
       <div className="mt-2 flex flex-col gap-2 md:mt-0">

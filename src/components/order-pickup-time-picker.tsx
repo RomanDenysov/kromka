@@ -50,7 +50,7 @@ export function OrderPickupTimePicker({
       value={isSelectedTimeValid ? selectedTime : undefined}
     >
       <SelectTrigger
-        className="min-w-24 font-normal focus:ring-0 focus:ring-offset-0"
+        className="w-full min-w-24 font-normal focus:ring-0 focus:ring-offset-0"
         size="sm"
       >
         <SelectValue placeholder="--:--" />

@@ -41,7 +41,7 @@ pnpm db:studio    # Open Drizzle Studio
 ### Feature Modules (`src/features/`)
 Domain-specific business logic organized by feature:
 - `cart/` - Cookie-based cart with server actions
-- `checkout/` - Order creation, pickup date logic
+- `checkout/` - Order creation, pickup date logic ([docs](docs/features/checkout.md))
 - `products/`, `categories/`, `stores/`, `orders/`, `favorites/`
 
 Each feature typically contains:
@@ -49,6 +49,7 @@ Each feature typically contains:
 - `queries.ts` - Database queries
 - `schema.ts` - Zod validation schemas
 - `components/` - Feature-specific components
+- `hooks/` - Custom React hooks (for complex features)
 
 ### Shared Code
 - `src/lib/auth/` - Better-auth setup (`server.ts`), guards (`guards.ts`), client (`client.ts`), session utilities
@@ -129,3 +130,13 @@ This project uses Ultracite, a zero-config Biome preset. Key rules:
 - Slovak language for user-facing content, English for code
 - Price values stored as cents (integers)
 - Dates: pickup dates as `YYYY-MM-DD` strings
+
+## Documentation
+
+All documentation is centralized in the `/docs` directory:
+
+- `docs/database-schema.md` - Database schema reference
+- `docs/product-management.md` - Product management guide
+- `docs/features/` - Feature-specific documentation
+
+See [docs/README.md](docs/README.md) for a complete index.

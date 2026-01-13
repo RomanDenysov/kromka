@@ -31,7 +31,7 @@ const persistOptions: PersistOptions<CustomerStore, CustomerState> = {
   partialize: ({ actions, ...state }) => state,
 };
 
-export const useCustomerStore = create<CustomerStore>()(
+const createCustomerStore = create<CustomerStore>()(
   persist(
     (set) => ({
       customer: null,
@@ -44,3 +44,9 @@ export const useCustomerStore = create<CustomerStore>()(
     persistOptions
   )
 );
+
+export const useCustomerData = () => createCustomerStore((s) => s.customer);
+export const useSelectedStore = () =>
+  createCustomerStore((s) => s.customerStore);
+
+export const useCustomerActions = () => createCustomerStore((s) => s.actions);

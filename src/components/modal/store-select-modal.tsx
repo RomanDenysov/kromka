@@ -31,7 +31,7 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { sortStoresByDistance } from "@/lib/geo-utils";
 import { cn } from "@/lib/utils";
-import { useCustomerStore } from "@/store/customer-store";
+import { useCustomerActions, useSelectedStore } from "@/store/customer-store";
 
 type StoreSelectModalProps = {
   storesPromise: Promise<Store[]>;
@@ -43,10 +43,8 @@ export function StoreSelectModal({ storesPromise }: StoreSelectModalProps) {
   const stores = use(storesPromise);
   const { status, position, requestLocation, isLoading } = useGeolocation();
 
-  const setCustomerStore = useCustomerStore(
-    (state) => state.actions.setCustomerStore
-  );
-  const customerStore = useCustomerStore((state) => state.customerStore);
+  const { setCustomerStore } = useCustomerActions();
+  const customerStore = useSelectedStore();
 
   const handleRequestLocation = () => {
     requestLocation();

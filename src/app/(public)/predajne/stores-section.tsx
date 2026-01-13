@@ -11,14 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Store } from "@/features/stores/queries";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { sortStoresByDistance } from "@/lib/geo-utils";
-import { useCustomerStore } from "@/store/customer-store";
+import { useSelectedStore } from "@/store/customer-store";
 
 type StoresSectionProps = {
   stores: Store[];
 };
 
 export function StoresSection({ stores }: StoresSectionProps) {
-  const selectedStore = useCustomerStore((state) => state.customerStore);
+  const selectedStore = useSelectedStore();
   const { status, position, requestLocation, isLoading } = useGeolocation();
 
   const handleRequestLocation = () => {

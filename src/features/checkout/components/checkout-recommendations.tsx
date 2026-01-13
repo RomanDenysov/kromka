@@ -1,19 +1,23 @@
 import { GridView } from "@/components/views/grid-view";
-import { getDetailedCart } from "@/features/cart/queries";
 import { ProductCard } from "@/features/products/components/product-card";
 import { getProductsByCategory } from "@/features/products/queries";
 
 const CHECKOUT_UPSELL_CATEGORY = "trvanlive-potraviny";
 const CHECKOUT_UPSELL_LIMIT = 4;
 
-export async function CheckoutRecommendations({
-  className,
-}: {
+type CheckoutRecommendationsProps = {
+  cartProductIds: Set<string>;
   className?: string;
-}) {
-  const items = await getDetailedCart();
-  const cartProductIds = new Set(items.map((item) => item.productId));
+};
 
+/**
+ * Displays product recommendations at checkout.
+ * Receives cart product IDs as props to avoid duplicate cart fetching.
+ */
+export async function CheckoutRecommendations({
+  cartProductIds,
+  className,
+}: CheckoutRecommendationsProps) {
   const categoryProducts = await getProductsByCategory(
     CHECKOUT_UPSELL_CATEGORY
   );
