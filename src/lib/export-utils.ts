@@ -25,7 +25,7 @@ const MAX_EXPORT_ROWS = 10_000;
 const SHEET_NAME_MAX_LENGTH = 31;
 
 const escapeCsv = (value: unknown): string => {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return "";
   }
   const str = String(value);
@@ -43,7 +43,7 @@ const getNestedValue = <T>(row: T, key: keyof T | string): unknown => {
   const parts = key.split(".");
   let current: any = row;
   for (const part of parts) {
-    if (current == null) {
+    if (current === null || current === undefined) {
       return;
     }
     current = current[part];
@@ -70,7 +70,9 @@ export const buildCsv = <T>(
         .map((col) => {
           const raw = getNestedValue(row, col.key);
           const formatted =
-            col.format != null ? col.format(raw, row) : (raw as unknown);
+            col.format !== null && col.format !== undefined
+              ? col.format(raw, row)
+              : (raw as unknown);
           return escapeCsv(formatted);
         })
         .join(",")
@@ -134,7 +136,9 @@ export const exportAsXlsx = async <T>(
     columns.map((col) => {
       const raw = getNestedValue(row, col.key);
       const formatted =
-        col.format != null ? col.format(raw, row) : (raw as unknown);
+        col.format !== null && col.format !== undefined
+          ? col.format(raw, row)
+          : (raw as unknown);
       return formatted ?? "";
     })
   );
@@ -196,7 +200,9 @@ export const exportAsXlsxSheets = async (
       sheet.columns.map((col) => {
         const raw = getNestedValue(row, col.key);
         const formatted =
-          col.format != null ? col.format(raw, row) : (raw as unknown);
+          col.format !== null && col.format !== undefined
+            ? col.format(raw, row)
+            : (raw as unknown);
         return formatted ?? "";
       })
     );
