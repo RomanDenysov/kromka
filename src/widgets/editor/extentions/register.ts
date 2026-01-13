@@ -1,10 +1,12 @@
-import type { Level } from "@tiptap/extension-heading";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 
-const SIMPLE_HEADING_LEVELS: Level[] = [2, 3, 4] as Level[];
-const FULL_HEADING_LEVELS: Level[] = [1, 2, 3, 4, 5, 6] as Level[];
+/** Heading levels supported by TipTap (H1-H6) */
+type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+const SIMPLE_HEADING_LEVELS: HeadingLevel[] = [2, 3, 4];
+const FULL_HEADING_LEVELS: HeadingLevel[] = [1, 2, 3, 4, 5, 6];
 
 export function registerExtensions(options?: {
   placeholder?: string;
@@ -22,7 +24,6 @@ export function registerExtensions(options?: {
         levels:
           variant === "simple" ? SIMPLE_HEADING_LEVELS : FULL_HEADING_LEVELS,
       },
-      link: false, // Disable Link in StarterKit to avoid duplicate with our custom Link config
       ...(variant !== "full" && {
         strike: false,
         codeBlock: false,
