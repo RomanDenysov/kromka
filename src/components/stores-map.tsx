@@ -48,7 +48,7 @@ export function StoresMap({ stores, userPosition }: StoresMapProps) {
   }
 
   return (
-    <MapComponent center={CENTER_POSITION} key="stores-map" zoom={9}>
+    <MapComponent center={CENTER_POSITION} zoom={9}>
       <MapTileLayer />
       <MapZoomControl />
       {storesWithCoordinates.map((store) => {

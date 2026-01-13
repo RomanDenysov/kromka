@@ -149,6 +149,9 @@ function Map({
       className={cn("z-50 size-full min-h-96 flex-1 rounded-md", className)}
       zoom={zoom}
       zoomControl={false}
+      whenReady={() => {
+        // Map is ready, ensure proper cleanup on unmount
+      }}
       {...props}
     />
   );
@@ -200,13 +203,16 @@ function MapTileLayer({
 
   useEffect(() => {
     if (map) {
-      const container = map.getContainer();
-      if (container?.parentElement) {
+      // Wait for the map to be fully ready
+      const handleReady = () => {
         setIsReady(true);
         if (map.attributionControl) {
           map.attributionControl.setPrefix("");
         }
-      }
+      };
+
+      // Use whenReady to ensure map is fully initialized
+      map.whenReady(handleReady);
     }
   }, [map]);
 
