@@ -61,6 +61,7 @@ export function MagicLinkForm() {
           </Alert>
         ) : (
           <TextField
+            inputClassName="max-w-none"
             label="Email"
             name="email"
             placeholder="Zadajte svoj email"

@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckIcon, EditIcon } from "lucide-react";
-import { useState, useTransition } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { TextField } from "@/components/forms/fields/text-field";
@@ -20,6 +21,9 @@ import { updateCurrentUserProfile } from "@/lib/actions/user-profile";
 import type { User } from "@/lib/auth/session";
 import { getInitials } from "@/lib/utils";
 import { useCustomerActions, useCustomerData } from "@/store/customer-store";
+import { useLoginModalOpen } from "@/store/login-modal-store";
+
+const AUTO_SAVE_DELAY = 800;
 
 /** Reusable form fields for customer info */
 function CustomerInfoFields({ columns = 1 }: { columns?: 1 | 2 }) {
@@ -53,8 +57,6 @@ function CustomerInfoFields({ columns = 1 }: { columns?: 1 | 2 }) {
 type CustomerInfoCardProps = {
   /** Server-provided user data for authenticated users. Null for guests. */
   user: NonNullable<User> | null;
-  /** Login callback for guest users */
-  onLoginClick?: () => void;
 };
 
 /**
@@ -62,15 +64,14 @@ type CustomerInfoCardProps = {
  * - Auth users: displays server data, saves to DB
  * - Guests: displays/saves to customer store (localStorage)
  */
-export function CustomerInfoCard({
-  user,
-  onLoginClick,
-}: CustomerInfoCardProps) {
+export function CustomerInfoCard({ user }: CustomerInfoCardProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-
+  const openLogin = useLoginModalOpen();
+  const pathname = usePathname();
   const customer = useCustomerData();
   const { setCustomer } = useCustomerActions();
+  const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Resolve display values: auth user from props, guest from store
   const displayData = user
@@ -97,6 +98,51 @@ export function CustomerInfoCard({
       phone: displayData.phone,
     },
   });
+
+  // Auto-save for guests: debounced save to localStorage
+  const autoSaveGuest = useCallback(
+    (values: UserInfoData) => {
+      // Only auto-save if at least email is provided (minimal validation)
+      if (!values.email) {
+        return;
+      }
+
+      setCustomer({
+        id: "guest",
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        image: null,
+      });
+    },
+    [setCustomer]
+  );
+
+  // Watch form values and auto-save for guests
+  const watchedValues = form.watch();
+
+  useEffect(() => {
+    // Skip auto-save for authenticated users or when in display mode
+    if (user || hasData) {
+      return;
+    }
+
+    // Clear previous timeout
+    if (autoSaveTimeout.current) {
+      clearTimeout(autoSaveTimeout.current);
+    }
+
+    // Debounced auto-save
+    autoSaveTimeout.current = setTimeout(() => {
+      autoSaveGuest(watchedValues);
+    }, AUTO_SAVE_DELAY);
+
+    return () => {
+      if (autoSaveTimeout.current) {
+        clearTimeout(autoSaveTimeout.current);
+      }
+    };
+  }, [watchedValues, user, hasData, autoSaveGuest]);
 
   const handleSave = () => {
     const values = form.getValues();
@@ -138,42 +184,31 @@ export function CustomerInfoCard({
           onOpenChange={setOpen}
           onSave={handleSave}
           open={open}
+          user={user}
         />
       ) : (
         <FormProvider {...form}>
           <CustomerInfoFields columns={2} />
-          <div className="flex justify-end">
-            <Button
-              onClick={handleSave}
-              size="sm"
-              type="button"
-              variant="secondary"
-            >
-              <CheckIcon className="size-3.5" />
-              Uložiť údaje
-            </Button>
-          </div>
+          {!user && (
+            <div className="flex grow items-start justify-between gap-3 rounded-md border bg-muted/30 px-3 py-2">
+              <div className="min-w-0">
+                <p className="font-medium text-xs">Máte účet?</p>
+                <p className="text-muted-foreground text-xs">
+                  Prihláste sa pre uloženie objednávky do profilu.
+                </p>
+              </div>
+              <Button
+                className="shrink-0"
+                onClick={() => openLogin("checkout", pathname)}
+                size="xs"
+                type="button"
+                variant="outline"
+              >
+                Prihlásiť sa
+              </Button>
+            </div>
+          )}
         </FormProvider>
-      )}
-
-      {!user && onLoginClick && (
-        <div className="flex items-start justify-between gap-3 rounded-md border bg-muted/30 px-3 py-2">
-          <div className="min-w-0">
-            <p className="font-medium text-sm">Máte účet?</p>
-            <p className="text-muted-foreground text-xs">
-              Prihláste sa pre uloženie objednávky do profilu.
-            </p>
-          </div>
-          <Button
-            className="shrink-0"
-            onClick={onLoginClick}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            Prihlásiť sa
-          </Button>
-        </div>
       )}
     </div>
   );
@@ -187,6 +222,7 @@ function CustomerInfoDisplay({
   onOpenChange,
   onSave,
   isPending,
+  user,
 }: {
   displayData: {
     name: string;
@@ -199,55 +235,95 @@ function CustomerInfoDisplay({
   onOpenChange: (open: boolean) => void;
   onSave: () => void;
   isPending: boolean;
+  user: NonNullable<User> | null;
 }) {
-  return (
-    <div className="flex items-start gap-3">
-      <Avatar className="size-10 shrink-0 rounded-sm">
-        {displayData.image && (
-          <AvatarImage
-            alt={displayData.name}
-            className="rounded-sm"
-            src={displayData.image}
-          />
-        )}
-        <AvatarFallback className="rounded-sm">
-          {getInitials(displayData.name || displayData.email)}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex min-w-0 flex-1 flex-col gap-0">
-        <p className="truncate font-medium text-xs leading-tight">
-          {displayData.name || "—"}
-        </p>
-        <p className="break-all text-muted-foreground text-xs leading-tight">
-          {displayData.email || "—"}
-        </p>
-        <p className="text-muted-foreground text-xs leading-tight">
-          {displayData.phone || "—"}
-        </p>
-      </div>
+  const { setCustomer } = useCustomerActions();
+  const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
-      <Popover onOpenChange={onOpenChange} open={open}>
-        <PopoverTrigger asChild>
-          <Button
-            className="shrink-0 text-muted-foreground"
-            size="xs"
-            type="button"
-            variant="ghost"
-          >
+  // Auto-save for guests in edit popover
+  const watchedValues = form.watch();
+
+  useEffect(() => {
+    // Only auto-save for guests when popover is open
+    if (user || !open) {
+      return;
+    }
+
+    if (autoSaveTimeout.current) {
+      clearTimeout(autoSaveTimeout.current);
+    }
+
+    autoSaveTimeout.current = setTimeout(() => {
+      if (!watchedValues.email) {
+        return;
+      }
+      setCustomer({
+        id: "guest",
+        name: watchedValues.name,
+        email: watchedValues.email,
+        phone: watchedValues.phone,
+        image: null,
+      });
+    }, AUTO_SAVE_DELAY);
+
+    return () => {
+      if (autoSaveTimeout.current) {
+        clearTimeout(autoSaveTimeout.current);
+      }
+    };
+  }, [watchedValues, user, open, setCustomer]);
+
+  return (
+    <Popover onOpenChange={onOpenChange} open={open}>
+      <PopoverTrigger asChild>
+        <div className="flex items-start gap-3 rounded-sm border p-1">
+          <Avatar className="size-10 shrink-0 rounded-sm">
+            {displayData.image && (
+              <AvatarImage
+                alt={displayData.name}
+                className="rounded-sm"
+                src={displayData.image}
+              />
+            )}
+            <AvatarFallback className="rounded-sm">
+              {getInitials(displayData.name || displayData.email)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex min-w-0 flex-1 flex-col gap-0">
+            <p className="truncate font-medium text-xs leading-tight">
+              {displayData.name || "—"}
+            </p>
+            <p className="break-all text-muted-foreground text-xs leading-tight">
+              {displayData.email || "—"}
+            </p>
+            <p className="text-muted-foreground text-xs leading-tight">
+              {displayData.phone || "—"}
+            </p>
+          </div>
+
+          <div className="inline-flex shrink-0 cursor-pointer items-center gap-0.5 p-0.5 text-muted-foreground">
             <EditIcon className="size-3.5" />
-            Upraviť
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent align="end" className="w-80" side="bottom">
-          <FormProvider {...form}>
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <h4 className="font-medium leading-none">Upraviť údaje</h4>
-                <p className="text-muted-foreground text-sm">
-                  Zadajte svoje osobné údaje, aby sme vám mohli kontaktovať.
-                </p>
-              </div>
-              <CustomerInfoFields />
+            <span className="text-xs">Upraviť</span>
+          </div>
+        </div>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        className="w-(--radix-popover-trigger-width)"
+        side="bottom"
+      >
+        <FormProvider {...form}>
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <h4 className="font-medium leading-none">Upraviť údaje</h4>
+              <p className="text-muted-foreground text-sm">
+                {user
+                  ? "Zadajte svoje osobné údaje, aby sme vám mohli kontaktovať."
+                  : "Údaje sa automaticky ukladajú."}
+              </p>
+            </div>
+            <CustomerInfoFields />
+            {user && (
               <div className="flex justify-end">
                 <Button
                   disabled={isPending}
@@ -264,10 +340,10 @@ function CustomerInfoDisplay({
                   {isPending ? "Ukladám..." : "Uložiť"}
                 </Button>
               </div>
-            </div>
-          </FormProvider>
-        </PopoverContent>
-      </Popover>
-    </div>
+            )}
+          </div>
+        </FormProvider>
+      </PopoverContent>
+    </Popover>
   );
 }

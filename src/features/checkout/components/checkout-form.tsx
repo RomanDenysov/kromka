@@ -2,7 +2,6 @@
 
 import { ArrowLeftIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { FormProvider } from "react-hook-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -26,7 +25,6 @@ import {
   useCustomerData,
   useSelectedStore,
 } from "@/store/customer-store";
-import { useLoginModalOpen } from "@/store/login-modal-store";
 import { CheckoutAlerts } from "./checkout-alerts";
 import { CheckoutMobileFooter } from "./checkout-mobile-footer";
 import { CheckoutSummaryCard } from "./checkout-summary-card";
@@ -47,9 +45,6 @@ export function CheckoutForm({
   items,
   ordersEnabled,
 }: CheckoutFormProps) {
-  const pathname = usePathname();
-  const openLogin = useLoginModalOpen();
-
   // Customer state from Zustand
   const customer = useCustomerData();
   const customerStore = useSelectedStore();
@@ -114,10 +109,7 @@ export function CheckoutForm({
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <CustomerInfoCard
-                  onLoginClick={() => openLogin("checkout", pathname)}
-                  user={user ?? null}
-                />
+                <CustomerInfoCard user={user ?? null} />
               </CardContent>
             </Card>
 
