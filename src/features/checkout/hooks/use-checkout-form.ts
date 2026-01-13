@@ -42,6 +42,7 @@ type UseCheckoutFormProps = {
   userInfo: { name: string; email: string; phone: string };
   isUserInfoValid: boolean;
   setCustomerStore: (store: { id: string; name: string }) => void;
+  clearGuestInfo: () => void;
 };
 
 /**
@@ -56,6 +57,7 @@ export function useCheckoutForm({
   userInfo,
   isUserInfoValid,
   setCustomerStore,
+  clearGuestInfo,
 }: UseCheckoutFormProps) {
   const router = useRouter();
 
@@ -162,6 +164,17 @@ export function useCheckoutForm({
     });
   }, [pickupDate, storeSchedule, form]);
 
+  // Effect: Sync external store selection (from global modal) to form
+  useEffect(() => {
+    const externalStoreId = customerStore?.id;
+    const currentFormStoreId = form.getValues("storeId");
+
+    // Sync if Zustand store changed and differs from form
+    if (externalStoreId && externalStoreId !== currentFormStoreId) {
+      form.setValue("storeId", externalStoreId, { shouldValidate: true });
+    }
+  }, [customerStore?.id, form]);
+
   // Form submission handler
   const onSubmit = async (value: CheckoutFormData) => {
     const isGuest = !user;
@@ -194,6 +207,10 @@ export function useCheckoutForm({
     });
 
     if (result.success) {
+      // Clear guest PII after successful order (privacy)
+      if (isGuest) {
+        clearGuestInfo();
+      }
       toast.success("Vaša objednávka bola vytvorená");
       router.push(`/pokladna/${result.orderId}` as Route);
     } else {

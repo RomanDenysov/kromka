@@ -40,6 +40,19 @@ Orders placed before 12:00 can be picked up tomorrow. After 12:00, pickup starts
 - **Authenticated**: User data from DB, linked via `createdBy` relation
 - **Guest**: Data stored in `customerInfo` JSONB field on order, persisted in localStorage via Zustand
 
+### Customer Store Sync
+
+The `CustomerStoreSync` component (in header) handles centralized sync and validation:
+- **Auth user sync**: User's preferred store synced to Zustand on login
+- **Store validation**: Clears localStorage if persisted store was deleted
+- **Guest expiration**: Guest info expires after 30 days
+- **PostHog sync**: Store selection tracked as person property for analytics segmentation
+
+### Guest Data Retention
+- Stored in localStorage with timestamp (`guestInfoSavedAt`)
+- **Cleared automatically** after successful order creation
+- **Expires** after 30 days of inactivity
+
 ### Data Flow
 ```
 page.tsx (single fetch)

@@ -53,7 +53,7 @@ export function CheckoutForm({
   // Customer state from Zustand
   const customer = useCustomerData();
   const customerStore = useSelectedStore();
-  const { setCustomerStore } = useCustomerActions();
+  const { setCustomerStore, clearGuestInfo } = useCustomerActions();
 
   // Get pickup date restrictions from cart items
   const { restrictedPickupDates } = usePickupRestrictions(items);
@@ -81,6 +81,7 @@ export function CheckoutForm({
     userInfo,
     isUserInfoValid,
     setCustomerStore,
+    clearGuestInfo,
   });
 
   // Calculate total price

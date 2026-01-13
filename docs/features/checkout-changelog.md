@@ -43,3 +43,43 @@ Complete architectural refactoring of the checkout feature to improve maintainab
 - `CustomerInfoSection` renamed to `CustomerInfoCard` - update imports if used elsewhere
 - Components now expect props instead of fetching internally
 - `getDetailedCart()` should be called once at page level
+
+---
+
+## 2026-01-13 - Store Sync & Validation Fixes
+
+### Summary
+Fixed three critical issues in checkout flow: Zustand→RHF sync, storeId validation, and guest PII retention.
+
+### Changes
+
+#### New Component Created
+- `customer-store-sync.tsx` - Centralized sync component following `AuthIdentitySync` pattern
+  - Syncs auth user's storeId to Zustand on login
+  - Validates persisted storeId (clears if deleted)
+  - Expires guest info after 30 days
+  - Syncs store selection to PostHog for analytics
+
+#### Customer Store Updates
+- Added `guestInfoSavedAt` timestamp tracking
+- New actions: `clearGuestInfo()`, `clearStaleStore()`
+- New selector: `useGuestInfoSavedAt()`
+- Development sanity checks for store shape validation
+
+#### Checkout Form Hook Updates
+- Added Zustand→RHF sync effect (when user changes store via global modal)
+- Clear guest PII after successful order creation
+- Simplified validation (handled upstream by sync component)
+
+#### Server-Side Validation
+- Added storeId existence check in `createOrderFromCart` (defense in depth)
+
+### Architecture Improvements
+- Centralized sync logic in header component (single source of truth)
+- Follows existing `AuthIdentitySync` pattern for consistency
+- Privacy-compliant guest data retention (auto-clear + expiration)
+
+### Migration Notes
+- No breaking changes - all changes are additive
+- Guest info now expires after 30 days automatically
+- Store selection syncs automatically when changed via global modal

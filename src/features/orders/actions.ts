@@ -3,7 +3,13 @@
 import { eq, inArray } from "drizzle-orm";
 import { refresh } from "next/cache";
 import { db } from "@/db";
-import { orderItems, orderStatusEvents, orders, products } from "@/db/schema";
+import {
+  orderItems,
+  orderStatusEvents,
+  orders,
+  products,
+  stores,
+} from "@/db/schema";
 import type { OrderStatus, PaymentMethod, PaymentStatus } from "@/db/types";
 import { clearCart, getCart } from "@/features/cart/cookies";
 import { requireAdmin, requireAuth } from "@/lib/auth/guards";
@@ -69,17 +75,27 @@ export async function createOrderFromCart(data: {
       };
     }
 
-    // 1. Get cart from cookie
+    // 1. Validate store exists
+    const storeExists = await db.query.stores.findFirst({
+      where: eq(stores.id, data.storeId),
+      columns: { id: true },
+    });
+
+    if (!storeExists) {
+      return { success: false, error: "Vybraná predajňa neexistuje" };
+    }
+
+    // 2. Get cart from cookie
     const cartItems = await getCart();
     if (cartItems.length === 0) {
       return { success: false, error: "Košík je prázdny" };
     }
-    // 2. Get product data from DB
+    // 3. Get product data from DB
     const productIds = cartItems.map((item) => item.productId);
     const productData = await db.query.products.findMany({
       where: inArray(products.id, productIds),
     });
-    // 3. Validation - match cart items with products
+    // 4. Validation - match cart items with products
     const orderItemsData = cartItems
       .map((item) => {
         const product = productData.find((p) => p.id === item.productId);
@@ -103,16 +119,16 @@ export async function createOrderFromCart(data: {
       return { success: false, error: "Žiadne platné produkty v košíku" };
     }
 
-    // 4. Calculate total
+    // 5. Calculate total
     const totalCents = orderItemsData.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
 
-    // 5. Generate order number
+    // 6. Generate order number
     const orderNumber = createPrefixedNumericId("OBJ");
 
-    // 6. Create order
+    // 7. Create order
     const [order] = await db
       .insert(orders)
       .values({
@@ -129,7 +145,7 @@ export async function createOrderFromCart(data: {
       })
       .returning();
 
-    // 7. Batch insert items
+    // 8. Batch insert items
     await db.insert(orderItems).values(
       orderItemsData.map((item) => ({
         ...item,
@@ -137,23 +153,23 @@ export async function createOrderFromCart(data: {
       }))
     );
 
-    // 8. Status event
+    // 9. Status event
     await db.insert(orderStatusEvents).values({
       orderId: order.id,
       status: "new",
       createdBy: user?.id ?? null,
     });
 
-    // 9. Clear cart cookie
+    // 10. Clear cart cookie
     await clearCart();
 
-    // 10. Fetch full order with relations
+    // 11. Fetch full order with relations
     const fullOrder = await getOrderById(order.id);
     if (!fullOrder) {
       throw new Error("Order not found after creation");
     }
 
-    // 11. Send email to staff and customer
+    // 12. Send email to staff and customer
     await sendEmail.newOrder({ order: fullOrder });
     await sendEmail.receipt({ order: fullOrder });
 
