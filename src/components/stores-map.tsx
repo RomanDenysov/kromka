@@ -1,22 +1,20 @@
-/** biome-ignore-all lint/style/noMagicNumbers: TODO: fix later */
-/** biome-ignore-all lint/style/useNumericSeparators: TODO: fix later */
 "use client";
 
-import type { LatLngExpression } from "leaflet";
 import { StoreNavigationButton } from "@/components/store-navigation-button";
 import {
   Map as MapComponent,
+  MapControls,
   MapMarker,
-  MapPopup,
-  MapTileLayer,
-  MapZoomControl,
+  MarkerContent,
+  MarkerPopup,
 } from "@/components/ui/map";
 import type { Store } from "@/features/stores/queries";
 import type { GeolocationPosition } from "@/hooks/use-geolocation";
 import { buildFullAddress } from "@/lib/geo-utils";
 
-const CENTER_POSITION: LatLngExpression = [
-  48.87668321440078, 21.256777795334994,
+// Center coordinates [longitude, latitude] - mapcn uses lng,lat order
+const CENTER_POSITION: [number, number] = [
+  21.256_777_795_334_994, 48.876_683_214_400_78,
 ];
 
 function UserLocationMarker() {
@@ -48,17 +46,17 @@ export function StoresMap({ stores, userPosition }: StoresMapProps) {
   }
 
   return (
-    <MapComponent center={CENTER_POSITION} zoom={9}>
-      <MapTileLayer />
-      <MapZoomControl />
-      {storesWithCoordinates.map((store) => {
-        const storeLatLng: LatLngExpression = [
-          Number.parseFloat(store.latitude ?? "0"),
-          Number.parseFloat(store.longitude ?? "0"),
-        ];
-        return (
-          <MapMarker key={store.id} position={storeLatLng}>
-            <MapPopup>
+    <div className="size-full">
+      <MapComponent center={CENTER_POSITION} zoom={9}>
+        <MapControls position="bottom-right" />
+        {storesWithCoordinates.map((store) => (
+          <MapMarker
+            key={store.id}
+            latitude={Number.parseFloat(store.latitude ?? "0")}
+            longitude={Number.parseFloat(store.longitude ?? "0")}
+          >
+            <MarkerContent />
+            <MarkerPopup>
               <div className="flex flex-col gap-2">
                 <div className="space-y-0.5">
                   <p className="font-medium">{store.name}</p>
@@ -79,21 +77,23 @@ export function StoresMap({ stores, userPosition }: StoresMapProps) {
                   />
                 )}
               </div>
-            </MapPopup>
+            </MarkerPopup>
           </MapMarker>
-        );
-      })}
-      {userPosition && (
-        <MapMarker
-          icon={<UserLocationMarker />}
-          iconAnchor={[8, 8]}
-          position={[userPosition.latitude, userPosition.longitude]}
-        >
-          <MapPopup>
-            <p className="font-medium">Vaša poloha</p>
-          </MapPopup>
-        </MapMarker>
-      )}
-    </MapComponent>
+        ))}
+        {userPosition && (
+          <MapMarker
+            latitude={userPosition.latitude}
+            longitude={userPosition.longitude}
+          >
+            <MarkerContent>
+              <UserLocationMarker />
+            </MarkerContent>
+            <MarkerPopup>
+              <p className="font-medium">Vaša poloha</p>
+            </MarkerPopup>
+          </MapMarker>
+        )}
+      </MapComponent>
+    </div>
   );
 }
