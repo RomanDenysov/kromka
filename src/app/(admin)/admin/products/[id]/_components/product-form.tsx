@@ -26,9 +26,8 @@ import { PRODUCT_STATUSES } from "@/db/types";
 import type { Category } from "@/features/categories/queries";
 import { updateProductAction } from "@/features/products/actions";
 import type { AdminProduct } from "@/features/products/queries";
-import { PRODUCT_STATUSES_LABELS } from "@/lib/constants";
+import { MAX_STRING_LENGTH, PRODUCT_STATUSES_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { MAX_STRING_LENGTH } from "@/validation/constants";
 
 export const productSchema = z.object({
   id: z.string(),

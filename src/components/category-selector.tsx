@@ -14,8 +14,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { Category } from "@/features/categories/queries";
 import { cn } from "@/lib/utils";
-import type { Category } from "@/types/categories";
 
 type Props = {
   value: string[];

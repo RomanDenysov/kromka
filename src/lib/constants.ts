@@ -80,3 +80,5 @@ export const PRODUCT_STATUSES_LABELS = {
   sold: "Predaný",
   archived: "Archivovaný",
 } as const;
+
+export const MAX_STRING_LENGTH = 255;

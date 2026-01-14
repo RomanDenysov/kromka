@@ -15,10 +15,10 @@ import { TextField } from "@/components/forms/fields/text-field";
 import { TextareaField } from "@/components/forms/fields/textarea-field";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { updateCategoryAction } from "@/features/categories/actions";
+import type { AdminCategory } from "@/features/categories/queries";
 import type { CategorySchema } from "@/lib/categories/types";
 import { categorySchema } from "@/lib/categories/validation";
 import { cn } from "@/lib/utils";
-import type { AdminCategory } from "@/types/categories";
 
 type Props = {
   category: AdminCategory;

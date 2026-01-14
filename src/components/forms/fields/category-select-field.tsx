@@ -4,7 +4,7 @@ import type { FieldPath } from "react-hook-form";
 import { Controller, type FieldValues, useFormContext } from "react-hook-form";
 import { CategorySelector } from "@/components/category-selector";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import type { Category } from "@/types/categories";
+import type { Category } from "@/features/categories/queries";
 
 type Props<T extends FieldValues> = {
   name: FieldPath<T>;

@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
-import { MAX_STRING_LENGTH } from "@/validation/constants";
+import { MAX_STRING_LENGTH } from "@/lib/constants";
 
 const PRODUCT_STATUSES = ["draft", "active", "sold", "archived"] as const;
 

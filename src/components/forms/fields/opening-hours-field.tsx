@@ -4,8 +4,8 @@ import type { FieldPath } from "react-hook-form";
 import { Controller, type FieldValues, useFormContext } from "react-hook-form";
 import { TestHoursField } from "@/components/forms/stores/test-hours-field";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import type { StoreSchedule } from "@/db/types";
 import { cn } from "@/lib/utils";
-import type { StoreSchedule } from "@/types/store";
 
 type Props<T extends FieldValues> = {
   name: FieldPath<T>;

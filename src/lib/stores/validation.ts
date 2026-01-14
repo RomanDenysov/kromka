@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
-import { MAX_STRING_LENGTH } from "@/validation/constants";
+import { MAX_STRING_LENGTH } from "@/lib/constants";
 
 const POSTAL_CODE_LENGTH = 6;
 
