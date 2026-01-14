@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import { AdminHeader } from "@/components/admin-header/admin-header";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getUserById } from "@/lib/queries/users";
+import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { UserDetailContent } from "./_components/user-detail-content";
 
 type Props = {

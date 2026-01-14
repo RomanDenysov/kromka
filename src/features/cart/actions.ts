@@ -1,7 +1,6 @@
 "use server";
 
 import { refresh } from "next/cache";
-import { redirect } from "next/navigation";
 import {
   clearCart as clearCartCookie,
   getCart,
@@ -79,7 +78,4 @@ export async function addItemsToCart(
 
   await setCart(cart);
   refresh();
-
-  // Redirect to checkout after items added
-  redirect("/pokladna");
 }

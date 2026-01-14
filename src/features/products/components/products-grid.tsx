@@ -1,7 +1,7 @@
 import type { EshopParams } from "@/app/(public)/e-shop/eshop-params";
+import { GridView } from "@/components/grid-view";
 import { ShowMore } from "@/components/show-more";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
-import { GridView } from "@/components/views/grid-view";
 import { getFavoriteIds } from "@/features/favorites/queries";
 import { filterProducts } from "@/features/products/filter";
 import { getProducts } from "@/features/products/queries";

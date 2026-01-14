@@ -19,35 +19,29 @@ async function LastOrderCardContent() {
   }
 
   return (
-    <>
-      <Separator className="mb-4" />
-      <div className="px-4">
-        <LastOrderCard items={lastOrder.items} />
-      </div>
-    </>
+    <div className="px-2">
+      <LastOrderCard items={lastOrder.items} />
+    </div>
   );
 }
 
 function LastOrderCardSkeleton() {
   return (
-    <>
-      <Separator className="mb-4" />
-      <div className="space-y-3 px-4">
-        <div className="space-y-2 rounded-lg border border-dashed bg-muted/40 p-4">
-          <Skeleton className="h-5 w-32" />
-          <Skeleton className="h-3 w-24" />
-          <div className="space-y-2 py-2">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <Skeleton
-                className="h-12 w-full"
-                key={`last-order-skeleton-${i.toString()}`}
-              />
-            ))}
-          </div>
-          <Skeleton className="h-8 w-full" />
+    <div className="px-2">
+      <div className="space-y-2 rounded-lg border border-dashed bg-muted/40 p-4">
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-3 w-24" />
+        <div className="space-y-2 py-2">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <Skeleton
+              className="h-12 w-full"
+              key={`last-order-skeleton-${i.toString()}`}
+            />
+          ))}
         </div>
+        <Skeleton className="h-8 w-full" />
       </div>
-    </>
+    </div>
   );
 }
 
@@ -61,11 +55,11 @@ export async function CartDrawerFooter() {
       <Suspense fallback={<LastOrderCardSkeleton />}>
         <LastOrderCardContent />
       </Suspense>
-      <Separator />
+      <Separator className="mt-2" />
       <DrawerFooter>
-        <div className="mb-2 flex items-center justify-between font-medium sm:mb-4">
-          <span>Spolu</span>
-          <span>{formatPrice(totalCents)}</span>
+        <div className="flex items-center justify-between text-lg md:text-xl">
+          <span className="font-semibold">Spolu</span>
+          <span className="font-bold">{formatPrice(totalCents)}</span>
         </div>
         <DrawerClose asChild disabled={isEmpty}>
           <Link

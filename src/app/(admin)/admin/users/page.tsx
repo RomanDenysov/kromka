@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import { AdminHeader } from "@/components/admin-header/admin-header";
 import { UsersTable } from "@/components/tables/users/users-table";
 import { getUsers } from "@/lib/queries/users";
+import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
 async function UsersLoader() {

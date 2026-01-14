@@ -1,58 +1,58 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import type { DetailedCartItem } from "@/features/cart/queries";
-import { CheckoutListClient } from "./checkout-list-client";
-import { CheckoutListItem } from "./checkout-list-item";
+"use client";
 
-type CheckoutListProps = {
-  items: DetailedCartItem[];
-  totals: {
-    totalCents: number;
-    totalQuantity: number;
-  };
+import { ChevronDownIcon } from "lucide-react";
+import { type ReactNode, useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { getItemCountString } from "@/lib/item-count-string";
+import { cn, formatPrice } from "@/lib/utils";
+
+type Props = {
+  totals: { totalCents: number; totalQuantity: number };
+  children: ReactNode;
 };
 
-/**
- * Displays cart items in checkout.
- * Receives items and totals as props from parent to avoid duplicate data fetching.
- */
-export function CheckoutList({ items, totals }: CheckoutListProps) {
-  return (
-    <CheckoutListClient totals={totals}>
-      <div className="mt-2 flex flex-col gap-2 md:mt-0">
-        {items.map((item) => (
-          <CheckoutListItem item={item} key={item.productId} />
-        ))}
-      </div>
-    </CheckoutListClient>
-  );
-}
+export function CheckoutList({ totals, children }: Props) {
+  const isMobile = useIsMobile();
+  const { totalCents, totalQuantity } = totals;
+  const [isOpen, setIsOpen] = useState(false);
 
-export function CheckoutListSkeleton() {
+  if (isMobile) {
+    return (
+      <Collapsible
+        className="w-full md:hidden"
+        onOpenChange={setIsOpen}
+        open={isOpen}
+      >
+        <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md border bg-card p-4 text-left transition-colors hover:bg-accent">
+          <div className="flex flex-1 flex-col gap-1">
+            <span className="font-semibold text-base">
+              Košík ({getItemCountString(totalQuantity)})
+            </span>
+            <span className="text-muted-foreground text-sm">
+              {formatPrice(totalCents)}
+            </span>
+          </div>
+          <ChevronDownIcon
+            className={cn(
+              "size-5 shrink-0 text-muted-foreground transition-transform duration-200",
+              isOpen && "rotate-180"
+            )}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent>{children}</CollapsibleContent>
+      </Collapsible>
+    );
+  }
+
   return (
-    <>
-      <div className="hidden flex-col gap-4 md:flex">
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              className="flex size-full min-h-24 flex-row gap-2 rounded-md border p-3"
-              key={`skeleton-${index.toString()}`}
-            >
-              <Skeleton className="size-[100px] rounded-sm" />
-              <div className="flex flex-1 flex-col justify-between gap-2">
-                <div className="flex flex-row items-center justify-between gap-2">
-                  <Skeleton className="h-7 w-3/4" />
-                  <Skeleton className="size-7 rounded" />
-                </div>
-                <div className="flex flex-row items-center justify-between gap-2">
-                  <Skeleton className="h-7 w-1/4" />
-                  <Skeleton className="h-7 w-20 rounded" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <Skeleton className="block h-20 w-full md:hidden" />
-    </>
+    <div className="flex flex-col gap-4">
+      {/* Show recommendations on desktop only (mobile will show after form) */}
+      {children}
+    </div>
   );
 }

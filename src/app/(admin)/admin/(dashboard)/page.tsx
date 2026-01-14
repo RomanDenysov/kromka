@@ -1,6 +1,5 @@
 import { format, getMonth, getYear } from "date-fns";
 import { Suspense } from "react";
-import { AdminHeader } from "@/components/admin-header/admin-header";
 import { RecentOrdersTable } from "@/components/tables/recent-orders/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -9,6 +8,7 @@ import {
   getProductsAggregateByPickupDate,
   getRecentOrders,
 } from "@/lib/queries/dashboard";
+import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { AttentionRequiredCard } from "../_components/attention-required-card";
 import { DashboardTopMetrics } from "../_components/dashboard-top-metrics";
 import { GrowthComparisonCard } from "../_components/growth-comparison-card";

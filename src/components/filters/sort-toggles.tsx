@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function SortToggles() {
-  // const isMobile = useIsMobile();
   const [isPending, startTransition] = useTransition();
   const [{ sort }, setSearchParams] = useEshopParams({
     startTransition,

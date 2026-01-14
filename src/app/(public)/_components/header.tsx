@@ -1,26 +1,12 @@
 import { MenuIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
+import { type ReactNode, Suspense } from "react";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { UserButton } from "@/components/user-button";
-import {
-  CartBadge,
-  CartBadgeSkeleton,
-} from "@/features/cart/components/cart-badge";
-import { CartDrawer } from "@/features/cart/components/cart-drawer";
-import { CartDrawerContent } from "@/features/cart/components/cart-drawer-content";
-import {
-  CartDrawerFooter,
-  CartDrawerFooterLoader,
-} from "@/features/cart/components/cart-drawer-footer";
-import { getUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
-import { FavoritesLink } from "./favorites-link";
 
 const navigation: { name: string; href: Route }[] = [
   { name: "E-shop", href: "/e-shop" },
@@ -30,8 +16,7 @@ const navigation: { name: string; href: Route }[] = [
   // { name: "Blog", href: "/blog" },
 ] as const;
 
-export function Header() {
-  const user = getUser();
+export function Header({ children }: { children: ReactNode }) {
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <Container>
@@ -49,7 +34,7 @@ export function Header() {
               </Button>
             }
           >
-            <MobileNavigation navigation={navigation} promise={user} />
+            <MobileNavigation navigation={navigation} />
           </Suspense>
           <nav className="hidden grow items-center justify-start gap-2 md:flex">
             {navigation.map((item) => (
@@ -71,30 +56,7 @@ export function Header() {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-2 xl:gap-3">
-            <Suspense fallback={<Skeleton className="size-8 rounded-md" />}>
-              <UserButton promise={user} />
-            </Suspense>
-            <Suspense>
-              <FavoritesLink />
-            </Suspense>
-            <Suspense>
-              <CartDrawer
-                indicator={
-                  <Suspense fallback={CartBadgeSkeleton}>
-                    <CartBadge />
-                  </Suspense>
-                }
-              >
-                <Suspense>
-                  <CartDrawerContent />
-                </Suspense>
-                <Suspense fallback={<CartDrawerFooterLoader />}>
-                  <CartDrawerFooter />
-                </Suspense>
-              </CartDrawer>
-            </Suspense>
-          </div>
+          {children}
         </div>
       </Container>
     </header>

@@ -1,11 +1,10 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
-import { CheckCircleIcon, ChevronLeftIcon } from "lucide-react";
+import { CheckCircleIcon } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { buttonVariants } from "@/components/ui/button";
+import { ContinueShoppingLink } from "@/components/continue-shopping-link";
 import { getOrderById } from "@/features/orders/queries";
 import { formatPrice } from "@/lib/utils";
 
@@ -59,12 +58,7 @@ async function OrderConfirmationContent({ orderId }: { orderId: string }) {
             <span>{formatPrice(order.totalCents)}</span>
           </div>
         </div>
-        <div className="flex w-full items-center justify-center">
-          <Link className={buttonVariants({ variant: "link" })} href="/e-shop">
-            <ChevronLeftIcon />
-            Pokračovať v nákupe
-          </Link>
-        </div>
+        <ContinueShoppingLink />
       </div>
     </div>
   );

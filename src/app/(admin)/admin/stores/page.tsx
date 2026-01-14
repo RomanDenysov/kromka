@@ -1,9 +1,9 @@
 import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
-import { AdminHeader } from "@/components/admin-header/admin-header";
 import { EditStoreSheet } from "@/components/sheets/edit-store-sheet";
 import { StoresTable } from "@/components/tables/stores/table";
 import { getAdminStoreById, getAdminStores } from "@/features/stores/queries";
+import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
 async function StoresLoader() {

@@ -4,7 +4,7 @@ import { Loader2, Navigation } from "lucide-react";
 import type { Route } from "next";
 import { use, useMemo } from "react";
 import { toast } from "sonner";
-import { StoreCard } from "@/components/cards/store-card";
+import { StoreCard } from "@/app/(public)/predajne/store-card";
 import { StoresMap } from "@/components/stores-map";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";

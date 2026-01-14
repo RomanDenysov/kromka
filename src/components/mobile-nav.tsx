@@ -17,7 +17,7 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { use, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { COMPANY_INFO } from "@/app/(public)/(policies)/policies-config";
 import { Icons } from "@/components/icons";
@@ -31,13 +31,11 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
-import { signOut } from "@/lib/auth/client";
-import type { User } from "@/lib/auth/session";
+import { signOut, useSession } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
 
 type Props = {
   navigation: { name: string; href: Route }[];
-  promise: Promise<User>;
 };
 
 const SOCIAL_LINKS = [
@@ -63,8 +61,9 @@ const SOCIAL_LINKS = [
   },
 ] as const;
 
-export function MobileNavigation({ navigation, promise }: Props) {
-  const user = use(promise);
+export function MobileNavigation({ navigation }: Props) {
+  const session = useSession();
+  const user = session.data?.user;
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();

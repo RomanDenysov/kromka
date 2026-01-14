@@ -5,18 +5,13 @@ import { PageWrapper } from "@/components/shared/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
 import { getLastOrderPrefillAction } from "@/features/checkout/actions";
-import { CheckoutCartHeader } from "@/features/checkout/components/checkout-cart-header";
-import {
-  CheckoutForm,
-  CheckoutFormSkeleton,
-} from "@/features/checkout/components/checkout-form";
-import {
-  CheckoutList,
-  CheckoutListSkeleton,
-} from "@/features/checkout/components/checkout-list";
+import { CheckoutForm } from "@/features/checkout/components/checkout-form";
+import { CheckoutList } from "@/features/checkout/components/checkout-list";
+import { CheckoutListItem } from "@/features/checkout/components/checkout-list-item";
 import { CheckoutRecommendations } from "@/features/checkout/components/checkout-recommendations";
 import { getStores } from "@/features/stores/queries";
 import { getUserDetails } from "@/lib/auth/session";
+import { getItemCountString } from "@/lib/item-count-string";
 import { getSiteConfig } from "@/lib/site-config/queries";
 
 export const metadata: Metadata = {
@@ -39,15 +34,20 @@ async function CheckoutDataLoader() {
   ]);
 
   const totals = getCartTotals(items);
-  const cartProductIds = new Set(items.map((item) => item.productId));
 
   return (
     <>
-      <div className="col-span-full">
-        <CheckoutCartHeader totals={totals} />
+      <div className="col-span-full hidden font-semibold text-lg md:block">
+        Košík ({getItemCountString(totals.totalQuantity)})
       </div>
       <section className="size-full md:col-span-5 lg:col-span-7">
-        <CheckoutList items={items} totals={totals} />
+        <CheckoutList totals={totals}>
+          <div className="mt-2 flex flex-col gap-2 md:mt-0">
+            {items.map((item) => (
+              <CheckoutListItem item={item} key={item.productId} />
+            ))}
+          </div>
+        </CheckoutList>
       </section>
 
       <section className="size-full md:col-span-4 lg:col-span-5">
@@ -61,28 +61,10 @@ async function CheckoutDataLoader() {
       </section>
 
       <CheckoutRecommendations
-        cartProductIds={cartProductIds}
         className="col-span-full flex size-full flex-col gap-4"
+        items={items}
       />
     </>
-  );
-}
-
-function CheckoutCartHeaderSkeleton() {
-  return <Skeleton className="h-7 w-32" />;
-}
-
-function CheckoutRecommendationsSkeleton() {
-  return (
-    <section className="col-span-full flex size-full flex-col gap-4">
-      <Skeleton className="h-7 w-48" />
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Skeleton className="aspect-square w-full rounded-lg" />
-        <Skeleton className="aspect-square w-full rounded-lg" />
-        <Skeleton className="aspect-square w-full rounded-lg" />
-        <Skeleton className="aspect-square w-full rounded-lg" />
-      </div>
-    </section>
   );
 }
 
@@ -90,15 +72,51 @@ function CheckoutDataLoaderSkeleton() {
   return (
     <>
       <div className="col-span-full">
-        <CheckoutCartHeaderSkeleton />
+        <Skeleton className="h-7 w-32" />
       </div>
       <section className="size-full md:col-span-5 lg:col-span-7">
-        <CheckoutListSkeleton />
+        <div className="hidden flex-col gap-4 md:flex">
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                className="flex size-full min-h-24 flex-row gap-2 rounded-md border p-3"
+                key={`skeleton-${index.toString()}`}
+              >
+                <Skeleton className="size-[100px] rounded-sm" />
+                <div className="flex flex-1 flex-col justify-between gap-2">
+                  <div className="flex flex-row items-center justify-between gap-2">
+                    <Skeleton className="h-7 w-3/4" />
+                    <Skeleton className="size-7 rounded" />
+                  </div>
+                  <div className="flex flex-row items-center justify-between gap-2">
+                    <Skeleton className="h-7 w-1/4" />
+                    <Skeleton className="h-7 w-20 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <Skeleton className="block h-20 w-full md:hidden" />
       </section>
       <section className="size-full md:col-span-4 lg:col-span-5">
-        <CheckoutFormSkeleton />
+        <div className="grid grid-cols-1 gap-5">
+          <Skeleton className="h-70 w-full" />
+          <Skeleton className="h-50 w-full" />
+          <Skeleton className="h-50 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
       </section>
-      <CheckoutRecommendationsSkeleton />
+      <section className="col-span-full flex size-full flex-col gap-4">
+        <Skeleton className="h-7 w-48" />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <Skeleton className="aspect-square w-full rounded-lg" />
+          <Skeleton className="aspect-square w-full rounded-lg" />
+          <Skeleton className="aspect-square w-full rounded-lg" />
+          <Skeleton className="aspect-square w-full rounded-lg" />
+        </div>
+      </section>
     </>
   );
 }

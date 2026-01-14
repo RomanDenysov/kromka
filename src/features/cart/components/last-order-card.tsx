@@ -1,13 +1,19 @@
 "use client";
 
-import { ChevronRightIcon } from "lucide-react";
-import { useTransition } from "react";
+import { ChevronUpIcon, ShoppingCartIcon } from "lucide-react";
+import { useState, useTransition } from "react";
 import { ProductImage } from "@/components/shared/product-image";
 import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { addItemsToCart } from "@/features/cart/actions";
-import { formatPrice } from "@/lib/utils";
+import { getItemCountString } from "@/lib/item-count-string";
+import { cn, formatPrice } from "@/lib/utils";
 
 const DISPLAY_ITEM_LIMIT = 3;
 
@@ -30,6 +36,8 @@ type Props = {
  */
 export function LastOrderCard({ items }: Props) {
   const [isPending, startTransition] = useTransition();
+  const [isOpen, setIsOpen] = useState(false);
+  const [showCard, setShowCard] = useState(true);
 
   if (items.length === 0) {
     return null;
@@ -50,73 +58,109 @@ export function LastOrderCard({ items }: Props) {
           quantity: item.quantity,
         }))
       );
+      setShowCard(false);
     });
   };
 
+  if (!showCard) {
+    return null;
+  }
+
   return (
-    <div className="space-y-4 rounded-lg border border-muted-foreground/30 border-dashed bg-muted/40 p-4">
-      {/* Header */}
-      <div>
-        <h3 className="font-semibold text-sm">Vaša posledná objednávka</h3>
-        <p className="text-muted-foreground text-xs">
-          {items.length} {items.length === 1 ? "položka" : "položiek"}
-        </p>
-      </div>
-
-      {/* Items preview */}
-      <div className="space-y-2">
-        {displayItems.map((item) => (
-          <div className="flex gap-2" key={item.productId}>
-            <ProductImage
-              alt={item.name}
-              className="size-12 rounded object-cover"
-              height={48}
-              src={item.imageUrl ?? "/images/cooperation.jpg"}
-              width={48}
-            />
-            <div className="flex flex-1 flex-col justify-center">
-              <p className="line-clamp-1 font-medium text-sm">{item.name}</p>
-              <p className="text-muted-foreground text-xs">
-                {item.quantity}x {formatPrice(item.priceCents)}
-              </p>
-            </div>
-          </div>
-        ))}
-
-        {/* Show count of hidden items if any */}
-        {hiddenItemCount > 0 && (
-          <p className="py-1 text-center text-muted-foreground text-xs">
-            +{hiddenItemCount} {`ďalš${hiddenItemCount === 1 ? "á" : "ích"}`}{" "}
-            položk{hiddenItemCount === 1 ? "a" : "y"}
-          </p>
-        )}
-      </div>
-
-      <Separator className="my-2" />
-
-      {/* Total and button */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-medium">Celkom:</span>
-          <span className="font-semibold">{formatPrice(totalPrice)}</span>
-        </div>
-        <Button
-          className="w-full"
-          disabled={isPending}
-          onClick={handleRepeatOrder}
-          size="sm"
-          variant="default"
-        >
-          {isPending ? (
-            <Spinner className="size-4" />
-          ) : (
-            <>
-              <span>Zopakovať objednávku</span>
-              <ChevronRightIcon className="size-4" />
-            </>
+    <Collapsible onOpenChange={setIsOpen} open={isOpen}>
+      <div className="rounded-sm border border-muted-foreground/30 border-dashed bg-muted/40 p-3">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3">
+          {!isOpen && (
+            <Button
+              className="fade-in-0 animate-in duration-400"
+              size="icon"
+              variant="outline"
+            >
+              <ShoppingCartIcon className="size-5" />
+              <span className="sr-only">Zopakovať objednávku</span>
+            </Button>
           )}
-        </Button>
+          <div className="mr-auto flex flex-col gap-1">
+            <h3 className="font-semibold text-sm">Vaša posledná objednávka</h3>
+            <p className="text-muted-foreground text-xs">
+              {getItemCountString(items.length)}
+            </p>
+          </div>
+          <CollapsibleTrigger className="p-0">
+            <ChevronUpIcon
+              className={cn(
+                "size-5 text-muted-foreground transition-transform duration-200",
+                isOpen && "rotate-180"
+              )}
+            />
+          </CollapsibleTrigger>
+        </div>
+
+        {/* Items preview */}
+        <CollapsibleContent className="fade-in-0 animate-in duration-400">
+          <div className="mt-2 space-y-1">
+            {displayItems.map((item) => (
+              <div className="flex gap-2" key={item.productId}>
+                <ProductImage
+                  alt={item.name}
+                  className="size-12 rounded object-cover"
+                  height={48}
+                  src={item.imageUrl ?? "/images/cooperation.jpg"}
+                  width={48}
+                />
+                <div className="flex flex-1 flex-col justify-center">
+                  <p className="line-clamp-1 font-medium text-sm">
+                    {item.name}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    {item.quantity}x {formatPrice(item.priceCents)}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {/* Show count of hidden items if any */}
+            {hiddenItemCount > 0 && (
+              <p className="py-1 text-center text-muted-foreground text-xs">
+                +{hiddenItemCount}{" "}
+                {`ďalš${hiddenItemCount === 1 ? "á" : "ích"}`} položk
+                {hiddenItemCount === 1 ? "a" : "y"}
+              </p>
+            )}
+          </div>
+
+          <Separator className="my-2" />
+
+          {/* Total and button */}
+
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-0">
+              <span className="font-medium text-muted-foreground text-xs">
+                Celkom:
+              </span>
+              <span className="font-semibold text-sm leading-none">
+                {formatPrice(totalPrice)}
+              </span>
+            </div>
+
+            <Button
+              className="flex-1"
+              disabled={isPending}
+              onClick={handleRepeatOrder}
+              size="sm"
+              variant="default"
+            >
+              {isPending ? (
+                <Spinner className="size-4" />
+              ) : (
+                <ShoppingCartIcon />
+              )}
+              Zopakovať objednávku
+            </Button>
+          </div>
+        </CollapsibleContent>
       </div>
-    </div>
+    </Collapsible>
   );
 }

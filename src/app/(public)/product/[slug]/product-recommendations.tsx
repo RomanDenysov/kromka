@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { GridView } from "@/components/views/grid-view";
+import { GridView } from "@/components/grid-view";
 import { getFavoriteIds } from "@/features/favorites/queries";
 import {
   ProductCard,
