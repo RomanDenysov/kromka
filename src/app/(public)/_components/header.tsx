@@ -18,7 +18,7 @@ import {
   CartDrawerFooter,
   CartDrawerFooterLoader,
 } from "@/features/cart/components/cart-drawer-footer";
-import { getUserDetails } from "@/lib/auth/session";
+import { getUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { FavoritesLink } from "./favorites-link";
 
@@ -31,7 +31,7 @@ const navigation: { name: string; href: Route }[] = [
 ] as const;
 
 export function Header() {
-  const user = getUserDetails();
+  const user = getUser();
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <Container>

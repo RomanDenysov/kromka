@@ -90,13 +90,13 @@ export function CheckoutForm({
           name="checkout-form"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <div className="flex flex-col gap-5 pb-24 sm:pb-0">
+          <div className="flex flex-col gap-5">
             {/* Customer Info Card */}
             <Card>
               <CardHeader>
                 <CardTitle>Osobné údaje</CardTitle>
                 <CardDescription>
-                  Zadajte svoje osobné údaje, aby sme vám mohli kontaktovať.
+                  Zadajte svoje osobné údaje, aby sme Vás mohli kontaktovať.
                 </CardDescription>
               </CardHeader>
               <CardContent>

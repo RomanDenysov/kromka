@@ -12,7 +12,7 @@ export async function CartBadge() {
 
   return (
     <Badge
-      className="absolute -top-1.5 -right-1.5 aspect-square h-4 w-auto px-0.5 py-0 font-semibold text-[10px]"
+      className="-top-1.5 -right-1.5 absolute aspect-square h-4 w-auto px-0.5 py-0 font-semibold text-[10px]"
       variant="default"
     >
       {totalQty}
@@ -21,5 +21,5 @@ export async function CartBadge() {
 }
 
 export const CartBadgeSkeleton = (
-  <Skeleton className="absolute -top-1.5 -right-1.5 size-4 rounded-full" />
+  <Skeleton className="-top-1.5 -right-1.5 absolute size-4 rounded-full" />
 );

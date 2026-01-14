@@ -32,12 +32,12 @@ import {
 } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
 import { signOut } from "@/lib/auth/client";
-import type { UserDetails } from "@/lib/auth/session";
+import type { User } from "@/lib/auth/session";
 import { cn, getInitials } from "@/lib/utils";
 
 type Props = {
   navigation: { name: string; href: Route }[];
-  promise: Promise<UserDetails>;
+  promise: Promise<User>;
 };
 
 const SOCIAL_LINKS = [

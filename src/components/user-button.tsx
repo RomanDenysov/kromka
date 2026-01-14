@@ -21,11 +21,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth/client";
-import type { UserDetails } from "@/lib/auth/session";
+import type { User } from "@/lib/auth/session";
 import { getInitials } from "@/lib/utils";
 import { Icons } from "./icons";
 
-export function UserButton({ promise }: { promise: Promise<UserDetails> }) {
+export function UserButton({ promise }: { promise: Promise<User> }) {
   const user = use(promise);
   const router = useRouter();
   const pathname = usePathname();

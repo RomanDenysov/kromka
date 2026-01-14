@@ -28,7 +28,7 @@ async function LastOrderCardContent() {
   );
 }
 
-function LastOrderCardLoader() {
+function LastOrderCardSkeleton() {
   return (
     <>
       <Separator className="mb-4" />
@@ -58,7 +58,7 @@ export async function CartDrawerFooter() {
 
   return (
     <>
-      <Suspense fallback={<LastOrderCardLoader />}>
+      <Suspense fallback={<LastOrderCardSkeleton />}>
         <LastOrderCardContent />
       </Suspense>
       <Separator />
