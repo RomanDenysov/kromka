@@ -108,24 +108,6 @@ export function ProfileSettingsForm({ user }: Props) {
           </FormProvider>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Predvolená predajňa</CardTitle>
-          <CardDescription>
-            Vyberte predajňu, kde najčastejšie vyzdvihujete objednávky
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border bg-muted/50 px-3 py-2 text-sm">
-            {user.store?.name ?? (
-              <span className="text-muted-foreground">
-                Predvolená predajňa nie je nastavená
-              </span>
-            )}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { Loader2, Navigation } from "lucide-react";
 import type { Route } from "next";
-import { useMemo } from "react";
+import { use, useMemo } from "react";
 import { toast } from "sonner";
 import { StoreCard } from "@/components/cards/store-card";
 import { StoresMap } from "@/components/stores-map";
@@ -13,10 +13,11 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import { sortStoresByDistance } from "@/lib/geo-utils";
 
 type StoresSectionProps = {
-  stores: Store[];
+  promises: Promise<Store[]>;
 };
 
-export function StoresSection({ stores }: StoresSectionProps) {
+export function StoresSection({ promises }: StoresSectionProps) {
+  const stores = use(promises);
   const { status, position, requestLocation, isLoading } = useGeolocation();
 
   const handleRequestLocation = () => {
@@ -82,7 +83,7 @@ export function StoresSection({ stores }: StoresSectionProps) {
       </section>
 
       {/* Map Section */}
-      <section className="space-y-4">
+      <section className="space-y-4 pb-20">
         <div className="space-y-2">
           <h2 className="font-semibold text-2xl tracking-tight">Mapa</h2>
           <p className="text-muted-foreground">
@@ -122,7 +123,7 @@ export function StoresSectionSkeleton() {
           ))}
         </div>
       </section>
-      <section className="space-y-4">
+      <section className="space-y-4 pb-20">
         <div className="space-y-2">
           <Skeleton className="h-8 w-24" />
           <Skeleton className="h-12 w-full max-w-xl" />

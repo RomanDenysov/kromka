@@ -11,7 +11,6 @@ import { PageWrapper } from "@/components/shared/container";
 import { StoreNavigationButton } from "@/components/store-navigation-button";
 import { db } from "@/db";
 import type { DaySchedule, StoreSchedule } from "@/db/types";
-import { getUserDetails } from "@/lib/auth/session";
 import { createMetadata } from "@/lib/metadata";
 import { getBreadcrumbSchema, getLocalBusinessSchema } from "@/lib/seo/json-ld";
 import { getSiteUrl } from "@/lib/utils";
@@ -109,15 +108,11 @@ async function StorePageContent({
 }: {
   store: NonNullable<Awaited<ReturnType<typeof getStoreBySlug>>>;
 }) {
-  const userDetails = await getUserDetails();
-  const { store: userStore } = userDetails ?? {};
-
   const { regularHours } = store.openingHours || {};
   const todayKey = format(new Date(), "EEEE", { locale: sk }).toLowerCase();
   const storeIsOpen = isStoreOpen(
     regularHours as StoreSchedule["regularHours"]
   );
-  const isSelected = userStore?.id === store.id;
 
   const fullAddress = [
     store.address?.street,
@@ -171,11 +166,6 @@ async function StorePageContent({
                 {storeIsOpen ? "Práve otvorené" : "Zatvorené"}
               </span>
             </div>
-            {isSelected && (
-              <span className="rounded-md border border-border bg-muted px-2 py-0.5 text-muted-foreground text-xs">
-                Vaša predajňa
-              </span>
-            )}
           </div>
 
           <h1 className="font-semibold text-4xl tracking-tight md:text-5xl">

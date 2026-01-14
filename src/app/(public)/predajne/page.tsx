@@ -14,29 +14,27 @@ export const metadata: Metadata = createMetadata({
   canonicalUrl: getSiteUrl("/predajne"),
 });
 
-export default async function StoresPage() {
-  const stores = await getStores();
+export default function StoresPage() {
+  const stores = getStores();
   return (
     <PageWrapper>
       <AppBreadcrumbs items={[{ label: "Predajne" }]} />
 
-      <div className="space-y-12 py-8">
-        {/* Hero Section - Minimal */}
-        <section className="space-y-4">
-          <h1 className="font-semibold text-4xl tracking-tight md:text-5xl">
-            Naše predajne
-          </h1>
-          <p className="max-w-2xl text-lg text-muted-foreground leading-relaxed">
-            Navštívte nás v Košiciach alebo Prešove. Čerstvé pečivo každý deň od
-            skorého rána.
-          </p>
-        </section>
-
-        {/* Stores Grid + Map Section */}
-        <Suspense fallback={<StoresSectionSkeleton />}>
-          <StoresSection stores={stores} />
-        </Suspense>
+      {/* Hero Section - Minimal */}
+      <div className="space-y-4">
+        <h1 className="font-semibold text-4xl tracking-tight md:text-5xl">
+          Naše predajne
+        </h1>
+        <p className="max-w-2xl text-lg text-muted-foreground leading-relaxed">
+          Navštívte nás v Košiciach alebo Prešove. Čerstvé pečivo každý deň od
+          skorého rána.
+        </p>
       </div>
+
+      {/* Stores Grid + Map Section */}
+      <Suspense fallback={<StoresSectionSkeleton />}>
+        <StoresSection promises={stores} />
+      </Suspense>
     </PageWrapper>
   );
 }
