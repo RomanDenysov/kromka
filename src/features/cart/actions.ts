@@ -1,6 +1,7 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { redirect } from "next/navigation";
 import {
   clearCart as clearCartCookie,
   getCart,
@@ -48,4 +49,37 @@ export async function removeFromCart(productId: string) {
 export async function clearCart() {
   await clearCartCookie();
   refresh();
+}
+
+/**
+ * Add multiple items to cart and redirect to checkout
+ * Used by the "repeat order" feature to add all items from last order at once
+ */
+export async function addItemsToCart(
+  items: { productId: string; quantity: number }[]
+) {
+  if (items.length === 0) {
+    return;
+  }
+
+  const cart = await getCart();
+
+  // Merge items into cart, updating quantities for existing items
+  for (const item of items) {
+    const existingIndex = cart.findIndex(
+      (ci) => ci.productId === item.productId
+    );
+
+    if (existingIndex >= 0) {
+      cart[existingIndex].qty += item.quantity;
+    } else {
+      cart.push({ productId: item.productId, qty: item.quantity });
+    }
+  }
+
+  await setCart(cart);
+  refresh();
+
+  // Redirect to checkout after items added
+  redirect("/pokladna");
 }

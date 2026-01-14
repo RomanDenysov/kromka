@@ -3,13 +3,15 @@
 import {
   LogInIcon,
   LogOutIcon,
+  MoreHorizontalIcon,
   PackageIcon,
   SettingsIcon,
+  StoreIcon,
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { use } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
@@ -20,27 +22,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
-import { signOut, useSession } from "@/lib/auth/client";
+import { signOut } from "@/lib/auth/client";
+import type { UserDetails } from "@/lib/auth/session";
 import { getInitials } from "@/lib/utils";
+import { useStoreModalState } from "@/store/store-modal-state";
 import { Icons } from "./icons";
 
-export function UserButton() {
-  const { data: session, isPending } = useSession();
+export function UserButton({ promise }: { promise: Promise<UserDetails> }) {
+  const user = use(promise);
+  const open = useStoreModalState((state) => state.open);
   const router = useRouter();
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || isPending) {
-    return <Skeleton className="size-8 rounded-md" />;
-  }
-
-  if (!session) {
+  if (!user) {
     return (
       <Link
         className={buttonVariants({
@@ -58,8 +53,6 @@ export function UserButton() {
     );
   }
 
-  const user = session?.user;
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger aria-label="Účet" asChild>
@@ -73,7 +66,7 @@ export function UserButton() {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuItem asChild>
           <Link href="/profil">
             <UserIcon />
@@ -91,6 +84,14 @@ export function UserButton() {
             <PackageIcon />
             Objednavky
           </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={open}>
+          <StoreIcon />
+          <span className="truncate">
+            {user.store?.name ?? "Vybrať predajňu"}
+          </span>
+          <MoreHorizontalIcon className="size-4" />
         </DropdownMenuItem>
         {user.role === "admin" && (
           <>

@@ -9,7 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { type LoginReason, useLoginModal } from "@/store/login-modal-store";
+import {
+  type LoginReason,
+  useLoginModalClose,
+  useLoginModalState,
+} from "@/store/login-modal-store";
 
 const MESSAGES: Record<LoginReason, string> = {
   favorites: "Pre uloženie obľúbených produktov sa prihláste.",
@@ -18,7 +22,8 @@ const MESSAGES: Record<LoginReason, string> = {
 };
 
 export function LoginModal() {
-  const { isOpen, reason, close } = useLoginModal();
+  const close = useLoginModalClose();
+  const { isOpen, reason } = useLoginModalState();
 
   const message = MESSAGES[reason];
 

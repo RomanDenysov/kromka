@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
-import { type ReactNode, Suspense } from "react";
+import type { ReactNode } from "react";
 import { Footer } from "@/components/landing/footer";
-import { LoginModal } from "@/components/modal/login-modal";
+import { LoginModal } from "@/components/login-modal";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
+import { StoreSelectModal } from "@/components/store-select-modal";
+import { preloadFavorites } from "@/features/favorites/queries";
+import { preloadProducts } from "@/features/products/queries";
+import { getStores } from "@/features/stores/queries";
 import { defaultMetadata } from "@/lib/metadata";
 import { getOrganizationSchema, getWebSiteSchema } from "@/lib/seo/json-ld";
 import { Header } from "./_components/header";
@@ -23,15 +27,19 @@ type Props = {
 };
 
 export default function PublicLayout({ children }: Props) {
+  preloadProducts();
+  preloadFavorites();
+  const stores = getStores();
+
   return (
     <>
       <JsonLd data={[getOrganizationSchema(), getWebSiteSchema()]} />
       <Header />
       <main className="min-h-svh">{children}</main>
       <Footer />
-      <Suspense>
-        <LoginModal />
-      </Suspense>
+
+      <LoginModal />
+      <StoreSelectModal storesPromise={stores} />
       <ScrollToTop />
     </>
   );

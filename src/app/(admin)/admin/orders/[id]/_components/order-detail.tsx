@@ -7,10 +7,13 @@ import {
   CalendarIcon,
   ClockIcon,
   CreditCardIcon,
+  MailIcon,
   MapPinIcon,
+  PhoneIcon,
   UserIcon,
   XCircleIcon,
 } from "lucide-react";
+import Link from "next/link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -368,34 +371,79 @@ type CustomerData = {
   name: string | null;
   email: string;
   image: string | null;
+  phone: string | null;
 } | null;
 
-function CustomerCard({ customer }: { customer: CustomerData }) {
+function CustomerCard({
+  customer,
+  customerInfo,
+}: {
+  customer: CustomerData;
+  customerInfo:
+    | { name?: string | null; email: string; phone: string }
+    | null
+    | undefined;
+}) {
+  const isAuthorized = !!customer;
+  const name = customerInfo?.name ?? customer?.name ?? "Bez mena";
+  const email = customerInfo?.email ?? customer?.email;
+  const phone = customerInfo?.phone ?? customer?.phone;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
-          <UserIcon className="size-4" />
-          Zákazník
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <UserIcon className="size-4" />
+            Zákazník
+          </CardTitle>
+          <Badge
+            className="font-normal"
+            variant={isAuthorized ? "default" : "secondary"}
+          >
+            {isAuthorized ? "Autorizovaný" : "Hosť"}
+          </Badge>
+        </div>
       </CardHeader>
-      <CardContent>
-        {customer ? (
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={customer.image ?? undefined} />
-              <AvatarFallback>
-                {getInitials(customer.name ?? customer.email)}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-medium">{customer.name ?? "Bez mena"}</p>
-              <p className="text-muted-foreground text-sm">{customer.email}</p>
-            </div>
+      <CardContent className="flex flex-col gap-4">
+        <div className="flex items-center gap-3">
+          <Avatar className="size-10">
+            <AvatarImage src={customer?.image ?? undefined} />
+            <AvatarFallback>{getInitials(name ?? email ?? "Z")}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <p className="font-medium">{name}</p>
+            {isAuthorized && (
+              <Link
+                className="text-primary text-xs hover:underline"
+                href={`/admin/users/${customer.id}`}
+              >
+                Zobraziť profil
+              </Link>
+            )}
           </div>
-        ) : (
-          <p className="text-muted-foreground">Neznámy zákazník</p>
-        )}
+        </div>
+
+        <Separator />
+
+        <div className="flex flex-col gap-2">
+          {email && (
+            <div className="flex items-center gap-2 text-sm">
+              <MailIcon className="size-3.5 text-muted-foreground" />
+              <a className="hover:underline" href={`mailto:${email}`}>
+                {email}
+              </a>
+            </div>
+          )}
+          {phone && (
+            <div className="flex items-center gap-2 text-sm">
+              <PhoneIcon className="size-3.5 text-muted-foreground" />
+              <a className="hover:underline" href={`tel:${phone}`}>
+                {phone}
+              </a>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -724,7 +772,10 @@ export function OrderDetail({ order }: { order: Order | undefined }) {
         <ProductsCard items={order.items} />
 
         <div className="flex flex-col gap-6">
-          <CustomerCard customer={order.createdBy} />
+          <CustomerCard
+            customer={order.createdBy}
+            customerInfo={order.customerInfo}
+          />
           <PickupCard
             pickupDate={order.pickupDate}
             pickupTime={order.pickupTime}

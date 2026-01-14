@@ -14,17 +14,14 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import type { DetailedCartItem } from "@/features/cart/queries";
+import type { GuestInfo } from "@/features/checkout/cookies";
 import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
 import { useCheckoutValidation } from "@/features/checkout/hooks/use-checkout-validation";
 import { usePickupRestrictions } from "@/features/checkout/hooks/use-pickup-restrictions";
 import type { Store } from "@/features/stores/queries";
 import type { User } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
-import {
-  useCustomerActions,
-  useCustomerData,
-  useSelectedStore,
-} from "@/store/customer-store";
+import { useSelectedStore } from "@/store/customer-store";
 import { CheckoutAlerts } from "./checkout-alerts";
 import { CheckoutMobileFooter } from "./checkout-mobile-footer";
 import { CheckoutSummaryCard } from "./checkout-summary-card";
@@ -37,6 +34,7 @@ type CheckoutFormProps = {
   stores: Store[];
   items: DetailedCartItem[];
   ordersEnabled: boolean;
+  guestInfo?: GuestInfo | null;
 };
 
 export function CheckoutForm({
@@ -44,11 +42,10 @@ export function CheckoutForm({
   stores,
   items,
   ordersEnabled,
+  guestInfo,
 }: CheckoutFormProps) {
-  // Customer state from Zustand
-  const customer = useCustomerData();
+  // Customer store selection from Zustand (for backward compatibility with other components)
   const customerStore = useSelectedStore();
-  const { setCustomerStore, clearGuestInfo } = useCustomerActions();
 
   // Get pickup date restrictions from cart items
   const { restrictedPickupDates } = usePickupRestrictions(items);
@@ -56,7 +53,7 @@ export function CheckoutForm({
   // Validate user info (separate from form)
   const { userInfo, isUserInfoValid } = useCheckoutValidation({
     user,
-    customer,
+    guestInfo,
   });
 
   // Initialize checkout form with all dependencies
@@ -75,8 +72,6 @@ export function CheckoutForm({
     restrictedPickupDates,
     userInfo,
     isUserInfoValid,
-    setCustomerStore,
-    clearGuestInfo,
   });
 
   // Calculate total price
@@ -109,7 +104,7 @@ export function CheckoutForm({
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <CustomerInfoCard user={user ?? null} />
+                <CustomerInfoCard guestInfo={guestInfo} user={user ?? null} />
               </CardContent>
             </Card>
 

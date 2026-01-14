@@ -7,6 +7,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { PaymentMethod, StoreSchedule } from "@/db/types";
 import {
+  addOrderToHistoryAction,
+  clearGuestInfoAction,
+  saveSelectedStoreAction,
+} from "@/features/checkout/actions";
+import {
   type CheckoutFormData,
   checkoutFormSchema,
 } from "@/features/checkout/schema";
@@ -41,8 +46,6 @@ type UseCheckoutFormProps = {
   restrictedPickupDates: Set<string> | null;
   userInfo: { name: string; email: string; phone: string };
   isUserInfoValid: boolean;
-  setCustomerStore: (store: { id: string; name: string }) => void;
-  clearGuestInfo: () => void;
 };
 
 /**
@@ -56,8 +59,6 @@ export function useCheckoutForm({
   restrictedPickupDates,
   userInfo,
   isUserInfoValid,
-  setCustomerStore,
-  clearGuestInfo,
 }: UseCheckoutFormProps) {
   const router = useRouter();
 
@@ -185,10 +186,15 @@ export function useCheckoutForm({
       return;
     }
 
-    // Sync selected store to local state for future visits
+    // Sync selected store to cookie for future visits
     const selectedStore = stores.find((s) => s.id === value.storeId);
     if (selectedStore && !user?.storeId) {
-      setCustomerStore({ id: selectedStore.id, name: selectedStore.name });
+      saveSelectedStoreAction({
+        id: selectedStore.id,
+        name: selectedStore.name,
+      }).catch((error) => {
+        console.error("Failed to save selected store:", error);
+      });
     }
 
     const formattedDate = format(value.pickupDate, "yyyy-MM-dd");
@@ -207,9 +213,14 @@ export function useCheckoutForm({
     });
 
     if (result.success) {
-      // Clear guest PII after successful order (privacy)
+      // Add order to history and clear guest PII after successful order (privacy)
       if (isGuest) {
-        clearGuestInfo();
+        addOrderToHistoryAction(result.orderId).catch((error) => {
+          console.error("Failed to add order to history:", error);
+        });
+        clearGuestInfoAction().catch((error) => {
+          console.error("Failed to clear guest info:", error);
+        });
       }
       toast.success("Vaša objednávka bola vytvorená");
       router.push(`/pokladna/${result.orderId}` as Route);

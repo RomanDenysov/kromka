@@ -16,11 +16,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Spinner } from "@/components/ui/spinner";
+import { saveGuestInfoAction } from "@/features/checkout/actions";
 import { type UserInfoData, userInfoSchema } from "@/features/checkout/schema";
 import { updateCurrentUserProfile } from "@/lib/actions/user-profile";
 import type { User } from "@/lib/auth/session";
 import { getInitials } from "@/lib/utils";
-import { useCustomerActions, useCustomerData } from "@/store/customer-store";
 import { useLoginModalOpen } from "@/store/login-modal-store";
 
 const AUTO_SAVE_DELAY = 800;
@@ -57,23 +57,23 @@ function CustomerInfoFields({ columns = 1 }: { columns?: 1 | 2 }) {
 type CustomerInfoCardProps = {
   /** Server-provided user data for authenticated users. Null for guests. */
   user: NonNullable<User> | null;
+  /** Guest info from httpOnly cookie */
+  guestInfo?: GuestInfo | null;
 };
 
 /**
  * Unified customer info display and edit.
  * - Auth users: displays server data, saves to DB
- * - Guests: displays/saves to customer store (localStorage)
+ * - Guests: displays/saves to httpOnly cookies
  */
-export function CustomerInfoCard({ user }: CustomerInfoCardProps) {
+export function CustomerInfoCard({ user, guestInfo }: CustomerInfoCardProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const openLogin = useLoginModalOpen();
   const pathname = usePathname();
-  const customer = useCustomerData();
-  const { setCustomer } = useCustomerActions();
   const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Resolve display values: auth user from props, guest from store
+  // Resolve display values: auth user from props, guest from cookie
   const displayData = user
     ? {
         name: user.name ?? "",
@@ -82,9 +82,9 @@ export function CustomerInfoCard({ user }: CustomerInfoCardProps) {
         image: user.image,
       }
     : {
-        name: customer?.name ?? "",
-        email: customer?.email ?? "",
-        phone: customer?.phone ?? "",
+        name: guestInfo?.name ?? "",
+        email: guestInfo?.email ?? "",
+        phone: guestInfo?.phone ?? "",
         image: null,
       };
 
@@ -99,24 +99,21 @@ export function CustomerInfoCard({ user }: CustomerInfoCardProps) {
     },
   });
 
-  // Auto-save for guests: debounced save to localStorage
-  const autoSaveGuest = useCallback(
-    (values: UserInfoData) => {
-      // Only auto-save if at least email is provided (minimal validation)
-      if (!values.email) {
-        return;
-      }
+  // Auto-save for guests: debounced save to httpOnly cookie
+  const autoSaveGuest = useCallback((values: UserInfoData) => {
+    // Only auto-save if at least email is provided (minimal validation)
+    if (!values.email) {
+      return;
+    }
 
-      setCustomer({
-        id: "guest",
+    startTransition(async () => {
+      await saveGuestInfoAction({
         name: values.name,
         email: values.email,
         phone: values.phone,
-        image: null,
       });
-    },
-    [setCustomer]
-  );
+    });
+  }, []);
 
   // Watch form values and auto-save for guests
   const watchedValues = form.watch();
@@ -162,15 +159,15 @@ export function CustomerInfoCard({ user }: CustomerInfoCardProps) {
         }
       });
     } else {
-      setCustomer({
-        id: "guest",
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-        image: null,
+      startTransition(async () => {
+        await saveGuestInfoAction({
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+        });
+        toast.success("Údaje boli uložené");
+        setOpen(false);
       });
-      toast.success("Údaje boli uložené");
-      setOpen(false);
     }
   };
 
@@ -237,7 +234,6 @@ function CustomerInfoDisplay({
   isPending: boolean;
   user: NonNullable<User> | null;
 }) {
-  const { setCustomer } = useCustomerActions();
   const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-save for guests in edit popover
@@ -257,12 +253,13 @@ function CustomerInfoDisplay({
       if (!watchedValues.email) {
         return;
       }
-      setCustomer({
-        id: "guest",
+      // Save to server without blocking UI - fire and forget
+      saveGuestInfoAction({
         name: watchedValues.name,
         email: watchedValues.email,
         phone: watchedValues.phone,
-        image: null,
+      }).catch((error) => {
+        console.error("Failed to save guest info:", error);
       });
     }, AUTO_SAVE_DELAY);
 
@@ -271,7 +268,7 @@ function CustomerInfoDisplay({
         clearTimeout(autoSaveTimeout.current);
       }
     };
-  }, [watchedValues, user, open, setCustomer]);
+  }, [watchedValues, user, open]);
 
   return (
     <Popover onOpenChange={onOpenChange} open={open}>

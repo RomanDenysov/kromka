@@ -5,14 +5,7 @@ import { use, useEffect, useRef } from "react";
 import type { Store } from "@/features/stores/queries";
 import { useConsent } from "@/hooks/use-consent";
 import type { User } from "@/lib/auth/session";
-import {
-  useCustomerActions,
-  useGuestInfoSavedAt,
-  useSelectedStore,
-} from "@/store/customer-store";
-
-const GUEST_INFO_EXPIRY_DAYS = 30;
-const GUEST_INFO_EXPIRY_MS = GUEST_INFO_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+import { useCustomerActions, useSelectedStore } from "@/store/customer-store";
 
 type Props = {
   storesPromise: Promise<Store[]>;
@@ -20,14 +13,13 @@ type Props = {
 };
 
 /**
- * Syncs customer store state with auth user and validates persisted data.
- * Similar pattern to AuthIdentitySync.
+ * Syncs customer store selection with auth user and validates persisted data.
+ * DEPRECATED: Guest PII handling moved to httpOnly cookies (src/features/checkout/cookies.ts)
  *
  * Handles:
  * - Validates persisted storeId (clears if deleted)
- * - Auth user's storeId → Zustand sync
- * - Guest info expiration (30 days)
- * - PostHog store tracking
+ * - Auth user's storeId → Zustand sync (only on initial mount if no store selected)
+ * - PostHog store tracking for analytics
  */
 export function CustomerStoreSync({ storesPromise, userPromise }: Props) {
   const stores = use(storesPromise);
@@ -35,38 +27,43 @@ export function CustomerStoreSync({ storesPromise, userPromise }: Props) {
   const { analytics } = useConsent();
 
   const customerStore = useSelectedStore();
-  const guestInfoSavedAt = useGuestInfoSavedAt();
-  const { setCustomerStore, clearGuestInfo, clearStaleStore } =
-    useCustomerActions();
+  const { setCustomerStore, clearStaleStore } = useCustomerActions();
 
   const lastSyncedStoreId = useRef<string | null>(null);
+  const hasInitializedFromUser = useRef(false);
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: sync logic requires multiple conditional checks
+  // Validate persisted store and handle initial sync from user
   useEffect(() => {
     const storeIds = new Set(stores.map((s) => s.id));
 
     // 1. Validate persisted store - clear if deleted
     if (customerStore?.id && !storeIds.has(customerStore.id)) {
       clearStaleStore();
+      return;
     }
 
-    // 2. Sync auth user's storeId to Zustand (if user has one and it's valid)
-    if (user?.storeId && storeIds.has(user.storeId)) {
+    // 2. Initial sync: if no store selected and user has a valid storeId, use it
+    // Only runs once per mount to avoid overriding user selections
+    if (
+      !(hasInitializedFromUser.current || customerStore?.id) &&
+      user?.storeId &&
+      storeIds.has(user.storeId)
+    ) {
       const userStore = stores.find((s) => s.id === user.storeId);
-      if (userStore && customerStore?.id !== user.storeId) {
+      if (userStore) {
         setCustomerStore({ id: userStore.id, name: userStore.name });
       }
+      hasInitializedFromUser.current = true;
     }
 
-    // 3. Expire old guest info (privacy)
-    if (!user && guestInfoSavedAt) {
-      const isExpired = Date.now() - guestInfoSavedAt > GUEST_INFO_EXPIRY_MS;
-      if (isExpired) {
-        clearGuestInfo();
-      }
+    // Mark as initialized even if user has no storeId
+    if (!hasInitializedFromUser.current) {
+      hasInitializedFromUser.current = true;
     }
+  }, [stores, user, customerStore?.id, setCustomerStore, clearStaleStore]);
 
-    // 4. Sync store to PostHog
+  // Sync store to PostHog for analytics
+  useEffect(() => {
     if (
       analytics &&
       customerStore?.id &&
@@ -78,16 +75,7 @@ export function CustomerStoreSync({ storesPromise, userPromise }: Props) {
       });
       lastSyncedStoreId.current = customerStore.id;
     }
-  }, [
-    user,
-    stores,
-    customerStore,
-    guestInfoSavedAt,
-    analytics,
-    setCustomerStore,
-    clearGuestInfo,
-    clearStaleStore,
-  ]);
+  }, [analytics, customerStore]);
 
   return null;
 }

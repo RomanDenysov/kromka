@@ -1,25 +1,20 @@
 import { useMemo } from "react";
+import type { GuestInfo } from "@/features/checkout/cookies";
 import { userInfoSchema } from "@/features/checkout/schema";
 import type { User } from "@/lib/auth/session";
 
-type CustomerData = {
-  name: string | null;
-  email: string;
-  phone: string | null;
-} | null;
-
 /**
  * Hook to build and validate user/guest info.
- * Handles both authenticated users (from server) and guests (from Zustand store).
+ * Handles both authenticated users (from server) and guests (from httpOnly cookie).
  */
 export function useCheckoutValidation({
   user,
-  customer,
+  guestInfo,
 }: {
   user?: User;
-  customer: CustomerData;
+  guestInfo?: GuestInfo | null;
 }) {
-  // Build user info from either auth user or guest customer
+  // Build user info from either auth user or guest info
   const userInfo = useMemo(() => {
     if (user) {
       return {
@@ -29,11 +24,11 @@ export function useCheckoutValidation({
       };
     }
     return {
-      name: customer?.name ?? "",
-      email: customer?.email ?? "",
-      phone: customer?.phone ?? "",
+      name: guestInfo?.name ?? "",
+      email: guestInfo?.email ?? "",
+      phone: guestInfo?.phone ?? "",
     };
-  }, [user, customer]);
+  }, [user, guestInfo]);
 
   // Validate user info against schema
   const isUserInfoValid = userInfoSchema.safeParse(userInfo).success;

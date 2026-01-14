@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import { CustomerStoreSync } from "@/components/customer-store-sync";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
-import { StoreSelectModal } from "@/components/modal/store-select-modal";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,7 +20,7 @@ import {
   CartDrawerFooterLoader,
 } from "@/features/cart/components/cart-drawer-footer";
 import { getStores } from "@/features/stores/queries";
-import { getUser } from "@/lib/auth/session";
+import { getUserDetails } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { FavoritesLink } from "./favorites-link";
 
@@ -35,7 +34,7 @@ const navigation: { name: string; href: Route }[] = [
 
 export function Header() {
   const stores = getStores();
-  const user = getUser();
+  const user = getUserDetails();
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <Container>
@@ -53,9 +52,7 @@ export function Header() {
               </Button>
             }
           >
-            <MobileNavigation navigation={navigation}>
-              <StoreSelectModal storesPromise={stores} />
-            </MobileNavigation>
+            <MobileNavigation navigation={navigation} promise={user} />
           </Suspense>
           <nav className="hidden grow items-center justify-start gap-2 md:flex">
             {navigation.map((item) => (
@@ -78,13 +75,8 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 xl:gap-3">
-            <div className="hidden md:block">
-              <Suspense>
-                <StoreSelectModal storesPromise={stores} />
-              </Suspense>
-            </div>
             <Suspense fallback={<Skeleton className="size-8 rounded-md" />}>
-              <UserButton />
+              <UserButton promise={user} />
             </Suspense>
             <Suspense>
               <FavoritesLink />

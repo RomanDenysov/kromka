@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { CallToAction } from "@/components/landing/cta";
 import { HomeGrid } from "@/components/landing/home-grid";
-import { preloadFavorites } from "@/features/favorites/queries";
-import { preloadProducts } from "@/features/products/queries";
 import { createMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/utils";
 
@@ -15,8 +13,6 @@ export const metadata: Metadata = createMetadata({
 });
 
 export default function Home() {
-  preloadProducts();
-  preloadFavorites();
   return (
     <>
       <HomeGrid />

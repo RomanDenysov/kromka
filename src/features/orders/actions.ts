@@ -12,6 +12,7 @@ import {
 } from "@/db/schema";
 import type { OrderStatus, PaymentMethod, PaymentStatus } from "@/db/types";
 import { clearCart, getCart } from "@/features/cart/cookies";
+import { addOrderToHistory, clearGuestInfo } from "@/features/checkout/cookies";
 import { requireAdmin, requireAuth } from "@/lib/auth/guards";
 import { getUser } from "@/lib/auth/session";
 import { sendEmail } from "@/lib/email";
@@ -163,13 +164,23 @@ export async function createOrderFromCart(data: {
     // 10. Clear cart cookie
     await clearCart();
 
-    // 11. Fetch full order with relations
+    // 11. For guests: add order to history and clear PII (privacy)
+    if (isGuest) {
+      addOrderToHistory(order.id).catch((error) => {
+        console.error("Failed to add order to history:", error);
+      });
+      clearGuestInfo().catch((error) => {
+        console.error("Failed to clear guest info:", error);
+      });
+    }
+
+    // 12. Fetch full order with relations
     const fullOrder = await getOrderById(order.id);
     if (!fullOrder) {
       throw new Error("Order not found after creation");
     }
 
-    // 12. Send email to staff and customer
+    // 13. Send email to staff and customer
     await sendEmail.newOrder({ order: fullOrder });
     await sendEmail.receipt({ order: fullOrder });
 
