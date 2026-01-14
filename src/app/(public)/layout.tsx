@@ -4,10 +4,8 @@ import { Footer } from "@/components/landing/footer";
 import { LoginModal } from "@/components/login-modal";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
-import { StoreSelectModal } from "@/components/store-select-modal";
 import { preloadFavorites } from "@/features/favorites/queries";
 import { preloadProducts } from "@/features/products/queries";
-import { getStores } from "@/features/stores/queries";
 import { defaultMetadata } from "@/lib/metadata";
 import { getOrganizationSchema, getWebSiteSchema } from "@/lib/seo/json-ld";
 import { Header } from "./_components/header";
@@ -29,7 +27,6 @@ type Props = {
 export default function PublicLayout({ children }: Props) {
   preloadProducts();
   preloadFavorites();
-  const stores = getStores();
 
   return (
     <>
@@ -39,7 +36,6 @@ export default function PublicLayout({ children }: Props) {
       <Footer />
 
       <LoginModal />
-      <StoreSelectModal storesPromise={stores} />
       <ScrollToTop />
     </>
   );

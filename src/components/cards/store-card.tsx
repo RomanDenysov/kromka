@@ -55,7 +55,6 @@ const isCurrentlyOpen = (schedule: TimeRange | null): boolean => {
 export function StoreCard({
   store,
   className,
-  isSelected,
   href,
   variant = "default",
   distance,
@@ -68,7 +67,6 @@ export function StoreCard({
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-md bg-neutral-900",
         variant === "featured" ? "min-h-[420px]" : "min-h-[320px]",
-        isSelected && "ring-2 ring-white ring-offset-2 ring-offset-background",
         className
       )}
     >
@@ -106,13 +104,6 @@ export function StoreCard({
       </div>
 
       {/* Selected Badge */}
-      {isSelected && (
-        <div className="absolute top-4 right-4 z-10">
-          <span className="rounded-full bg-white px-3 py-1 font-medium text-neutral-900 text-xs">
-            Vybraná predajňa
-          </span>
-        </div>
-      )}
 
       {/* Content */}
       <div className="relative z-10 mt-auto p-5">
@@ -163,12 +154,10 @@ export function StoreCard({
 // Compact variant for lists/modals
 export function StoreCardCompact({
   store,
-  isSelected,
   onClick,
   distance,
 }: {
   store: Store;
-  isSelected?: boolean;
   onClick?: () => void;
   distance?: number | null;
 }) {
@@ -179,9 +168,7 @@ export function StoreCardCompact({
     <button
       className={cn(
         "group flex w-full items-center gap-4 rounded-xl p-3 text-left transition-colors",
-        isSelected
-          ? "bg-neutral-900 text-white"
-          : "hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        "hover:bg-neutral-100 dark:hover:bg-neutral-800"
       )}
       onClick={onClick}
       type="button"
@@ -201,12 +188,7 @@ export function StoreCardCompact({
       {/* Info */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <h4
-            className={cn(
-              "truncate font-medium",
-              isSelected ? "text-white" : "text-foreground"
-            )}
-          >
+          <h4 className={cn("truncate font-medium", "text-foreground")}>
             {store.name}
           </h4>
           <div
@@ -221,44 +203,18 @@ export function StoreCardCompact({
               <DistanceBadge
                 className="ml-auto"
                 distance={distance}
-                variant={isSelected ? "default" : "light"}
+                variant="light"
               />
             )}
         </div>
         {store.address && (
-          <p
-            className={cn(
-              "mt-0.5 truncate text-sm",
-              isSelected ? "text-white/70" : "text-muted-foreground"
-            )}
-          >
+          <p className={cn("mt-0.5 truncate text-sm", "text-muted-foreground")}>
             {[store.address.street, store.address.city]
               .filter(Boolean)
               .join(", ")}
           </p>
         )}
       </div>
-
-      {/* Checkmark */}
-      {isSelected && (
-        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-white">
-          <svg
-            aria-label="Checkmark"
-            className="size-4 text-neutral-900"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <title>Checkmark</title>
-            <path
-              d="M5 13l4 4L19 7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-            />
-          </svg>
-        </div>
-      )}
     </button>
   );
 }

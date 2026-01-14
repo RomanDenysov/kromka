@@ -1,18 +1,17 @@
 import { useMemo } from "react";
-import type { GuestInfo } from "@/features/checkout/cookies";
 import { userInfoSchema } from "@/features/checkout/schema";
 import type { User } from "@/lib/auth/session";
 
 /**
  * Hook to build and validate user/guest info.
- * Handles both authenticated users (from server) and guests (from httpOnly cookie).
+ * Handles both authenticated users (from server) and guests (from last order prefill).
  */
 export function useCheckoutValidation({
   user,
   guestInfo,
 }: {
   user?: User;
-  guestInfo?: GuestInfo | null;
+  guestInfo?: { name: string; email: string; phone: string } | null;
 }) {
   // Build user info from either auth user or guest info
   const userInfo = useMemo(() => {

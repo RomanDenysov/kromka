@@ -1,201 +1,203 @@
 "use server";
 
-import { desc, inArray } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import type { GuestCustomerInfo } from "@/features/orders/actions";
-import {
-  addOrderToHistory,
-  clearGuestInfo,
-  clearSelectedStore,
-  type GuestInfo,
-  getGuestInfo,
-  getOrderHistory,
-  getSelectedStore,
-  type SelectedStore,
-  setGuestInfo,
-  setSelectedStore,
-} from "./cookies";
+import { getLastOrderId, setLastOrderId } from "./cookies";
 
 /**
- * Save guest info to secure httpOnly cookie
- * Called on form changes (debounced from client)
+ * Last order prefill data for checkout form
+ * Contains customer info and store ID from the most recent order
  */
-export async function saveGuestInfoAction(
-  info: GuestInfo
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    await setGuestInfo(info);
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to save guest info:", error);
-    return { success: false, error: "Chyba pri ukladaní údajov" };
-  }
-}
+export type LastOrderPrefill = {
+  customerInfo: GuestCustomerInfo | null;
+  storeId: string | null;
+};
 
 /**
- * Get current guest info from cookie
+ * Get the last order prefill data for checkout form
+ * For authenticated users: queries by userId
+ * For guests: reads from krmk-last-order cookie
+ * Returns customerInfo and storeId from the most recent order
  */
-export async function getGuestInfoAction(): Promise<GuestInfo | null> {
+export async function getLastOrderPrefillAction(
+  userId?: string
+): Promise<LastOrderPrefill | null> {
   try {
-    return await getGuestInfo();
-  } catch (error) {
-    console.error("Failed to get guest info:", error);
-    return null;
-  }
-}
+    let lastOrder:
+      | {
+          customerInfo: {
+            name?: string | null;
+            email: string;
+            phone: string;
+          } | null;
+          storeId: string | null;
+        }
+      | undefined;
 
-/**
- * Clear guest info after successful order
- */
-export async function clearGuestInfoAction(): Promise<void> {
-  try {
-    await clearGuestInfo();
-  } catch (error) {
-    console.error("Failed to clear guest info:", error);
-  }
-}
+    if (userId) {
+      // Authenticated user: query by userId
+      lastOrder = await db.query.orders.findFirst({
+        where: eq(orders.createdBy, userId),
+        orderBy: [desc(orders.createdAt)],
+        columns: {
+          customerInfo: true,
+          storeId: true,
+        },
+      });
+    } else {
+      // Guest: read from cookie
+      const lastOrderId = await getLastOrderId();
+      if (!lastOrderId) {
+        return null;
+      }
 
-/**
- * Save selected store to cookie
- */
-export async function saveSelectedStoreAction(
-  store: SelectedStore
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    await setSelectedStore(store);
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to save selected store:", error);
-    return { success: false, error: "Chyba pri ukladaní predajne" };
-  }
-}
+      lastOrder = await db.query.orders.findFirst({
+        where: eq(orders.id, lastOrderId),
+        columns: {
+          customerInfo: true,
+          storeId: true,
+        },
+      });
+    }
 
-/**
- * Get currently selected store from cookie
- */
-export async function getSelectedStoreAction(): Promise<SelectedStore | null> {
-  try {
-    return await getSelectedStore();
-  } catch (error) {
-    console.error("Failed to get selected store:", error);
-    return null;
-  }
-}
-
-/**
- * Clear selected store from cookie
- */
-export async function clearSelectedStoreAction(): Promise<void> {
-  try {
-    await clearSelectedStore();
-  } catch (error) {
-    console.error("Failed to clear selected store:", error);
-  }
-}
-
-/**
- * Get the most recent order info from order history
- * Used to pre-fill guest form on return visits
- */
-export async function getLastOrderInfoAction(): Promise<GuestCustomerInfo | null> {
-  try {
-    const history = await getOrderHistory();
-    if (history.length === 0) {
+    if (!lastOrder) {
       return null;
     }
 
-    // Fetch the most recent order from history
-    const lastOrder = await db.query.orders.findFirst({
-      where: inArray(orders.id, history),
-      orderBy: [desc(orders.createdAt)],
-      columns: {
-        customerInfo: true,
-      },
-    });
-
-    const customerInfo = lastOrder?.customerInfo;
-    if (
-      !customerInfo ||
-      typeof customerInfo.email !== "string" ||
-      typeof customerInfo.phone !== "string"
-    ) {
-      return null;
-    }
+    const customerInfo = lastOrder.customerInfo;
+    const hasValidCustomerInfo =
+      customerInfo &&
+      typeof customerInfo.email === "string" &&
+      typeof customerInfo.phone === "string";
 
     return {
-      name: customerInfo.name ?? "",
-      email: customerInfo.email,
-      phone: customerInfo.phone,
+      customerInfo: hasValidCustomerInfo
+        ? {
+            name: customerInfo.name ?? "",
+            email: customerInfo.email,
+            phone: customerInfo.phone,
+          }
+        : null,
+      storeId: lastOrder.storeId ?? null,
     };
   } catch (error) {
-    console.error("Failed to get last order info:", error);
+    console.error("Failed to get last order prefill:", error);
     return null;
   }
 }
 
 /**
- * Add an order ID to the guest's order history
+ * Set the last order ID in cookie (for guests)
  * Called after successful order creation
  */
-export async function addOrderToHistoryAction(orderId: string): Promise<void> {
+export async function setLastOrderIdAction(orderId: string): Promise<void> {
   try {
-    await addOrderToHistory(orderId);
+    await setLastOrderId(orderId);
   } catch (error) {
-    console.error("Failed to add order to history:", error);
-  }
-}
-
-/**
- * Get the full order history (list of order IDs)
- */
-export async function getOrderHistoryAction(): Promise<string[]> {
-  try {
-    return await getOrderHistory();
-  } catch (error) {
-    console.error("Failed to get order history:", error);
-    return [];
+    console.error("Failed to set last order ID:", error);
   }
 }
 
 /**
  * Get the most recent order with all item details for "repeat order" feature
+ * For authenticated users: queries by userId
+ * For guests: reads from krmk-last-order cookie
  * Returns items with current product prices, filtering out deleted/unavailable products
  */
-export async function getLastOrderWithItemsAction() {
+export async function getLastOrderWithItemsAction(userId?: string) {
   try {
-    const history = await getOrderHistory();
-    if (history.length === 0) {
-      return null;
-    }
-
-    // Fetch the most recent order with all items and product details
-    const lastOrder = await db.query.orders.findFirst({
-      where: inArray(orders.id, history),
-      orderBy: [desc(orders.createdAt)],
-      with: {
-        items: {
+    let lastOrder: Awaited<
+      ReturnType<
+        typeof db.query.orders.findFirst<{
           with: {
-            product: {
-              columns: {
-                id: true,
-                name: true,
-                slug: true,
-                priceCents: true,
-                status: true,
-              },
+            items: {
               with: {
-                image: {
+                product: {
                   columns: {
-                    url: true,
+                    id: true;
+                    name: true;
+                    slug: true;
+                    priceCents: true;
+                    status: true;
+                  };
+                  with: {
+                    image: {
+                      columns: {
+                        url: true;
+                      };
+                    };
+                  };
+                };
+              };
+            };
+          };
+        }>
+      >
+    >;
+
+    if (userId) {
+      // Authenticated user: query by userId
+      lastOrder = await db.query.orders.findFirst({
+        where: eq(orders.createdBy, userId),
+        orderBy: [desc(orders.createdAt)],
+        with: {
+          items: {
+            with: {
+              product: {
+                columns: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  priceCents: true,
+                  status: true,
+                },
+                with: {
+                  image: {
+                    columns: {
+                      url: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    });
+      });
+    } else {
+      // Guest: read from cookie
+      const lastOrderId = await getLastOrderId();
+      if (!lastOrderId) {
+        return null;
+      }
+
+      lastOrder = await db.query.orders.findFirst({
+        where: eq(orders.id, lastOrderId),
+        with: {
+          items: {
+            with: {
+              product: {
+                columns: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  priceCents: true,
+                  status: true,
+                },
+                with: {
+                  image: {
+                    columns: {
+                      url: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    }
 
     if (!lastOrder?.items || lastOrder.items.length === 0) {
       return null;

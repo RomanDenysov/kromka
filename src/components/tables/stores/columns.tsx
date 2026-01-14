@@ -137,27 +137,6 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
     },
   },
   {
-    id: "customers",
-    header: ({ column, table }) => (
-      <TableColumnHeader
-        column={column}
-        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
-        title="Zákazníci"
-      />
-    ),
-    meta: {
-      label: "Zákazníci",
-      variant: "number",
-    },
-    enableSorting: true,
-    accessorKey: "usersCount",
-    cell: ({ row }) => (
-      <span className="font-medium font-mono text-xs tracking-tighter">
-        {row.original.users?.length ?? 0}
-      </span>
-    ),
-  },
-  {
     id: "orders",
     header: ({ column, table }) => (
       <TableColumnHeader

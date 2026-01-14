@@ -30,13 +30,6 @@ export const getUserDetails = cache(async () => {
   return await db.query.users.findFirst({
     where: eq(users.id, session.user.id),
     with: {
-      store: {
-        columns: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
       // TODO: Check what we need to get from members table
       members: {
         with: { organization: true },

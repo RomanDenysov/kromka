@@ -77,7 +77,7 @@ Categories can have multiple availability windows defined by `startDate` and `en
 
 **Table**: `stores`
 
-Physical or virtual store locations with contact information, addresses, and opening hours.
+Physical or virtual store locations with contact information, addresses, and opening hours. Stores are treated as content/pickup entities - they represent pickup points for orders but are not linked to users.
 
 **Key Fields**:
 - `id`: Prefixed ID (`sto_xxx`)
@@ -93,8 +93,7 @@ Physical or virtual store locations with contact information, addresses, and ope
 - `deletedAt`: Soft delete timestamp
 
 **Related Tables**:
-- `store_members`: Many-to-many relationship with users (store staff)
-- `orders`: Orders associated with the store
+- `orders`: Orders associated with the store (pickup location)
 
 ### Orders
 
@@ -272,6 +271,8 @@ Comprehensive authentication and user management system supporting:
 - `role`: User role
 - `banned`, `banReason`, `banExpires`: Ban management
 
+**Note**: Users are no longer linked to stores. Stores are treated as content/pickup entities only.
+
 ### Deliveries
 
 **Table**: `deliveries`
@@ -295,7 +296,6 @@ Users
 ├── Sessions (1:N)
 ├── Accounts (1:N)
 ├── Members (1:N) → Organizations
-├── StoreMembers (1:N) → Stores
 └── Orders (1:N)
 
 Organizations
@@ -325,7 +325,6 @@ Orders
 └── Deliveries (1:1)
 
 Stores
-├── StoreMembers (N:M) → Users
 └── Orders (1:N)
 
 Invoices
@@ -338,7 +337,6 @@ Invoices
    - Products ↔ Categories (`product_categories`)
    - Products ↔ Media (`product_images`)
    - Products ↔ Channels (`product_channels`)
-   - Users ↔ Stores (`store_members`)
    - Users ↔ Organizations (`members`)
 
 2. **One-to-Many with Cascade Deletes**:

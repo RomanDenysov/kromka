@@ -11,14 +11,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { Store } from "@/features/stores/queries";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { sortStoresByDistance } from "@/lib/geo-utils";
-import { useSelectedStore } from "@/store/customer-store";
 
 type StoresSectionProps = {
   stores: Store[];
 };
 
 export function StoresSection({ stores }: StoresSectionProps) {
-  const selectedStore = useSelectedStore();
   const { status, position, requestLocation, isLoading } = useGeolocation();
 
   const handleRequestLocation = () => {
@@ -75,7 +73,6 @@ export function StoresSection({ stores }: StoresSectionProps) {
             <StoreCard
               distance={store.distance}
               href={`/predajne/${store.slug}` as Route}
-              isSelected={selectedStore?.id === store.id}
               key={store.id}
               store={store}
               variant="default"

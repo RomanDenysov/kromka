@@ -4,7 +4,7 @@ import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
-import { getGuestInfoAction } from "@/features/checkout/actions";
+import { getLastOrderPrefillAction } from "@/features/checkout/actions";
 import { CheckoutCartHeader } from "@/features/checkout/components/checkout-cart-header";
 import {
   CheckoutForm,
@@ -30,19 +30,12 @@ export const metadata: Metadata = {
  * This avoids the previous issue of fetching cart 4 times.
  */
 async function CheckoutDataLoader() {
-  const [user, items, stores, ordersEnabled, guestInfo] = await Promise.all([
-    getUserDetails(),
+  const user = await getUserDetails();
+  const [items, stores, ordersEnabled, lastOrderPrefill] = await Promise.all([
     getDetailedCart(),
     getStores(),
     getSiteConfig("orders_enabled"),
-    (async () => {
-      try {
-        return await getGuestInfoAction();
-      } catch (error) {
-        console.error("Failed to get guest info:", error);
-        return null;
-      }
-    })(),
+    getLastOrderPrefillAction(user?.id),
   ]);
 
   const totals = getCartTotals(items);
@@ -59,8 +52,8 @@ async function CheckoutDataLoader() {
 
       <section className="size-full md:col-span-4 lg:col-span-5">
         <CheckoutForm
-          guestInfo={guestInfo}
           items={items}
+          lastOrderPrefill={lastOrderPrefill}
           ordersEnabled={ordersEnabled}
           stores={stores}
           user={user}

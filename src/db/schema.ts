@@ -45,10 +45,6 @@ export const users = pgTable("users", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 
-  storeId: text("store_id").references(() => stores.id, {
-    onDelete: "set null",
-  }),
-
   role: text("role").$type<UserRole>().default("user").notNull(),
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),
@@ -155,16 +151,12 @@ export const invitations = pgTable("invitations", {
     .references(() => users.id, { onDelete: "cascade" }),
 });
 
-export const usersRelations = relations(users, ({ many, one }) => ({
+export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   accounts: many(accounts),
   members: many(members),
   invitationsSent: many(invitations, {
     relationName: "inviter",
-  }),
-  store: one(stores, {
-    fields: [users.storeId],
-    references: [stores.id],
   }),
   orders: many(orders),
   posts: many(posts),
@@ -899,7 +891,6 @@ export const storesRelations = relations(stores, ({ many, one }) => ({
     references: [media.id],
   }),
   orders: many(orders),
-  users: many(users),
 }));
 
 // #endregion Stores

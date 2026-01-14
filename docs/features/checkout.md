@@ -42,39 +42,41 @@ Orders placed before 12:00 can be picked up tomorrow. After 12:00, pickup starts
 
 ### Cookie-Based Data Storage (Secure)
 
-Guest data is now stored in secure httpOnly cookies (accessible only server-side, protected from XSS):
+Guest order tracking uses a single httpOnly cookie (accessible only server-side, protected from XSS):
 
 | Cookie | Content | Max Age | Cleared | Purpose |
 |--------|---------|---------|---------|---------|
-| `krmk-guest` | `{name, email, phone}` | 30 days | After order | Pre-fill checkout form |
-| `krmk-store` | `{storeId, storeName}` | 365 days | Never | Remember store selection |
-| `krmk-orders` | `["ord_xxx", ...]` (max 10) | 365 days | Never | Order history for pre-fill |
+| `krmk-last-order` | `"ord_xxx"` (single order ID) | 365 days | Never | Last order ID for prefill |
 
 **Why httpOnly cookies?**
 - XSS-safe: JavaScript cannot access httpOnly cookies
 - Consistent with cart storage pattern (`krmk-kosik`)
 - Automatic expiration support
-- No additional DB queries needed
+- Minimal data storage (only order ID, not PII)
+
+**Prefill Strategy:**
+- **Guests**: Last order ID stored in cookie → fetch order from DB → extract `customerInfo` and `storeId` for prefill
+- **Authenticated users**: Query last order by `userId` from DB → extract `customerInfo` and `storeId` for prefill
+- No PII stored in cookies - all customer data comes from order records
 
 ### Server Actions for Data Access
 
-All cookie operations are handled via server actions in `src/features/checkout/actions.ts`:
+All data operations are handled via server actions in `src/features/checkout/actions.ts`:
 
-- `saveGuestInfoAction(info)` - Save guest PII after form changes
-- `getGuestInfoAction()` - Retrieve guest PII for display
-- `clearGuestInfoAction()` - Clear PII after successful order
-- `saveSelectedStoreAction(store)` - Save store selection
-- `addOrderToHistoryAction(orderId)` - Add order to history (guest tracking)
-- `getLastOrderInfoAction()` - Get most recent order for pre-fill
-- `getLastOrderWithItemsAction()` - Get last order with items for "repeat order" feature
+- `getLastOrderPrefillAction(userId?)` - Get last order prefill data (customerInfo + storeId)
+  - For guests: reads from `krmk-last-order` cookie
+  - For authenticated users: queries by `userId`
+  - Returns `{ customerInfo, storeId }` or `null`
+- `setLastOrderIdAction(orderId)` - Set last order ID in cookie (for guests only)
+- `getLastOrderWithItemsAction(userId?)` - Get last order with items for "repeat order" feature
 
 ### Last Order / "Repeat Order" Feature
 
-Returning customers can quickly repeat their last order from the cart drawer. This feature is powered by the order history cookie (`krmk-orders`).
+Returning customers can quickly repeat their last order from the cart drawer. This feature uses the last order ID (from cookie for guests, or DB query for authenticated users).
 
 **How it works:**
 1. User opens the cart drawer (top-right shop icon)
-2. Below their current cart items, a "Last Order" card appears (if order history exists)
+2. Below their current cart items, a "Last Order" card appears (if last order exists)
 3. Card shows 2-3 items from the most recent order with current prices
 4. Clicking "Zopakovať objednávku" (Repeat Order) button:
    - Adds all items from last order to the current cart
@@ -85,38 +87,34 @@ Returning customers can quickly repeat their last order from the cart drawer. Th
 **Location:** `src/features/cart/components/last-order-card.tsx`
 
 **Server-side logic:**
-- `getLastOrderWithItemsAction()` fetches the most recent order from history
+- `getLastOrderWithItemsAction(userId?)` fetches the most recent order:
+  - **Guests**: Reads `krmk-last-order` cookie → queries order by ID
+  - **Authenticated**: Queries order by `userId` ordered by `createdAt DESC LIMIT 1`
 - Filters out deleted/draft products to prevent errors
 - Returns null if no valid items exist (card is hidden)
 - Uses batch `addItemsToCart()` action for efficient cart updates
 
 **Edge cases:**
-- Card is hidden if user has no order history
+- Card is hidden if user has no last order
 - Card is hidden if all items from last order are no longer available
 - Products shown with current prices, not historical prices (user expectation)
 - Merges with existing cart items (doesn't replace)
 
-### Customer Store Sync
-
-The `CustomerStoreSync` component (in header) handles centralized sync and validation:
-- **Auth user sync**: User's preferred store synced to Zustand on login
-- **Store validation**: Clears localStorage if persisted store was deleted
-- **PostHog sync**: Store selection tracked as person property for analytics segmentation
-
 ### Guest Data Privacy
-- PII stored only in httpOnly cookies (not accessible to JavaScript)
-- **Cleared automatically** after successful order creation
-- **Expires** after 30 days of inactivity
-- Order history (IDs only) persists for 1 year to enable pre-fill on future visits
+- **No PII in cookies**: Only order ID stored (minimal data)
+- **Prefill from orders**: Customer info and store selection come from last order record
+- **Order ID persists**: Last order ID cookie expires after 1 year to enable prefill on future visits
+- **Authenticated users**: No cookies needed - last order queried directly from DB
 
 ### Data Flow
 ```
 page.tsx (server)
-  └── getDetailedCart() + getStores() + getUserDetails() + getGuestInfoAction()
-        └── Pass data as props to CheckoutForm
-              └── CustomerInfoCard reads/saves guestInfo via server actions
+  └── getDetailedCart() + getStores() + getUserDetails() + getLastOrderPrefillAction(userId)
+        └── Pass lastOrderPrefill as prop to CheckoutForm
+              └── CustomerInfoCard uses lastOrderPrefill.customerInfo for initial values
+              └── useCheckoutForm uses lastOrderPrefill.storeId for initial store
               └── useCheckoutForm handles submission
-                    └── createOrderFromCart() → addOrderToHistory() + clearGuestInfo()
+                    └── createOrderFromCart() → setLastOrderIdAction() (guests only)
 ```
 
 ## Hooks
@@ -132,12 +130,12 @@ Computes restricted pickup dates from cart items' categories. Returns `restricte
 
 ## Migration Notes
 
-**2026 Update:** Guest data storage migrated from localStorage (Zustand) to secure httpOnly cookies.
+**2026 Update:** Simplified guest data storage and removed user-store binding.
 
-- **Before:** `src/store/customer-store.ts` stored PII in localStorage
-- **After:** `src/features/checkout/cookies.ts` uses httpOnly cookies (XSS-safe)
-- **Cookie operations:** Handled via `src/features/checkout/actions.ts` (server actions)
-- **Order history:** New `krmk-orders` cookie enables pre-fill on repeat visits
+- **Before:** Multiple cookies (`krmk-guest`, `krmk-store`, `krmk-orders` array), Zustand store for client state, user-store relation in DB
+- **After:** Single `krmk-last-order` cookie (order ID only), no client state, no user-store relation
+- **Prefill strategy:** Fetch last order from DB (by userId for auth, by cookie ID for guests) → extract customerInfo + storeId
+- **Benefits:** Less cookie data, simpler architecture, stores treated as content/pickup entities only
 
 ## Related Features
 - `src/features/cart/` - Cart cookie storage, queries, and "repeat order" batch add action

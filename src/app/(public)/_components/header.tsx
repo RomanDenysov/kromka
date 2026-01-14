@@ -2,7 +2,6 @@ import { MenuIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { CustomerStoreSync } from "@/components/customer-store-sync";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
@@ -19,7 +18,6 @@ import {
   CartDrawerFooter,
   CartDrawerFooterLoader,
 } from "@/features/cart/components/cart-drawer-footer";
-import { getStores } from "@/features/stores/queries";
 import { getUserDetails } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 import { FavoritesLink } from "./favorites-link";
@@ -33,7 +31,6 @@ const navigation: { name: string; href: Route }[] = [
 ] as const;
 
 export function Header() {
-  const stores = getStores();
   const user = getUserDetails();
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -98,11 +95,6 @@ export function Header() {
               </CartDrawer>
             </Suspense>
           </div>
-
-          {/* Customer store sync */}
-          <Suspense fallback={null}>
-            <CustomerStoreSync storesPromise={stores} userPromise={user} />
-          </Suspense>
         </div>
       </Container>
     </header>

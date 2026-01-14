@@ -14,14 +14,13 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import type { DetailedCartItem } from "@/features/cart/queries";
-import type { GuestInfo } from "@/features/checkout/cookies";
 import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
 import { useCheckoutValidation } from "@/features/checkout/hooks/use-checkout-validation";
 import { usePickupRestrictions } from "@/features/checkout/hooks/use-pickup-restrictions";
 import type { Store } from "@/features/stores/queries";
 import type { User } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
-import { useSelectedStore } from "@/store/customer-store";
+import type { LastOrderPrefill } from "../actions";
 import { CheckoutAlerts } from "./checkout-alerts";
 import { CheckoutMobileFooter } from "./checkout-mobile-footer";
 import { CheckoutSummaryCard } from "./checkout-summary-card";
@@ -34,7 +33,7 @@ type CheckoutFormProps = {
   stores: Store[];
   items: DetailedCartItem[];
   ordersEnabled: boolean;
-  guestInfo?: GuestInfo | null;
+  lastOrderPrefill?: LastOrderPrefill | null;
 };
 
 export function CheckoutForm({
@@ -42,18 +41,15 @@ export function CheckoutForm({
   stores,
   items,
   ordersEnabled,
-  guestInfo,
+  lastOrderPrefill,
 }: CheckoutFormProps) {
-  // Customer store selection from Zustand (for backward compatibility with other components)
-  const customerStore = useSelectedStore();
-
   // Get pickup date restrictions from cart items
   const { restrictedPickupDates } = usePickupRestrictions(items);
 
   // Validate user info (separate from form)
   const { userInfo, isUserInfoValid } = useCheckoutValidation({
     user,
-    guestInfo,
+    guestInfo: lastOrderPrefill?.customerInfo ?? null,
   });
 
   // Initialize checkout form with all dependencies
@@ -68,7 +64,7 @@ export function CheckoutForm({
   } = useCheckoutForm({
     user,
     stores,
-    customerStore,
+    lastOrderPrefill,
     restrictedPickupDates,
     userInfo,
     isUserInfoValid,
@@ -104,7 +100,10 @@ export function CheckoutForm({
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <CustomerInfoCard guestInfo={guestInfo} user={user ?? null} />
+                <CustomerInfoCard
+                  guestInfo={lastOrderPrefill?.customerInfo ?? null}
+                  user={user ?? null}
+                />
               </CardContent>
             </Card>
 

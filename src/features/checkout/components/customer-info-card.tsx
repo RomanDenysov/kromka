@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckIcon, EditIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { TextField } from "@/components/forms/fields/text-field";
@@ -16,14 +16,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Spinner } from "@/components/ui/spinner";
-import { saveGuestInfoAction } from "@/features/checkout/actions";
 import { type UserInfoData, userInfoSchema } from "@/features/checkout/schema";
 import { updateCurrentUserProfile } from "@/lib/actions/user-profile";
 import type { User } from "@/lib/auth/session";
 import { getInitials } from "@/lib/utils";
 import { useLoginModalOpen } from "@/store/login-modal-store";
-
-const AUTO_SAVE_DELAY = 800;
 
 /** Reusable form fields for customer info */
 function CustomerInfoFields({ columns = 1 }: { columns?: 1 | 2 }) {
@@ -57,8 +54,8 @@ function CustomerInfoFields({ columns = 1 }: { columns?: 1 | 2 }) {
 type CustomerInfoCardProps = {
   /** Server-provided user data for authenticated users. Null for guests. */
   user: NonNullable<User> | null;
-  /** Guest info from httpOnly cookie */
-  guestInfo?: GuestInfo | null;
+  /** Guest info from last order prefill */
+  guestInfo?: { name: string; email: string; phone: string } | null;
 };
 
 /**
@@ -71,7 +68,7 @@ export function CustomerInfoCard({ user, guestInfo }: CustomerInfoCardProps) {
   const [isPending, startTransition] = useTransition();
   const openLogin = useLoginModalOpen();
   const pathname = usePathname();
-  const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
+  const _autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Resolve display values: auth user from props, guest from cookie
   const displayData = user
@@ -99,48 +96,6 @@ export function CustomerInfoCard({ user, guestInfo }: CustomerInfoCardProps) {
     },
   });
 
-  // Auto-save for guests: debounced save to httpOnly cookie
-  const autoSaveGuest = useCallback((values: UserInfoData) => {
-    // Only auto-save if at least email is provided (minimal validation)
-    if (!values.email) {
-      return;
-    }
-
-    startTransition(async () => {
-      await saveGuestInfoAction({
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-      });
-    });
-  }, []);
-
-  // Watch form values and auto-save for guests
-  const watchedValues = form.watch();
-
-  useEffect(() => {
-    // Skip auto-save for authenticated users or when in display mode
-    if (user || hasData) {
-      return;
-    }
-
-    // Clear previous timeout
-    if (autoSaveTimeout.current) {
-      clearTimeout(autoSaveTimeout.current);
-    }
-
-    // Debounced auto-save
-    autoSaveTimeout.current = setTimeout(() => {
-      autoSaveGuest(watchedValues);
-    }, AUTO_SAVE_DELAY);
-
-    return () => {
-      if (autoSaveTimeout.current) {
-        clearTimeout(autoSaveTimeout.current);
-      }
-    };
-  }, [watchedValues, user, hasData, autoSaveGuest]);
-
   const handleSave = () => {
     const values = form.getValues();
     if (!userInfoSchema.safeParse(values).success) {
@@ -159,15 +114,9 @@ export function CustomerInfoCard({ user, guestInfo }: CustomerInfoCardProps) {
         }
       });
     } else {
-      startTransition(async () => {
-        await saveGuestInfoAction({
-          name: values.name,
-          email: values.email,
-          phone: values.phone,
-        });
-        toast.success("Údaje boli uložené");
-        setOpen(false);
-      });
+      // For guests, just close the popover - data will be saved when order is created
+      toast.success("Údaje boli uložené");
+      setOpen(false);
     }
   };
 
@@ -234,42 +183,6 @@ function CustomerInfoDisplay({
   isPending: boolean;
   user: NonNullable<User> | null;
 }) {
-  const autoSaveTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  // Auto-save for guests in edit popover
-  const watchedValues = form.watch();
-
-  useEffect(() => {
-    // Only auto-save for guests when popover is open
-    if (user || !open) {
-      return;
-    }
-
-    if (autoSaveTimeout.current) {
-      clearTimeout(autoSaveTimeout.current);
-    }
-
-    autoSaveTimeout.current = setTimeout(() => {
-      if (!watchedValues.email) {
-        return;
-      }
-      // Save to server without blocking UI - fire and forget
-      saveGuestInfoAction({
-        name: watchedValues.name,
-        email: watchedValues.email,
-        phone: watchedValues.phone,
-      }).catch((error) => {
-        console.error("Failed to save guest info:", error);
-      });
-    }, AUTO_SAVE_DELAY);
-
-    return () => {
-      if (autoSaveTimeout.current) {
-        clearTimeout(autoSaveTimeout.current);
-      }
-    };
-  }, [watchedValues, user, open]);
-
   return (
     <Popover onOpenChange={onOpenChange} open={open}>
       <PopoverTrigger asChild>

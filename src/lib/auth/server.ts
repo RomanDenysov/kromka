@@ -38,14 +38,6 @@ export const auth = betterAuth({
       updateUserInfoOnLink: true,
     },
   },
-  user: {
-    additionalFields: {
-      storeId: {
-        type: "string",
-        input: false,
-      },
-    },
-  },
   plugins: [
     admin(),
     organization(),

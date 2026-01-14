@@ -3,10 +3,8 @@
 import {
   LogInIcon,
   LogOutIcon,
-  MoreHorizontalIcon,
   PackageIcon,
   SettingsIcon,
-  StoreIcon,
   UserIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -25,12 +23,10 @@ import {
 import { signOut } from "@/lib/auth/client";
 import type { UserDetails } from "@/lib/auth/session";
 import { getInitials } from "@/lib/utils";
-import { useStoreModalState } from "@/store/store-modal-state";
 import { Icons } from "./icons";
 
 export function UserButton({ promise }: { promise: Promise<UserDetails> }) {
   const user = use(promise);
-  const open = useStoreModalState((state) => state.open);
   const router = useRouter();
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
@@ -84,14 +80,6 @@ export function UserButton({ promise }: { promise: Promise<UserDetails> }) {
             <PackageIcon />
             Objednavky
           </Link>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={open}>
-          <StoreIcon />
-          <span className="truncate">
-            {user.store?.name ?? "Vybrať predajňu"}
-          </span>
-          <MoreHorizontalIcon className="size-4" />
         </DropdownMenuItem>
         {user.role === "admin" && (
           <>

@@ -12,12 +12,12 @@ import {
 } from "@/db/schema";
 import type { OrderStatus, PaymentMethod, PaymentStatus } from "@/db/types";
 import { clearCart, getCart } from "@/features/cart/cookies";
-import { addOrderToHistory, clearGuestInfo } from "@/features/checkout/cookies";
 import { requireAdmin, requireAuth } from "@/lib/auth/guards";
 import { getUser } from "@/lib/auth/session";
 import { sendEmail } from "@/lib/email";
 import { createPrefixedNumericId } from "@/lib/ids";
 import { getSiteConfig } from "@/lib/site-config/queries";
+import { setLastOrderIdAction } from "../checkout/actions";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
 
 type CreateOrderResult =
@@ -164,13 +164,10 @@ export async function createOrderFromCart(data: {
     // 10. Clear cart cookie
     await clearCart();
 
-    // 11. For guests: add order to history and clear PII (privacy)
+    // 11. For guests: set last order ID in cookie
     if (isGuest) {
-      addOrderToHistory(order.id).catch((error) => {
-        console.error("Failed to add order to history:", error);
-      });
-      clearGuestInfo().catch((error) => {
-        console.error("Failed to clear guest info:", error);
+      setLastOrderIdAction(order.id).catch((error) => {
+        console.error("Failed to set last order ID:", error);
       });
     }
 

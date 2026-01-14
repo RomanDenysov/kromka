@@ -1,23 +1,13 @@
 "use server";
 
 import { eq, inArray, not } from "drizzle-orm";
-import { revalidatePath, updateTag } from "next/cache";
+import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { stores, users } from "@/db/schema";
+import { stores } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
-import { requireAdmin, requireAuth } from "@/lib/auth/guards";
+import { requireAdmin } from "@/lib/auth/guards";
 import type { StoreSchema } from "@/lib/stores/types";
-
-export async function setUserStore(
-  storeId: string
-): Promise<{ success: boolean }> {
-  const user = await requireAuth();
-
-  await db.update(users).set({ storeId }).where(eq(users.id, user.id));
-
-  return { success: true };
-}
 
 export async function createDraftStoreAction() {
   await requireAdmin();
@@ -102,12 +92,6 @@ export async function toggleIsActiveStoresAction({ ids }: { ids: string[] }) {
     .where(inArray(stores.id, ids))
     .returning({ id: stores.id, slug: stores.slug });
 
-  // TODO: DELETE IT AFTER RELEASE
-  // biome-ignore lint/complexity/noForEach: We need to revalidate the paths for each store
-  updatedStores.forEach((store) => {
-    revalidatePath(`/admin/stores/${store.id}`);
-  });
-
   updateTag("stores");
   for (const store of updatedStores) {
     updateTag(`store-${store.slug}`);
@@ -126,12 +110,6 @@ export async function deleteStoresAction({ ids }: { ids: string[] }) {
     .delete(stores)
     .where(inArray(stores.id, ids))
     .returning({ id: stores.id, slug: stores.slug });
-
-  // TODO: DELETE IT AFTER RELEASE
-  // biome-ignore lint/complexity/noForEach: We need to revalidate the paths for each store
-  deletedStores.forEach((store) => {
-    revalidatePath(`/admin/stores/${store.id}`);
-  });
 
   updateTag("stores");
   for (const store of deletedStores) {

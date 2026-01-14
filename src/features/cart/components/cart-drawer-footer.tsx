@@ -7,11 +7,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
 import { getLastOrderWithItemsAction } from "@/features/checkout/actions";
+import { getUser } from "@/lib/auth/session";
 import { cn, formatPrice } from "@/lib/utils";
 import { LastOrderCard } from "./last-order-card";
 
 async function LastOrderCardContent() {
-  const lastOrder = await getLastOrderWithItemsAction();
+  const user = await getUser();
+  const lastOrder = await getLastOrderWithItemsAction(user?.id);
   if (!lastOrder) {
     return null;
   }

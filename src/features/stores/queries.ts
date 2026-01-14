@@ -34,11 +34,6 @@ export function getAdminStores() {
           id: true,
         },
       },
-      users: {
-        columns: {
-          id: true,
-        },
-      },
     },
     orderBy: asc(stores.name),
   });
@@ -55,11 +50,6 @@ export function getAdminStoreById(id: string) {
         },
       },
       orders: {
-        columns: {
-          id: true,
-        },
-      },
-      users: {
         columns: {
           id: true,
         },

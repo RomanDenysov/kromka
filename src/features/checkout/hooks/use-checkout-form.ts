@@ -7,11 +7,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { PaymentMethod, StoreSchedule } from "@/db/types";
 import {
-  addOrderToHistoryAction,
-  clearGuestInfoAction,
-  saveSelectedStoreAction,
-} from "@/features/checkout/actions";
-import {
   type CheckoutFormData,
   checkoutFormSchema,
 } from "@/features/checkout/schema";
@@ -27,6 +22,7 @@ import {
 } from "@/features/orders/actions";
 import type { Store } from "@/features/stores/queries";
 import type { User } from "@/lib/auth/session";
+import { type LastOrderPrefill, setLastOrderIdAction } from "../actions";
 
 export type StoreOption = {
   id: string;
@@ -34,15 +30,10 @@ export type StoreOption = {
   openingHours: StoreSchedule | null;
 };
 
-type SelectedStore = {
-  id: string;
-  name: string;
-} | null;
-
 type UseCheckoutFormProps = {
   user?: User;
   stores: Store[];
-  customerStore: SelectedStore;
+  lastOrderPrefill?: LastOrderPrefill | null;
   restrictedPickupDates: Set<string> | null;
   userInfo: { name: string; email: string; phone: string };
   isUserInfoValid: boolean;
@@ -55,7 +46,7 @@ type UseCheckoutFormProps = {
 export function useCheckoutForm({
   user,
   stores,
-  customerStore,
+  lastOrderPrefill,
   restrictedPickupDates,
   userInfo,
   isUserInfoValid,
@@ -84,9 +75,9 @@ export function useCheckoutForm({
       paymentMethod: "in_store" as PaymentMethod,
       pickupDate: defaultDate,
       pickupTime: "",
-      storeId: user?.storeId ?? customerStore?.id ?? "",
+      storeId: lastOrderPrefill?.storeId ?? "",
     };
-  }, [user?.storeId, customerStore?.id]);
+  }, [lastOrderPrefill?.storeId]);
 
   // Initialize form
   const form = useForm<CheckoutFormData>({
@@ -165,17 +156,6 @@ export function useCheckoutForm({
     });
   }, [pickupDate, storeSchedule, form]);
 
-  // Effect: Sync external store selection (from global modal) to form
-  useEffect(() => {
-    const externalStoreId = customerStore?.id;
-    const currentFormStoreId = form.getValues("storeId");
-
-    // Sync if Zustand store changed and differs from form
-    if (externalStoreId && externalStoreId !== currentFormStoreId) {
-      form.setValue("storeId", externalStoreId, { shouldValidate: true });
-    }
-  }, [customerStore?.id, form]);
-
   // Form submission handler
   const onSubmit = async (value: CheckoutFormData) => {
     const isGuest = !user;
@@ -184,17 +164,6 @@ export function useCheckoutForm({
     if (!isUserInfoValid) {
       toast.error("Vyplňte prosím všetky osobné údaje");
       return;
-    }
-
-    // Sync selected store to cookie for future visits
-    const selectedStore = stores.find((s) => s.id === value.storeId);
-    if (selectedStore && !user?.storeId) {
-      saveSelectedStoreAction({
-        id: selectedStore.id,
-        name: selectedStore.name,
-      }).catch((error) => {
-        console.error("Failed to save selected store:", error);
-      });
     }
 
     const formattedDate = format(value.pickupDate, "yyyy-MM-dd");
@@ -213,13 +182,10 @@ export function useCheckoutForm({
     });
 
     if (result.success) {
-      // Add order to history and clear guest PII after successful order (privacy)
+      // Set last order ID for guests (for future prefill)
       if (isGuest) {
-        addOrderToHistoryAction(result.orderId).catch((error) => {
-          console.error("Failed to add order to history:", error);
-        });
-        clearGuestInfoAction().catch((error) => {
-          console.error("Failed to clear guest info:", error);
+        setLastOrderIdAction(result.orderId).catch((error: unknown) => {
+          console.error("Failed to set last order ID:", error);
         });
       }
       toast.success("Vaša objednávka bola vytvorená");

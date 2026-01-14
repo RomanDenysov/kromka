@@ -2,14 +2,11 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import {
   BanIcon,
-  Building2Icon,
   CalendarIcon,
   MailIcon,
   PhoneIcon,
-  StoreIcon,
   VerifiedIcon,
 } from "lucide-react";
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -64,18 +61,6 @@ export function UserProfileCard({ user }: Props) {
           createdAt={user.createdAt}
           updatedAt={user.updatedAt}
         />
-        {user.store && (
-          <>
-            <Separator />
-            <StoreSection storeId={user.store.id} storeName={user.store.name} />
-          </>
-        )}
-        {user.members && user.members.length > 0 && (
-          <>
-            <Separator />
-            <OrganizationsSection members={user.members} />
-          </>
-        )}
       </CardContent>
     </Card>
   );
@@ -208,45 +193,6 @@ function AccountDatesSection({
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function StoreSection({
-  storeId,
-  storeName,
-}: {
-  storeId: string;
-  storeName: string;
-}) {
-  return (
-    <div className="space-y-2">
-      <h4 className="font-semibold text-sm">Pridelený obchod</h4>
-      <Link
-        className="flex items-center gap-2 text-sm hover:underline"
-        href={`/admin/stores/${storeId}`}
-      >
-        <StoreIcon className="h-4 w-4 text-muted-foreground" />
-        <span>{storeName}</span>
-      </Link>
-    </div>
-  );
-}
-
-function OrganizationsSection({
-  members,
-}: {
-  members: NonNullable<User>["members"] | null | undefined;
-}) {
-  return (
-    <div className="space-y-2">
-      <h4 className="font-semibold text-sm">Organizácie</h4>
-      {members?.map((member) => (
-        <div className="flex items-center gap-2 text-sm" key={member.id}>
-          <Building2Icon className="h-4 w-4 text-muted-foreground" />
-          <span>{member.organization.name}</span>
-        </div>
-      ))}
     </div>
   );
 }
