@@ -2,7 +2,7 @@ import { startOfToday } from "date-fns";
 import z from "zod";
 import { PAYMENT_METHODS } from "@/db/types";
 
-/** Schema for user/guest contact info - managed separately from checkout */
+/** Schema for user/guest contact info */
 export const userInfoSchema = z.object({
   name: z.string().min(1, "Meno je povinné"),
   email: z.email("Neplatná emailová adresa"),
@@ -11,8 +11,13 @@ export const userInfoSchema = z.object({
 
 export type UserInfoData = z.infer<typeof userInfoSchema>;
 
-/** Schema for checkout-specific fields only */
+/** Unified schema for checkout form including customer info */
 export const checkoutFormSchema = z.object({
+  // Customer info fields
+  name: z.string().min(1, "Meno je povinné"),
+  email: z.email("Neplatná emailová adresa"),
+  phone: z.string().min(1, "Telefónne číslo je povinné"),
+  // Checkout-specific fields
   paymentMethod: z.enum(PAYMENT_METHODS, "Spôsob platby je povinný"),
   pickupDate: z
     .date()

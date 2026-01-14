@@ -43,8 +43,8 @@ export async function createOrderFromCart(data: {
   pickupDate: string;
   pickupTime: string;
   paymentMethod: PaymentMethod;
-  /** Required for guest checkout when user is not authenticated */
-  customerInfo?: GuestCustomerInfo;
+  /** Customer info - required for all orders (guests and authenticated users) */
+  customerInfo: GuestCustomerInfo;
 }): Promise<CreateOrderResult> {
   try {
     // Check if orders are enabled
@@ -59,17 +59,8 @@ export async function createOrderFromCart(data: {
     const user = await getUser();
     const isGuest = !user;
 
-    // Require either authenticated user or guest customer info
-    if (isGuest && !data.customerInfo) {
-      return {
-        success: false,
-        error:
-          "Pre objednávku je potrebné byť prihlásený alebo zadať kontaktné údaje",
-      };
-    }
-
-    // Validate guest info if provided
-    if (isGuest && data.customerInfo && !isValidGuestInfo(data.customerInfo)) {
+    // Validate customer info
+    if (!isValidGuestInfo(data.customerInfo)) {
       return {
         success: false,
         error: "Vyplňte prosím všetky kontaktné údaje",
@@ -129,13 +120,13 @@ export async function createOrderFromCart(data: {
     // 6. Generate order number
     const orderNumber = createPrefixedNumericId("OBJ");
 
-    // 7. Create order
+    // 7. Create order (always store customerInfo for last-order prefill)
     const [order] = await db
       .insert(orders)
       .values({
         orderNumber,
         createdBy: user?.id ?? null,
-        customerInfo: data.customerInfo ?? null,
+        customerInfo: data.customerInfo,
         storeId: data.storeId,
         orderStatus: "new",
         paymentStatus: "pending",
@@ -164,20 +155,35 @@ export async function createOrderFromCart(data: {
     // 10. Clear cart cookie
     await clearCart();
 
-    // 11. For guests: set last order ID in cookie
+    // 11. Update last order ID (for guests: cookie; for auth users: query by userId)
     if (isGuest) {
       setLastOrderIdAction(order.id).catch((error) => {
         console.error("Failed to set last order ID:", error);
       });
     }
 
-    // 12. Fetch full order with relations
+    // 12. For authenticated users: update profile name/phone as side-effect
+    if (user) {
+      const { updateCurrentUserProfile } = await import(
+        "@/lib/actions/user-profile"
+      );
+      updateCurrentUserProfile({
+        name: data.customerInfo.name,
+        email: data.customerInfo.email,
+        phone: data.customerInfo.phone,
+      }).catch((error) => {
+        // Non-blocking: profile update failure shouldn't prevent order creation
+        console.error("Failed to update user profile:", error);
+      });
+    }
+
+    // 13. Fetch full order with relations
     const fullOrder = await getOrderById(order.id);
     if (!fullOrder) {
       throw new Error("Order not found after creation");
     }
 
-    // 13. Send email to staff and customer
+    // 14. Send email to staff and customer
     await sendEmail.newOrder({ order: fullOrder });
     await sendEmail.receipt({ order: fullOrder });
 

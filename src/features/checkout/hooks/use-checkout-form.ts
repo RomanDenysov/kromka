@@ -22,7 +22,7 @@ import {
 } from "@/features/orders/actions";
 import type { Store } from "@/features/stores/queries";
 import type { User } from "@/lib/auth/session";
-import { type LastOrderPrefill, setLastOrderIdAction } from "../actions";
+import type { LastOrderPrefill } from "../actions";
 
 export type StoreOption = {
   id: string;
@@ -35,8 +35,6 @@ type UseCheckoutFormProps = {
   stores: Store[];
   lastOrderPrefill?: LastOrderPrefill | null;
   restrictedPickupDates: Set<string> | null;
-  userInfo: { name: string; email: string; phone: string };
-  isUserInfoValid: boolean;
 };
 
 /**
@@ -48,8 +46,6 @@ export function useCheckoutForm({
   stores,
   lastOrderPrefill,
   restrictedPickupDates,
-  userInfo,
-  isUserInfoValid,
 }: UseCheckoutFormProps) {
   const router = useRouter();
 
@@ -64,30 +60,43 @@ export function useCheckoutForm({
     [stores]
   );
 
-  // Compute initial form values
+  // Compute initial form values with customer info prefilled
   const initialValues = useMemo(() => {
     const canOrderForTomorrow = isBeforeDailyCutoff();
     const defaultDate = canOrderForTomorrow
       ? addDays(startOfToday(), 1)
       : addDays(startOfToday(), 2);
 
+    // Prefill customer info: user data first, then last order fallback
+    const customerName =
+      user?.name ?? lastOrderPrefill?.customerInfo?.name ?? "";
+    const customerEmail =
+      user?.email ?? lastOrderPrefill?.customerInfo?.email ?? "";
+    const customerPhone =
+      user?.phone ?? lastOrderPrefill?.customerInfo?.phone ?? "";
+
     return {
+      name: customerName,
+      email: customerEmail,
+      phone: customerPhone,
       paymentMethod: "in_store" as PaymentMethod,
       pickupDate: defaultDate,
       pickupTime: "",
       storeId: lastOrderPrefill?.storeId ?? "",
     };
-  }, [lastOrderPrefill?.storeId]);
+  }, [user, lastOrderPrefill]);
 
-  // Initialize form
+  // Initialize form with onChange validation mode for real-time feedback
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: initialValues,
+    mode: "onChange",
   });
 
   // Watch form values for derived state
   const pickupDate = form.watch("pickupDate");
   const storeId = form.watch("storeId");
+  const _pickupTime = form.watch("pickupTime");
 
   // Derive selected store and schedule from form value
   const selectedStoreInForm =
@@ -126,13 +135,14 @@ export function useCheckoutForm({
     );
 
     if (firstDate) {
-      form.setValue("pickupDate", firstDate, { shouldValidate: false });
+      form.setValue("pickupDate", firstDate, { shouldValidate: true });
       const range = getTimeRangeForDate(firstDate, schedule);
-      form.setValue("pickupTime", getFirstAvailableTime(range), {
-        shouldValidate: false,
-      });
+      const firstTime = getFirstAvailableTime(range);
+      if (firstTime) {
+        form.setValue("pickupTime", firstTime, { shouldValidate: true });
+      }
     } else {
-      form.setValue("pickupTime", "", { shouldValidate: false });
+      form.setValue("pickupTime", "", { shouldValidate: true });
     }
   }, [storeId, storeOptions, restrictedPickupDates, form]);
 
@@ -146,48 +156,37 @@ export function useCheckoutForm({
     prevPickupDateRef.current = pickupDate;
 
     if (!pickupDate) {
-      form.setValue("pickupTime", "", { shouldValidate: false });
+      form.setValue("pickupTime", "", { shouldValidate: true });
       return;
     }
 
     const range = getTimeRangeForDate(pickupDate, storeSchedule);
-    form.setValue("pickupTime", getFirstAvailableTime(range), {
-      shouldValidate: false,
-    });
+    const firstTime = getFirstAvailableTime(range);
+    if (firstTime) {
+      form.setValue("pickupTime", firstTime, { shouldValidate: true });
+    }
   }, [pickupDate, storeSchedule, form]);
 
   // Form submission handler
   const onSubmit = async (value: CheckoutFormData) => {
-    const isGuest = !user;
-
-    // Validate user info is complete before proceeding
-    if (!isUserInfoValid) {
-      toast.error("Vyplňte prosím všetky osobné údaje");
-      return;
-    }
-
     const formattedDate = format(value.pickupDate, "yyyy-MM-dd");
 
-    // Build guest info from customer store (user info already in DB for auth users)
-    const guestInfo: GuestCustomerInfo | undefined = isGuest
-      ? { name: userInfo.name, email: userInfo.email, phone: userInfo.phone }
-      : undefined;
+    // Build customer info from form values (for all users, including authenticated)
+    const customerInfo: GuestCustomerInfo = {
+      name: value.name,
+      email: value.email,
+      phone: value.phone,
+    };
 
     const result = await createOrderFromCart({
       storeId: value.storeId,
       pickupDate: formattedDate,
       pickupTime: value.pickupTime,
       paymentMethod: value.paymentMethod,
-      customerInfo: guestInfo,
+      customerInfo,
     });
 
     if (result.success) {
-      // Set last order ID for guests (for future prefill)
-      if (isGuest) {
-        setLastOrderIdAction(result.orderId).catch((error: unknown) => {
-          console.error("Failed to set last order ID:", error);
-        });
-      }
       toast.success("Vaša objednávka bola vytvorená");
       router.push(`/pokladna/${result.orderId}` as Route);
     } else {

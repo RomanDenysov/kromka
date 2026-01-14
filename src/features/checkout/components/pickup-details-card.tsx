@@ -71,14 +71,14 @@ export function PickupDetailsCard({
             control={form.control}
             name="pickupDate"
             render={({ field, fieldState }) => {
-              const isInvalid = fieldState.isTouched && fieldState.invalid;
+              const isInvalid = fieldState.invalid;
               return (
                 <Field
                   className="w-full lg:col-span-3"
                   data-invalid={isInvalid}
                 >
                   <OrderPickupDatePicker
-                    onDateSelect={(date) => field.onChange(date)}
+                    onDateSelect={field.onChange}
                     restrictedDates={restrictedPickupDates}
                     selectedDate={field.value}
                     storeSchedule={storeSchedule}
@@ -92,7 +92,7 @@ export function PickupDetailsCard({
             control={form.control}
             name="pickupTime"
             render={({ field, fieldState }) => {
-              const isInvalid = fieldState.isTouched && fieldState.invalid;
+              const isInvalid = fieldState.invalid;
               return (
                 <Field
                   className="w-full lg:col-span-2"
@@ -100,7 +100,7 @@ export function PickupDetailsCard({
                 >
                   <OrderPickupTimePicker
                     disabled={!pickupDate}
-                    onTimeSelect={(time) => field.onChange(time)}
+                    onTimeSelect={field.onChange}
                     selectedTime={field.value}
                     timeRange={timeRange}
                   />

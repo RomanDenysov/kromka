@@ -5,7 +5,6 @@ import type { CheckoutFormData } from "@/features/checkout/schema";
 
 type CheckoutAlertsProps = {
   ordersEnabled: boolean;
-  isUserInfoValid: boolean;
   formErrors: FieldErrors<CheckoutFormData>;
 };
 
@@ -15,10 +14,11 @@ type CheckoutAlertsProps = {
  */
 export function CheckoutAlerts({
   ordersEnabled,
-  isUserInfoValid,
   formErrors,
 }: CheckoutAlertsProps) {
   const hasFormErrors = Object.keys(formErrors).length > 0;
+  const hasCustomerInfoErrors =
+    formErrors.name || formErrors.email || formErrors.phone;
 
   return (
     <>
@@ -32,12 +32,12 @@ export function CheckoutAlerts({
         </Alert>
       )}
 
-      {!isUserInfoValid && (
+      {hasCustomerInfoErrors && (
         <Alert variant="default">
           <AlertCircleIcon className="size-4" />
           <AlertTitle>Vyplňte osobné údaje</AlertTitle>
           <AlertDescription className="text-xs">
-            Pred vytvorením objednávky vyplňte a uložte svoje kontaktné údaje.
+            Pred vytvorením objednávky vyplňte všetky kontaktné údaje.
           </AlertDescription>
         </Alert>
       )}

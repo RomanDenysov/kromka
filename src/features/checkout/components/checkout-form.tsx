@@ -15,7 +15,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import type { DetailedCartItem } from "@/features/cart/queries";
 import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
-import { useCheckoutValidation } from "@/features/checkout/hooks/use-checkout-validation";
 import { usePickupRestrictions } from "@/features/checkout/hooks/use-pickup-restrictions";
 import type { Store } from "@/features/stores/queries";
 import type { User } from "@/lib/auth/session";
@@ -46,12 +45,6 @@ export function CheckoutForm({
   // Get pickup date restrictions from cart items
   const { restrictedPickupDates } = usePickupRestrictions(items);
 
-  // Validate user info (separate from form)
-  const { userInfo, isUserInfoValid } = useCheckoutValidation({
-    user,
-    guestInfo: lastOrderPrefill?.customerInfo ?? null,
-  });
-
   // Initialize checkout form with all dependencies
   const {
     form,
@@ -66,8 +59,6 @@ export function CheckoutForm({
     stores,
     lastOrderPrefill,
     restrictedPickupDates,
-    userInfo,
-    isUserInfoValid,
   });
 
   // Calculate total price
@@ -78,7 +69,7 @@ export function CheckoutForm({
 
   const { formState } = form;
   const isSubmitting = formState.isSubmitting;
-  const canSubmit = formState.isValid && isUserInfoValid;
+  const canSubmit = formState.isValid;
   const isSubmitDisabled =
     isSubmitting || !canSubmit || !ordersEnabled || hasNoAvailableDates;
 
@@ -100,10 +91,7 @@ export function CheckoutForm({
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <CustomerInfoCard
-                  guestInfo={lastOrderPrefill?.customerInfo ?? null}
-                  user={user ?? null}
-                />
+                <CustomerInfoCard user={user ?? null} />
               </CardContent>
             </Card>
 
@@ -127,7 +115,6 @@ export function CheckoutForm({
             {/* Alerts */}
             <CheckoutAlerts
               formErrors={formState.errors}
-              isUserInfoValid={isUserInfoValid}
               ordersEnabled={ordersEnabled}
             />
 
