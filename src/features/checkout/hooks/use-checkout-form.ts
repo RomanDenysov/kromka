@@ -22,12 +22,15 @@ import {
 } from "@/features/orders/actions";
 import type { Store } from "@/features/stores/queries";
 import type { User } from "@/lib/auth/session";
+import { buildFullAddress } from "@/lib/geo-utils";
 import type { LastOrderPrefill } from "../actions";
 
 export type StoreOption = {
   id: string;
   name: string;
   openingHours: StoreSchedule | null;
+  address: string | null;
+  distance?: number | null;
 };
 
 type UseCheckoutFormProps = {
@@ -55,7 +58,10 @@ export function useCheckoutForm({
       stores?.map((store) => ({
         id: store.id,
         name: store.name,
+        address: store.address ? buildFullAddress(store.address) : null,
         openingHours: store.openingHours,
+        distance:
+          (store as Store & { distance?: number | null }).distance ?? null,
       })) ?? [],
     [stores]
   );

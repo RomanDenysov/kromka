@@ -1,7 +1,17 @@
+import { ChevronLeftIcon, ShoppingCartIcon } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
 import { getLastOrderPrefillAction } from "@/features/checkout/actions";
@@ -37,17 +47,41 @@ async function CheckoutDataLoader() {
 
   return (
     <>
-      <div className="col-span-full hidden font-semibold text-lg md:block">
-        Košík ({getItemCountString(totals.totalQuantity)})
+      <div className="col-span-full ">
+         <h1 className="font-bold text-xl lg:text-2xl">Vaša objednávka</h1>
+        <span className="hidden md:block text-muted-foreground text-base font-medium">
+          Košík ({getItemCountString(totals.totalQuantity)})
+        </span>
       </div>
       <section className="size-full md:col-span-5 lg:col-span-7">
-        <CheckoutList totals={totals}>
-          <div className="mt-2 flex flex-col gap-2 md:mt-0">
-            {items.map((item) => (
-              <CheckoutListItem item={item} key={item.productId} />
-            ))}
-          </div>
-        </CheckoutList>
+        {items.length > 0 ? (
+          <CheckoutList totals={totals}>
+            <div className="mt-2 flex flex-col gap-2 md:mt-0">
+              {items.map((item) => (
+                <CheckoutListItem item={item} key={item.productId} />
+              ))}
+            </div>
+          </CheckoutList>
+        ) : (
+          <center className="flex w-full items-start justify-center rounded-sm border border-dashed py-20">
+            <Empty className="flex flex-col gap-2">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <ShoppingCartIcon />
+                </EmptyMedia>
+                <EmptyTitle className="lg:text-2xl">
+                  Vaše košík je prázdny.
+                </EmptyTitle>
+              </EmptyHeader>
+              <EmptyContent>
+                <Link className={buttonVariants()} href="/e-shop">
+                  <ChevronLeftIcon />
+                  Pokračovať v nákupe
+                </Link>
+              </EmptyContent>
+            </Empty>
+          </center>
+        )}
       </section>
 
       <section className="size-full md:col-span-4 lg:col-span-5">
@@ -79,10 +113,10 @@ function CheckoutDataLoaderSkeleton() {
           <div className="flex flex-col gap-2">
             {Array.from({ length: 3 }).map((_, index) => (
               <div
-                className="flex size-full min-h-24 flex-row gap-2 rounded-md border p-3"
+                className="flex size-full min-h-24 flex-row gap-3 rounded-sm border p-3"
                 key={`skeleton-${index.toString()}`}
               >
-                <Skeleton className="size-[100px] rounded-sm" />
+                <Skeleton className="size-[120px] rounded-sm" />
                 <div className="flex flex-1 flex-col justify-between gap-2">
                   <div className="flex flex-row items-center justify-between gap-2">
                     <Skeleton className="h-7 w-3/4" />
@@ -130,7 +164,7 @@ export default function CheckoutPage() {
           { label: "Pokladňa", href: "/pokladna" },
         ]}
       />
-      <h2 className="font-bold text-2xl">Vaša objednávka</h2>
+     
       <div className="@container/summary grid size-full grid-cols-1 gap-5 md:grid-cols-9 lg:grid-cols-12">
         <Suspense fallback={<CheckoutDataLoaderSkeleton />}>
           <CheckoutDataLoader />

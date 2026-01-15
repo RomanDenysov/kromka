@@ -15,13 +15,13 @@ export function CheckoutListItem({ item }: { item: DetailedCartItem }) {
   const hasPickupRestriction = pickupDates.length > 0;
 
   return (
-    <div className="grid grid-cols-[minmax(100px,15%)_1fr_auto] gap-3 rounded-md border p-3 shadow">
+    <div className="grid grid-cols-[minmax(100px,15%)_1fr_auto] gap-3 rounded-sm border p-3">
       <ProductImage
         alt={`${item.name} foto produktu`}
-        className="aspect-square rounded-sm object-cover"
-        height={120}
+        className="aspect-square rounded object-cover"
+        height={260}
         src={item.imageUrl ?? "/images/cooperation.jpg"}
-        width={120}
+        width={260}
       />
 
       <div className="flex min-w-0 flex-col justify-between gap-2">

@@ -25,7 +25,7 @@ export function CheckoutMobileFooter({
     isSubmitting || !canSubmit || !ordersEnabled || hasNoAvailableDates;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t bg-background p-4 shadow-lg sm:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t bg-background p-3 shadow-lg sm:hidden">
       <div className="flex items-center gap-4">
         <div className="flex flex-col">
           <span className="text-muted-foreground text-xs">Celkom</span>

@@ -1,34 +1,41 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { CreditCardIcon, StoreIcon } from "lucide-react";
+import { useMemo } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { ContinueShoppingLink } from "@/components/continue-shopping-link";
 import { TextField } from "@/components/forms/fields/text-field";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
 import { OrderStorePicker } from "@/components/order-store-picker";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Field, FieldGroup } from "@/components/ui/field";
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+  FieldTitle,
+} from "@/components/ui/field";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
+import type { PaymentMethod } from "@/db/types";
 import type { DetailedCartItem } from "@/features/cart/queries";
 import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
 import { usePickupRestrictions } from "@/features/checkout/hooks/use-pickup-restrictions";
 import type { Store } from "@/features/stores/queries";
+import { useGeolocation } from "@/hooks/use-geolocation";
 import type { User } from "@/lib/auth/session";
+import { sortStoresByDistance } from "@/lib/geo-utils";
 import { formatPrice } from "@/lib/utils";
-import { useLoginModalOpen } from "@/store/login-modal-store";
 import type { LastOrderPrefill } from "../actions";
 import { CheckoutAlerts, PickupDateAlerts } from "./checkout-alerts";
+import { CheckoutCtaLogin } from "./checkout-cta-login";
 import { CheckoutMobileFooter } from "./checkout-mobile-footer";
-import { PaymentMethodCard } from "./payment-method-card";
 
 type CheckoutFormProps = {
   user?: User;
@@ -45,10 +52,21 @@ export function CheckoutForm({
   ordersEnabled,
   lastOrderPrefill,
 }: CheckoutFormProps) {
+  const { position } = useGeolocation();
+
+  const storesWithDistance = useMemo(() => {
+    if (!position) {
+      return stores.map((store) => ({
+        ...store,
+        distance: null as number | null,
+      }));
+    }
+
+    return sortStoresByDistance(stores, position.latitude, position.longitude);
+  }, [stores, position]);
+
   // Get pickup date restrictions from cart items
   const { restrictedPickupDates } = usePickupRestrictions(items);
-  const openLogin = useLoginModalOpen();
-  const pathname = usePathname();
 
   // Initialize checkout form with all dependencies
   const {
@@ -61,7 +79,7 @@ export function CheckoutForm({
     onSubmit,
   } = useCheckoutForm({
     user,
-    stores,
+    stores: storesWithDistance,
     lastOrderPrefill,
     restrictedPickupDates,
   });
@@ -85,141 +103,188 @@ export function CheckoutForm({
         name="checkout-form"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <div className="flex flex-col gap-5">
+        <FieldGroup className="rounded-sm md:border px-1 md:p-5">
           {/* Customer Info Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Osobné údaje</CardTitle>
-              <CardDescription>
+          <FieldSet>
+            <FieldLegend>
+              <FieldTitle>Osobné údaje</FieldTitle>
+              <FieldDescription>
                 Zadajte svoje osobné údaje, aby sme Vás mohli kontaktovať.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FieldGroup className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <TextField
-                  className="lg:col-span-2"
-                  inputClassName="w-full max-w-none"
-                  label="Meno"
-                  name="name"
-                  placeholder="Janko Hraško"
-                />
-                <TextField
-                  inputClassName="w-full max-w-none"
-                  label="Email"
-                  name="email"
-                  placeholder="janko@priklad.sk"
-                />
-                <TextField
-                  inputClassName="w-full max-w-none"
-                  label="Telefón"
-                  name="phone"
-                  placeholder="+421 900 000 000"
-                />
-              </FieldGroup>
-            </CardContent>
-            {!user && (
-              <CardFooter>
-                <div className="flex grow items-start justify-between gap-3 rounded-md border bg-muted/30 px-3 py-2">
-                  <div className="min-w-0">
-                    <p className="font-medium text-xs">Máte účet?</p>
-                    <p className="text-muted-foreground text-xs">
-                      Prihláste sa pre uloženie objednávky do profilu.
-                    </p>
-                  </div>
-                  <Button
-                    className="shrink-0"
-                    onClick={() => openLogin("checkout", pathname)}
-                    size="xs"
-                    type="button"
-                    variant="outline"
-                  >
-                    Prihlásiť sa
-                  </Button>
-                </div>
-              </CardFooter>
-            )}
-          </Card>
-
+              </FieldDescription>
+            </FieldLegend>
+            <FieldGroup className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <TextField
+                className="lg:col-span-2"
+                inputClassName="w-full max-w-none"
+                label="Meno"
+                name="name"
+                placeholder="Janko Hraško"
+              />
+              <TextField
+                inputClassName="w-full max-w-none"
+                label="Email"
+                name="email"
+                placeholder="janko@priklad.sk"
+              />
+              <TextField
+                inputClassName="w-full max-w-none"
+                label="Telefón"
+                name="phone"
+                placeholder="+421 900 000 000"
+              />
+            </FieldGroup>
+            {!user && <CheckoutCtaLogin />}
+          </FieldSet>
+          <FieldSeparator />
           {/* Pickup Details Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Odberové miesto</CardTitle>
-              <CardDescription>
+          <FieldSet>
+            <FieldLegend>
+              <FieldTitle>Odberové miesto</FieldTitle>
+              <FieldDescription>
                 Vyberte si miesto a čas, kedy chcete odobrať vašu objednávku.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </FieldDescription>
+            </FieldLegend>
+
+            <Controller
+              control={form.control}
+              name="storeId"
+              render={({ field }) => (
+                <OrderStorePicker
+                  onValueChange={(id) => field.onChange(id)}
+                  storeOptions={storeOptions}
+                  value={field.value}
+                />
+              )}
+            />
+
+            <PickupDateAlerts
+              hasNoAvailableDates={hasNoAvailableDates}
+              restrictedPickupDates={restrictedPickupDates}
+            />
+
+            <FieldGroup className="grid w-full gap-4 lg:grid-cols-5">
               <Controller
                 control={form.control}
-                name="storeId"
-                render={({ field }) => (
-                  <OrderStorePicker
-                    onValueChange={(id) => field.onChange(id)}
-                    storeOptions={storeOptions}
-                    value={field.value}
-                  />
-                )}
+                name="pickupDate"
+                render={({ field, fieldState }) => {
+                  const isInvalid = fieldState.invalid;
+                  return (
+                    <Field
+                      className="w-full lg:col-span-3"
+                      data-invalid={isInvalid}
+                    >
+                      <OrderPickupDatePicker
+                        onDateSelect={field.onChange}
+                        restrictedDates={restrictedPickupDates}
+                        selectedDate={field.value}
+                        storeSchedule={storeSchedule}
+                      />
+                    </Field>
+                  );
+                }}
               />
-
-              <PickupDateAlerts
-                hasNoAvailableDates={hasNoAvailableDates}
-                restrictedPickupDates={restrictedPickupDates}
+              <Controller
+                control={form.control}
+                name="pickupTime"
+                render={({ field, fieldState }) => {
+                  const isInvalid = fieldState.invalid;
+                  return (
+                    <Field
+                      className="w-full lg:col-span-2"
+                      data-invalid={isInvalid}
+                    >
+                      <OrderPickupTimePicker
+                        disabled={!pickupDate}
+                        onTimeSelect={field.onChange}
+                        selectedTime={field.value}
+                        timeRange={timeRange}
+                      />
+                    </Field>
+                  );
+                }}
               />
+            </FieldGroup>
+          </FieldSet>
 
-              <FieldGroup className="grid w-full gap-4 lg:grid-cols-5">
-                <Controller
-                  control={form.control}
-                  name="pickupDate"
-                  render={({ field, fieldState }) => {
-                    const isInvalid = fieldState.invalid;
-                    return (
-                      <Field
-                        className="w-full lg:col-span-3"
-                        data-invalid={isInvalid}
-                      >
-                        <OrderPickupDatePicker
-                          onDateSelect={field.onChange}
-                          restrictedDates={restrictedPickupDates}
-                          selectedDate={field.value}
-                          storeSchedule={storeSchedule}
-                        />
-                      </Field>
-                    );
-                  }}
-                />
-                <Controller
-                  control={form.control}
-                  name="pickupTime"
-                  render={({ field, fieldState }) => {
-                    const isInvalid = fieldState.invalid;
-                    return (
-                      <Field
-                        className="w-full lg:col-span-2"
-                        data-invalid={isInvalid}
-                      >
-                        <OrderPickupTimePicker
-                          disabled={!pickupDate}
-                          onTimeSelect={field.onChange}
-                          selectedTime={field.value}
-                          timeRange={timeRange}
-                        />
-                      </Field>
-                    );
-                  }}
-                />
-              </FieldGroup>
-            </CardContent>
-          </Card>
-
+          <FieldSeparator />
           {/* Payment Method Card */}
-          <PaymentMethodCard form={form} />
+          <FieldSet>
+            <FieldLegend>
+              <FieldTitle>Platba</FieldTitle>
+              <FieldDescription>
+                Platba prebieha pri vyzdvihnutí objednávky na predajni.
+              </FieldDescription>
+            </FieldLegend>
+            <FieldGroup>
+              <Controller
+                control={form.control}
+                name="paymentMethod"
+                render={({ field, fieldState }) => {
+                  const isInvalid = fieldState.isTouched && fieldState.invalid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldContent>
+                        <RadioGroup
+                          aria-label="Spôsob platby"
+                          className="gap-4 md:grid-cols-2"
+                          onValueChange={(value) =>
+                            field.onChange(value as PaymentMethod)
+                          }
+                          value={field.value}
+                        >
+                          <FieldLabel htmlFor="in_store">
+                            <Field className="min-h-14 rounded-sm!">
+                              <FieldContent className="items-center">
+                                <StoreIcon className="size-7 shrink-0" />
+                                <FieldTitle className="text-wrap text-center">
+                                  Pri vyzdvihnutí
+                                </FieldTitle>
+                              </FieldContent>
+                              <RadioGroupItem
+                                className="peer sr-only"
+                                id="in_store"
+                                value="in_store"
+                              />
+                            </Field>
+                          </FieldLabel>
 
+                          <FieldLabel htmlFor="card">
+                            <Field className="min-h-14 cursor-not-allowed rounded-sm! opacity-50">
+                              <FieldContent className="relative items-center">
+                                <CreditCardIcon className="size-7 shrink-0" />
+                                <FieldTitle className="text-wrap">
+                                  Kartou online
+                                </FieldTitle>
+                                <Badge
+                                  className="-top-2 -right-2 absolute"
+                                  size="xs"
+                                >
+                                  Čoskoro
+                                </Badge>
+                              </FieldContent>
+                              <RadioGroupItem
+                                className="peer sr-only"
+                                disabled={true}
+                                id="card"
+                                value="card"
+                              />
+                            </Field>
+                          </FieldLabel>
+                        </RadioGroup>
+                      </FieldContent>
+                    </Field>
+                  );
+                }}
+              />
+            </FieldGroup>
+          </FieldSet>
+        </FieldGroup>
+        <div className="mt-5 flex flex-col gap-4 p-3">
           {/* Summary */}
-          <div className="flex items-center justify-between pt-6 text-lg lg:text-xl">
+          <div className="flex items-center justify-between text-lg leading-none lg:text-xl">
             <span className="font-semibold">Spolu k úhrade</span>
             <span className="font-bold">{formatPrice(totalCents)}</span>
           </div>
-
           {/* Alerts */}
           <CheckoutAlerts
             formErrors={formState.errors}
@@ -236,10 +301,10 @@ export function CheckoutForm({
             {isSubmitting && <Spinner />}
             Objednať
           </Button>
-
-          {/* Continue Shopping Link */}
-          <ContinueShoppingLink />
         </div>
+
+        {/* Continue Shopping Link */}
+        <ContinueShoppingLink />
       </form>
 
       {/* Mobile Sticky Footer */}
