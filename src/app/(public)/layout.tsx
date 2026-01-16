@@ -62,7 +62,8 @@ export default function PublicLayout({ children }: Props) {
 
           <Link
             className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" })
+              buttonVariants({ variant: "ghost", size: "icon-sm" }),
+              "relative"
             )}
             href="/profil/oblubene"
           >

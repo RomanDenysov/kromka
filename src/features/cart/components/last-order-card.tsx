@@ -70,32 +70,42 @@ export function LastOrderCard({ items }: Props) {
     <Collapsible onOpenChange={setIsOpen} open={isOpen}>
       <div className="rounded-sm border border-muted-foreground/30 border-dashed bg-muted/40 p-3">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3">
-          {!isOpen && (
-            <Button
-              className="fade-in-0 animate-in duration-400"
-              size="icon"
-              variant="outline"
-            >
-              <ShoppingCartIcon className="size-5" />
-              <span className="sr-only">Zopakovať objednávku</span>
-            </Button>
-          )}
-          <div className="mr-auto flex flex-col gap-1">
-            <h3 className="font-semibold text-sm">Vaša posledná objednávka</h3>
-            <p className="text-muted-foreground text-xs">
-              {getItemCountString(items.length)}
-            </p>
-          </div>
-          <CollapsibleTrigger className="p-0">
+        <CollapsibleTrigger asChild>
+          <div className="flex items-center justify-between gap-3">
+            {!isOpen && (
+              <Button
+                className="fade-in-0 animate-in duration-400"
+                id="repeat-order-icon-button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleRepeatOrder();
+                }}
+                size="icon"
+                type="button"
+                variant="outline"
+              >
+                <ShoppingCartIcon className="size-5" />
+                <span className="sr-only">Zopakovať objednávku</span>
+              </Button>
+            )}
+            <div className="mr-auto flex flex-col gap-1">
+              <h3 className="font-semibold text-sm">
+                Vaša posledná objednávka
+              </h3>
+              <p className="text-muted-foreground text-xs">
+                {getItemCountString(items.length)}
+              </p>
+            </div>
+
             <ChevronUpIcon
               className={cn(
                 "size-5 text-muted-foreground transition-transform duration-200",
                 isOpen && "rotate-180"
               )}
             />
-          </CollapsibleTrigger>
-        </div>
+          </div>
+        </CollapsibleTrigger>
 
         {/* Items preview */}
         <CollapsibleContent className="fade-in-0 animate-in duration-400">
@@ -147,8 +157,10 @@ export function LastOrderCard({ items }: Props) {
             <Button
               className="flex-1"
               disabled={isPending}
+              id="repeat-order-button"
               onClick={handleRepeatOrder}
               size="sm"
+              type="button"
               variant="default"
             >
               {isPending ? (
