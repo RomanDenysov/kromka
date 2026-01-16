@@ -95,7 +95,9 @@ export default function PublicLayout({ children }: Props) {
       <Footer />
 
       <LoginModal />
-      <ScrollToTop />
+      <Suspense>
+        <ScrollToTop />
+      </Suspense>
     </>
   );
 }

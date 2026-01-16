@@ -28,7 +28,7 @@ export function ScrollToTop({ threshold = 400, className }: Props) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (pathname.includes("/pokladna")) {
+  if (pathname === "/pokladna") {
     return null;
   }
 

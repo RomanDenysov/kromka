@@ -1,34 +1,28 @@
 "use client";
 
-import type { FieldPath } from "react-hook-form";
-import { Controller, type FieldValues, useFormContext } from "react-hook-form";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import type { FieldPath, FieldValues } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
+/** Max length: +421XXXXXXXXX = 16 chars (with spaces) */
+const MAX_PHONE_LENGTH = 16;
 
 type Props<T extends FieldValues> = {
   name: FieldPath<T>;
   label?: string;
   placeholder?: string;
-  description?: string;
   className?: string;
   inputClassName?: string;
-  maxLength?: number;
 };
 
-export function TextField<T extends FieldValues>({
+export function PhoneField<T extends FieldValues>({
   name,
   label,
-  placeholder,
-  description,
+  placeholder = "+421 900 000 000",
   className,
   inputClassName,
-  maxLength,
 }: Props<T>) {
   const { control } = useFormContext();
 
@@ -45,16 +39,14 @@ export function TextField<T extends FieldValues>({
           <Input
             {...field}
             aria-invalid={fieldState.invalid}
-            className={cn("max-w-none", inputClassName)}
-            maxLength={maxLength}
+            autoComplete="tel"
+            className={cn("max-w-xs", inputClassName)}
+            inputMode="tel"
+            maxLength={MAX_PHONE_LENGTH}
             placeholder={placeholder}
+            type="tel"
             volume="xs"
           />
-          {description && (
-            <FieldDescription className="text-muted-foreground text-xs">
-              {description}
-            </FieldDescription>
-          )}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
       )}

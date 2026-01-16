@@ -5,6 +5,7 @@ import { CreditCardIcon, StoreIcon } from "lucide-react";
 import { useMemo } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { ContinueShoppingLink } from "@/components/continue-shopping-link";
+import { PhoneField } from "@/components/forms/fields/phone-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
@@ -125,20 +126,21 @@ export function CheckoutForm({
                 className="lg:col-span-2"
                 inputClassName="w-full max-w-none"
                 label="Meno"
+                maxLength={150}
                 name="name"
                 placeholder="Janko Hraško"
               />
               <TextField
                 inputClassName="w-full max-w-none"
                 label="Email"
+                maxLength={150}
                 name="email"
                 placeholder="janko@priklad.sk"
               />
-              <TextField
+              <PhoneField
                 inputClassName="w-full max-w-none"
                 label="Telefón"
                 name="phone"
-                placeholder="+421 900 000 000"
               />
             </FieldGroup>
             {!user && <CheckoutCtaLogin />}
@@ -258,7 +260,7 @@ export function CheckoutForm({
                                   Kartou online
                                 </FieldTitle>
                                 <Badge
-                                  className="-top-2 -right-2 absolute"
+                                  className="absolute -top-2 -right-2"
                                   size="xs"
                                 >
                                   Čoskoro

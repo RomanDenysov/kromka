@@ -32,7 +32,7 @@ async function OrderConfirmationContent({ orderId }: { orderId: string }) {
       </div>
 
       <div className="w-full max-w-md space-y-4">
-        <div className="rounded-lg border p-4">
+        <div className="rounded-md p-4 sm:border">
           <h2 className="mb-2 font-semibold">Miesto vyzdvihnutia</h2>
           <p>{order.store?.name}</p>
           <p className="text-muted-foreground text-sm">
@@ -43,7 +43,7 @@ async function OrderConfirmationContent({ orderId }: { orderId: string }) {
           </p>
         </div>
 
-        <div className="rounded-lg border p-4">
+        <div className="rounded-md p-4 sm:border">
           <h2 className="mb-2 font-semibold">Položky</h2>
           {order.items.map((item) => (
             <div className="flex justify-between py-1" key={item.productId}>
