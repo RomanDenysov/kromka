@@ -1,4 +1,4 @@
-# Checkout Feature Changelog
+# Checkout Changelog
 
 ## 2026-01-12 - Major Refactoring
 
@@ -83,3 +83,28 @@ Fixed three critical issues in checkout flow: Zustand→RHF sync, storeId valida
 - No breaking changes - all changes are additive
 - Guest info now expires after 30 days automatically
 - Store selection syncs automatically when changed via global modal
+
+---
+
+## 2026-01 - Guest Data Simplification
+
+### Summary
+Simplified guest data storage and removed user-store binding.
+
+### Before
+- Multiple cookies (`krmk-guest`, `krmk-store`, `krmk-orders` array)
+- Zustand store for client state
+- User-store relation in DB
+
+### After
+- Single `krmk-last-order` cookie (order ID only)
+- No client state
+- No user-store relation
+
+### Prefill Strategy
+Fetch last order from DB (by userId for auth, by cookie ID for guests) → extract customerInfo + storeId
+
+### Benefits
+- Less cookie data
+- Simpler architecture
+- Stores treated as content/pickup entities only

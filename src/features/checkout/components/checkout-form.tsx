@@ -1,5 +1,6 @@
 "use client";
 
+import { addDays, startOfToday } from "date-fns";
 import { CreditCardIcon, StoreIcon } from "lucide-react";
 import { useMemo } from "react";
 import { Controller, FormProvider } from "react-hook-form";
@@ -27,6 +28,7 @@ import type { PaymentMethod } from "@/db/types";
 import type { DetailedCartItem } from "@/features/cart/queries";
 import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
 import { usePickupRestrictions } from "@/features/checkout/hooks/use-pickup-restrictions";
+import { isBeforeDailyCutoff } from "@/features/checkout/utils";
 import type { Store } from "@/features/stores/queries";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import type { User } from "@/lib/auth/session";
@@ -84,15 +86,20 @@ export function CheckoutForm({
     restrictedPickupDates,
   });
 
+  // Calculate calendar start date for MiniCalendar
+  const _calendarStartDate = useMemo(() => {
+    const today = startOfToday();
+    const canOrderForTomorrow = isBeforeDailyCutoff();
+    return canOrderForTomorrow ? addDays(today, 1) : addDays(today, 2);
+  }, []);
+
   // Calculate total price
   const totalCents = items.reduce(
     (acc, item) => acc + item.priceCents * item.quantity,
     0
   );
 
-  const { formState } = form;
-  const isSubmitting = formState.isSubmitting;
-  const canSubmit = formState.isValid;
+  const { isSubmitting, isValid: canSubmit, errors } = form.formState;
   const isSubmitDisabled =
     isSubmitting || !canSubmit || !ordersEnabled || hasNoAvailableDates;
 
@@ -103,7 +110,7 @@ export function CheckoutForm({
         name="checkout-form"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <FieldGroup className="rounded-sm md:border px-1 md:p-5">
+        <FieldGroup className="rounded-sm px-1 md:border md:p-5">
           {/* Customer Info Card */}
           <FieldSet>
             <FieldLegend>
@@ -162,17 +169,14 @@ export function CheckoutForm({
               restrictedPickupDates={restrictedPickupDates}
             />
 
-            <FieldGroup className="grid w-full gap-4 lg:grid-cols-5">
+            <FieldGroup className="grid w-full grid-cols-2 gap-4">
               <Controller
                 control={form.control}
                 name="pickupDate"
                 render={({ field, fieldState }) => {
                   const isInvalid = fieldState.invalid;
                   return (
-                    <Field
-                      className="w-full lg:col-span-3"
-                      data-invalid={isInvalid}
-                    >
+                    <Field className="w-full" data-invalid={isInvalid}>
                       <OrderPickupDatePicker
                         onDateSelect={field.onChange}
                         restrictedDates={restrictedPickupDates}
@@ -189,10 +193,7 @@ export function CheckoutForm({
                 render={({ field, fieldState }) => {
                   const isInvalid = fieldState.invalid;
                   return (
-                    <Field
-                      className="w-full lg:col-span-2"
-                      data-invalid={isInvalid}
-                    >
+                    <Field className="w-full" data-invalid={isInvalid}>
                       <OrderPickupTimePicker
                         disabled={!pickupDate}
                         onTimeSelect={field.onChange}
@@ -226,7 +227,7 @@ export function CheckoutForm({
                       <FieldContent>
                         <RadioGroup
                           aria-label="Spôsob platby"
-                          className="gap-4 md:grid-cols-2"
+                          className="grid-cols-2 gap-4"
                           onValueChange={(value) =>
                             field.onChange(value as PaymentMethod)
                           }
@@ -286,10 +287,7 @@ export function CheckoutForm({
             <span className="font-bold">{formatPrice(totalCents)}</span>
           </div>
           {/* Alerts */}
-          <CheckoutAlerts
-            formErrors={formState.errors}
-            ordersEnabled={ordersEnabled}
-          />
+          <CheckoutAlerts formErrors={errors} ordersEnabled={ordersEnabled} />
 
           {/* Submit Button */}
           <Button

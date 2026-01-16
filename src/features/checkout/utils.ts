@@ -4,12 +4,14 @@ import {
   getDay,
   isAfter,
   isBefore,
+  isSameDay,
   startOfToday,
 } from "date-fns";
 import type { StoreSchedule, TimeRange } from "@/db/types";
 import type { DetailedCartItem } from "@/features/cart/queries";
 
 const ORDER_CUTOFF_HOUR = 12;
+const DATE_KEY_FORMAT = "yyyy-MM-dd";
 
 /**
  * Checks if the current time is before the daily cutoff for next-day orders.
@@ -31,7 +33,7 @@ export const DAY_KEYS = [
   "saturday",
 ] as const;
 
-export const INTERVAL_MINUTES = 15;
+export const INTERVAL_MINUTES = 30;
 export const SLOTS_PER_DAY = (24 * 60) / INTERVAL_MINUTES;
 
 /**
@@ -46,7 +48,7 @@ export function isStoreClosed(
     return false;
   }
 
-  const dateKey = format(date, "yyyy-MM-dd");
+  const dateKey = format(date, DATE_KEY_FORMAT);
 
   // Check exceptions first (holiday closures, special hours, etc.)
   const exception = schedule.exceptions?.[dateKey];
@@ -113,7 +115,7 @@ export function getTimeRangeForDate(
     return null;
   }
 
-  const dateKey = format(date, "yyyy-MM-dd");
+  const dateKey = format(date, DATE_KEY_FORMAT);
 
   // Check exceptions first
   const exception = schedule.exceptions?.[dateKey];
@@ -183,24 +185,21 @@ export function getRestrictedPickupDates(
   const restrictedSets: Set<string>[] = [];
 
   for (const item of cartItems) {
-    const pickupDates = item.category?.pickupDates ?? [];
+    const pickupDates = item.category?.pickupDates;
     if (pickupDates && pickupDates.length > 0) {
       restrictedSets.push(new Set(pickupDates));
     }
   }
 
-  // No restrictions from any item
   if (restrictedSets.length === 0) {
     return null;
   }
 
-  // Start with first restricted set, then intersect with others
+  // Intersect all restricted sets to find common dates
   let result = restrictedSets[0];
-  for (let i = 1; i < restrictedSets.length; i++) {
-    const nextSet = restrictedSets[i];
+  for (const nextSet of restrictedSets.slice(1)) {
     result = new Set([...result].filter((date) => nextSet.has(date)));
   }
-
   return result;
 }
 
@@ -215,7 +214,7 @@ export function isDateAllowedByCart(
   if (!restrictedDates) {
     return true;
   }
-  const dateKey = format(date, "yyyy-MM-dd");
+  const dateKey = format(date, DATE_KEY_FORMAT);
   return restrictedDates.has(dateKey);
 }
 
@@ -239,18 +238,12 @@ export function isValidPickupDate(
   const canOrderForTomorrow = isBeforeDailyCutoff();
 
   // Past dates or today
-  if (
-    isAfter(today, date) ||
-    format(date, "yyyy-MM-dd") === format(today, "yyyy-MM-dd")
-  ) {
+  if (isBefore(date, today) || isSameDay(date, today)) {
     return false;
   }
 
   // Tomorrow only if before cutoff
-  if (
-    format(date, "yyyy-MM-dd") === format(tomorrow, "yyyy-MM-dd") &&
-    !canOrderForTomorrow
-  ) {
+  if (isSameDay(date, tomorrow) && !canOrderForTomorrow) {
     return false;
   }
 

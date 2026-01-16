@@ -47,9 +47,9 @@ async function CheckoutDataLoader() {
 
   return (
     <>
-      <div className="col-span-full ">
-         <h1 className="font-bold text-xl lg:text-2xl">Vaša objednávka</h1>
-        <span className="hidden md:block text-muted-foreground text-base font-medium">
+      <div className="col-span-full">
+        <h1 className="font-bold text-xl lg:text-2xl">Vaša objednávka</h1>
+        <span className="hidden font-medium text-base text-muted-foreground md:block">
           Košík ({getItemCountString(totals.totalQuantity)})
         </span>
       </div>
@@ -164,7 +164,7 @@ export default function CheckoutPage() {
           { label: "Pokladňa", href: "/pokladna" },
         ]}
       />
-     
+
       <div className="@container/summary grid size-full grid-cols-1 gap-5 md:grid-cols-9 lg:grid-cols-12">
         <Suspense fallback={<CheckoutDataLoaderSkeleton />}>
           <CheckoutDataLoader />

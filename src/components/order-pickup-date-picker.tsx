@@ -47,83 +47,42 @@ export function OrderPickupDatePicker({
   const today = useMemo(() => startOfToday(), []);
   const maxDate = useMemo(() => addDays(today, 30), [today]);
 
-  const handleSelectDate = useCallback(
-    (newDate: Date | undefined) => {
-      if (!newDate) {
-        return;
-      }
-
-      const tomorrow = addDays(today, 1);
-
-      // Past dates
-      if (isBefore(newDate, today)) {
-        return;
-      }
-
-      // Today is not available
-      if (isSameDay(newDate, today)) {
-        return;
-      }
-
-      // Tomorrow only if before cutoff
-      if (isSameDay(newDate, tomorrow) && !canOrderForTomorrow) {
-        return;
-      }
-
-      // Max 30 days ahead
-      if (isAfter(newDate, maxDate)) {
-        return;
-      }
-
-      // Store closed on this day
-      if (isStoreClosed(newDate, storeSchedule)) {
-        return;
-      }
-
-      // Check category pickup date restrictions
-      if (!isDateAllowedByCart(newDate, restrictedDates)) {
-        return;
-      }
-
-      onDateSelect(newDate);
-      setOpen(false);
-    },
-    [
-      today,
-      maxDate,
-      canOrderForTomorrow,
-      storeSchedule,
-      restrictedDates,
-      onDateSelect,
-    ]
-  );
-
-  const disabledDays = useCallback(
-    (d: Date) => {
+  const isDateDisabled = useCallback(
+    (date: Date) => {
       const tomorrow = addDays(today, 1);
 
       return (
-        isAfter(today, d) ||
-        isSameDay(d, today) ||
-        (isSameDay(d, tomorrow) && !canOrderForTomorrow) ||
-        isAfter(d, maxDate) ||
-        isStoreClosed(d, storeSchedule) ||
-        !isDateAllowedByCart(d, restrictedDates)
+        isBefore(date, today) ||
+        isSameDay(date, today) ||
+        (isSameDay(date, tomorrow) && !canOrderForTomorrow) ||
+        isAfter(date, maxDate) ||
+        isStoreClosed(date, storeSchedule) ||
+        !isDateAllowedByCart(date, restrictedDates)
       );
     },
     [today, maxDate, canOrderForTomorrow, storeSchedule, restrictedDates]
+  );
+
+  const handleSelectDate = useCallback(
+    (newDate: Date | undefined) => {
+      if (!newDate || isDateDisabled(newDate)) {
+        return;
+      }
+      onDateSelect(newDate);
+      setOpen(false);
+    },
+    [isDateDisabled, onDateSelect]
   );
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <Button
-          className="w-full justify-start font-normal"
+          className="h-10 w-full justify-start gap-3 font-medium text-sm"
           id="date"
-          size="sm"
           variant="outline"
         >
-          <Calendar1Icon />
+          <Calendar1Icon className="size-5 shrink-0 text-muted-foreground" />
           {selectedDate
             ? format(selectedDate, "PP", { locale: sk })
             : "--/--/--"}
@@ -132,8 +91,8 @@ export function OrderPickupDatePicker({
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto overflow-hidden p-0">
         <Calendar
-          captionLayout="dropdown"
-          disabled={disabledDays}
+          captionLayout="label"
+          disabled={isDateDisabled}
           endMonth={maxDate}
           locale={sk}
           mode="single"

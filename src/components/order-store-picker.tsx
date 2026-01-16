@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckIcon, ChevronsUpDown, MapPinIcon } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -17,17 +17,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import type { StoreSchedule } from "@/db/types";
 import { cn } from "@/lib/utils";
 import { getOpeningHoursLabel } from "@/lib/working-time-formatter";
 
-export type StoreOption = {
-  id: string;
-  name: string;
-  openingHours: StoreSchedule | null;
-  address: string | null;
-  distance?: number | null;
-};
+export type { StoreOption } from "@/features/checkout/hooks/use-checkout-form";
+
+import type { StoreOption } from "@/features/checkout/hooks/use-checkout-form";
 
 type OrderStorePickerProps = {
   value: string;
@@ -35,16 +30,18 @@ type OrderStorePickerProps = {
   storeOptions: StoreOption[];
 };
 
-const hasDistance = (distance?: number | null) =>
-  distance !== null &&
-  distance !== undefined &&
-  distance !== Number.POSITIVE_INFINITY;
+function hasValidDistance(
+  distance: number | null | undefined
+): distance is number {
+  return typeof distance === "number" && Number.isFinite(distance);
+}
 
 export function OrderStorePicker({
   value,
   onValueChange,
   storeOptions,
 }: OrderStorePickerProps) {
+  const [open, setOpen] = useState(false);
   const selectedStore = storeOptions.find((store) => store.id === value);
   const selectedOpeningHours = getOpeningHoursLabel(
     selectedStore?.openingHours ?? null
@@ -53,15 +50,16 @@ export function OrderStorePicker({
   const handleSelect = useCallback(
     (storeId: string) => {
       onValueChange(storeId);
+      setOpen(false);
     },
     [onValueChange]
   );
 
   return (
-    <Popover>
+    <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <Button
-          className="h-auto w-full justify-between rounded-sm bg-transparent px-3 py-2.5 hover:bg-accent"
+          className="h-auto w-full justify-between rounded-sm bg-transparent px-3 py-2.5"
           role="combobox"
           variant="outline"
         >
@@ -73,10 +71,10 @@ export function OrderStorePicker({
                   <div className="font-medium text-sm">
                     {selectedStore?.name}
                   </div>
-                  {hasDistance(selectedStore?.distance) && (
+                  {hasValidDistance(selectedStore?.distance) && (
                     <DistanceBadge
                       className="shrink-0"
-                      distance={selectedStore?.distance ?? 0}
+                      distance={selectedStore.distance}
                       variant="light"
                     />
                   )}
@@ -119,7 +117,7 @@ export function OrderStorePicker({
 
                 return (
                   <CommandItem
-                    className="flex items-center gap-3 rounded-sm"
+                    className="flex items-center gap-3 rounded-sm data-[selected=true]:bg-transparent md:data-[selected=true]:bg-accent"
                     key={store.id}
                     onSelect={() => handleSelect(store.id)}
                     value={searchValue}
@@ -139,9 +137,9 @@ export function OrderStorePicker({
                       )}
                     </div>
                     <div className="ml-auto flex items-center gap-2">
-                      {hasDistance(store.distance) && (
+                      {hasValidDistance(store.distance) && (
                         <DistanceBadge
-                          distance={store.distance ?? 0}
+                          distance={store.distance}
                           variant="light"
                         />
                       )}

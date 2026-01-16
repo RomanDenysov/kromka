@@ -111,18 +111,16 @@ export function Footer() {
                 {section.title}
               </h3>
               <nav className="space-y-2">
-
-                  {section.items.map(({ href, name }) => (
-                    <Link
-                      className="block rounded-md px-3 py-2 text-muted-foreground text-sm transition-colors hover:text-foreground"
-                      data-id={href}
-                      href={href}
-                      key={href}
-                    >
-                      {name}
-                    </Link>
-                  ))}
-
+                {section.items.map(({ href, name }) => (
+                  <Link
+                    className="block rounded-md px-3 py-2 text-muted-foreground text-sm transition-colors hover:text-foreground"
+                    data-id={href}
+                    href={href}
+                    key={href}
+                  >
+                    {name}
+                  </Link>
+                ))}
               </nav>
             </div>
           ))}

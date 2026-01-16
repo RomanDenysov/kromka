@@ -30,8 +30,10 @@ export type StoreOption = {
   name: string;
   openingHours: StoreSchedule | null;
   address: string | null;
-  distance?: number | null;
+  distance: number | null;
 };
+
+type StoreWithDistance = Store & { distance?: number | null };
 
 type UseCheckoutFormProps = {
   user?: User;
@@ -55,14 +57,13 @@ export function useCheckoutForm({
   // Transform stores to options with schedule
   const storeOptions: StoreOption[] = useMemo(
     () =>
-      stores?.map((store) => ({
+      stores.map((store) => ({
         id: store.id,
         name: store.name,
         address: store.address ? buildFullAddress(store.address) : null,
         openingHours: store.openingHours,
-        distance:
-          (store as Store & { distance?: number | null }).distance ?? null,
-      })) ?? [],
+        distance: (store as StoreWithDistance).distance ?? null,
+      })),
     [stores]
   );
 
@@ -102,7 +103,6 @@ export function useCheckoutForm({
   // Watch form values for derived state
   const pickupDate = form.watch("pickupDate");
   const storeId = form.watch("storeId");
-  const _pickupTime = form.watch("pickupTime");
 
   // Derive selected store and schedule from form value
   const selectedStoreInForm =
