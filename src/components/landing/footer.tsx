@@ -5,12 +5,11 @@ import {
   COMPANY_INFO,
   POLICY_LINKS,
 } from "@/app/(public)/(policies)/policies-config";
-import { AnimatedBackground } from "@/components/motion-primitives/animated-background";
+import { Container } from "@/components/shared/container";
+import { buttonVariants } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { Icons } from "../icons";
-import { Container } from "../shared/container";
-import { buttonVariants } from "../ui/button";
-import { Separator } from "../ui/separator";
 
 type FooterLinkItem = {
   name: string;
@@ -72,7 +71,7 @@ export function Footer() {
 
   return (
     <footer className="border-border border-t bg-muted/30">
-      <Container className="py-12">
+      <Container className="pt-12 pb-6">
         {/* Main Footer Content */}
         <div className="mb-10 grid grid-cols-2 gap-8 sm:grid-cols-4">
           {/* Brand Section */}
@@ -112,26 +111,16 @@ export function Footer() {
                 {section.title}
               </h3>
               <nav className="space-y-2">
-                <AnimatedBackground
-                  className="rounded-md"
-                  enableHover
-                  transition={{
-                    type: "spring",
-                    bounce: 0.1,
-                    duration: 0.2,
-                  }}
-                >
-                  {section.items.map(({ href, name }) => (
-                    <Link
-                      className="block rounded-md px-3 py-2 text-muted-foreground text-sm transition-colors hover:text-foreground"
-                      data-id={href}
-                      href={href}
-                      key={href}
-                    >
-                      {name}
-                    </Link>
-                  ))}
-                </AnimatedBackground>
+                {section.items.map(({ href, name }) => (
+                  <Link
+                    className="block rounded-md px-3 py-2 text-muted-foreground text-sm transition-colors hover:text-foreground"
+                    data-id={href}
+                    href={href}
+                    key={href}
+                  >
+                    {name}
+                  </Link>
+                ))}
               </nav>
             </div>
           ))}

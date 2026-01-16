@@ -9,10 +9,13 @@ import {
   SortToggles,
   SortTogglesSkeleton,
 } from "@/components/filters/sort-toggles";
-import { ProductsGrid, ProductsGridSkeleton } from "@/components/products-grid";
 import { PageWrapper } from "@/components/shared/container";
+import { getCategories } from "@/features/categories/queries";
+import {
+  ProductsGrid,
+  ProductsGridSkeleton,
+} from "@/features/products/components/products-grid";
 import { defaultMetadata } from "@/lib/metadata";
-import { getCategories } from "@/lib/queries/categories";
 import { CategoriesChips, CategoriesChipsSkeleton } from "./categories-chips";
 import { loadEshopParams } from "./eshop-params";
 import { ProductSearch, ProductSearchSkeleton } from "./product-search";

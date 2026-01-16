@@ -3,7 +3,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { invoices, orders, organizations } from "@/db/schema";
-import { requireAdmin } from "../auth/guards";
+import { requireAdmin } from "@/lib/auth/guards";
 
 const INVOICE_NUMBER_PADDING = 4;
 

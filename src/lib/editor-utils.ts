@@ -1,6 +1,7 @@
 import Link from "@tiptap/extension-link";
 import { generateHTML } from "@tiptap/html";
 import type { JSONContent } from "@tiptap/react";
+import { generateText } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
 const HEADING_LEVEL_2 = 2;
@@ -43,6 +44,41 @@ export function jsonContentToHtml(
 
   try {
     return generateHTML(content, extensions);
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Convert Tiptap JSONContent to plain text string
+ * Useful for meta descriptions and text-only representations
+ */
+export function jsonContentToText(
+  content: JSONContent | null | undefined
+): string {
+  if (!content) {
+    return "";
+  }
+
+  const extensions = [
+    StarterKit.configure({
+      heading: {
+        levels: SIMPLE_HEADING_LEVELS as [
+          typeof HEADING_LEVEL_2,
+          typeof HEADING_LEVEL_3,
+          typeof HEADING_LEVEL_4,
+        ],
+      },
+    }),
+    Link.configure({
+      openOnClick: false,
+      autolink: true,
+      defaultProtocol: "https",
+    }),
+  ];
+
+  try {
+    return generateText(content, extensions);
   } catch {
     return "";
   }

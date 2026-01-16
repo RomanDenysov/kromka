@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { getNewOrdersCount } from "@/features/orders/queries";
 import AppSidebar, {
   AppSidebarSkeleton,
-} from "@/components/admin-sidebar/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { getNewOrdersCount } from "@/lib/queries/orders";
+} from "@/widgets/admin-sidebar/app-sidebar";
 
 export const metadata: Metadata = {
   title: {

@@ -5,6 +5,7 @@ import { type ReactNode, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
+import { AddressAutocompleteField } from "@/components/forms/fields/address-autocomplete-field";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
 import { OpeningHoursField } from "@/components/forms/fields/opening-hours-field";
 import { QuantityField } from "@/components/forms/fields/quantity-field";
@@ -13,8 +14,8 @@ import { SlugField } from "@/components/forms/fields/slug-field";
 import { SwitchField } from "@/components/forms/fields/switch-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
-import { updateStoreAction } from "@/lib/actions/stores";
-import type { AdminStore } from "@/lib/queries/stores";
+import { updateStoreAction } from "@/features/stores/actions";
+import type { AdminStore } from "@/features/stores/queries";
 import type { StoreSchema } from "@/lib/stores/types";
 import { storeSchema } from "@/lib/stores/validation";
 import { cn } from "@/lib/utils";
@@ -110,6 +111,30 @@ export function StoreForm({ store, children, className }: Props) {
             <OpeningHoursField
               className="@xl/page:col-span-2 col-span-full"
               name="openingHours"
+            />
+          </FieldGroup>
+          <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-3">
+            <AddressAutocompleteField
+              className="col-span-full"
+              description="Vyhladajte adresu a automaticky vyplnte polia"
+              label="Vyhladať adresu"
+              name="address"
+            />
+            <TextField
+              label="Ulica"
+              name="address.street"
+              placeholder="Ulica a číslo"
+            />
+            <TextField label="Mesto" name="address.city" placeholder="Mesto" />
+            <TextField
+              label="PSČ"
+              name="address.postalCode"
+              placeholder="PSČ"
+            />
+            <TextField
+              label="Krajina"
+              name="address.country"
+              placeholder="Krajina"
             />
           </FieldGroup>
           <FieldGroup className="flex h-fit flex-row gap-3">

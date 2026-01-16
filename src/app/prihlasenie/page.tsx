@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -6,6 +7,15 @@ import { MagicLinkForm } from "@/app/prihlasenie/magic-link-form";
 import { ProvidersForm } from "@/app/prihlasenie/providers-form";
 import { BackButton } from "@/components/shared/back-button";
 import { Spinner } from "@/components/ui/spinner";
+import { createMetadata } from "@/lib/metadata";
+import { getSiteUrl } from "@/lib/utils";
+
+export const metadata: Metadata = createMetadata({
+  title: "Prihlásenie",
+  description:
+    "Prihláste sa do svojho účtu Pekárne Kromka. Sledujte objednávky, uložte obľúbené produkty a nakupujte rýchlejšie.",
+  canonicalUrl: getSiteUrl("/prihlasenie"),
+});
 
 export default function LoginPage() {
   return (

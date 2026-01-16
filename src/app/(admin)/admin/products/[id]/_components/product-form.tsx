@@ -9,7 +9,7 @@ import z from "zod";
 import { CheckboxField } from "@/components/forms/fields/checkbox-field";
 import { ComboboxField } from "@/components/forms/fields/combobox-field";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
-import { PriceField } from "@/components/forms/fields/price-field";
+import { PriceInputField } from "@/components/forms/fields/price-input-field";
 import { QuantityField } from "@/components/forms/fields/quantity-field";
 import { RichTextField } from "@/components/forms/fields/rich-text-field";
 import { SelectField } from "@/components/forms/fields/select-field";
@@ -23,12 +23,11 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { PRODUCT_STATUSES } from "@/db/types";
-import { updateProductAction } from "@/lib/actions/products";
-import { PRODUCT_STATUSES_LABELS } from "@/lib/constants";
-import type { Category } from "@/lib/queries/categories";
-import type { AdminProduct } from "@/lib/queries/products";
+import type { Category } from "@/features/categories/queries";
+import { updateProductAction } from "@/features/products/actions";
+import type { AdminProduct } from "@/features/products/queries";
+import { MAX_STRING_LENGTH, PRODUCT_STATUSES_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { MAX_STRING_LENGTH } from "@/validation/constants";
 
 export const productSchema = z.object({
   id: z.string(),
@@ -147,7 +146,7 @@ export function ProductForm({
                   label: PRODUCT_STATUSES_LABELS[status],
                 }))}
               />
-              <PriceField label="Cena" name="priceCents" />
+              <PriceInputField label="Cena" name="priceCents" />
             </FieldGroup>
           </FieldSet>
 

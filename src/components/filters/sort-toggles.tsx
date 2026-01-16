@@ -8,11 +8,10 @@ import {
 } from "lucide-react";
 import { useTransition } from "react";
 import { useEshopParams } from "@/app/(public)/e-shop/eshop-params";
-import { Button } from "../ui/button";
-import { Skeleton } from "../ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function SortToggles() {
-  // const isMobile = useIsMobile();
   const [isPending, startTransition] = useTransition();
   const [{ sort }, setSearchParams] = useEshopParams({
     startTransition,

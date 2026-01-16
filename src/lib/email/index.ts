@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import { createTransport } from "nodemailer";
 import { env } from "@/env";
-import type { Order } from "../queries/orders";
+import type { Order } from "@/features/orders/queries";
 import { renderB2BRequestEmail } from "./templates/b2b-request";
 import { renderMagicLink } from "./templates/magic-link";
 import { renderNewOrderEmail } from "./templates/new-order";

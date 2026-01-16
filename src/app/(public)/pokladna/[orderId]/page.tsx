@@ -1,30 +1,20 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
-import { eq } from "drizzle-orm";
-import { CheckCircleIcon, ChevronLeftIcon } from "lucide-react";
-import Link from "next/link";
+import { CheckCircleIcon } from "lucide-react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { buttonVariants } from "@/components/ui/button";
-import { db } from "@/db";
-import { orders } from "@/db/schema";
+import { ContinueShoppingLink } from "@/components/continue-shopping-link";
+import { getOrderById } from "@/features/orders/queries";
 import { formatPrice } from "@/lib/utils";
 
-function getOrderById(orderId: string) {
-  return db.query.orders.findFirst({
-    where: eq(orders.id, orderId),
-    with: {
-      store: true,
-      items: {
-        with: {
-          product: true,
-        },
-      },
-    },
-  });
-}
+export const metadata: Metadata = {
+  title: "Potvrdenie objednávky",
+  description: "Vaša objednávka bola úspešne vytvorená.",
+  robots: { index: false, follow: false },
+};
 
-async function OrderConfirmationPageContent({ orderId }: { orderId: string }) {
+async function OrderConfirmationContent({ orderId }: { orderId: string }) {
   const order = await getOrderById(orderId);
 
   if (!order) {
@@ -42,7 +32,7 @@ async function OrderConfirmationPageContent({ orderId }: { orderId: string }) {
       </div>
 
       <div className="w-full max-w-md space-y-4">
-        <div className="rounded-lg border p-4">
+        <div className="rounded-md p-4 sm:border">
           <h2 className="mb-2 font-semibold">Miesto vyzdvihnutia</h2>
           <p>{order.store?.name}</p>
           <p className="text-muted-foreground text-sm">
@@ -53,7 +43,7 @@ async function OrderConfirmationPageContent({ orderId }: { orderId: string }) {
           </p>
         </div>
 
-        <div className="rounded-lg border p-4">
+        <div className="rounded-md p-4 sm:border">
           <h2 className="mb-2 font-semibold">Položky</h2>
           {order.items.map((item) => (
             <div className="flex justify-between py-1" key={item.productId}>
@@ -68,12 +58,7 @@ async function OrderConfirmationPageContent({ orderId }: { orderId: string }) {
             <span>{formatPrice(order.totalCents)}</span>
           </div>
         </div>
-        <div className="flex w-full items-center justify-center">
-          <Link className={buttonVariants({ variant: "link" })} href="/e-shop">
-            <ChevronLeftIcon />
-            Pokračovať v nákupe
-          </Link>
-        </div>
+        <ContinueShoppingLink />
       </div>
     </div>
   );
@@ -86,18 +71,18 @@ export default function OrderConfirmationPage({
 }) {
   return (
     <Suspense
-      fallback={<div className="container mx-auto py-12">Loading...</div>}
+      fallback={<div className="container mx-auto py-12">Načítavam...</div>}
     >
-      <OrderConfirmationPageWrapper params={params} />
+      <OrderConfirmationWrapper params={params} />
     </Suspense>
   );
 }
 
-async function OrderConfirmationPageWrapper({
+async function OrderConfirmationWrapper({
   params,
 }: {
   params: Promise<{ orderId: string }>;
 }) {
   const { orderId } = await params;
-  return <OrderConfirmationPageContent orderId={orderId} />;
+  return <OrderConfirmationContent orderId={orderId} />;
 }

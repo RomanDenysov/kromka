@@ -1,4 +1,5 @@
 import { Facebook, Instagram, MailIcon, PhoneIcon } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
@@ -11,7 +12,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { createMetadata } from "@/lib/metadata";
+import { cn, getSiteUrl } from "@/lib/utils";
+
+export const metadata: Metadata = createMetadata({
+  title: "Kontakt",
+  description:
+    "Máte otázky? Kontaktujte nás emailom na kromka@kavejo.sk alebo telefonicky. Sledujte nás na Instagrame a Facebooku.",
+  canonicalUrl: getSiteUrl("/kontakt"),
+});
 
 export default function KontaktPage() {
   return (

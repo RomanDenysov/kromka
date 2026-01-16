@@ -1,6 +1,17 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { createMetadata } from "@/lib/metadata";
+import { getSiteUrl } from "@/lib/utils";
+
+export const metadata: Metadata = createMetadata({
+  title: "O nás",
+  description:
+    "Náš príbeh začal v roku 2020 láskou ku kvásku. Pečieme tradičné slovenské pekárenské výrobky s použitím kvalitných surovín v Prešove a Košiciach.",
+  canonicalUrl: getSiteUrl("/o-nas"),
+  image: "/images/shop.jpg",
+});
 
 export default function AboutPage() {
   return (

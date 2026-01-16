@@ -9,8 +9,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { use } from "react";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,29 +20,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut, useSession } from "@/lib/auth/client";
+import { signOut } from "@/lib/auth/client";
+import type { User } from "@/lib/auth/session";
 import { getInitials } from "@/lib/utils";
 import { Icons } from "./icons";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { buttonVariants } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
 
-export function UserButton() {
-  const { data: session, isPending } = useSession();
+export function UserButton({ promise }: { promise: Promise<User> }) {
+  const user = use(promise);
   const router = useRouter();
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted || isPending) {
-    return <Skeleton className="size-8 rounded-md" />;
-  }
-
-  if (!session) {
+  if (!user) {
     return (
       <Link
         className={buttonVariants({
@@ -58,8 +49,6 @@ export function UserButton() {
     );
   }
 
-  const user = session?.user;
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger aria-label="Účet" asChild>
@@ -73,7 +62,7 @@ export function UserButton() {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuItem asChild>
           <Link href="/profil">
             <UserIcon />

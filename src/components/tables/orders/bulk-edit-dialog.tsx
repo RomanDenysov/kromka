@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
-import { bulkUpdateOrdersAction } from "@/lib/actions/orders";
+import { bulkUpdateOrdersAction } from "@/features/orders/actions";
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants";
 
 const NO_CHANGE_VALUE = "__no_change__";

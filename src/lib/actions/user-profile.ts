@@ -4,13 +4,12 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { requireAuth } from "../auth/guards";
+import { requireAuth } from "@/lib/auth/guards";
 
 type UpdateCurrentUserProfileInput = {
   name: string;
   email: string;
   phone: string;
-  storeId?: string;
 };
 
 type UpdateCurrentUserProfileResult =
@@ -19,8 +18,7 @@ type UpdateCurrentUserProfileResult =
 
 /**
  * Update current user's profile with checkout customer data.
- * For authenticated users we update name + phone + storeId.
- * For anonymous users we additionally update email so we can contact them.
+ * For authenticated users we update name + phone.
  */
 export async function updateCurrentUserProfile(
   input: UpdateCurrentUserProfileInput
@@ -31,11 +29,6 @@ export async function updateCurrentUserProfile(
     name: input.name,
     phone: input.phone,
   };
-
-  // Update storeId if provided and user doesn't have one set
-  if (input.storeId && !user.storeId) {
-    updateData.storeId = input.storeId;
-  }
 
   try {
     await db.update(users).set(updateData).where(eq(users.id, user.id));

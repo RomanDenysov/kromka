@@ -5,7 +5,6 @@ export function getUsers() {
     orderBy: (user, { desc }) => [desc(user.createdAt)],
     with: {
       orders: true,
-      store: true,
       members: {
         with: {
           organization: true,
@@ -28,7 +27,6 @@ export function getUserById(id: string) {
       orders: {
         orderBy: (order, { desc }) => [desc(order.createdAt)],
       },
-      store: true,
       members: {
         with: {
           organization: true,

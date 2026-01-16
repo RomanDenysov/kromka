@@ -1,5 +1,15 @@
+import type { Metadata } from "next";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { createMetadata } from "@/lib/metadata";
+import { getSiteUrl } from "@/lib/utils";
+
+export const metadata: Metadata = createMetadata({
+  title: "Ochrana osobných údajov",
+  description:
+    "Zásady ochrany osobných údajov spoločnosti KROMKA s.r.o. v súlade s GDPR. Informácie o spracúvaní a ochrane vašich údajov.",
+  canonicalUrl: getSiteUrl("/ochrana-osobnych-udajov"),
+});
 
 export default function OchranaOsobnychUdajovPage() {
   return (

@@ -14,8 +14,8 @@ import {
   verifications,
 } from "@/db/schema";
 import { env } from "@/env";
-import { sendEmail } from "../email";
-import { createId } from "../ids";
+import { sendEmail } from "@/lib/email";
+import { createId } from "@/lib/ids";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -36,14 +36,6 @@ export const auth = betterAuth({
       enabled: true,
       trustedProviders: ["google"],
       updateUserInfoOnLink: true,
-    },
-  },
-  user: {
-    additionalFields: {
-      storeId: {
-        type: "string",
-        input: false,
-      },
     },
   },
   plugins: [

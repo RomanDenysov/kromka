@@ -11,7 +11,6 @@ import {
   VerifiedIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { RecentOrder } from "@/lib/queries/dashboard";
 import { formatPrice } from "@/lib/utils";
+import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 const ORDER_ID_DISPLAY_LENGTH = 8;
 

@@ -10,7 +10,6 @@ import {
   XIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { TableColumnHeader } from "@/components/data-table/table-column-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,8 +29,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { AdminStore } from "@/features/stores/queries";
 import { getAdminStoresLink } from "@/hooks/use-store-params";
-import type { AdminStore } from "@/lib/queries/stores";
+import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 type StoreTableMeta = {
   toggleActive: (id: string) => void;
@@ -135,27 +135,6 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         </Button>
       );
     },
-  },
-  {
-    id: "customers",
-    header: ({ column, table }) => (
-      <TableColumnHeader
-        column={column}
-        key={`${column.id}-${table.getState().sorting.find((s) => s.id === column.id)?.desc ?? "none"}`}
-        title="Zákazníci"
-      />
-    ),
-    meta: {
-      label: "Zákazníci",
-      variant: "number",
-    },
-    enableSorting: true,
-    accessorKey: "usersCount",
-    cell: ({ row }) => (
-      <span className="font-medium font-mono text-xs tracking-tighter">
-        {row.original.users?.length ?? 0}
-      </span>
-    ),
   },
   {
     id: "orders",

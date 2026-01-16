@@ -1,6 +1,3 @@
-import { generateHTML } from "@tiptap/html";
-import { generateText } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import {
@@ -13,16 +10,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
-import { ImageSlider } from "@/components/image-slider";
+import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Hint } from "@/components/shared/hint";
+import { ProductImage } from "@/components/shared/product-image";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getProducts, type Product } from "@/features/products/queries";
+import { jsonContentToHtml, jsonContentToText } from "@/lib/editor-utils";
 import { createMetadata } from "@/lib/metadata";
-import { getProducts, type Product } from "@/lib/queries/products";
+import { getBreadcrumbSchema, getProductSchema } from "@/lib/seo/json-ld";
 import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
 import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
@@ -48,16 +48,8 @@ export async function generateMetadata({ params }: Props) {
   if (!result) {
     notFound();
   }
-  const description = result?.description ?? {
-    type: "doc",
-    content: [
-      {
-        type: "paragraph",
-        content: [{ type: "text", text: "Popis produktu chýba" }],
-      },
-    ],
-  };
-  const descriptionText = generateText(description, [StarterKit]);
+  const descriptionText =
+    jsonContentToText(result?.description) || "Popis produktu chýba";
 
   return createMetadata({
     title: result.name,
@@ -122,30 +114,64 @@ export default async function ProductPage({ params }: Props) {
     notFound();
   }
 
-  const validUrls = result.imageUrl ? [result.imageUrl] : [];
   const isInStock = result.status === "active";
   const pickupDates = result.category?.pickupDates;
   const hasPickupRestriction = pickupDates && pickupDates.length > 0;
 
-  const descriptionHtml = generateHTML(
-    result?.description ?? {
-      type: "doc",
-      content: [{ type: "paragraph", content: [{ type: "text", text: "" }] }],
-    },
-    [StarterKit]
-  );
+  const descriptionHtml = jsonContentToHtml(result?.description);
 
   const recommendations = getProductRecommendations(result, products);
 
+  const descriptionText =
+    jsonContentToText(result?.description) || "Popis produktu chýba";
+
+  const productSchema = getProductSchema({
+    name: result.name,
+    description: descriptionText,
+    image: result.imageUrl,
+    priceCents: result.priceCents,
+    slug: result.slug,
+    category: result.category?.name,
+    isAvailable: isInStock,
+  });
+
+  const breadcrumbItems = [
+    { name: "E-shop", href: "/e-shop" },
+    ...(result.category
+      ? [
+          {
+            name: result.category.name,
+            href: `/e-shop?category=${result.category.slug}`,
+          },
+        ]
+      : []),
+    { name: result.name },
+  ];
+
+  const breadcrumbSchema = getBreadcrumbSchema(breadcrumbItems);
+
   return (
     <PageWrapper>
+      <JsonLd data={[productSchema, breadcrumbSchema]} />
       <AppBreadcrumbs
         items={[{ label: "E-shop", href: "/e-shop" }, { label: result.name }]}
       />
       <section className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-x-12 md:grid-cols-5">
         <div className="col-span-1 md:col-span-2">
-          <div className="aspect-square rounded-lg">
-            <ImageSlider brightness={false} urls={validUrls} />
+          <div className="aspect-square rounded-sm">
+            <ProductImage
+              alt={`Product image: ${result.name}`}
+              className={cn(
+                "aspect-square size-full rounded-sm object-cover object-center transition-all duration-300"
+              )}
+              decoding="sync"
+              height={500}
+              loading="eager"
+              preload
+              quality={80}
+              src={result.imageUrl ?? ""}
+              width={500}
+            />
           </div>
         </div>
         <div className="col-span-1 flex flex-col gap-6 sm:col-span-2 md:col-span-3">

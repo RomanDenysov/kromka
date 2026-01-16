@@ -1,4 +1,4 @@
-import { AdminHeader } from "@/components/admin-header/admin-header";
+import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { TabNav } from "./tab-nav";
 
 export default function SettingsLayout({

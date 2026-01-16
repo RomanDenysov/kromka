@@ -8,9 +8,10 @@ import { env } from "@/env";
 import { consent } from "@/lib/consent";
 import { AuthIdentitySync } from "./auth-identity-sync";
 
-// Initialize PostHog
+// Initialize PostHog (disabled in development)
+const IS_DEV = process.env.NODE_ENV === "development";
 
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && !IS_DEV) {
   // Prevent double-init in dev/HMR.
   // posthog-js exposes `__loaded` at runtime but it isn't typed.
   // biome-ignore lint/suspicious/noExplicitAny: needed for untyped runtime flag

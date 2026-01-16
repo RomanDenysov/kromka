@@ -4,6 +4,9 @@ import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 import React from "react";
+import { setSidebarState } from "@/lib/sidebar-state";
+import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -21,11 +24,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 
-const SIDEBAR_COOKIE_NAME = "sidebar_state";
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+const _SIDEBAR_COOKIE_NAME = "sidebar_state";
+const _SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "14rem";
 const SIDEBAR_WIDTH_MOBILE = "16rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
@@ -73,24 +74,27 @@ function SidebarProvider({
   const [_open, _setOpen] = React.useState(defaultOpen);
   const open = openProp ?? _open;
   const setOpen = React.useCallback(
-  (value: boolean | ((value: boolean) => boolean)) => {
-    const openState = typeof value === "function" ? value(open) : value
-    if (setOpenProp) {
-      setOpenProp(openState)
-    } else {
-      _setOpen(openState)
-    }
+    (value: boolean | ((o: boolean) => boolean)) => {
+      const openState = typeof value === "function" ? value(open) : value;
+      if (setOpenProp) {
+        setOpenProp(openState);
+      } else {
+        _setOpen(openState);
+      }
 
-    // This sets the cookie to keep the sidebar state.
-    document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
-  },
-  [setOpenProp, open]
-)
+      // This sets the cookie to keep the sidebar state.
+      // biome-ignore lint/complexity/noVoid: we need to set the cookie in a server action
+      void setSidebarState(openState);
+    },
+    [setOpenProp, open]
+  );
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(
     () =>
-      isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open),
+      isMobile
+        ? setOpenMobile((o: boolean) => !o)
+        : setOpen((o: boolean) => !o),
     [isMobile, setOpen]
   );
 
@@ -102,8 +106,10 @@ function SidebarProvider({
         (event.metaKey || event.ctrlKey)
       ) {
         const target = event.target as HTMLElement;
-        if(target.closest("[contenteditable], .ProseMirror, input, textarea")) {
-          return
+        if (
+          target.closest("[contenteditable], .ProseMirror, input, textarea")
+        ) {
+          return;
         }
 
         event.preventDefault();
@@ -613,10 +619,12 @@ function SidebarMenuSkeleton({
   showIcon?: boolean;
 }) {
   const id = React.useId();
-  
+
   // Random width between 50 to 90%.
   const width = React.useMemo(() => {
-    const hash = id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const hash = id
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return `${(hash % 40) + 50}%`;
   }, [id]);
 

@@ -26,11 +26,11 @@ const useLoginModalStore = create<LoginModalStore & LoginModalActions>(
 
 export const useLoginModalOpen = () => useLoginModalStore((s) => s.open);
 export const useLoginModalClose = () => useLoginModalStore((s) => s.close);
-export const useLoginModalState = () =>
-  useLoginModalStore((s) => ({
-    isOpen: s.isOpen,
-    reason: s.reason,
-    origin: s.origin,
-  }));
+export const useLoginModalState = () => {
+  const reason = useLoginModalStore((s) => s.reason);
+  const origin = useLoginModalStore((s) => s.origin);
+  const isOpen = useLoginModalStore((s) => s.isOpen);
+  return { isOpen, reason, origin };
+};
 
 export const useLoginModal = useLoginModalStore;

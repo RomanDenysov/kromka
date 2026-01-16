@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { AdminHeader } from "@/components/admin-header/admin-header";
-import { FormSkeleton } from "@/components/shared/form/form-skeleton";
+import { FormSkeleton } from "@/components/forms/form-skeleton";
 import {
   getAdminCategories,
   getAdminCategoryById,
-} from "@/lib/queries/categories";
+} from "@/features/categories/queries";
+import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { CategoryFormContainer } from "./_components/category-form-container";
 
 type Props = {

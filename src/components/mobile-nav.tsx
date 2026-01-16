@@ -17,7 +17,7 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { type ReactNode, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { COMPANY_INFO } from "@/app/(public)/(policies)/policies-config";
 import { Icons } from "@/components/icons";
@@ -36,7 +36,6 @@ import { cn, getInitials } from "@/lib/utils";
 
 type Props = {
   navigation: { name: string; href: Route }[];
-  children: ReactNode;
 };
 
 const SOCIAL_LINKS = [
@@ -62,14 +61,13 @@ const SOCIAL_LINKS = [
   },
 ] as const;
 
-export function MobileNavigation({ navigation, children }: Props) {
+export function MobileNavigation({ navigation }: Props) {
+  const session = useSession();
+  const user = session.data?.user;
   const [open, setOpen] = useState(false);
-  const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
-
-  const user = session?.user;
 
   const getIconForRoute = (href: string) => {
     if (href.includes("/e-shop")) {
@@ -206,8 +204,6 @@ export function MobileNavigation({ navigation, children }: Props) {
         </div>
 
         <div className="mt-auto p-4">
-          <div className="mb-4">{children}</div>
-
           <div className="flex items-center justify-between gap-2 border-t pt-4">
             <div className="flex gap-1">
               {SOCIAL_LINKS.map(({ href, icon: Icon, label }) => (

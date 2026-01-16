@@ -2,9 +2,9 @@
 
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useAppForm } from "@/components/shared/form";
+import { TextField } from "@/components/forms/fields/text-field";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,26 +28,30 @@ type Props = {
   user: NonNullable<UserDetails>;
 };
 
+type ProfileSchema = {
+  name: string;
+  phone: string;
+};
+
 export function ProfileSettingsForm({ user }: Props) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
 
-  const form = useAppForm({
+  const form = useForm<ProfileSchema>({
     defaultValues: {
       name: user.name ?? "",
       phone: user.phone ?? "",
     },
-    onSubmit: ({ value }) =>
-      startTransition(async () => {
-        const result = await updateProfileAction(value);
-        if (result.success) {
-          toast.success("Profil bol aktualizovaný");
-          router.refresh();
-        } else {
-          toast.error(result.error ?? "Nepodarilo sa aktualizovať profil");
-        }
-      }),
   });
+
+  const onSubmit = async (data: ProfileSchema) => {
+    const result = await updateProfileAction(data);
+    if (result.success) {
+      toast.success("Profil bol aktualizovaný");
+      router.refresh();
+    } else {
+      toast.error(result.error ?? "Nepodarilo sa aktualizovať profil");
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -59,13 +63,13 @@ export function ProfileSettingsForm({ user }: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form.AppForm>
+          <FormProvider {...form}>
             <form
               className="flex flex-col gap-6"
               onSubmit={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                form.handleSubmit();
+                form.handleSubmit(onSubmit)(e);
               }}
             >
               <FieldSet className="max-w-md gap-4">
@@ -82,49 +86,26 @@ export function ProfileSettingsForm({ user }: Props) {
                     </div>
                   </Field>
 
-                  <form.AppField name="name">
-                    {(field) => (
-                      <field.TextField label="Meno" placeholder="Vaše meno" />
-                    )}
-                  </form.AppField>
+                  <TextField label="Meno" name="name" placeholder="Vaše meno" />
 
-                  <form.AppField name="phone">
-                    {(field) => (
-                      <field.TextField
-                        label="Telefón"
-                        placeholder="+421 XXX XXX XXX"
-                      />
-                    )}
-                  </form.AppField>
+                  <TextField
+                    label="Telefón"
+                    name="phone"
+                    placeholder="+421 XXX XXX XXX"
+                  />
                 </FieldGroup>
               </FieldSet>
 
               <div className="flex justify-start">
-                <Button disabled={isPending} type="submit">
-                  {isPending && <Loader2Icon className="animate-spin" />}
+                <Button disabled={form.formState.isSubmitting} type="submit">
+                  {form.formState.isSubmitting && (
+                    <Loader2Icon className="animate-spin" />
+                  )}
                   Uložiť zmeny
                 </Button>
               </div>
             </form>
-          </form.AppForm>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Predvolená predajňa</CardTitle>
-          <CardDescription>
-            Vyberte predajňu, kde najčastejšie vyzdvihujete objednávky
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border bg-muted/50 px-3 py-2 text-sm">
-            {user.store?.name ?? (
-              <span className="text-muted-foreground">
-                Predvolená predajňa nie je nastavená
-              </span>
-            )}
-          </div>
+          </FormProvider>
         </CardContent>
       </Card>
     </div>

@@ -17,6 +17,8 @@ type Props<T extends FieldValues> = {
   placeholder?: string;
   description?: string;
   className?: string;
+  inputClassName?: string;
+  maxLength?: number;
 };
 
 export function TextField<T extends FieldValues>({
@@ -25,6 +27,8 @@ export function TextField<T extends FieldValues>({
   placeholder,
   description,
   className,
+  inputClassName,
+  maxLength,
 }: Props<T>) {
   const { control } = useFormContext();
 
@@ -41,7 +45,8 @@ export function TextField<T extends FieldValues>({
           <Input
             {...field}
             aria-invalid={fieldState.invalid}
-            className="max-w-xs"
+            className={cn("max-w-none", inputClassName)}
+            maxLength={maxLength}
             placeholder={placeholder}
             volume="xs"
           />

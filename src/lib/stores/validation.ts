@@ -1,6 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
-import { MAX_STRING_LENGTH } from "@/validation/constants";
+import { MAX_STRING_LENGTH } from "@/lib/constants";
 
 const POSTAL_CODE_LENGTH = 6;
 
@@ -25,7 +25,7 @@ export const openingHoursSchema = z.object({
   }),
   exceptions: z.record(z.string(), dayScheduleSchema).optional(),
 });
-const addressSchema = z.object({
+export const addressSchema = z.object({
   street: z.string(),
   city: z.string(),
   country: z.string(),

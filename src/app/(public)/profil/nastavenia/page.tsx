@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getUserDetails } from "@/lib/auth/session";
 import { ProfileSettingsForm } from "./_components/profile-settings-form";
+
+export const metadata: Metadata = {
+  title: "Nastavenia účtu",
+  description: "Upravte svoje osobné údaje a preferencie v Pekárni Kromka.",
+  robots: { index: false, follow: false },
+};
 
 async function NastaveniaPageContent() {
   const user = await getUserDetails();

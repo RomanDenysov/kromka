@@ -1,4 +1,5 @@
 import { CheckIcon, PlusCircleIcon, XIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -13,9 +14,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import type { Category } from "@/features/categories/queries";
 import { cn } from "@/lib/utils";
-import type { Category } from "@/types/categories";
-import { Badge } from "./ui/badge";
 
 type Props = {
   value: string[];
