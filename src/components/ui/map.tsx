@@ -123,7 +123,9 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
         }
       }, 150);
     };
-    const loadHandler = () => setIsLoaded(true);
+    const loadHandler = () => {
+      setIsLoaded(true);
+    };
 
     map.on("load", loadHandler);
     map.on("styledata", styleDataHandler);

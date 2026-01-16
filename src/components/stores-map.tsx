@@ -40,7 +40,6 @@ export function StoresMap({ stores, userPosition }: StoresMapProps) {
       Number.parseFloat(store.latitude) !== 0 &&
       Number.parseFloat(store.longitude) !== 0
   );
-
   if (storesWithCoordinates.length === 0) {
     return null;
   }

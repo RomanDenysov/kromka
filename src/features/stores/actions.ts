@@ -31,6 +31,11 @@ export async function updateStoreAction({
 }) {
   await requireAdmin();
 
+  const currentStore = await db.query.stores.findFirst({
+    where: eq(stores.id, id),
+    columns: { slug: true },
+  });
+
   // Check if slug is taken by another store
   if (store.slug) {
     const existingStore = await db.query.stores.findFirst({
@@ -52,6 +57,9 @@ export async function updateStoreAction({
 
   updateTag("stores");
   updateTag(`store-${updatedStore.slug}`);
+  if (currentStore?.slug && currentStore.slug !== updatedStore.slug) {
+    updateTag(`store-${currentStore.slug}`);
+  }
 
   return { success: true, store: updatedStore };
 }
@@ -76,9 +84,10 @@ export async function copyStoreAction({ storeId }: { storeId: string }) {
   const [newStore] = await db
     .insert(stores)
     .values(newStoreData)
-    .returning({ id: stores.id });
+    .returning({ id: stores.id, slug: stores.slug });
 
   updateTag("stores");
+  updateTag(`store-${newStore.slug}`);
 
   return { id: newStore.id };
 }

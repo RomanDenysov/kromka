@@ -1,5 +1,5 @@
 import { asc, desc, eq } from "drizzle-orm";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
 import { stores } from "@/db/schema";
@@ -7,7 +7,8 @@ import { stores } from "@/db/schema";
 export const getStores = cache(async () => {
   "use cache";
   cacheLife("max");
-  return await db.query.stores.findMany({
+  cacheTag("stores");
+  const result = await db.query.stores.findMany({
     where: eq(stores.isActive, true),
     orderBy: desc(stores.createdAt),
     with: {
@@ -18,6 +19,7 @@ export const getStores = cache(async () => {
       },
     },
   });
+  return result;
 });
 
 export function getAdminStores() {
