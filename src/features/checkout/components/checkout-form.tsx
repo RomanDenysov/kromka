@@ -23,6 +23,7 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import type { PaymentMethod } from "@/db/types";
 import type { DetailedCartItem } from "@/features/cart/queries";
@@ -289,10 +290,11 @@ export function CheckoutForm({
           {/* Alerts */}
           <CheckoutAlerts formErrors={errors} ordersEnabled={ordersEnabled} />
 
-          {/* Submit Button */}
+          {/* Submit Button - hidden on mobile where sticky footer is shown */}
           <Button
-            className="w-full text-base"
+            className="hidden w-full text-base sm:inline-flex"
             disabled={isSubmitDisabled}
+            id="checkout-submit-button-main"
             size="xl"
             type="submit"
           >
@@ -300,7 +302,7 @@ export function CheckoutForm({
             Objednať
           </Button>
         </div>
-
+        <Separator className="my-4 block sm:hidden" />
         {/* Continue Shopping Link */}
         <ContinueShoppingLink />
       </form>

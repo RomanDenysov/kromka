@@ -18,7 +18,7 @@ const navigation: { name: string; href: Route }[] = [
 
 export function Header({ children }: { children: ReactNode }) {
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <header className="sticky top-0 z-50 w-full bg-background">
       <Container>
         <div className="flex h-12 w-full items-center justify-center gap-4 md:grid md:h-14 md:grid-cols-[1fr_auto_1fr] md:gap-5">
           {/* Navigation */}

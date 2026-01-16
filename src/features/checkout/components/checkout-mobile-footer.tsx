@@ -35,6 +35,7 @@ export function CheckoutMobileFooter({
           className="flex-1 text-base"
           disabled={isDisabled}
           form="checkout-form"
+          id="checkout-submit-button-mobile"
           size="lg"
           type="submit"
         >

@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export function ScrollToTop({ threshold = 400, className }: Props) {
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -25,6 +27,10 @@ export function ScrollToTop({ threshold = 400, className }: Props) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  if (pathname.includes("/pokladna")) {
+    return null;
+  }
 
   return (
     <Button
