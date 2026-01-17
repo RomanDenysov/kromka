@@ -85,3 +85,31 @@ export type FeaturedCategory = Awaited<
 export type AdminCategory = Awaited<
   ReturnType<typeof getAdminCategories>
 >[number];
+
+/**
+ * Get categories filtered by catalog type (B2B or B2C).
+ * Only returns categories that have products visible in the specified catalog.
+ */
+export async function getCategoriesByCatalog({
+  catalog,
+}: {
+  catalog: "b2b" | "b2c";
+}) {
+  const allCategories = await getCategories();
+  const allProducts = await getProducts();
+
+  // Filter products by catalog visibility
+  const visibleProductIds = new Set(
+    allProducts
+      .filter((p) => (catalog === "b2b" ? p.showInB2b : p.showInB2c))
+      .map((p) => p.id)
+  );
+
+  // Filter categories that have visible products
+  return allCategories.filter((cat) => {
+    const hasVisibleProducts = allProducts.some(
+      (p) => p.categoryId === cat.id && visibleProductIds.has(p.id)
+    );
+    return hasVisibleProducts;
+  });
+}

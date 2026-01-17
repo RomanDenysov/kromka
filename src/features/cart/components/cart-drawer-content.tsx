@@ -1,10 +1,16 @@
 import { ShoppingCartIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getDetailedCart } from "@/features/cart/queries";
+import { getUserDetails } from "@/lib/auth/session";
 import { CartDrawerItem } from "./cart-drawer-item";
 
 export async function CartDrawerContent() {
-  const items = await getDetailedCart();
+  const user = await getUserDetails();
+  const priceTierId =
+    user?.members && user.members.length > 0
+      ? (user.members[0]?.organization?.priceTierId ?? null)
+      : null;
+  const items = await getDetailedCart(priceTierId);
 
   if (items.length === 0) {
     return (

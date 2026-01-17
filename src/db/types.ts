@@ -50,6 +50,13 @@ export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
 export const POST_STATUSES = ["draft", "published", "archived"] as const;
 export type PostStatus = (typeof POST_STATUSES)[number];
 
+export const B2B_APPLICATION_STATUSES = [
+  "pending",
+  "approved",
+  "rejected",
+] as const;
+export type B2bApplicationStatus = (typeof B2B_APPLICATION_STATUSES)[number];
+
 export const PROMO_TYPES = [
   "percentage",
   "fixed_amount",

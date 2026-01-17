@@ -3,6 +3,7 @@ import { sk } from "date-fns/locale/sk";
 import { createTransport } from "nodemailer";
 import { env } from "@/env";
 import type { Order } from "@/features/orders/queries";
+import { renderB2BApplicationEmail } from "./templates/b2b-application";
 import { renderB2BRequestEmail } from "./templates/b2b-request";
 import { renderMagicLink } from "./templates/magic-link";
 import { renderNewOrderEmail } from "./templates/new-order";
@@ -341,6 +342,7 @@ export const sendEmail = {
 
   /**
    * Send B2B request from registration form to staff.
+   * @deprecated Use b2bApplication instead
    */
   b2bRequest: async ({
     companyName,
@@ -367,6 +369,54 @@ export const sendEmail = {
       from: `"Kromka" <${env.EMAIL_USER}>`,
       to: STAFF_EMAIL,
       replyTo: email,
+      subject: `Nová B2B žiadosť od ${companyName}`,
+      html,
+    });
+  },
+
+  /**
+   * Send B2B application from application form to staff.
+   */
+  b2bApplication: async ({
+    applicationId,
+    companyName,
+    ico,
+    dic,
+    icDph,
+    contactName,
+    contactEmail,
+    contactPhone,
+    billingAddress,
+    message,
+  }: {
+    applicationId: string;
+    companyName: string;
+    ico: string;
+    dic?: string | null;
+    icDph?: string | null;
+    contactName: string;
+    contactEmail: string;
+    contactPhone: string;
+    billingAddress?: import("@/db/types").Address | null;
+    message?: string | null;
+  }) => {
+    const html = await renderB2BApplicationEmail({
+      applicationId,
+      companyName,
+      ico,
+      dic,
+      icDph,
+      contactName,
+      contactEmail,
+      contactPhone,
+      billingAddress,
+      message,
+    });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: STAFF_EMAIL,
+      replyTo: contactEmail,
       subject: `Nová B2B žiadosť od ${companyName}`,
       html,
     });

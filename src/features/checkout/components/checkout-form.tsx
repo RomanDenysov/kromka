@@ -1,7 +1,7 @@
 "use client";
 
 import { addDays, startOfToday } from "date-fns";
-import { CreditCardIcon, StoreIcon } from "lucide-react";
+import { CreditCardIcon, FileTextIcon, StoreIcon } from "lucide-react";
 import { useMemo } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { ContinueShoppingLink } from "@/components/continue-shopping-link";
@@ -47,6 +47,7 @@ type CheckoutFormProps = {
   items: DetailedCartItem[];
   ordersEnabled: boolean;
   lastOrderPrefill?: LastOrderPrefill | null;
+  isB2B?: boolean;
 };
 
 export function CheckoutForm({
@@ -55,6 +56,7 @@ export function CheckoutForm({
   items,
   ordersEnabled,
   lastOrderPrefill,
+  isB2B = false,
 }: CheckoutFormProps) {
   const { position } = useGeolocation();
 
@@ -230,7 +232,7 @@ export function CheckoutForm({
                       <FieldContent>
                         <RadioGroup
                           aria-label="Spôsob platby"
-                          className="grid-cols-2 gap-4"
+                          className={`grid gap-4 ${isB2B ? "grid-cols-3" : "grid-cols-2"}`}
                           onValueChange={(value) =>
                             field.onChange(value as PaymentMethod)
                           }
@@ -251,6 +253,24 @@ export function CheckoutForm({
                               />
                             </Field>
                           </FieldLabel>
+
+                          {isB2B && (
+                            <FieldLabel htmlFor="invoice">
+                              <Field className="min-h-14 rounded-sm!">
+                                <FieldContent className="items-center">
+                                  <FileTextIcon className="size-7 shrink-0" />
+                                  <FieldTitle className="text-wrap text-center">
+                                    Na faktúru
+                                  </FieldTitle>
+                                </FieldContent>
+                                <RadioGroupItem
+                                  className="peer sr-only"
+                                  id="invoice"
+                                  value="invoice"
+                                />
+                              </Field>
+                            </FieldLabel>
+                          )}
 
                           <FieldLabel htmlFor="card">
                             <Field className="min-h-14 cursor-not-allowed rounded-sm! opacity-50">

@@ -4,14 +4,16 @@ import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 import { getCart } from "@/features/cart/cookies";
+import { getEffectivePrices } from "@/lib/pricing";
 
 /**
  * Get detailed cart items with product data.
  * Filters out unavailable products (inactive, draft, archived, or in inactive category).
+ * Optionally applies tier pricing for B2B users.
  * Note: This is a pure query - unavailable items are filtered from results but not
  * removed from the cookie. Cookie cleanup happens lazily via cart actions.
  */
-export async function getDetailedCart() {
+export async function getDetailedCart(priceTierId?: string | null) {
   const cart = await getCart();
 
   if (cart.length === 0) {
@@ -54,18 +56,31 @@ export async function getDetailedCart() {
       .map((p) => [p.id, p])
   );
 
+  // Get effective prices if tier is provided
+  const productPrices = Array.from(productById.values()).map((p) => ({
+    productId: p.id,
+    basePriceCents: p.priceCents,
+  }));
+
+  const effectivePrices =
+    priceTierId && productPrices.length > 0
+      ? await getEffectivePrices({ productPrices, priceTierId })
+      : new Map<string, number>();
+
   return cart.flatMap((item) => {
     const product = productById.get(item.productId);
     if (!product) {
       return [];
     }
+    const effectivePrice =
+      effectivePrices.get(product.id) ?? product.priceCents;
     return [
       {
         productId: item.productId,
         quantity: item.qty,
         name: product.name,
         slug: product.slug,
-        priceCents: product.priceCents,
+        priceCents: effectivePrice,
         imageUrl: product.image?.url ?? null,
         category: product.category,
       },

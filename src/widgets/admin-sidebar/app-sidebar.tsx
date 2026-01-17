@@ -2,6 +2,8 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
+  BriefcaseIcon,
+  FileTextIcon,
   ImagesIcon,
   LayoutDashboardIcon,
   Package2Icon,
@@ -10,6 +12,7 @@ import {
   StoreIcon,
   TagsIcon,
   UsersIcon,
+  WalletIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -45,6 +48,29 @@ const NAV_ESHOP: NavItem[] = [
   { href: "/admin/stores", label: "Predajne", icon: StoreIcon },
   { href: "/admin/categories", label: "Kategórie", icon: TagsIcon },
   { href: "/admin/products", label: "Produkty", icon: Package2Icon },
+];
+
+const NAV_B2B: NavItem[] = [
+  {
+    href: "/admin/b2b/applications" as Route,
+    label: "Žiadosti",
+    icon: FileTextIcon,
+  },
+  {
+    href: "/admin/b2b/clients" as Route,
+    label: "Klienti",
+    icon: BriefcaseIcon,
+  },
+  {
+    href: "/admin/b2b/price-tiers" as Route,
+    label: "Cenové skupiny",
+    icon: WalletIcon,
+  },
+  {
+    href: "/admin/b2b/invoices" as Route,
+    label: "Faktúry",
+    icon: FileTextIcon,
+  },
 ];
 
 const NAV_BOTTOM: NavItem[] = [
@@ -161,6 +187,21 @@ export default function AppSidebar({
                 isActive={isActive("/admin/orders")}
                 newOrdersCount={newOrdersCount}
               />
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>B2B</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {NAV_B2B.map((item) => (
+                <NavMenuItem
+                  isActive={isActive(item.href)}
+                  item={item}
+                  key={item.href}
+                />
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

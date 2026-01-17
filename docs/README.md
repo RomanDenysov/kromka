@@ -15,7 +15,8 @@ Detailed documentation for complex features:
 
 | Feature | Documentation | Description |
 |---------|---------------|-------------|
-| Checkout | [Overview](features/checkout.md), [Changelog](features/checkout-changelog.md) | B2C checkout flow with pickup scheduling |
+| Checkout | [Overview](features/checkout/README.md), [Changelog](features/checkout/changelog.md) | B2C checkout flow with pickup scheduling |
+| B2B | [Overview](features/b2b/README.md), [Architecture](features/b2b/architecture.md), [API Actions](features/b2b/api-actions.md) | B2B partnership, pricing tiers, and invoice management |
 
 ## Adding Documentation
 
