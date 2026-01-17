@@ -1,32 +1,38 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import {
+  Controller,
+  FormProvider,
+  type SubmitHandler,
+  useForm,
+} from "react-hook-form";
 import { toast } from "sonner";
+import { SelectField } from "@/components/forms/fields/select-field";
+import { TextField } from "@/components/forms/fields/text-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldContent,
+  FieldError,
   FieldGroup,
   FieldLabel,
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { updateOrganization } from "@/features/b2b/clients/actions";
 import type { OrganizationDetail } from "@/features/b2b/clients/queries";
 import type { PriceTier } from "@/features/b2b/price-tiers/queries";
 import { formatPrice } from "@/lib/utils";
+import {
+  type UpdateOrganizationSchema,
+  updateOrganizationSchema,
+} from "@/validation/b2b";
 
 type Props = {
   organization: OrganizationDetail;
@@ -52,43 +58,29 @@ function formatAddress(address: OrganizationDetail["billingAddress"]) {
 
 export function B2BClientDetail({ organization, priceTiers }: Props) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [billingName, setBillingName] = useState(
-    organization.billingName ?? ""
-  );
-  const [ico, setIco] = useState(organization.ico ?? "");
-  const [dic, setDic] = useState(organization.dic ?? "");
-  const [icDph, setIcDph] = useState(organization.icDph ?? "");
-  const [billingEmail, setBillingEmail] = useState(
-    organization.billingEmail ?? ""
-  );
-  const [paymentTermDays, setPaymentTermDays] = useState(
-    organization.paymentTermDays ?? 14
-  );
-  const [priceTierId, setPriceTierId] = useState(
-    organization.priceTierId ?? ""
-  );
+  const form = useForm<UpdateOrganizationSchema>({
+    resolver: zodResolver(updateOrganizationSchema),
+    defaultValues: {
+      organizationId: organization.id,
+      billingName: organization.billingName ?? "",
+      ico: organization.ico ?? "",
+      dic: organization.dic ?? "",
+      icDph: organization.icDph ?? "",
+      billingEmail: organization.billingEmail ?? "",
+      paymentTermDays: organization.paymentTermDays ?? 14,
+      priceTierId: organization.priceTierId ?? "",
+    },
+  });
 
-  const handleSave = () => {
-    startTransition(async () => {
-      const result = await updateOrganization({
-        organizationId: organization.id,
-        billingName: billingName || undefined,
-        ico: ico || undefined,
-        dic: dic || undefined,
-        icDph: icDph || undefined,
-        billingEmail: billingEmail || undefined,
-        paymentTermDays,
-        priceTierId: priceTierId || undefined,
-      });
+  const onSubmit: SubmitHandler<UpdateOrganizationSchema> = async (data) => {
+    const result = await updateOrganization(data);
 
-      if (result.success) {
-        toast.success("Organizácia bola aktualizovaná");
-        router.refresh();
-      } else {
-        toast.error(result.error ?? "Nastala chyba");
-      }
-    });
+    if (result.success) {
+      toast.success("Organizácia bola aktualizovaná");
+      router.refresh();
+    } else {
+      toast.error(result.error ?? "Nastala chyba");
+    }
   };
 
   return (
@@ -176,81 +168,108 @@ export function B2BClientDetail({ organization, priceTiers }: Props) {
               <CardTitle>Fakturačné údaje</CardTitle>
             </CardHeader>
             <CardContent>
-              <FieldSet className="space-y-4">
-                <FieldGroup className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <Field>
-                    <FieldLabel>Fakturačný názov</FieldLabel>
-                    <Input
-                      onChange={(e) => setBillingName(e.target.value)}
-                      value={billingName}
+              <FormProvider {...form}>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    form.handleSubmit(onSubmit)(e);
+                  }}
+                >
+                  <FieldSet className="space-y-4">
+                    <FieldGroup className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <TextField label="Fakturačný názov" name="billingName" />
+                      <TextField
+                        label="IČO"
+                        name="ico"
+                        placeholder="12345678"
+                      />
+                      <TextField
+                        label="DIČ"
+                        name="dic"
+                        placeholder="SK1234567890"
+                      />
+                      <TextField
+                        label="IČ DPH"
+                        name="icDph"
+                        placeholder="SK1234567890"
+                      />
+                      <TextField
+                        autoComplete="email"
+                        label="Fakturačný email"
+                        name="billingEmail"
+                        type="email"
+                      />
+                      <Controller
+                        control={form.control}
+                        name="paymentTermDays"
+                        render={({ field, fieldState }) => (
+                          <Field
+                            className="gap-1"
+                            data-invalid={fieldState.invalid}
+                          >
+                            <FieldLabel htmlFor={field.name}>
+                              Splatnosť (dni)
+                            </FieldLabel>
+                            <Input
+                              aria-invalid={fieldState.invalid}
+                              id={field.name}
+                              inputMode="numeric"
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                if (raw.length === 0) {
+                                  field.onChange(undefined);
+                                  return;
+                                }
+                                const parsed = Number(raw);
+                                field.onChange(
+                                  Number.isNaN(parsed) ? undefined : parsed
+                                );
+                              }}
+                              type="number"
+                              value={field.value ?? ""}
+                              volume="xs"
+                            />
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                            )}
+                          </Field>
+                        )}
+                      />
+                    </FieldGroup>
+
+                    <Field>
+                      <FieldLabel>Fakturačná adresa</FieldLabel>
+                      <FieldContent>
+                        {formatAddress(organization.billingAddress)}
+                      </FieldContent>
+                    </Field>
+
+                    <SelectField
+                      label="Cenová skupina"
+                      name="priceTierId"
+                      options={[
+                        { value: "", label: "Žiadna" },
+                        ...priceTiers.map((tier) => ({
+                          value: tier.id,
+                          label: tier.name,
+                        })),
+                      ]}
+                      placeholder="Vyberte cenovú skupinu"
                     />
-                  </Field>
-                  <Field>
-                    <FieldLabel>IČO</FieldLabel>
-                    <Input
-                      onChange={(e) => setIco(e.target.value)}
-                      value={ico}
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>DIČ</FieldLabel>
-                    <Input
-                      onChange={(e) => setDic(e.target.value)}
-                      value={dic}
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>IČ DPH</FieldLabel>
-                    <Input
-                      onChange={(e) => setIcDph(e.target.value)}
-                      value={icDph}
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Fakturačný email</FieldLabel>
-                    <Input
-                      onChange={(e) => setBillingEmail(e.target.value)}
-                      type="email"
-                      value={billingEmail}
-                    />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Splatnosť (dni)</FieldLabel>
-                    <Input
-                      onChange={(e) =>
-                        setPaymentTermDays(Number.parseInt(e.target.value, 10))
-                      }
-                      type="number"
-                      value={paymentTermDays.toString()}
-                    />
-                  </Field>
-                </FieldGroup>
-                <Field>
-                  <FieldLabel>Fakturačná adresa</FieldLabel>
-                  <FieldContent>
-                    {formatAddress(organization.billingAddress)}
-                  </FieldContent>
-                </Field>
-                <Field>
-                  <FieldLabel>Cenová skupina</FieldLabel>
-                  <Select onValueChange={setPriceTierId} value={priceTierId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Vyberte cenovú skupinu" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Žiadna</SelectItem>
-                      {priceTiers.map((tier) => (
-                        <SelectItem key={tier.id} value={tier.id}>
-                          {tier.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Button disabled={isPending} onClick={handleSave} size="lg">
-                  Uložiť zmeny
-                </Button>
-              </FieldSet>
+
+                    <Button
+                      disabled={form.formState.isSubmitting}
+                      size="lg"
+                      type="submit"
+                    >
+                      {form.formState.isSubmitting
+                        ? "Ukladá sa..."
+                        : "Uložiť zmeny"}
+                    </Button>
+                  </FieldSet>
+                </form>
+              </FormProvider>
             </CardContent>
           </Card>
         </TabsContent>

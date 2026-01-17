@@ -87,7 +87,7 @@ export async function getOrganizations({
   }));
 }
 
-export async function getOrganizationById(id: string) {
+export function getOrganizationById(id: string) {
   return db.query.organizations.findFirst({
     where: (org, { eq: eqOp }) => eqOp(org.id, id),
     with: {
@@ -100,7 +100,7 @@ export async function getOrganizationById(id: string) {
         },
       },
       orders: {
-        orderBy: (order, { desc }) => [desc(order.createdAt)],
+        orderBy: desc(orders.createdAt),
         limit: 50,
         with: {
           items: {

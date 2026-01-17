@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { invoices } from "@/db/schema";
 import type { InvoiceStatus } from "@/db/types";
 
-export async function getInvoices({
+export function getInvoices({
   organizationId,
   status,
   dateFrom,
@@ -54,7 +54,7 @@ export async function getInvoices({
   });
 }
 
-export async function getInvoiceById(id: string) {
+export function getInvoiceById(id: string) {
   return db.query.invoices.findFirst({
     where: (inv, { eq: eqOp }) => eqOp(inv.id, id),
     with: {

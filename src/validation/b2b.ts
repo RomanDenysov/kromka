@@ -90,3 +90,84 @@ export const b2bApplicationSchema = z.object({
 });
 
 export type B2bApplicationSchema = z.infer<typeof b2bApplicationSchema>;
+
+// ---- Admin actions schemas ----
+
+const PAYMENT_TERM_MIN_DAYS = 1;
+const PAYMENT_TERM_MAX_DAYS = 365;
+
+/**
+ * Admin: update organization billing/profile data.
+ * Note: optional string fields accept empty string to allow clearing values.
+ */
+export const updateOrganizationSchema = z.object({
+  organizationId: z.string().trim().min(1, "Chýba ID organizácie"),
+  billingName: z
+    .string()
+    .trim()
+    .max(MAX_COMPANY_NAME_LENGTH, "Fakturačný názov je príliš dlhý")
+    .optional()
+    .or(z.literal("")),
+  ico: z
+    .string()
+    .trim()
+    .regex(ICO_REGEX, "IČO musí mať 8 číslic")
+    .optional()
+    .or(z.literal("")),
+  dic: z
+    .string()
+    .trim()
+    .regex(DIC_REGEX, "DIČ musí mať formát SK + 10 číslic")
+    .optional()
+    .or(z.literal("")),
+  icDph: z
+    .string()
+    .trim()
+    .regex(ICDPH_REGEX, "IČ DPH musí mať formát SK + 10 číslic")
+    .optional()
+    .or(z.literal("")),
+  billingEmail: z
+    .string()
+    .trim()
+    .email("Neplatná emailová adresa")
+    .max(MAX_EMAIL_LENGTH, "Email je príliš dlhý")
+    .optional()
+    .or(z.literal("")),
+  paymentTermDays: z
+    .number()
+    .int("Splatnosť musí byť celé číslo")
+    .min(
+      PAYMENT_TERM_MIN_DAYS,
+      `Minimálna splatnosť je ${PAYMENT_TERM_MIN_DAYS}`
+    )
+    .max(
+      PAYMENT_TERM_MAX_DAYS,
+      `Maximálna splatnosť je ${PAYMENT_TERM_MAX_DAYS}`
+    )
+    .optional(),
+  priceTierId: z.string().trim().optional().or(z.literal("")),
+});
+
+export type UpdateOrganizationSchema = z.infer<typeof updateOrganizationSchema>;
+
+export const approveB2bApplicationSchema = z.object({
+  applicationId: z.string().trim().min(1, "Chýba ID žiadosti"),
+  priceTierId: z.string().trim().min(1, "Vyberte cenovú skupinu"),
+});
+
+export type ApproveB2bApplicationSchema = z.infer<
+  typeof approveB2bApplicationSchema
+>;
+
+export const rejectB2bApplicationSchema = z.object({
+  applicationId: z.string().trim().min(1, "Chýba ID žiadosti"),
+  rejectionReason: z
+    .string()
+    .trim()
+    .min(1, "Zadajte dôvod zamietnutia")
+    .max(MAX_MESSAGE_LENGTH, "Dôvod je príliš dlhý"),
+});
+
+export type RejectB2bApplicationSchema = z.infer<
+  typeof rejectB2bApplicationSchema
+>;

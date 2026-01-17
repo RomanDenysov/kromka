@@ -3,7 +3,7 @@ import "server-only";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
-import type { GuestCustomerInfo } from "@/features/orders/actions";
+import type { GuestCustomerInfo } from "@/features/orders/actions/internal";
 import { getLastOrderId } from "./cookies";
 
 /**

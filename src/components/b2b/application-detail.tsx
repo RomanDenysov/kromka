@@ -1,36 +1,37 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import { CheckCircleIcon, XCircleIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
+import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { SelectField } from "@/components/forms/fields/select-field";
+import { TextareaField } from "@/components/forms/fields/textarea-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldContent,
-  FieldDescription,
   FieldLabel,
   FieldSet,
 } from "@/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
 import {
   approveB2bApplication,
   rejectB2bApplication,
 } from "@/features/b2b/applications/actions";
 import type { B2bApplication } from "@/features/b2b/applications/queries";
 import type { PriceTier } from "@/features/b2b/price-tiers/queries";
+import {
+  type ApproveB2bApplicationSchema,
+  approveB2bApplicationSchema,
+  type RejectB2bApplicationSchema,
+  rejectB2bApplicationSchema,
+} from "@/validation/b2b";
 
 type Props = {
   application: B2bApplication;
@@ -68,10 +69,23 @@ function formatAddress(address: B2bApplication["billingAddress"]) {
 
 export function B2BApplicationDetail({ application, priceTiers }: Props) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [selectedPriceTierId, setSelectedPriceTierId] = useState<string>("");
-  const [rejectionReason, setRejectionReason] = useState<string>("");
   const [showRejectForm, setShowRejectForm] = useState(false);
+
+  const approveForm = useForm<ApproveB2bApplicationSchema>({
+    resolver: zodResolver(approveB2bApplicationSchema),
+    defaultValues: {
+      applicationId: application.id,
+      priceTierId: "",
+    },
+  });
+
+  const rejectForm = useForm<RejectB2bApplicationSchema>({
+    resolver: zodResolver(rejectB2bApplicationSchema),
+    defaultValues: {
+      applicationId: application.id,
+      rejectionReason: "",
+    },
+  });
 
   const statusConfig = STATUS_LABELS[application.status] ?? {
     label: application.status,
@@ -81,46 +95,28 @@ export function B2BApplicationDetail({ application, priceTiers }: Props) {
   const canApprove = application.status === "pending";
   const canReject = application.status === "pending";
 
-  const handleApprove = () => {
-    if (!selectedPriceTierId) {
-      toast.error("Vyberte cenovú skupinu");
-      return;
+  const onApprove: SubmitHandler<ApproveB2bApplicationSchema> = async (
+    data
+  ) => {
+    const result = await approveB2bApplication(data);
+
+    if (result.success) {
+      toast.success("Žiadosť bola schválená");
+      router.refresh();
+    } else {
+      toast.error(result.error ?? "Nastala chyba");
     }
-
-    startTransition(async () => {
-      const result = await approveB2bApplication({
-        applicationId: application.id,
-        priceTierId: selectedPriceTierId,
-      });
-
-      if (result.success) {
-        toast.success("Žiadosť bola schválená");
-        router.refresh();
-      } else {
-        toast.error(result.error ?? "Nastala chyba");
-      }
-    });
   };
 
-  const handleReject = () => {
-    if (!rejectionReason.trim()) {
-      toast.error("Zadajte dôvod zamietnutia");
-      return;
+  const onReject: SubmitHandler<RejectB2bApplicationSchema> = async (data) => {
+    const result = await rejectB2bApplication(data);
+
+    if (result.success) {
+      toast.success("Žiadosť bola zamietnutá");
+      router.refresh();
+    } else {
+      toast.error(result.error ?? "Nastala chyba");
     }
-
-    startTransition(async () => {
-      const result = await rejectB2bApplication({
-        applicationId: application.id,
-        rejectionReason: rejectionReason.trim(),
-      });
-
-      if (result.success) {
-        toast.success("Žiadosť bola zamietnutá");
-        router.refresh();
-      } else {
-        toast.error(result.error ?? "Nastala chyba");
-      }
-    });
   };
 
   return (
@@ -284,81 +280,96 @@ export function B2BApplicationDetail({ application, priceTiers }: Props) {
           </CardHeader>
           <CardContent className="space-y-4">
             {canApprove && (
-              <FieldSet>
-                <Field>
-                  <FieldLabel>Cenová skupina</FieldLabel>
-                  <Select
-                    disabled={isPending}
-                    onValueChange={setSelectedPriceTierId}
-                    value={selectedPriceTierId}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Vyberte cenovú skupinu" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {priceTiers.map((tier) => (
-                        <SelectItem key={tier.id} value={tier.id}>
-                          {tier.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-                <Button
-                  disabled={isPending || !selectedPriceTierId}
-                  onClick={handleApprove}
-                  size="lg"
+              <FormProvider {...approveForm}>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    approveForm.handleSubmit(onApprove)(e);
+                  }}
                 >
-                  <CheckCircleIcon className="mr-2 size-4" />
-                  Schváliť žiadosť
-                </Button>
-              </FieldSet>
+                  <FieldSet>
+                    <SelectField
+                      label="Cenová skupina"
+                      name="priceTierId"
+                      options={priceTiers.map((tier) => ({
+                        value: tier.id,
+                        label: tier.name,
+                      }))}
+                      placeholder="Vyberte cenovú skupinu"
+                    />
+                    <Button
+                      disabled={approveForm.formState.isSubmitting}
+                      size="lg"
+                      type="submit"
+                    >
+                      <CheckCircleIcon className="mr-2 size-4" />
+                      {approveForm.formState.isSubmitting
+                        ? "Schvaľuje sa..."
+                        : "Schváliť žiadosť"}
+                    </Button>
+                  </FieldSet>
+                </form>
+              </FormProvider>
             )}
 
             {canReject && (
               <>
                 <Separator />
                 {showRejectForm ? (
-                  <FieldSet>
-                    <Field>
-                      <FieldLabel>Dôvod zamietnutia</FieldLabel>
-                      <Textarea
-                        disabled={isPending}
-                        onChange={(e) => setRejectionReason(e.target.value)}
-                        placeholder="Zadajte dôvod zamietnutia..."
-                        rows={4}
-                        value={rejectionReason}
-                      />
-                      <FieldDescription>
-                        Tento dôvod bude odoslaný žiadateľovi emailom.
-                      </FieldDescription>
-                    </Field>
-                    <div className="flex gap-2">
-                      <Button
-                        disabled={isPending}
-                        onClick={handleReject}
-                        size="lg"
-                        variant="destructive"
-                      >
-                        <XCircleIcon className="mr-2 size-4" />
-                        Zamietnuť žiadosť
-                      </Button>
-                      <Button
-                        disabled={isPending}
-                        onClick={() => {
-                          setShowRejectForm(false);
-                          setRejectionReason("");
-                        }}
-                        size="lg"
-                        variant="outline"
-                      >
-                        Zrušiť
-                      </Button>
-                    </div>
-                  </FieldSet>
+                  <FormProvider {...rejectForm}>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        rejectForm.handleSubmit(onReject)(e);
+                      }}
+                    >
+                      <FieldSet>
+                        <TextareaField
+                          description="Tento dôvod bude odoslaný žiadateľovi emailom."
+                          label="Dôvod zamietnutia"
+                          name="rejectionReason"
+                          placeholder="Zadajte dôvod zamietnutia..."
+                          rows={4}
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            disabled={rejectForm.formState.isSubmitting}
+                            size="lg"
+                            type="submit"
+                            variant="destructive"
+                          >
+                            <XCircleIcon className="mr-2 size-4" />
+                            {rejectForm.formState.isSubmitting
+                              ? "Zamieta sa..."
+                              : "Zamietnuť žiadosť"}
+                          </Button>
+                          <Button
+                            disabled={rejectForm.formState.isSubmitting}
+                            onClick={() => {
+                              setShowRejectForm(false);
+                              rejectForm.reset({
+                                applicationId: application.id,
+                                rejectionReason: "",
+                              });
+                            }}
+                            size="lg"
+                            type="button"
+                            variant="outline"
+                          >
+                            Zrušiť
+                          </Button>
+                        </div>
+                      </FieldSet>
+                    </form>
+                  </FormProvider>
                 ) : (
                   <Button
-                    disabled={isPending}
+                    disabled={
+                      approveForm.formState.isSubmitting ||
+                      rejectForm.formState.isSubmitting
+                    }
                     onClick={() => setShowRejectForm(true)}
                     size="lg"
                     variant="destructive"

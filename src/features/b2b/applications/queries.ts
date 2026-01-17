@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { b2bApplications } from "@/db/schema";
 import type { B2bApplicationStatus } from "@/db/types";
 
-export async function getB2bApplications({
+export function getB2bApplications({
   status,
   dateFrom,
   dateTo,
@@ -45,7 +45,7 @@ export async function getB2bApplications({
   });
 }
 
-export async function getB2bApplicationById(id: string) {
+export function getB2bApplicationById(id: string) {
   return db.query.b2bApplications.findFirst({
     where: eq(b2bApplications.id, id),
     with: {

@@ -9,7 +9,11 @@ import { requireAdmin } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
 import { getSlug } from "@/lib/get-slug";
 import { createId } from "@/lib/ids";
-import { b2bApplicationSchema } from "@/validation/b2b";
+import {
+  approveB2bApplicationSchema,
+  b2bApplicationSchema,
+  rejectB2bApplicationSchema,
+} from "@/validation/b2b";
 import { getB2bApplicationById } from "./queries";
 
 type SubmitB2bApplicationResult =
@@ -78,15 +82,23 @@ type ApproveB2bApplicationResult =
   | { success: true; organizationId: string }
   | { success: false; error: string };
 
-export async function approveB2bApplication({
-  applicationId,
-  priceTierId,
-}: {
-  applicationId: string;
-  priceTierId: string;
-}): Promise<ApproveB2bApplicationResult> {
+export async function approveB2bApplication(
+  data: unknown
+): Promise<ApproveB2bApplicationResult> {
   try {
     const admin = await requireAdmin();
+
+    const validationResult = approveB2bApplicationSchema.safeParse(data);
+    if (!validationResult.success) {
+      const firstError = validationResult.error.issues[0];
+      return {
+        success: false,
+        error: firstError?.message ?? "Neplatné údaje",
+      };
+    }
+
+    const { applicationId, priceTierId } = validationResult.data;
+
     const application = await getB2bApplicationById(applicationId);
 
     if (!application) {
@@ -187,15 +199,23 @@ type RejectB2bApplicationResult =
   | { success: true }
   | { success: false; error: string };
 
-export async function rejectB2bApplication({
-  applicationId,
-  rejectionReason,
-}: {
-  applicationId: string;
-  rejectionReason: string;
-}): Promise<RejectB2bApplicationResult> {
+export async function rejectB2bApplication(
+  data: unknown
+): Promise<RejectB2bApplicationResult> {
   try {
     const admin = await requireAdmin();
+
+    const validationResult = rejectB2bApplicationSchema.safeParse(data);
+    if (!validationResult.success) {
+      const firstError = validationResult.error.issues[0];
+      return {
+        success: false,
+        error: firstError?.message ?? "Neplatné údaje",
+      };
+    }
+
+    const { applicationId, rejectionReason } = validationResult.data;
+
     const application = await getB2bApplicationById(applicationId);
 
     if (!application) {

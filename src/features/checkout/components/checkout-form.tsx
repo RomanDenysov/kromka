@@ -88,6 +88,7 @@ export function CheckoutForm({
     stores: storesWithDistance,
     lastOrderPrefill,
     restrictedPickupDates,
+    isB2B,
   });
 
   // Calculate calendar start date for MiniCalendar
@@ -280,7 +281,7 @@ export function CheckoutForm({
                                   Kartou online
                                 </FieldTitle>
                                 <Badge
-                                  className="absolute -top-2 -right-2"
+                                  className="-top-2 -right-2 absolute"
                                   size="xs"
                                 >
                                   Čoskoro

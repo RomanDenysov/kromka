@@ -1,5 +1,6 @@
 "use client";
 
+import type { InputHTMLAttributes } from "react";
 import type { FieldPath } from "react-hook-form";
 import { Controller, type FieldValues, useFormContext } from "react-hook-form";
 import {
@@ -19,6 +20,9 @@ type Props<T extends FieldValues> = {
   className?: string;
   inputClassName?: string;
   maxLength?: number;
+  type?: InputHTMLAttributes<HTMLInputElement>["type"];
+  inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
+  autoComplete?: InputHTMLAttributes<HTMLInputElement>["autoComplete"];
 };
 
 export function TextField<T extends FieldValues>({
@@ -29,6 +33,9 @@ export function TextField<T extends FieldValues>({
   className,
   inputClassName,
   maxLength,
+  type = "text",
+  inputMode,
+  autoComplete,
 }: Props<T>) {
   const { control } = useFormContext();
 
@@ -45,9 +52,12 @@ export function TextField<T extends FieldValues>({
           <Input
             {...field}
             aria-invalid={fieldState.invalid}
+            autoComplete={autoComplete}
             className={cn("max-w-none", inputClassName)}
+            inputMode={inputMode}
             maxLength={maxLength}
             placeholder={placeholder}
+            type={type}
             volume="xs"
           />
           {description && (

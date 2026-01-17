@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   type PaginationState,
   type SortingState,
   useReactTable,
@@ -51,7 +52,7 @@ export function B2BClientsTable({
           org.priceTier?.name?.toLowerCase().includes(searchValue)
       );
     },
-    getSortedRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
