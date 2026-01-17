@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { SearchParams } from "nuqs/server";
-import { Suspense } from "react";
+import { type ReactNode, Suspense } from "react";
 import {
   CategoriesChips,
   CategoriesChipsSkeleton,
@@ -37,6 +37,15 @@ export const metadata: Metadata = {
   description: "B2B katalóg produktov s výhodnými cenami pre vašu organizáciu.",
   robots: { index: false, follow: false },
 };
+
+async function B2BAuthCheck({
+  children,
+}: {
+  children: (priceTierId: string | null) => ReactNode;
+}) {
+  const { priceTierId } = await requireB2bMember();
+  return <>{children(priceTierId)}</>;
+}
 
 async function B2BShopContent({
   searchParams,
@@ -90,12 +99,17 @@ async function B2BShopContent({
 }
 
 export default async function B2BShopPage({ searchParams }: Props) {
-  const { priceTierId } = await requireB2bMember();
-
   return (
     <PageWrapper className="relative grid min-h-[calc(100svh-5rem)] w-full items-start gap-8 pt-2 md:grid-cols-[12rem_1fr]">
       <Suspense fallback={<div>Loading...</div>}>
-        <B2BShopContent priceTierId={priceTierId} searchParams={searchParams} />
+        <B2BAuthCheck>
+          {(priceTierId) => (
+            <B2BShopContent
+              priceTierId={priceTierId}
+              searchParams={searchParams}
+            />
+          )}
+        </B2BAuthCheck>
       </Suspense>
     </PageWrapper>
   );
