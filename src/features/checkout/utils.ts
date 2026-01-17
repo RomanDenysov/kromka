@@ -107,23 +107,16 @@ export function getTimeRangeForDate(
   date: Date | undefined,
   schedule: StoreSchedule | null
 ): TimeRange | null {
-  if (!date) {
-    return null;
-  }
-
-  if (!schedule) {
+  if (!(date && schedule)) {
     return null;
   }
 
   const dateKey = format(date, DATE_KEY_FORMAT);
 
-  // Check exceptions first
+  // Check exceptions first (holiday closures, special hours, etc.)
   const exception = schedule.exceptions?.[dateKey];
-  if (exception === "closed" || exception === null) {
-    return null;
-  }
-  if (exception) {
-    return exception;
+  if (exception !== undefined) {
+    return exception === "closed" || exception === null ? null : exception;
   }
 
   // Check regular hours
@@ -131,10 +124,7 @@ export function getTimeRangeForDate(
   const dayKey = DAY_KEYS[dayOfWeek];
   const daySchedule = schedule.regularHours[dayKey];
 
-  if (daySchedule === "closed" || daySchedule === null) {
-    return null;
-  }
-  return daySchedule;
+  return daySchedule === "closed" || daySchedule === null ? null : daySchedule;
 }
 
 /**

@@ -1,10 +1,16 @@
 import "server-only";
 
-import { inArray } from "drizzle-orm";
+import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { db } from "@/db";
 import { products } from "@/db/schema";
 import { getCart } from "@/features/cart/cookies";
 
+/**
+ * Get detailed cart items with product data.
+ * Filters out unavailable products (inactive, draft, archived, or in inactive category).
+ * Note: This is a pure query - unavailable items are filtered from results but not
+ * removed from the cookie. Cookie cleanup happens lazily via cart actions.
+ */
 export async function getDetailedCart() {
   const cart = await getCart();
 
@@ -13,35 +19,48 @@ export async function getDetailedCart() {
   }
 
   const productData = await db.query.products.findMany({
-    where: inArray(
-      products.id,
-      cart.map((i) => i.productId)
+    where: and(
+      inArray(
+        products.id,
+        cart.map((i) => i.productId)
+      ),
+      eq(products.isActive, true),
+      notInArray(products.status, ["draft", "archived"])
     ),
     columns: {
       id: true,
       name: true,
       slug: true,
       priceCents: true,
+      isActive: true,
+      status: true,
     },
     with: {
       image: {
         columns: { url: true },
       },
       category: {
-        columns: { name: true, pickupDates: true },
+        columns: { name: true, pickupDates: true, isActive: true },
       },
     },
   });
 
-  return cart
-    .map((item) => {
-      const product = productData.find((p) => p.id === item.productId);
+  const productById = new Map(
+    productData
+      .filter(
+        (p) =>
+          p.isActive && p.status === "active" && p.category?.isActive !== false
+      )
+      .map((p) => [p.id, p])
+  );
 
-      if (!product) {
-        return null;
-      }
-
-      return {
+  return cart.flatMap((item) => {
+    const product = productById.get(item.productId);
+    if (!product) {
+      return [];
+    }
+    return [
+      {
         productId: item.productId,
         quantity: item.qty,
         name: product.name,
@@ -49,9 +68,9 @@ export async function getDetailedCart() {
         priceCents: product.priceCents,
         imageUrl: product.image?.url ?? null,
         category: product.category,
-      };
-    })
-    .filter((item): item is NonNullable<typeof item> => item !== null);
+      },
+    ];
+  });
 }
 
 export type DetailedCartItem = NonNullable<

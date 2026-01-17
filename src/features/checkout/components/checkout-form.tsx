@@ -36,7 +36,7 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import type { User } from "@/lib/auth/session";
 import { sortStoresByDistance } from "@/lib/geo-utils";
 import { formatPrice } from "@/lib/utils";
-import type { LastOrderPrefill } from "../actions";
+import type { LastOrderPrefill } from "../queries";
 import { CheckoutAlerts, PickupDateAlerts } from "./checkout-alerts";
 import { CheckoutCtaLogin } from "./checkout-cta-login";
 import { CheckoutMobileFooter } from "./checkout-mobile-footer";

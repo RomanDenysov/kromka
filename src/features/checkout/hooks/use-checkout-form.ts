@@ -23,7 +23,7 @@ import {
 import type { Store } from "@/features/stores/queries";
 import type { User } from "@/lib/auth/session";
 import { buildFullAddress } from "@/lib/geo-utils";
-import type { LastOrderPrefill } from "../actions";
+import type { LastOrderPrefill } from "../queries";
 
 export type StoreOption = {
   id: string;
