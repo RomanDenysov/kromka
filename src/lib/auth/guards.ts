@@ -1,5 +1,5 @@
-import { forbidden, unauthorized } from "next/navigation";
-import { getUser } from "./session";
+import { forbidden, redirect, unauthorized } from "next/navigation";
+import { getUser, getUserDetails } from "./session";
 
 const STAFF_ROLES = ["admin", "manager"];
 
@@ -39,4 +39,32 @@ export async function requireStaff() {
   }
 
   return user;
+}
+
+/**
+ * Require user to be a member of a B2B organization.
+ * Redirects to /b2b if not authenticated or not a member.
+ */
+export async function requireB2bMember() {
+  const userDetails = await getUserDetails();
+
+  if (!userDetails) {
+    redirect("/b2b");
+  }
+
+  if (!userDetails.members || userDetails.members.length === 0) {
+    redirect("/b2b");
+  }
+
+  // Get the first organization (users typically have one active org)
+  const organization = userDetails.members[0]?.organization;
+  if (!organization) {
+    redirect("/b2b");
+  }
+
+  return {
+    user: userDetails,
+    organization,
+    priceTierId: organization.priceTierId,
+  };
 }

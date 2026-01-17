@@ -17,6 +17,7 @@ type Props<T extends FieldValues> = {
   label?: string;
   description?: string;
   className?: string;
+  baseFieldName?: string; // Base field name for nested address object (default: "address")
 };
 
 function getAddressComponent(
@@ -35,12 +36,21 @@ export function AddressAutocompleteField<T extends FieldValues>({
   label,
   description,
   className,
+  baseFieldName = "address",
 }: Props<T>) {
   const { setValue, getValues } = useFormContext();
   const [inputValue, setInputValue] = useState(() => {
-    const address = getValues("address");
-    if (address?.street && address?.city) {
-      return `${address.street}, ${address.city}`;
+    const address = getValues(baseFieldName as FieldPath<T>);
+    if (
+      address &&
+      typeof address === "object" &&
+      "street" in address &&
+      "city" in address
+    ) {
+      const addr = address as { street?: string; city?: string };
+      if (addr.street && addr.city) {
+        return `${addr.street}, ${addr.city}`;
+      }
     }
     return "";
   });
@@ -91,11 +101,26 @@ export function AddressAutocompleteField<T extends FieldValues>({
 
     const country = getAddressComponent(place.address_components, "country");
 
-    setValue("address.street", street, { shouldDirty: true });
-    setValue("address.city", city, { shouldDirty: true });
-    setValue("address.postalCode", postalCode, { shouldDirty: true });
-    setValue("address.country", country, { shouldDirty: true });
-    setValue("address.googleId", place.place_id ?? "", { shouldDirty: true });
+    // biome-ignore lint/suspicious/noExplicitAny: react-hook-form FieldPath type doesn't support dynamic nested paths
+    setValue(`${baseFieldName}.street` as any, street, {
+      shouldDirty: true,
+    });
+    // biome-ignore lint/suspicious/noExplicitAny: react-hook-form FieldPath type doesn't support dynamic nested paths
+    setValue(`${baseFieldName}.city` as any, city, {
+      shouldDirty: true,
+    });
+    // biome-ignore lint/suspicious/noExplicitAny: react-hook-form FieldPath type doesn't support dynamic nested paths
+    setValue(`${baseFieldName}.postalCode` as any, postalCode, {
+      shouldDirty: true,
+    });
+    // biome-ignore lint/suspicious/noExplicitAny: react-hook-form FieldPath type doesn't support dynamic nested paths
+    setValue(`${baseFieldName}.country` as any, country, {
+      shouldDirty: true,
+    });
+    // biome-ignore lint/suspicious/noExplicitAny: react-hook-form FieldPath type doesn't support dynamic nested paths
+    setValue(`${baseFieldName}.googleId` as any, place.place_id ?? "", {
+      shouldDirty: true,
+    });
 
     if (place.geometry?.location) {
       setValue("latitude", place.geometry.location.lat().toString(), {
@@ -107,7 +132,7 @@ export function AddressAutocompleteField<T extends FieldValues>({
     }
 
     setInputValue(place.formatted_address ?? "");
-  }, [setValue]);
+  }, [baseFieldName, setValue]);
 
   if (!isLoaded) {
     return (

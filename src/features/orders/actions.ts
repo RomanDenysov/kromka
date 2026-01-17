@@ -13,9 +13,10 @@ import {
 import type { OrderStatus, PaymentMethod, PaymentStatus } from "@/db/types";
 import { clearCart, getCart } from "@/features/cart/cookies";
 import { requireAdmin, requireAuth } from "@/lib/auth/guards";
-import { getUser } from "@/lib/auth/session";
+import { getUser, getUserDetails } from "@/lib/auth/session";
 import { sendEmail } from "@/lib/email";
 import { createPrefixedNumericId } from "@/lib/ids";
+import { getEffectivePrices } from "@/lib/pricing";
 import { getSiteConfig } from "@/lib/site-config/queries";
 import { setLastOrderIdAction } from "../checkout/actions";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
@@ -59,6 +60,24 @@ export async function createOrderFromCart(data: {
     const user = await getUser();
     const isGuest = !user;
 
+    // Get user details for B2B check
+    const userDetails = user ? await getUserDetails() : null;
+    const isB2B =
+      userDetails?.members && userDetails.members.length > 0
+        ? Boolean(userDetails.members[0]?.organization)
+        : false;
+    const organization = isB2B ? userDetails?.members?.[0]?.organization : null;
+    const priceTierId = organization?.priceTierId ?? null;
+    const companyId = organization?.id ?? null;
+
+    // Validate invoice payment method is only for B2B users
+    if (data.paymentMethod === "invoice" && !isB2B) {
+      return {
+        success: false,
+        error: "Platba na faktúru je dostupná len pre B2B zákazníkov",
+      };
+    }
+
     // Validate customer info
     if (!isValidGuestInfo(data.customerInfo)) {
       return {
@@ -87,7 +106,18 @@ export async function createOrderFromCart(data: {
     const productData = await db.query.products.findMany({
       where: inArray(products.id, productIds),
     });
-    // 4. Validation - match cart items with products
+
+    // 4. Get effective prices if B2B
+    const productPrices = productData.map((p) => ({
+      productId: p.id,
+      basePriceCents: p.priceCents,
+    }));
+    const effectivePrices =
+      priceTierId && productPrices.length > 0
+        ? await getEffectivePrices({ productPrices, priceTierId })
+        : new Map<string, number>();
+
+    // 5. Validation - match cart items with products and apply tier pricing
     const orderItemsData = cartItems
       .map((item) => {
         const product = productData.find((p) => p.id === item.productId);
@@ -95,13 +125,16 @@ export async function createOrderFromCart(data: {
           return null;
         }
 
+        const effectivePrice =
+          effectivePrices.get(product.id) ?? product.priceCents;
+
         return {
           productId: item.productId,
           productSnapshot: {
             name: product.name,
-            price: product.priceCents,
+            price: effectivePrice,
           },
-          price: product.priceCents,
+          price: effectivePrice,
           quantity: item.qty,
         };
       })
@@ -111,16 +144,16 @@ export async function createOrderFromCart(data: {
       return { success: false, error: "Žiadne platné produkty v košíku" };
     }
 
-    // 5. Calculate total
+    // 6. Calculate total
     const totalCents = orderItemsData.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
 
-    // 6. Generate order number
+    // 7. Generate order number
     const orderNumber = createPrefixedNumericId("OBJ");
 
-    // 7. Create order (always store customerInfo for last-order prefill)
+    // 8. Create order (always store customerInfo for last-order prefill)
     const [order] = await db
       .insert(orders)
       .values({
@@ -128,6 +161,7 @@ export async function createOrderFromCart(data: {
         createdBy: user?.id ?? null,
         customerInfo: data.customerInfo,
         storeId: data.storeId,
+        companyId: companyId ?? null,
         orderStatus: "new",
         paymentStatus: "pending",
         paymentMethod: data.paymentMethod,
@@ -137,7 +171,7 @@ export async function createOrderFromCart(data: {
       })
       .returning();
 
-    // 8. Batch insert items
+    // 9. Batch insert items
     await db.insert(orderItems).values(
       orderItemsData.map((item) => ({
         ...item,
@@ -145,24 +179,24 @@ export async function createOrderFromCart(data: {
       }))
     );
 
-    // 9. Status event
+    // 10. Status event
     await db.insert(orderStatusEvents).values({
       orderId: order.id,
       status: "new",
       createdBy: user?.id ?? null,
     });
 
-    // 10. Clear cart cookie
+    // 11. Clear cart cookie
     await clearCart();
 
-    // 11. Update last order ID (for guests: cookie; for auth users: query by userId)
+    // 12. Update last order ID (for guests: cookie; for auth users: query by userId)
     if (isGuest) {
       setLastOrderIdAction(order.id).catch((error) => {
         console.error("Failed to set last order ID:", error);
       });
     }
 
-    // 12. For authenticated users: update profile name/phone as side-effect
+    // 13. For authenticated users: update profile name/phone as side-effect
     if (user) {
       const { updateCurrentUserProfile } = await import(
         "@/lib/actions/user-profile"
@@ -177,13 +211,13 @@ export async function createOrderFromCart(data: {
       });
     }
 
-    // 13. Fetch full order with relations
+    // 14. Fetch full order with relations
     const fullOrder = await getOrderById(order.id);
     if (!fullOrder) {
       throw new Error("Order not found after creation");
     }
 
-    // 14. Send email to staff and customer
+    // 15. Send email to staff and customer
     await sendEmail.newOrder({ order: fullOrder });
     await sendEmail.receipt({ order: fullOrder });
 

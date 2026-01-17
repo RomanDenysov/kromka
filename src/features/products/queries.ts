@@ -6,6 +6,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
 import { products } from "@/db/schema";
+import { getEffectivePrices } from "@/lib/pricing";
 
 // Helper to transform product image
 function transformProduct<T extends { image: { url: string } | null }>(
@@ -73,6 +74,48 @@ export const getProductsByCategory = cache(async (slug: string) => {
 
 export const preloadProductsByCategory = (slug: string) =>
   void getProductsByCategory(slug);
+
+/**
+ * Get products filtered by catalog type (B2B or B2C).
+ * Optionally overlays tier prices for B2B catalog.
+ */
+export async function getProductsByCatalog({
+  catalog,
+  priceTierId,
+}: {
+  catalog: "b2b" | "b2c";
+  priceTierId?: string | null;
+}) {
+  const allProducts = await getProducts();
+
+  // Filter by catalog visibility
+  const filteredProducts = allProducts.filter((p) => {
+    if (catalog === "b2b") {
+      return p.showInB2b === true;
+    }
+    return p.showInB2c === true;
+  });
+
+  // If B2B and tier provided, overlay tier prices
+  if (catalog === "b2b" && priceTierId) {
+    const productPrices = filteredProducts.map((p) => ({
+      productId: p.id,
+      basePriceCents: p.priceCents,
+    }));
+
+    const effectivePrices = await getEffectivePrices({
+      productPrices,
+      priceTierId,
+    });
+
+    return filteredProducts.map((product) => ({
+      ...product,
+      priceCents: effectivePrices.get(product.id) ?? product.priceCents,
+    }));
+  }
+
+  return filteredProducts;
+}
 
 // ADMIN (no cache, always fresh)
 export async function getAdminProducts() {
