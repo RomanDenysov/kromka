@@ -1,7 +1,11 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 
-export function getMedia() {
-  return db.query.media.findMany({
+export async function getMedia() {
+  "use cache";
+  cacheLife("days");
+  cacheTag("media");
+  return await db.query.media.findMany({
     orderBy: (mediaTable, { desc }) => [desc(mediaTable.createdAt)],
     with: {
       productImages: {
@@ -16,8 +20,11 @@ export function getMedia() {
   });
 }
 
-export function getMediaById(id: string) {
-  return db.query.media.findFirst({
+export async function getMediaById(id: string) {
+  "use cache";
+  cacheLife("days");
+  cacheTag("media", `media-${id}`);
+  return await db.query.media.findFirst({
     where: (mediaTable, { eq }) => eq(mediaTable.id, id),
     with: {
       productImages: {
