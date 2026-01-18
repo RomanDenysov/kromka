@@ -1,6 +1,7 @@
 "use server";
 
 import { put } from "@vercel/blob";
+import { updateTag } from "next/cache";
 import sharp from "sharp";
 import { db } from "@/db";
 import { media } from "@/db/schema";
@@ -35,6 +36,8 @@ export async function uploadMedia(file: File, folder: string) {
       size: optimized.length,
     })
     .returning();
+
+  updateTag("media");
 
   return created;
 }
