@@ -7,7 +7,7 @@ import {
   StarIcon,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { User } from "@/lib/queries/users";
+import type { User } from "@/features/user-management/api/queries";
 import { formatPrice } from "@/lib/utils";
 
 type Props = {

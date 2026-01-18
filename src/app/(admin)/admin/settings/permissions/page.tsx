@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { SettingsRow } from "@/components/settings/settings-row";
 import { Badge } from "@/components/ui/badge";
 import type { UserRole } from "@/db/types";
-import { getUsers } from "@/lib/queries/users";
+import { getUsers } from "@/features/user-management/api/queries";
 import { cn } from "@/lib/utils";
 
 async function PermissionsLoader() {

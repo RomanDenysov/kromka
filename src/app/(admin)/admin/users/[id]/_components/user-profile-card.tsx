@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { User } from "@/lib/queries/users";
+import type { User } from "@/features/user-management/api/queries";
 import { getInitials } from "@/lib/utils";
 
 type Props = {

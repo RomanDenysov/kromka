@@ -1,6 +1,12 @@
+"use cache";
+
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 
 export function getUsers() {
+  cacheLife("minutes");
+  cacheTag("users");
+
   return db.query.users.findMany({
     orderBy: (user, { desc }) => [desc(user.createdAt)],
     with: {
@@ -21,6 +27,9 @@ export function getUsers() {
 }
 
 export function getUserById(id: string) {
+  cacheLife("minutes");
+  cacheTag("users", `user-${id}`);
+
   return db.query.users.findFirst({
     where: (user, { eq }) => eq(user.id, id),
     with: {

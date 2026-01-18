@@ -1,4 +1,4 @@
-import type { User } from "@/lib/queries/users";
+import type { User } from "@/features/user-management/api/queries";
 import { ActivityStatsCard } from "./activity-stats-card";
 import { OrderStatisticsCard } from "./order-statistics-card";
 import { RecentOrdersCard } from "./recent-orders-card";

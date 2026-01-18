@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useCustomerParams } from "@/hooks/use-customer-params";
-import type { UserList } from "@/lib/queries/users";
+import type { UserList } from "@/features/user-management/api/queries";
 import { cn } from "@/lib/utils";
 import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
 import { DataTableSearch } from "@/widgets/data-table/data-table-search";

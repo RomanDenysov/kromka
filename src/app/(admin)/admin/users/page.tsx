@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { UsersTable } from "@/components/tables/users/users-table";
-import { getUsers } from "@/lib/queries/users";
+import { getUsers } from "@/features/user-management/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
