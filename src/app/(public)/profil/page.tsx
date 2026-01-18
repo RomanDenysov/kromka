@@ -16,8 +16,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getUserOrders } from "@/features/user-profile/api/queries";
 import { getUser } from "@/lib/auth/session";
-import { getUserOrders } from "@/lib/queries/profile";
 import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = {

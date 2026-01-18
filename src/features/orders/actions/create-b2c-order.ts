@@ -82,7 +82,7 @@ export async function createB2COrder(data: {
     // Handle post-order side effects
     if (user) {
       const { updateCurrentUserProfile } = await import(
-        "@/lib/actions/user-profile"
+        "@/features/user-profile/api/actions"
       );
       updateCurrentUserProfile({
         name: data.customerInfo.name,

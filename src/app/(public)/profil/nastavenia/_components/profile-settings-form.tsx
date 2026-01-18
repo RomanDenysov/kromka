@@ -21,7 +21,7 @@ import {
   FieldLabel,
   FieldSet,
 } from "@/components/ui/field";
-import { updateProfileAction } from "@/lib/actions/user-profile";
+import { updateProfileAction } from "@/features/user-profile/api/actions";
 import type { UserDetails } from "@/lib/auth/session";
 
 type Props = {

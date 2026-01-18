@@ -83,7 +83,7 @@ export async function createB2BOrder(data: {
 
     // Update user profile as side effect
     const { updateCurrentUserProfile } = await import(
-      "@/lib/actions/user-profile"
+      "@/features/user-profile/api/actions"
     );
     updateCurrentUserProfile({
       name: data.customerInfo.name,
