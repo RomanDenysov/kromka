@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getMedia } from "@/lib/queries/media";
+import { getMedia } from "@/features/media-library/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 async function MediaLoader() {
