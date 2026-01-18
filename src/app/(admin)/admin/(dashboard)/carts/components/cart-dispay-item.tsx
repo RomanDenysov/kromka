@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { ActiveCart } from "@/lib/queries/dashboard";
+import type { ActiveCart } from "@/features/admin-dashboard/api/queries";
 import { getInitials } from "@/lib/utils";
 
 const MAX_ITEMS_DISPLAY = 3;

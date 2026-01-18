@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getRevenueAndOrdersHistory } from "@/lib/queries/dashboard";
+import { getRevenueAndOrdersHistory } from "@/features/admin-dashboard/api/queries";
 import { formatPrice } from "@/lib/utils";
 import { RevenueChart } from "./revenue-chart";
 

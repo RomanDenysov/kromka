@@ -1,4 +1,4 @@
-import { getCartsCount, getOrdersCount } from "@/lib/queries/dashboard";
+import { getCartsCount, getOrdersCount } from "@/features/admin-dashboard/api/queries";
 import { SecondaryMenu } from "../(dashboard)/secondary-menu";
 
 export async function SecondaryMenuSection() {

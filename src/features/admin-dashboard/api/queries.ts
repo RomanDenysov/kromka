@@ -1,5 +1,7 @@
+"use cache";
 import "server-only";
 
+import { cacheLife, cacheTag } from "next/cache";
 import { format } from "date-fns";
 import { and, count, desc, eq, gte, lte, ne, sql } from "drizzle-orm";
 import { db } from "@/db";
@@ -23,6 +25,9 @@ export function getOrdersByPickupDate(
     storeId?: string;
   }
 ) {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const where = and(
     eq(orders.pickupDate, date),
     ne(orders.orderStatus, "cancelled"),
@@ -64,6 +69,9 @@ export function getProductsAggregateByPickupDate(
   date: string,
   storeId?: string
 ) {
+  cacheLife("minutes");
+  cacheTag("orders", "products");
+
   const baseConditions = [
     eq(orders.pickupDate, date),
     ne(orders.orderStatus, "cancelled"),
@@ -91,6 +99,9 @@ export function getProductsAggregateByPickupDate(
 }
 
 export function getMonthlyOrderStats(year: number, month: number) {
+  cacheLife("hours");
+  cacheTag("orders");
+
   const startDate = format(new Date(year, month, 1), "yyyy-MM-dd");
   const endDate = format(new Date(year, month + 1, 0), "yyyy-MM-dd");
 
@@ -124,6 +135,9 @@ export type DashboardMetrics = {
 };
 
 export async function getOrdersCount(): Promise<number> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   return await db
     .select({ count: count() })
     .from(orders)
@@ -131,6 +145,9 @@ export async function getOrdersCount(): Promise<number> {
     .then((res) => res[0]?.count ?? 0);
 }
 export async function getCartsCount(): Promise<number> {
+  cacheLife("minutes");
+  cacheTag("carts");
+
   return await db
     .select({ count: count() })
     .from(carts)
@@ -138,6 +155,9 @@ export async function getCartsCount(): Promise<number> {
 }
 
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
+  cacheLife("minutes");
+  cacheTag("orders", "products", "stores");
+
   const [
     newOrdersCount,
     activeProductsCount,
@@ -200,6 +220,9 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 export type OrderStatusDistributionResult = { status: string; count: number }[];
 
 export async function getOrderStatusDistribution(): Promise<OrderStatusDistributionResult> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   return await db
     .select({
       status: orders.orderStatus,
@@ -217,6 +240,9 @@ export async function getRevenueHistory({
 }: {
   days: number;
 }): Promise<RevenueHistoryResult> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const revenueHistory = await db
     .select({
       date: sql<string>`to_char(${orders.createdAt}, 'YYYY-MM-DD')`,
@@ -240,7 +266,7 @@ export async function getRevenueHistory({
 
   // Генерація повного діапазону дат теж в SQL
   const fullRange = await db.execute<{ date: string }>(
-    sql`SELECT to_char(d::date, 'YYYY-MM-DD') as date 
+    sql`SELECT to_char(d::date, 'YYYY-MM-DD') as date
         FROM generate_series(
           CURRENT_DATE - INTERVAL '${sql.raw(String(days - 1))} days',
           CURRENT_DATE,
@@ -268,6 +294,9 @@ export async function getRevenueAndOrdersHistory({
 }: {
   days: number;
 }): Promise<RevenueAndOrdersHistoryResult> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const history = await db
     .select({
       date: sql<string>`to_char(${orders.createdAt}, 'YYYY-MM-DD')`,
@@ -294,7 +323,7 @@ export async function getRevenueAndOrdersHistory({
 
   // Generate full date range
   const fullRange = await db.execute<{ date: string }>(
-    sql`SELECT to_char(d::date, 'YYYY-MM-DD') as date 
+    sql`SELECT to_char(d::date, 'YYYY-MM-DD') as date
         FROM generate_series(
           CURRENT_DATE - INTERVAL '${sql.raw(String(days - 1))} days',
           CURRENT_DATE,
@@ -332,6 +361,9 @@ type TopProductsResult = {
 }[];
 
 export async function getTopProducts(): Promise<TopProductsResult> {
+  cacheLife("minutes");
+  cacheTag("orders", "products");
+
   const topProducts = await db
     .select({
       id: products.id,
@@ -364,6 +396,9 @@ export async function getTopProducts(): Promise<TopProductsResult> {
 export type RecentOrder = Awaited<ReturnType<typeof getRecentOrders>>[number];
 
 export function getRecentOrders() {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   return db.query.orders.findMany({
     where: (order, { inArray: inArrayFn }) =>
       inArrayFn(order.orderStatus, [
@@ -397,6 +432,9 @@ export function getRecentOrders() {
 }
 
 export function getActiveCarts() {
+  cacheLife("minutes");
+  cacheTag("carts");
+
   return db.query.carts.findMany({
     orderBy: desc(carts.updatedAt),
     with: {

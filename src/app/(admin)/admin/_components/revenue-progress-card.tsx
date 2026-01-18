@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { getRevenueComparison } from "@/lib/queries/dashboard-metrics";
+import { getRevenueComparison } from "@/features/admin-dashboard/api/metrics";
 import { formatPrice } from "@/lib/utils";
 
 export async function RevenueProgressCard() {

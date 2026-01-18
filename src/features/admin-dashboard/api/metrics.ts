@@ -1,8 +1,10 @@
 /** biome-ignore-all lint/style/noMagicNumbers: Date calculation constants */
 /** biome-ignore-all lint/nursery/noIncrementDecrement: we need to use increment/decrement */
 /** biome-ignore-all lint/style/noInferrableTypes: Return types are useful for TypeScript */
+"use cache";
 import "server-only";
 
+import { cacheLife, cacheTag } from "next/cache";
 import {
   addDays,
   endOfMonth,
@@ -37,6 +39,9 @@ export async function getWeeklyRevenue(): Promise<{
   previousWeekCents: number;
   percentChange: number;
 }> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const now = new Date();
   const currentWeekStart = startOfWeek(now, { weekStartsOn: 1 });
   const currentWeekEnd = endOfWeek(now, { weekStartsOn: 1 });
@@ -103,6 +108,9 @@ export async function getAverageOrderValue(): Promise<{
   allOrdersAverageCents: number;
   allOrdersCount: number;
 }> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const thirtyDaysAgo = subDays(new Date(), 30);
 
   const [paidResult, allResult] = await Promise.all([
@@ -149,6 +157,9 @@ export async function getAverageOrderValue(): Promise<{
  * Count of orders created in the last 7 days (excluding cancelled)
  */
 export async function getOrdersCreatedLast7Days(): Promise<number> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const sevenDaysAgo = subDays(new Date(), 7);
 
   const result = await db
@@ -172,6 +183,9 @@ export async function getTomorrowOrdersSummary(): Promise<{
   expectedRevenueCents: number;
   productCount: number;
 }> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 
   const [ordersResult, productsResult] = await Promise.all([
@@ -214,6 +228,9 @@ export async function getTomorrowOrdersSummary(): Promise<{
  * Combined new dashboard metrics for top cards
  */
 export async function getNewDashboardMetrics() {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const [
     weeklyRevenue,
     newOrdersCount,
@@ -258,6 +275,9 @@ export async function getAttentionRequired(): Promise<{
   notPickedUp: number;
   total: number;
 }> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const today = format(new Date(), "yyyy-MM-dd");
   const threeDaysAgo = subDays(new Date(), 3);
   const yesterday = format(subDays(new Date(), 1), "yyyy-MM-dd");
@@ -324,6 +344,9 @@ export async function getStoreLoad(days: number = 7): Promise<
     percentage: number;
   }[]
 > {
+  cacheLife("minutes");
+  cacheTag("orders", "stores");
+
   const startDate = format(subDays(new Date(), days), "yyyy-MM-dd");
   const endDate = format(addDays(new Date(), 7), "yyyy-MM-dd"); // Include future orders
 
@@ -374,6 +397,9 @@ export async function getPopularPickupDays(days: number = 90): Promise<
     averageRevenueCents: number;
   }[]
 > {
+  cacheLife("hours");
+  cacheTag("orders");
+
   const startDate = subDays(new Date(), days);
 
   const result = await db
@@ -439,6 +465,9 @@ export async function getCustomerRetention(days: number = 30): Promise<{
   returningPercentage: number;
   averageOrdersPerCustomer: number;
 }> {
+  cacheLife("hours");
+  cacheTag("orders");
+
   const startDate = subDays(new Date(), days);
   const previousPeriodStart = subDays(new Date(), days * 2);
 
@@ -522,6 +551,9 @@ export async function getPromoCodeEffectiveness(limit: number = 10): Promise<
     roi: number; // Revenue / Discount ratio
   }[]
 > {
+  cacheLife("hours");
+  cacheTag("orders", "promo-codes");
+
   const result = await db
     .select({
       promoCodeId: promoCodes.id,
@@ -583,6 +615,9 @@ export async function getGrowthComparison(): Promise<{
     customersPercent: number;
   };
 }> {
+  cacheLife("hours");
+  cacheTag("orders");
+
   const now = new Date();
   const currentMonthStart = startOfMonth(now);
   const currentMonthEnd = endOfMonth(now);
@@ -642,8 +677,8 @@ export async function getGrowthComparison(): Promise<{
           ne(orders.orderStatus, "cancelled"),
           sql`${orders.createdBy} IS NOT NULL`,
           sql`${orders.createdBy} NOT IN (
-              SELECT DISTINCT created_by FROM orders 
-              WHERE created_at < ${currentMonthStart} 
+              SELECT DISTINCT created_by FROM orders
+              WHERE created_at < ${currentMonthStart}
               AND created_by IS NOT NULL
               AND order_status != 'cancelled'
             )`
@@ -662,8 +697,8 @@ export async function getGrowthComparison(): Promise<{
           ne(orders.orderStatus, "cancelled"),
           sql`${orders.createdBy} IS NOT NULL`,
           sql`${orders.createdBy} NOT IN (
-              SELECT DISTINCT created_by FROM orders 
-              WHERE created_at < ${previousMonthStart} 
+              SELECT DISTINCT created_by FROM orders
+              WHERE created_at < ${previousMonthStart}
               AND created_by IS NOT NULL
               AND order_status != 'cancelled'
             )`
@@ -729,6 +764,9 @@ export async function getSeasonalTrends(days: number = 14): Promise<{
     changePercent: number;
   }[];
 }> {
+  cacheLife("hours");
+  cacheTag("orders", "products");
+
   const now = new Date();
   const currentPeriodStart = subDays(now, days);
   const previousPeriodStart = subDays(now, days * 2);
@@ -829,6 +867,9 @@ export async function getUnusedProducts(days: number = 30): Promise<
     daysSinceLastOrder: number | null;
   }[]
 > {
+  cacheLife("hours");
+  cacheTag("products", "orders");
+
   // Get all active products
   const activeProducts = await db
     .select({
@@ -902,6 +943,9 @@ export async function getFrequentlyBoughtTogether(limit: number = 5): Promise<
     frequency: number;
   }[]
 > {
+  cacheLife("hours");
+  cacheTag("orders", "products");
+
   const result = await db.execute<{
     product1_id: string;
     product1_name: string;
@@ -909,15 +953,15 @@ export async function getFrequentlyBoughtTogether(limit: number = 5): Promise<
     product2_name: string;
     frequency: number;
   }>(sql`
-    SELECT 
+    SELECT
       p1.id as product1_id,
       p1.name as product1_name,
       p2.id as product2_id,
       p2.name as product2_name,
       COUNT(*) as frequency
     FROM ${orderItems} oi1
-    INNER JOIN ${orderItems} oi2 
-      ON oi1.order_id = oi2.order_id 
+    INNER JOIN ${orderItems} oi2
+      ON oi1.order_id = oi2.order_id
       AND oi1.product_id < oi2.product_id
     INNER JOIN ${products} p1 ON oi1.product_id = p1.id
     INNER JOIN ${products} p2 ON oi2.product_id = p2.id
@@ -953,6 +997,9 @@ export async function getRevenueComparison(days: number = 7): Promise<{
   pendingCents: number;
   completionRate: number;
 }> {
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const startDate = subDays(new Date(), days);
 
   const result = await db
@@ -1007,6 +1054,9 @@ export async function getStoreDashboard(storeId: string): Promise<{
   tomorrowProducts: number;
   pendingPickup: number;
 }> {
+  cacheLife("minutes");
+  cacheTag("orders", "stores");
+
   const today = format(new Date(), "yyyy-MM-dd");
   const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 
@@ -1115,6 +1165,9 @@ export type StoreDashboard = Awaited<ReturnType<typeof getStoreDashboard>>;
  * Use this for the main admin dashboard
  */
 export async function getFullDashboardData() {
+  cacheLife("minutes");
+  cacheTag("orders", "products", "stores");
+
   const [
     metrics,
     attentionRequired,

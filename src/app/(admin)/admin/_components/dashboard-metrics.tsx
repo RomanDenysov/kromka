@@ -1,6 +1,6 @@
 import { Building2, CreditCard, Package, ShoppingCart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getDashboardMetrics } from "@/lib/queries/dashboard";
+import { getDashboardMetrics } from "@/features/admin-dashboard/api/queries";
 import { formatPrice } from "@/lib/utils";
 
 export async function DashboardMetrics() {
