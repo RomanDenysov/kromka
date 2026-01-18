@@ -61,8 +61,7 @@ export async function updateProfileAction(input: UpdateProfileInput) {
 
     revalidatePath("/profil");
     return { success: true };
-  } catch (error) {
-    console.error(error);
+  } catch {
     return { success: false, error: "Nepodarilo sa aktualizovať profil" };
   }
 }
