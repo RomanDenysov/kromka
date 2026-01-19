@@ -19,7 +19,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { RecentOrder, RecentOrdersData } from "@/features/admin-dashboard/api/queries";
+import type {
+  RecentOrder,
+  RecentOrdersData,
+} from "@/features/admin-dashboard/api/queries";
 import { cn, formatPrice } from "@/lib/utils";
 import { columns } from "./columns";
 

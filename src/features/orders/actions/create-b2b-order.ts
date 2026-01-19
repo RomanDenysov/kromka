@@ -1,8 +1,8 @@
 "use server";
 
 import type { PaymentMethod } from "@/db/types";
+import { getSiteConfig } from "@/features/site-config/api/queries";
 import { requireB2bMember } from "@/lib/auth/guards";
-import { getSiteConfig } from "@/lib/site-config/queries";
 import {
   buildOrderItems,
   clearCartAfterOrder,

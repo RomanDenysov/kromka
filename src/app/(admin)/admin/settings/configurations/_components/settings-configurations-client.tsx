@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { SettingsRow } from "@/components/settings/settings-row";
 import { Switch } from "@/components/ui/switch";
-import { updateSiteConfig } from "@/lib/site-config/actions";
+import { updateSiteConfig } from "@/features/site-config/api/actions";
 
 type SettingsConfigurationsClientProps = {
   initialValues: {

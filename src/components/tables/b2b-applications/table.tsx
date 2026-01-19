@@ -12,7 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import type { B2bApplication } from "@/features/b2b/applications/queries";
+import type { B2bApplication } from "@/features/b2b/applications/api/queries";
 import { DataTable } from "@/widgets/data-table/data-table";
 import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
 import { DataTableSearch } from "@/widgets/data-table/data-table-search";

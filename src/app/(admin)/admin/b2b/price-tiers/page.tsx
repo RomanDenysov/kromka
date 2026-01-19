@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getPriceTiers } from "@/features/b2b/price-tiers/queries";
+import { getPriceTiers } from "@/features/b2b/price-tiers/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 async function PriceTiersLoader() {

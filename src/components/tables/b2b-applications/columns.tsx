@@ -6,7 +6,7 @@ import { sk } from "date-fns/locale/sk";
 import { ArrowRightIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { B2bApplication } from "@/features/b2b/applications/queries";
+import type { B2bApplication } from "@/features/b2b/applications/api/queries";
 
 const STATUS_LABELS: Record<
   string,

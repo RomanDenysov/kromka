@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { B2BApplicationDetail } from "@/components/b2b/application-detail";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getB2bApplicationById } from "@/features/b2b/applications/queries";
-import { getPriceTiers } from "@/features/b2b/price-tiers/queries";
+import { getB2bApplicationById } from "@/features/b2b/applications/api/queries";
+import { getPriceTiers } from "@/features/b2b/price-tiers/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 type Props = {

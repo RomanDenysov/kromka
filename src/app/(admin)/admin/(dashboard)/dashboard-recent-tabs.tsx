@@ -6,9 +6,9 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { RecentOrder } from "@/features/admin-dashboard/api/queries";
 import { useDashboardParams } from "@/hooks/use-dashboard-params";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
-import type { RecentOrder } from "@/features/admin-dashboard/api/queries";
 import { formatPrice } from "@/lib/utils";
 
 type ProductAggregate = {

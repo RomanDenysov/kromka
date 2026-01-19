@@ -2,7 +2,10 @@ import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import { EditStoreSheet } from "@/components/sheets/edit-store-sheet";
 import { StoresTable } from "@/components/tables/stores/table";
-import { getAdminStoreById, getAdminStores } from "@/features/stores/api/queries";
+import {
+  getAdminStoreById,
+  getAdminStores,
+} from "@/features/stores/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 

@@ -23,9 +23,9 @@ import { Separator } from "@/components/ui/separator";
 import {
   approveB2bApplication,
   rejectB2bApplication,
-} from "@/features/b2b/applications/actions";
-import type { B2bApplication } from "@/features/b2b/applications/queries";
-import type { PriceTier } from "@/features/b2b/price-tiers/queries";
+} from "@/features/b2b/applications/api/actions";
+import type { B2bApplication } from "@/features/b2b/applications/api/queries";
+import type { PriceTier } from "@/features/b2b/price-tiers/api/queries";
 import {
   type ApproveB2bApplicationSchema,
   approveB2bApplicationSchema,

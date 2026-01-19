@@ -25,9 +25,9 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { updateOrganization } from "@/features/b2b/clients/actions";
-import type { OrganizationDetail } from "@/features/b2b/clients/queries";
-import type { PriceTier } from "@/features/b2b/price-tiers/queries";
+import { updateOrganization } from "@/features/b2b/clients/api/actions";
+import type { OrganizationDetail } from "@/features/b2b/clients/api/queries";
+import type { PriceTier } from "@/features/b2b/price-tiers/api/queries";
 import { formatPrice } from "@/lib/utils";
 import {
   type UpdateOrganizationSchema,

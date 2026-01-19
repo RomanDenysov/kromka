@@ -3,8 +3,8 @@ import { GridView } from "@/components/grid-view";
 import { ShowMore } from "@/components/show-more";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
 import { getFavoriteIds } from "@/features/favorites/api/queries";
-import { filterProducts } from "@/features/products/filter";
 import { getProducts } from "@/features/products/api/queries";
+import { filterProducts } from "@/features/products/filter";
 import { ProductCard, ProductCardSkeleton } from "./product-card";
 
 const PRELOAD_LIMIT = 15;

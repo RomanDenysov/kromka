@@ -16,7 +16,7 @@ import {
   FieldSet,
   FieldTitle,
 } from "@/components/ui/field";
-import { submitB2bApplication } from "@/features/b2b/applications/actions";
+import { submitB2bApplication } from "@/features/b2b/applications/api/actions";
 import {
   type B2bApplicationSchema,
   b2bApplicationSchema,

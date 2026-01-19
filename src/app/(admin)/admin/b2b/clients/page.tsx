@@ -1,7 +1,7 @@
 import type { Route } from "next";
 import { Suspense } from "react";
 import { B2BClientsTable } from "@/components/tables/b2b-clients/table";
-import { getOrganizations } from "@/features/b2b/clients/queries";
+import { getOrganizations } from "@/features/b2b/clients/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 

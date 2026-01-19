@@ -19,10 +19,10 @@ import { CheckoutForm } from "@/features/checkout/components/checkout-form";
 import { CheckoutList } from "@/features/checkout/components/checkout-list";
 import { CheckoutListItem } from "@/features/checkout/components/checkout-list-item";
 import { CheckoutRecommendations } from "@/features/checkout/components/checkout-recommendations";
+import { getSiteConfig } from "@/features/site-config/api/queries";
 import { getStores } from "@/features/stores/api/queries";
 import { getUserDetails } from "@/lib/auth/session";
 import { getItemCountString } from "@/lib/item-count-string";
-import { getSiteConfig } from "@/lib/site-config/queries";
 
 export const metadata: Metadata = {
   title: "Pokladňa",

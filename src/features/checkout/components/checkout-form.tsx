@@ -281,7 +281,7 @@ export function CheckoutForm({
                                   Kartou online
                                 </FieldTitle>
                                 <Badge
-                                  className="-top-2 -right-2 absolute"
+                                  className="absolute -top-2 -right-2"
                                   size="xs"
                                 >
                                   Čoskoro

@@ -10,8 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { getTopProducts } from "@/features/admin-dashboard/api/queries";
 import type { getFrequentlyBoughtTogether } from "@/features/admin-dashboard/api/metrics";
+import type { getTopProducts } from "@/features/admin-dashboard/api/queries";
 import { formatPrice } from "@/lib/utils";
 
 type TopProductsSectionProps = {

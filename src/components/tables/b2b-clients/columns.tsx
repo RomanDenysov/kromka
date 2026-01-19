@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { ArrowRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Organization } from "@/features/b2b/clients/queries";
+import type { Organization } from "@/features/b2b/clients/api/queries";
 import { formatPrice } from "@/lib/utils";
 
 export const columns: ColumnDef<Organization>[] = [

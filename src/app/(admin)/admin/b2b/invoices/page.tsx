@@ -7,7 +7,7 @@ import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getInvoices } from "@/features/b2b/invoices/queries";
+import { getInvoices } from "@/features/b2b/invoices/api/queries";
 import { formatPrice } from "@/lib/utils";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
