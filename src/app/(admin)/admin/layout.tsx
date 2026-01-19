@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { getNewOrdersCount } from "@/features/orders/queries";
+import { getNewOrdersCount } from "@/features/orders/api/queries";
 import AppSidebar, {
   AppSidebarSkeleton,
 } from "@/widgets/admin-sidebar/app-sidebar";

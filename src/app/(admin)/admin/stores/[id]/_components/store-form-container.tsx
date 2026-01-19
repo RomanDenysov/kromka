@@ -4,7 +4,7 @@ import { StoreForm } from "@/app/(admin)/admin/stores/[id]/_components/store-for
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
-import type { AdminStore } from "@/features/stores/queries";
+import type { AdminStore } from "@/features/stores/api/queries";
 
 type Props = {
   store: AdminStore;

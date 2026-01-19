@@ -19,7 +19,7 @@ import {
   SortTogglesSkeleton,
 } from "@/components/filters/sort-toggles";
 import { PageWrapper } from "@/components/shared/container";
-import { getCategoriesByCatalog } from "@/features/categories/queries";
+import { getCategoriesByCatalog } from "@/features/categories/api/queries";
 import {
   B2BProductsGrid,
   B2BProductsGridSkeleton,

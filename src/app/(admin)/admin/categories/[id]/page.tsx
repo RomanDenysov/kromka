@@ -3,7 +3,7 @@ import { FormSkeleton } from "@/components/forms/form-skeleton";
 import {
   getAdminCategories,
   getAdminCategoryById,
-} from "@/features/categories/queries";
+} from "@/features/categories/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { CategoryFormContainer } from "./_components/category-form-container";
 

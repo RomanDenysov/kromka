@@ -10,7 +10,7 @@ import {
   SortTogglesSkeleton,
 } from "@/components/filters/sort-toggles";
 import { PageWrapper } from "@/components/shared/container";
-import { getCategories } from "@/features/categories/queries";
+import { getCategories } from "@/features/categories/api/queries";
 import {
   ProductsGrid,
   ProductsGridSkeleton,

@@ -4,8 +4,8 @@ import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
-import type { Category } from "@/features/categories/queries";
-import type { AdminProduct } from "@/features/products/queries";
+import type { Category } from "@/features/categories/api/queries";
+import type { AdminProduct } from "@/features/products/api/queries";
 import { ProductForm } from "./_components/product-form";
 
 type Props = {

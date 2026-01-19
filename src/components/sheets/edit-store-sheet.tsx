@@ -15,7 +15,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
-import type { AdminStore } from "@/features/stores/queries";
+import type { AdminStore } from "@/features/stores/api/queries";
 import { useStoreParams } from "@/hooks/use-store-params";
 import { cn } from "@/lib/utils";
 

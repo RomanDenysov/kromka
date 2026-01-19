@@ -32,8 +32,8 @@ import {
   deleteCategoriesAction,
   toggleIsActiveCategoryAction,
   toggleIsFeaturedCategoryAction,
-} from "@/features/categories/actions";
-import type { AdminCategory } from "@/features/categories/queries";
+} from "@/features/categories/api/actions";
+import type { AdminCategory } from "@/features/categories/api/queries";
 import { DataTable } from "@/widgets/data-table/data-table";
 import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
 import { DataTableSearch } from "@/widgets/data-table/data-table-search";

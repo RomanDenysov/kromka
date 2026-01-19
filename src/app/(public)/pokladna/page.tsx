@@ -13,13 +13,13 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
-import { getLastOrderPrefillAction } from "@/features/checkout/actions";
+import { getCartTotals, getDetailedCart } from "@/features/cart/api/queries";
+import { getLastOrderPrefillAction } from "@/features/checkout/api/actions";
 import { CheckoutForm } from "@/features/checkout/components/checkout-form";
 import { CheckoutList } from "@/features/checkout/components/checkout-list";
 import { CheckoutListItem } from "@/features/checkout/components/checkout-list-item";
 import { CheckoutRecommendations } from "@/features/checkout/components/checkout-recommendations";
-import { getStores } from "@/features/stores/queries";
+import { getStores } from "@/features/stores/api/queries";
 import { getUserDetails } from "@/lib/auth/session";
 import { getItemCountString } from "@/lib/item-count-string";
 import { getSiteConfig } from "@/lib/site-config/queries";

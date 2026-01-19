@@ -2,7 +2,7 @@
 
 import { ShoppingCartIcon } from "lucide-react";
 import { useTransition } from "react";
-import { addToCart } from "@/features/cart/actions";
+import { addToCart } from "@/features/cart/api/actions";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 

@@ -14,7 +14,7 @@ import { clearCart, getCart } from "@/features/cart/cookies";
 import { sendEmail } from "@/lib/email";
 import { createPrefixedNumericId } from "@/lib/ids";
 import { getEffectivePrices } from "@/lib/pricing";
-import { getOrderById } from "../queries";
+import { getOrderById } from "../api/queries";
 
 export type OrderItemData = {
   productId: string;

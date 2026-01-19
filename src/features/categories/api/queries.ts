@@ -3,7 +3,7 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
-import { getProducts } from "@/features/products/queries";
+import { getProducts } from "@/features/products/api/queries";
 
 // PUBLIC (cached)
 export const getCategories = cache(async () => {

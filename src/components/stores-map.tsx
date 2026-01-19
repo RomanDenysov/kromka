@@ -8,7 +8,7 @@ import {
   MarkerContent,
   MarkerPopup,
 } from "@/components/ui/map";
-import type { Store } from "@/features/stores/queries";
+import type { Store } from "@/features/stores/api/queries";
 import type { GeolocationPosition } from "@/hooks/use-geolocation";
 import { buildFullAddress } from "@/lib/geo-utils";
 

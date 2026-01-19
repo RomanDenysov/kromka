@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getProducts, type Product } from "@/features/products/queries";
+import { getProducts, type Product } from "@/features/products/api/queries";
 import { jsonContentToHtml, jsonContentToText } from "@/lib/editor-utils";
 import { createMetadata } from "@/lib/metadata";
 import { getBreadcrumbSchema, getProductSchema } from "@/lib/seo/json-ld";

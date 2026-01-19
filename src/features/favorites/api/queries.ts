@@ -4,7 +4,7 @@ import { count, desc, eq } from "drizzle-orm";
 import { cache } from "react";
 import { db } from "@/db";
 import { favorites } from "@/db/schema";
-import { getProducts } from "@/features/products/queries";
+import { getProducts } from "@/features/products/api/queries";
 import { getUser } from "@/lib/auth/session";
 
 export async function getFavoriteIds(): Promise<string[]> {

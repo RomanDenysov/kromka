@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import { addItemsToCart } from "@/features/cart/actions";
+import { addItemsToCart } from "@/features/cart/api/actions";
 import { getItemCountString } from "@/lib/item-count-string";
 import { cn, formatPrice } from "@/lib/utils";
 

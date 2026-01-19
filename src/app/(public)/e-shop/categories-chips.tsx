@@ -7,7 +7,7 @@ import { LinkStatus } from "@/components/shared/link-status";
 import { ShowMoreInline } from "@/components/show-more";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Category } from "@/features/categories/queries";
+import type { Category } from "@/features/categories/api/queries";
 import { getCategoriesLink, useEshopParams } from "./eshop-params";
 
 type Props = {

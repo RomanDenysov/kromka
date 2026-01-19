@@ -1,6 +1,6 @@
 import { ShoppingCartIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getDetailedCart } from "@/features/cart/queries";
+import { getDetailedCart } from "@/features/cart/api/queries";
 import { getUserDetails } from "@/lib/auth/session";
 import { CartDrawerItem } from "./cart-drawer-item";
 

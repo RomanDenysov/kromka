@@ -2,9 +2,9 @@ import type { EshopParams } from "@/app/(public)/e-shop/eshop-params";
 import { GridView } from "@/components/grid-view";
 import { ShowMore } from "@/components/show-more";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
-import { getFavoriteIds } from "@/features/favorites/queries";
+import { getFavoriteIds } from "@/features/favorites/api/queries";
 import { filterProducts } from "@/features/products/filter";
-import { getProducts } from "@/features/products/queries";
+import { getProducts } from "@/features/products/api/queries";
 import { ProductCard, ProductCardSkeleton } from "./product-card";
 
 const PRELOAD_LIMIT = 15;

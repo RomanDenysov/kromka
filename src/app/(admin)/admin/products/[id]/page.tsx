@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { FormSkeleton } from "@/components/forms/form-skeleton";
-import { getAdminCategories } from "@/features/categories/queries";
-import { getAdminProductById } from "@/features/products/queries";
+import { getAdminCategories } from "@/features/categories/api/queries";
+import { getAdminProductById } from "@/features/products/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { FormContainer } from "./form-container";
 

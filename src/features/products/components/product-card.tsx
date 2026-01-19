@@ -5,7 +5,7 @@ import { AddToCartButton } from "@/components/shared/add-to-cart-button";
 import { ProductImage } from "@/components/shared/product-image";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Product } from "@/features/products/queries";
+import type { Product } from "@/features/products/api/queries";
 import { cn, formatPrice } from "@/lib/utils";
 
 type Props = {

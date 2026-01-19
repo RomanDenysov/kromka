@@ -1,7 +1,7 @@
 import { formatDate } from "date-fns";
 import { sk } from "date-fns/locale";
 import type { OrderStatus } from "@/db/types";
-import type { Order } from "@/features/orders/queries";
+import type { Order } from "@/features/orders/api/queries";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import type { ExportColumnConfig } from "@/lib/export-utils";
 

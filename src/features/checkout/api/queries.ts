@@ -4,7 +4,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import type { GuestCustomerInfo } from "@/features/orders/actions/internal";
-import { getLastOrderId } from "./cookies";
+import { getLastOrderId } from "../cookies";
 
 /**
  * Last order prefill data for checkout form

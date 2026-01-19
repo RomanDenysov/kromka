@@ -23,8 +23,8 @@ import {
   CartDrawerFooter,
   CartDrawerFooterLoader,
 } from "@/features/cart/components/cart-drawer-footer";
-import { preloadFavorites } from "@/features/favorites/queries";
-import { preloadProducts } from "@/features/products/queries";
+import { preloadFavorites } from "@/features/favorites/api/queries";
+import { preloadProducts } from "@/features/products/api/queries";
 import { getUser } from "@/lib/auth/session";
 import { defaultMetadata } from "@/lib/metadata";
 import { getOrganizationSchema, getWebSiteSchema } from "@/lib/seo/json-ld";

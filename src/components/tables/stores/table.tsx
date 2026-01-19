@@ -19,8 +19,8 @@ import {
   createDraftStoreAction,
   deleteStoresAction,
   toggleIsActiveStoresAction,
-} from "@/features/stores/actions";
-import type { AdminStore } from "@/features/stores/queries";
+} from "@/features/stores/api/actions";
+import type { AdminStore } from "@/features/stores/api/queries";
 import { DataTable } from "@/widgets/data-table/data-table";
 import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
 import { DataTableSearch } from "@/widgets/data-table/data-table-search";

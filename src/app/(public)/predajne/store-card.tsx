@@ -11,7 +11,7 @@ import {
   getTimeRangeForDate,
   parseTimeToMinutes,
 } from "@/features/checkout/utils";
-import type { Store } from "@/features/stores/queries";
+import type { Store } from "@/features/stores/api/queries";
 import { cn } from "@/lib/utils";
 
 type StoreCardProps = {

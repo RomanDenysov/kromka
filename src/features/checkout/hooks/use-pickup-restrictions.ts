@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { DetailedCartItem } from "@/features/cart/queries";
+import type { DetailedCartItem } from "@/features/cart/api/queries";
 import { getRestrictedPickupDates } from "@/features/checkout/utils";
 
 /**

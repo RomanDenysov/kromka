@@ -7,7 +7,7 @@ import {
   useEshopParams,
 } from "@/app/(public)/e-shop/eshop-params";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Category } from "@/features/categories/queries";
+import type { Category } from "@/features/categories/api/queries";
 import { cn } from "@/lib/utils";
 import { LinkStatus } from "../shared/link-status";
 

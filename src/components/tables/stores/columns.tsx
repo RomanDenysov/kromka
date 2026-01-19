@@ -29,7 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { AdminStore } from "@/features/stores/queries";
+import type { AdminStore } from "@/features/stores/api/queries";
 import { getAdminStoresLink } from "@/hooks/use-store-params";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 

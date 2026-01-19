@@ -1,7 +1,7 @@
 import { GridView } from "@/components/grid-view";
-import type { DetailedCartItem } from "@/features/cart/queries";
+import type { DetailedCartItem } from "@/features/cart/api/queries";
 import { ProductCard } from "@/features/products/components/product-card";
-import { getProductsByCategory } from "@/features/products/queries";
+import { getProductsByCategory } from "@/features/products/api/queries";
 
 const CHECKOUT_UPSELL_CATEGORY = "trvanlive-potraviny";
 const CHECKOUT_UPSELL_LIMIT = 4;

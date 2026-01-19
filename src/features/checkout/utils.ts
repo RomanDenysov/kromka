@@ -8,7 +8,7 @@ import {
   startOfToday,
 } from "date-fns";
 import type { StoreSchedule, TimeRange } from "@/db/types";
-import type { DetailedCartItem } from "@/features/cart/queries";
+import type { DetailedCartItem } from "@/features/cart/api/queries";
 
 const ORDER_CUTOFF_HOUR = 12;
 const DATE_KEY_FORMAT = "yyyy-MM-dd";

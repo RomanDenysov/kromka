@@ -19,10 +19,10 @@ import {
 import { createB2BOrder } from "@/features/orders/actions/create-b2b-order";
 import { createB2COrder } from "@/features/orders/actions/create-b2c-order";
 import type { GuestCustomerInfo } from "@/features/orders/actions/internal";
-import type { Store } from "@/features/stores/queries";
+import type { Store } from "@/features/stores/api/queries";
 import type { User } from "@/lib/auth/session";
 import { buildFullAddress } from "@/lib/geo-utils";
-import type { LastOrderPrefill } from "../queries";
+import type { LastOrderPrefill } from "../api/queries";
 
 export type StoreOption = {
   id: string;

@@ -3,7 +3,7 @@
 import type { PaymentMethod } from "@/db/types";
 import { getUser } from "@/lib/auth/session";
 import { getSiteConfig } from "@/lib/site-config/queries";
-import { setLastOrderIdAction } from "../../checkout/actions";
+import { setLastOrderIdAction } from "../../checkout/api/actions";
 import {
   buildOrderItems,
   clearCartAfterOrder,

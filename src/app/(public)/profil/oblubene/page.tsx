@@ -6,7 +6,7 @@ import { GridView } from "@/components/grid-view";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getFavorites } from "@/features/favorites/queries";
+import { getFavorites } from "@/features/favorites/api/queries";
 import { ProductCard } from "@/features/products/components/product-card";
 import { AddAllToCartButton } from "./add-all-to-cart-button";
 

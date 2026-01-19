@@ -9,7 +9,7 @@ import {
   ButtonGroupText,
 } from "@/components/ui/button-group";
 import { Spinner } from "@/components/ui/spinner";
-import { addToCart } from "@/features/cart/actions";
+import { addToCart } from "@/features/cart/api/actions";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 type Props = {

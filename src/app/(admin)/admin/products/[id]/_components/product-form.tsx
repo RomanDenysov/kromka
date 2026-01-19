@@ -23,9 +23,9 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { PRODUCT_STATUSES } from "@/db/types";
-import type { Category } from "@/features/categories/queries";
-import { updateProductAction } from "@/features/products/actions";
-import type { AdminProduct } from "@/features/products/queries";
+import type { Category } from "@/features/categories/api/queries";
+import { updateProductAction } from "@/features/products/api/actions";
+import type { AdminProduct } from "@/features/products/api/queries";
 import { MAX_STRING_LENGTH, PRODUCT_STATUSES_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 

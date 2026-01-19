@@ -1,6 +1,6 @@
 "use server";
 
-import { setLastOrderId } from "./cookies";
+import { setLastOrderId } from "../cookies";
 import {
   getLastOrderPrefill,
   getLastOrderWithItems,
