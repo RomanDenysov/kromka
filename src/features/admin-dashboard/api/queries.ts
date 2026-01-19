@@ -17,7 +17,7 @@ import type { OrderStatus, PaymentStatus } from "@/db/types";
 
 const TOP_PRODUCTS_LIMIT = 5;
 
-export function getOrdersByPickupDate(
+export async function getOrdersByPickupDate(
   date: string,
   filters?: {
     orderStatus?: OrderStatus;
@@ -65,7 +65,7 @@ export function getOrdersByPickupDate(
   });
 }
 
-export function getProductsAggregateByPickupDate(
+export async function getProductsAggregateByPickupDate(
   date: string,
   storeId?: string
 ) {
@@ -98,7 +98,7 @@ export function getProductsAggregateByPickupDate(
     .orderBy(desc(sql`sum(${orderItems.quantity})`));
 }
 
-export function getMonthlyOrderStats(year: number, month: number) {
+export async function getMonthlyOrderStats(year: number, month: number) {
   cacheLife("hours");
   cacheTag("orders");
 
@@ -395,7 +395,7 @@ export async function getTopProducts(): Promise<TopProductsResult> {
 
 export type RecentOrder = Awaited<ReturnType<typeof getRecentOrders>>[number];
 
-export function getRecentOrders() {
+export async function getRecentOrders() {
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -431,7 +431,7 @@ export function getRecentOrders() {
   });
 }
 
-export function getActiveCarts() {
+export async function getActiveCarts() {
   cacheLife("minutes");
   cacheTag("carts");
 

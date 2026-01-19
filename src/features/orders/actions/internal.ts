@@ -29,7 +29,9 @@ export type GuestCustomerInfo = {
   phone: string;
 };
 
-export function isValidGuestInfo(info: GuestCustomerInfo): boolean {
+export async function isValidGuestInfo(
+  info: GuestCustomerInfo
+): Promise<boolean> {
   return Boolean(info.name.trim() && info.email.trim() && info.phone.trim());
 }
 

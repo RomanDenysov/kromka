@@ -3,7 +3,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 
-export function getUsers() {
+export async function getUsers() {
   cacheLife("minutes");
   cacheTag("users");
 
@@ -26,7 +26,7 @@ export function getUsers() {
   });
 }
 
-export function getUserById(id: string) {
+export async function getUserById(id: string) {
   cacheLife("minutes");
   cacheTag("users", `user-${id}`);
 

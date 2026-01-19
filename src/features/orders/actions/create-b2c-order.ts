@@ -37,7 +37,7 @@ export async function createB2COrder(data: {
       return { success: false, error: "Objednávky sú momentálne vypnuté" };
     }
 
-    if (!isValidGuestInfo(data.customerInfo)) {
+    if (!(await isValidGuestInfo(data.customerInfo))) {
       return { success: false, error: "Vyplňte prosím všetky kontaktné údaje" };
     }
 
