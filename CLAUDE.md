@@ -39,24 +39,40 @@ pnpm db:studio    # Open Drizzle Studio
 - `src/app/api/` - API routes (auth, webhooks)
 
 ### Feature Modules (`src/features/`)
-Domain-specific business logic organized by feature:
+Domain-specific business logic organized by feature with clear server/client separation:
+
+**Core features:**
 - `cart/` - Cookie-based cart with server actions
 - `checkout/` - Order creation, pickup date logic ([docs](docs/features/checkout.md))
 - `products/`, `categories/`, `stores/`, `orders/`, `favorites/`
 
-Each feature typically contains:
-- `actions.ts` - Server actions (mutations)
-- `queries.ts` - Database queries
-- `schema.ts` - Zod validation schemas
+**B2B features (`b2b/`):**
+- `applications/` - B2B application management
+- `clients/` - B2B client management
+- `invoices/` - Invoice generation and management
+- `price-tiers/` - B2B pricing tiers
+
+**Standalone features:**
+- `admin-dashboard/` - Admin metrics and dashboard queries
+- `b2b-request/` - B2B application form submission
+- `contact-form/` - Support request form
+- `media-library/` - Image upload and management
+- `site-config/` - Site-wide settings (orders_enabled, etc.)
+- `user-management/` - Admin user queries
+- `user-profile/` - User profile updates
+
+Each feature contains an `api/` subfolder for server-side code:
+- `api/actions.ts` - Server actions (mutations with `"use server"`)
+- `api/queries.ts` - Database queries (cached with `"use cache"`)
+- `schema.ts` - Zod validation schemas (at feature root)
 - `components/` - Feature-specific components
 - `hooks/` - Custom React hooks (for complex features)
 
 ### Shared Code
 - `src/lib/auth/` - Better-auth setup (`server.ts`), guards (`guards.ts`), client (`client.ts`), session utilities
-- `src/lib/` - Utilities, email templates, remaining queries/actions
+- `src/lib/` - Shared utilities (email, pricing, geo-utils, ids)
 - `src/components/` - Shared UI components
 - `src/db/` - Drizzle schema (`schema.ts`), types, migrations
-- `src/validation/` - Shared Zod schemas
 - `src/store/` - Zustand stores
 
 ### Database Schema (`src/db/schema.ts`)
