@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GameCardWrapper } from "@/components/game/game-card-wrapper";
 import { CallToAction } from "@/components/landing/cta";
 import { HomeGrid } from "@/components/landing/home-grid";
 import { createMetadata } from "@/lib/metadata";
@@ -16,6 +17,9 @@ export default function Home() {
   return (
     <>
       <HomeGrid />
+      <section className="container mx-auto flex justify-center px-4 py-8">
+        <GameCardWrapper />
+      </section>
       <CallToAction />
     </>
   );
