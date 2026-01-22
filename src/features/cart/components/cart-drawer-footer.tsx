@@ -5,9 +5,9 @@ import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
-import { getLastOrderWithItemsAction } from "@/features/checkout/actions";
-import { getUser } from "@/lib/auth/session";
+import { getCartTotals, getDetailedCart } from "@/features/cart/api/queries";
+import { getLastOrderWithItemsAction } from "@/features/checkout/api/actions";
+import { getUser, getUserDetails } from "@/lib/auth/session";
 import { cn, formatPrice } from "@/lib/utils";
 import { LastOrderCard } from "./last-order-card";
 
@@ -46,7 +46,12 @@ function LastOrderCardSkeleton() {
 }
 
 export async function CartDrawerFooter() {
-  const items = await getDetailedCart();
+  const user = await getUserDetails();
+  const priceTierId =
+    user?.members && user.members.length > 0
+      ? (user.members[0]?.organization?.priceTierId ?? null)
+      : null;
+  const items = await getDetailedCart(priceTierId);
   const { totalCents } = getCartTotals(items);
   const isEmpty = items.length === 0;
 

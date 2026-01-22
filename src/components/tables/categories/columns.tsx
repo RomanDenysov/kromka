@@ -32,7 +32,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { AdminCategory } from "@/features/categories/queries";
+import type { AdminCategory } from "@/features/categories/api/queries";
 import { getAdminCategoriesLink } from "@/hooks/use-category-params";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 

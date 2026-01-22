@@ -32,8 +32,8 @@ import {
   createDraftProductAction,
   deleteProductsAction,
   toggleIsActiveProductAction,
-} from "@/features/products/actions";
-import type { AdminProduct } from "@/features/products/queries";
+} from "@/features/products/api/actions";
+import type { AdminProduct } from "@/features/products/api/queries";
 import { useProductParams } from "@/hooks/use-product-params";
 import { DataTable } from "@/widgets/data-table/data-table";
 import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";

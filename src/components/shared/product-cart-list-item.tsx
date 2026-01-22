@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { DetailedCartItem } from "@/features/cart/queries";
+import type { DetailedCartItem } from "@/features/cart/api/queries";
 import { RemoveItemButton } from "@/features/checkout/components/remove-item-button";
 import { formatPrice } from "@/lib/utils";
 import { Badge } from "../ui/badge";

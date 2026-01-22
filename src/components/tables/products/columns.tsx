@@ -35,7 +35,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { AdminProduct } from "@/features/products/queries";
+import type { AdminProduct } from "@/features/products/api/queries";
 import { formatPrice } from "@/lib/utils";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 

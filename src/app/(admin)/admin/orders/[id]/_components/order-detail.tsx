@@ -62,7 +62,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
-import type { Order } from "@/features/orders/queries";
+import type { Order } from "@/features/orders/api/queries";
 import {
   ORDER_STATUS_ICONS,
   ORDER_STATUS_LABELS,

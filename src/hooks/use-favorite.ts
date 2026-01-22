@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { isFavorite, toggleFavorite } from "@/features/favorites/actions";
+import { isFavorite, toggleFavorite } from "@/features/favorites/api/actions";
 import { useSession } from "@/lib/auth/client";
 import { useLoginModalOpen } from "@/store/login-modal-store";
 

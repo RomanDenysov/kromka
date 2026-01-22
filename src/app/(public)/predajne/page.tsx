@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
-import { getStores } from "@/features/stores/queries";
+import { getStores } from "@/features/stores/api/queries";
 import { createMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/utils";
 import { StoresSection, StoresSectionSkeleton } from "./stores-section";

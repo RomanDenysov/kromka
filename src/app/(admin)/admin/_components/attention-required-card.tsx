@@ -1,6 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAttentionRequired } from "@/lib/queries/dashboard-metrics";
+import { getAttentionRequired } from "@/features/admin-dashboard/api/metrics";
 import { cn } from "@/lib/utils";
 
 export async function AttentionRequiredCard() {

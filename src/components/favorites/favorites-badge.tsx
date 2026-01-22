@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getFavoritesCount } from "@/features/favorites/queries";
+import { getFavoritesCount } from "@/features/favorites/api/queries";
 
 export async function FavoritesBadge() {
   const count = await getFavoritesCount();

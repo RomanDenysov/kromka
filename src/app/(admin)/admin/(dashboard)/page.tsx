@@ -7,7 +7,7 @@ import {
   getOrdersByPickupDate,
   getProductsAggregateByPickupDate,
   getRecentOrders,
-} from "@/lib/queries/dashboard";
+} from "@/features/admin-dashboard/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { AttentionRequiredCard } from "../_components/attention-required-card";
 import { DashboardTopMetrics } from "../_components/dashboard-top-metrics";

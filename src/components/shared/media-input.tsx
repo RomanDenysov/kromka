@@ -16,7 +16,7 @@ import {
   useTransition,
 } from "react";
 import { toast } from "sonner";
-import { uploadMedia } from "@/lib/actions/media";
+import { uploadMedia } from "@/features/media-library/api/actions";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import {

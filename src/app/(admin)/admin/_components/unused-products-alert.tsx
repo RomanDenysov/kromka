@@ -1,7 +1,7 @@
 import { AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getUnusedProducts } from "@/lib/queries/dashboard-metrics";
+import { getUnusedProducts } from "@/features/admin-dashboard/api/metrics";
 
 export async function UnusedProductsAlert() {
   const unusedProducts = await getUnusedProducts();

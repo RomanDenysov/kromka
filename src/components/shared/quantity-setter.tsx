@@ -4,7 +4,7 @@ import { MinusIcon, PlusIcon } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "@/components/ui/button";
-import { updateQuantity } from "@/features/cart/actions";
+import { updateQuantity } from "@/features/cart/api/actions";
 import { cn } from "@/lib/utils";
 
 const DEBOUNCE_DELAY = 400;

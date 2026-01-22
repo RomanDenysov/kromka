@@ -4,7 +4,7 @@ import { XIcon } from "lucide-react";
 import { useTransition } from "react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { removeFromCart } from "@/features/cart/actions";
+import { removeFromCart } from "@/features/cart/api/actions";
 import { cn } from "@/lib/utils";
 
 type Props = ButtonProps & {

@@ -16,6 +16,7 @@ import { relations } from "drizzle-orm/relations";
 import { createPrefixedId } from "@/lib/ids";
 import {
   type Address,
+  type B2bApplicationStatus,
   DEFAULT_OPENING_HOURS,
   DEFAULT_PAYMENT_TERM_DAYS,
   type InvoiceStatus,
@@ -151,12 +152,52 @@ export const invitations = pgTable("invitations", {
     .references(() => users.id, { onDelete: "cascade" }),
 });
 
+export const b2bApplications = pgTable(
+  "b2b_applications",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("b2ba")),
+    companyName: text("company_name").notNull(),
+    ico: text("ico").notNull(),
+    dic: text("dic"),
+    icDph: text("ic_dph"),
+    contactName: text("contact_name").notNull(),
+    contactEmail: text("contact_email").notNull(),
+    contactPhone: text("contact_phone").notNull(),
+    billingAddress: jsonb("billing_address").$type<Address>(),
+    message: text("message"),
+    status: text("status")
+      .$type<B2bApplicationStatus>()
+      .default("pending")
+      .notNull(),
+    rejectionReason: text("rejection_reason"),
+    reviewedAt: timestamp("reviewed_at"),
+    reviewedBy: text("reviewed_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("idx_b2b_applications_status").on(table.status),
+    index("idx_b2b_applications_created_at").on(table.createdAt),
+    index("idx_b2b_applications_reviewed_at").on(table.reviewedAt),
+  ]
+);
+
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   accounts: many(accounts),
   members: many(members),
   invitationsSent: many(invitations, {
     relationName: "inviter",
+  }),
+  b2bApplicationsReviewed: many(b2bApplications, {
+    relationName: "reviewer",
   }),
   orders: many(orders),
   posts: many(posts),
@@ -210,6 +251,17 @@ export const invitationsRelations = relations(invitations, ({ one }) => ({
     relationName: "inviter",
   }),
 }));
+
+export const b2bApplicationsRelations = relations(
+  b2bApplications,
+  ({ one }) => ({
+    reviewer: one(users, {
+      fields: [b2bApplications.reviewedBy],
+      references: [users.id],
+      relationName: "reviewer",
+    }),
+  })
+);
 
 // #endregion Auth
 

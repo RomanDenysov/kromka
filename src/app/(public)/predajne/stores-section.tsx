@@ -8,7 +8,7 @@ import { StoreCard } from "@/app/(public)/predajne/store-card";
 import { StoresMap } from "@/components/stores-map";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Store } from "@/features/stores/queries";
+import type { Store } from "@/features/stores/api/queries";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { sortStoresByDistance } from "@/lib/geo-utils";
 

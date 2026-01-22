@@ -12,9 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getUserOrders } from "@/features/user-profile/api/queries";
 import { getUser } from "@/lib/auth/session";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
-import { getUserOrders } from "@/lib/queries/profile";
 import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = {

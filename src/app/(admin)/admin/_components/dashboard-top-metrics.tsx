@@ -1,6 +1,6 @@
 import { Calendar, CreditCard, ShoppingCart, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getNewDashboardMetrics } from "@/lib/queries/dashboard-metrics";
+import { getNewDashboardMetrics } from "@/features/admin-dashboard/api/metrics";
 import { cn, formatPrice } from "@/lib/utils";
 
 function TrendBadge({ value }: { value: number }) {

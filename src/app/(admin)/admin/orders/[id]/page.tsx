@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { FormSkeleton } from "@/components/forms/form-skeleton";
-import { getOrderById } from "@/features/orders/queries";
+import { getOrderById } from "@/features/orders/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { OrderDetail } from "./_components/order-detail";
 

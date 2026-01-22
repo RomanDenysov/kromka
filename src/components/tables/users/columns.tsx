@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { UserList } from "@/lib/queries/users";
+import type { UserList } from "@/features/user-management/api/queries";
 import { cn, getInitials } from "@/lib/utils";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 

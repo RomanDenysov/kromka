@@ -20,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { RecentOrder } from "@/lib/queries/dashboard";
+import type { RecentOrder } from "@/features/admin-dashboard/api/queries";
 import { formatPrice } from "@/lib/utils";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 

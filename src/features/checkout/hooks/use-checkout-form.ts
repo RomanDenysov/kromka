@@ -16,14 +16,13 @@ import {
   getTimeRangeForDate,
   isBeforeDailyCutoff,
 } from "@/features/checkout/utils";
-import {
-  createOrderFromCart,
-  type GuestCustomerInfo,
-} from "@/features/orders/actions";
-import type { Store } from "@/features/stores/queries";
+import { createB2BOrder } from "@/features/orders/actions/create-b2b-order";
+import { createB2COrder } from "@/features/orders/actions/create-b2c-order";
+import type { GuestCustomerInfo } from "@/features/orders/actions/internal";
+import type { Store } from "@/features/stores/api/queries";
 import type { User } from "@/lib/auth/session";
 import { buildFullAddress } from "@/lib/geo-utils";
-import type { LastOrderPrefill } from "../queries";
+import type { LastOrderPrefill } from "../api/queries";
 
 export type StoreOption = {
   id: string;
@@ -40,6 +39,7 @@ type UseCheckoutFormProps = {
   stores: Store[];
   lastOrderPrefill?: LastOrderPrefill | null;
   restrictedPickupDates: Set<string> | null;
+  isB2B?: boolean;
 };
 
 /**
@@ -51,6 +51,7 @@ export function useCheckoutForm({
   stores,
   lastOrderPrefill,
   restrictedPickupDates,
+  isB2B = false,
 }: UseCheckoutFormProps) {
   const router = useRouter();
 
@@ -184,13 +185,24 @@ export function useCheckoutForm({
       phone: value.phone,
     };
 
-    const result = await createOrderFromCart({
-      storeId: value.storeId,
-      pickupDate: formattedDate,
-      pickupTime: value.pickupTime,
-      paymentMethod: value.paymentMethod,
-      customerInfo,
-    });
+    const result = isB2B
+      ? await createB2BOrder({
+          storeId: value.storeId,
+          pickupDate: formattedDate,
+          pickupTime: value.pickupTime,
+          paymentMethod: value.paymentMethod,
+          customerInfo,
+        })
+      : await createB2COrder({
+          storeId: value.storeId,
+          pickupDate: formattedDate,
+          pickupTime: value.pickupTime,
+          paymentMethod: value.paymentMethod as Exclude<
+            typeof value.paymentMethod,
+            "invoice"
+          >,
+          customerInfo,
+        });
 
     if (result.success) {
       toast.success("Vaša objednávka bola vytvorená");

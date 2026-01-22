@@ -5,7 +5,7 @@ import { CategoriesTable } from "@/components/tables/categories/table";
 import {
   getAdminCategories,
   getAdminCategoryById,
-} from "@/features/categories/queries";
+} from "@/features/categories/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 

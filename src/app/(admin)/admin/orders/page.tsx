@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { OrdersTable } from "@/components/tables/orders/table";
-import { getAllOrders } from "@/features/orders/queries";
+import { getAllOrders } from "@/features/orders/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 

@@ -2,11 +2,11 @@ import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import { EditProductSheet } from "@/components/sheets/edit-product-sheet";
 import { ProductsTable } from "@/components/tables/products/table";
-import { getAdminCategories } from "@/features/categories/queries";
+import { getAdminCategories } from "@/features/categories/api/queries";
 import {
   getAdminProductById,
   getAdminProducts,
-} from "@/features/products/queries";
+} from "@/features/products/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 

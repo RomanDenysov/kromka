@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ContinueShoppingLink } from "@/components/continue-shopping-link";
-import { getOrderById } from "@/features/orders/queries";
+import { getOrderById } from "@/features/orders/api/queries";
 import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = {

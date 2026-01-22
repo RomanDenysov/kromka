@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getFrequentlyBoughtTogether } from "@/lib/queries/dashboard-metrics";
+import { getFrequentlyBoughtTogether } from "@/features/admin-dashboard/api/metrics";
 
 export async function FrequentlyBoughtCard() {
   const data = await getFrequentlyBoughtTogether();

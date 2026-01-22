@@ -17,11 +17,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
-import { submitSupportRequest } from "@/lib/actions/contact";
+import { submitSupportRequest } from "@/features/contact-form/api/actions";
 import {
   type SupportRequestSchema,
   supportRequestSchema,
-} from "@/validation/contact";
+} from "@/features/contact-form/schema";
 
 export function SupportForm() {
   const searchParams = useSearchParams();

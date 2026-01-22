@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getSiteConfig } from "@/lib/site-config/queries";
+import { getSiteConfig } from "@/features/site-config/api/queries";
 import { SettingsConfigurationsClient } from "./_components/settings-configurations-client";
 
 async function ConfigurationsLoader() {

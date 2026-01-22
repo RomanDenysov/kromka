@@ -13,8 +13,8 @@ import type { OrderStatus, PaymentStatus } from "@/db/types";
 import {
   updateOrderPaymentStatusAction,
   updateOrderStatusAction,
-} from "@/features/orders/actions";
-import type { Order } from "@/features/orders/queries";
+} from "@/features/orders/api/actions";
+import type { Order } from "@/features/orders/api/queries";
 
 type UseOrderStatusManagementResult = {
   optimisticOrderStatus: OrderStatus;

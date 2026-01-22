@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getUserById } from "@/lib/queries/users";
+import { getUserById } from "@/features/user-management/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { UserDetailContent } from "./_components/user-detail-content";
 

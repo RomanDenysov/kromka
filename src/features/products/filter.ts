@@ -1,5 +1,5 @@
 import type { EshopParams } from "@/app/(public)/e-shop/eshop-params";
-import type { Product } from "./queries";
+import type { Product } from "./api/queries";
 
 export function filterProducts(products: Product[], filters: EshopParams) {
   let result = [...products];

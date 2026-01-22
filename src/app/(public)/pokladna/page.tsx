@@ -13,16 +13,16 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCartTotals, getDetailedCart } from "@/features/cart/queries";
-import { getLastOrderPrefillAction } from "@/features/checkout/actions";
+import { getCartTotals, getDetailedCart } from "@/features/cart/api/queries";
+import { getLastOrderPrefillAction } from "@/features/checkout/api/actions";
 import { CheckoutForm } from "@/features/checkout/components/checkout-form";
 import { CheckoutList } from "@/features/checkout/components/checkout-list";
 import { CheckoutListItem } from "@/features/checkout/components/checkout-list-item";
 import { CheckoutRecommendations } from "@/features/checkout/components/checkout-recommendations";
-import { getStores } from "@/features/stores/queries";
+import { getSiteConfig } from "@/features/site-config/api/queries";
+import { getStores } from "@/features/stores/api/queries";
 import { getUserDetails } from "@/lib/auth/session";
 import { getItemCountString } from "@/lib/item-count-string";
-import { getSiteConfig } from "@/lib/site-config/queries";
 
 export const metadata: Metadata = {
   title: "Pokladňa",
@@ -36,8 +36,12 @@ export const metadata: Metadata = {
  */
 async function CheckoutDataLoader() {
   const user = await getUserDetails();
+  const priceTierId =
+    user?.members && user.members.length > 0
+      ? (user.members[0]?.organization?.priceTierId ?? null)
+      : null;
   const [items, stores, ordersEnabled, lastOrderPrefill] = await Promise.all([
-    getDetailedCart(),
+    getDetailedCart(priceTierId),
     getStores(),
     getSiteConfig("orders_enabled"),
     getLastOrderPrefillAction(user?.id),
@@ -86,6 +90,11 @@ async function CheckoutDataLoader() {
 
       <section className="size-full md:col-span-4 lg:col-span-5">
         <CheckoutForm
+          isB2B={
+            user?.members && user.members.length > 0
+              ? Boolean(user.members[0]?.organization)
+              : false
+          }
           items={items}
           lastOrderPrefill={lastOrderPrefill}
           ordersEnabled={ordersEnabled}

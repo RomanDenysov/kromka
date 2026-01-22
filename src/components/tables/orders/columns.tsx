@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
-import type { Order } from "@/features/orders/queries";
+import type { Order } from "@/features/orders/api/queries";
 import {
   ORDER_STATUS_LABELS,
   ORDER_STATUS_VARIANTS,

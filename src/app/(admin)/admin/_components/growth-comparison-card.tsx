@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getGrowthComparison } from "@/lib/queries/dashboard-metrics";
+import { getGrowthComparison } from "@/features/admin-dashboard/api/metrics";
 import { cn, formatPrice } from "@/lib/utils";
 
 function TrendIndicator({ value }: { value: number }) {

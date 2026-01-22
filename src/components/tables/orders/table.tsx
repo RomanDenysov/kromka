@@ -16,8 +16,8 @@ import type { OrderStatus, PaymentStatus } from "@/db/types";
 import {
   updateOrderPaymentStatusAction,
   updateOrderStatusAction,
-} from "@/features/orders/actions";
-import type { Order } from "@/features/orders/queries";
+} from "@/features/orders/api/actions";
+import type { Order } from "@/features/orders/api/queries";
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants";
 import { DataTable } from "@/widgets/data-table/data-table";
 import { DataTableViewOptions } from "@/widgets/data-table/data-table-view-options";

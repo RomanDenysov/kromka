@@ -6,7 +6,7 @@ import { Hint } from "@/components/shared/hint";
 import { ProductImage } from "@/components/shared/product-image";
 import { QuantitySetter } from "@/components/shared/quantity-setter";
 import { Badge } from "@/components/ui/badge";
-import type { DetailedCartItem } from "@/features/cart/queries";
+import type { DetailedCartItem } from "@/features/cart/api/queries";
 import { formatPrice } from "@/lib/utils";
 import { RemoveItemButton } from "./remove-item-button";
 

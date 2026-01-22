@@ -7,8 +7,11 @@ import { SelectField } from "@/components/forms/fields/select-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import { Button } from "@/components/ui/button";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
-import { submitB2BRequest } from "@/lib/actions/b2b";
-import { type B2BRequestSchema, b2bRequestSchema } from "@/validation/contact";
+import { submitB2BRequest } from "@/features/b2b-request/api/actions";
+import {
+  type B2BRequestSchema,
+  b2bRequestSchema,
+} from "@/features/b2b-request/schema";
 
 const BUSINESS_TYPE_OPTIONS: Array<{ label: string; value: string }> = [
   { label: "Reštaurácia", value: "restaurant" },

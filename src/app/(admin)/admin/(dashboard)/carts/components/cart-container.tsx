@@ -1,4 +1,4 @@
-import { getActiveCarts } from "@/lib/queries/dashboard";
+import { getActiveCarts } from "@/features/admin-dashboard/api/queries";
 import { CartDisplayItem } from "./cart-dispay-item";
 
 export async function CartContainer() {
