@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Separator } from "@/components/ui/separator";
@@ -18,6 +19,7 @@ import { RelatedPosts } from "@/features/posts/components/related-posts";
 import { ShareButtons } from "@/features/posts/components/share-buttons";
 import { getSession } from "@/lib/auth/session";
 import { createMetadata } from "@/lib/metadata";
+import { getBlogPostingSchema, getBreadcrumbSchema } from "@/lib/seo/json-ld";
 import { getSiteUrl } from "@/lib/utils";
 
 type Props = {
@@ -34,12 +36,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  return createMetadata({
+  const baseMetadata = createMetadata({
     title: post.metaTitle ?? post.title,
     description: post.metaDescription ?? post.excerpt ?? "",
     canonicalUrl: getSiteUrl(`/blog/${post.slug}`),
     image: post.coverImageUrl ?? undefined,
   });
+
+  return {
+    ...baseMetadata,
+    openGraph: {
+      ...baseMetadata.openGraph,
+      type: "article",
+      publishedTime: post.publishedAt?.toISOString(),
+      modifiedTime: post.updatedAt?.toISOString(),
+      authors: post.author?.name ? [post.author.name] : undefined,
+      tags: post.tags.map((tag) => tag.name),
+    },
+  };
 }
 
 async function PostInteractions({
@@ -95,8 +109,26 @@ export default async function BlogPostPage({ params }: Props) {
   const postUrl = getSiteUrl(`/blog/${post.slug}`);
   const tagIds = post.tags.map((tag) => tag.id);
 
+  // JSON-LD structured data
+  const blogPostingSchema = getBlogPostingSchema({
+    title: post.title,
+    description: post.metaDescription ?? post.excerpt,
+    slug: post.slug,
+    image: post.coverImageUrl,
+    authorName: post.author?.name,
+    authorImage: post.author?.image,
+    publishedAt: post.publishedAt,
+    updatedAt: post.updatedAt,
+  });
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: "Blog", href: "/blog" },
+    { name: post.title, href: `/blog/${post.slug}` },
+  ]);
+
   return (
     <PageWrapper className="max-w-4xl">
+      <JsonLd data={[blogPostingSchema, breadcrumbSchema]} />
       <AppBreadcrumbs
         items={[
           { label: "Blog", href: "/blog" },
