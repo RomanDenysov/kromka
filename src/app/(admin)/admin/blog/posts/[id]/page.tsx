@@ -1,17 +1,14 @@
-import { GlobeIcon, SaveIcon } from "lucide-react";
+import { SaveIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { FormSkeleton } from "@/components/forms/form-skeleton";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  getAdminTags,
-  getPostById,
-} from "@/features/posts/api/queries";
+import { getAdminTags, getPostById } from "@/features/posts/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { PostForm } from "../_components/post-form";
-import { PostPublishButton } from "./_components/post-publish-button";
 import { StatusBadge } from "../_components/status-badge";
+import { PostPublishButton } from "./_components/post-publish-button";
 
 type Props = {
   params: Promise<{ id: string }>;

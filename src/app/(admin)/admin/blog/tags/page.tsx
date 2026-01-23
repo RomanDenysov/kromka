@@ -20,7 +20,9 @@ export default function BlogTagsPage() {
         ]}
       />
       <section className="h-full flex-1">
-        <Suspense fallback={<DataTableSkeleton columnCount={4} rowCount={10} />}>
+        <Suspense
+          fallback={<DataTableSkeleton columnCount={4} rowCount={10} />}
+        >
           <TagsLoader />
         </Suspense>
       </section>

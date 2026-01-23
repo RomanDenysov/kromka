@@ -23,9 +23,7 @@ export async function CommentsSection({
       {/* Header */}
       <div className="flex items-center gap-2">
         <MessageCircleIcon className="size-5" />
-        <h2 className="font-semibold text-xl">
-          Komentáre ({commentsCount})
-        </h2>
+        <h2 className="font-semibold text-xl">Komentáre ({commentsCount})</h2>
       </div>
 
       <Separator />

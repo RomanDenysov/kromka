@@ -47,7 +47,10 @@ export function PostHeader({ post, className }: Props) {
       {/* Author and Date */}
       <div className="flex items-center gap-4">
         <Avatar className="size-12">
-          <AvatarImage alt={post.author?.name ?? ""} src={post.author?.image ?? undefined} />
+          <AvatarImage
+            alt={post.author?.name ?? ""}
+            src={post.author?.image ?? undefined}
+          />
           <AvatarFallback>{getInitials(post.author?.name)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">

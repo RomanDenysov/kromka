@@ -71,7 +71,7 @@ export function CommentItem({ comment, postId, className }: Props) {
 
         {/* Replies */}
         {comment.replies && comment.replies.length > 0 && (
-          <div className="mt-4 flex flex-col gap-4 border-l-2 border-muted pl-4">
+          <div className="mt-4 flex flex-col gap-4 border-muted border-l-2 pl-4">
             {comment.replies.map((reply) => (
               <div className="flex gap-3" key={reply.id}>
                 <Avatar className="size-8 shrink-0">

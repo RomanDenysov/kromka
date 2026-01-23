@@ -130,10 +130,7 @@ export default async function BlogPostPage({ params }: Props) {
     <PageWrapper className="max-w-4xl">
       <JsonLd data={[blogPostingSchema, breadcrumbSchema]} />
       <AppBreadcrumbs
-        items={[
-          { label: "Blog", href: "/blog" },
-          { label: post.title },
-        ]}
+        items={[{ label: "Blog", href: "/blog" }, { label: post.title }]}
       />
 
       {/* Post Header */}
@@ -179,10 +176,7 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         }
       >
-        <CommentsSection
-          commentsCount={post.commentsCount}
-          postId={post.id}
-        />
+        <CommentsSection commentsCount={post.commentsCount} postId={post.id} />
       </Suspense>
     </PageWrapper>
   );

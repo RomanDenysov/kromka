@@ -166,7 +166,11 @@ export function TagsTable({ tags }: { tags: AdminTag[] }) {
           </div>
         </div>
       </DataTable>
-      <TagForm onOpenChange={handleFormClose} open={formOpen} tag={editingTag} />
+      <TagForm
+        onOpenChange={handleFormClose}
+        open={formOpen}
+        tag={editingTag}
+      />
     </>
   );
 }

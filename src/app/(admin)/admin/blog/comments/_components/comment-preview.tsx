@@ -119,11 +119,7 @@ export function CommentPreview({ comment }: Props) {
           size="sm"
           variant="default"
         >
-          {isApproving ? (
-            <Spinner />
-          ) : (
-            <CheckIcon className="size-4" />
-          )}
+          {isApproving ? <Spinner /> : <CheckIcon className="size-4" />}
           Schváliť
         </Button>
         <Button
@@ -133,11 +129,7 @@ export function CommentPreview({ comment }: Props) {
           size="sm"
           variant="destructive"
         >
-          {isRejecting ? (
-            <Spinner />
-          ) : (
-            <XIcon className="size-4" />
-          )}
+          {isRejecting ? <Spinner /> : <XIcon className="size-4" />}
           Odmietnuť
         </Button>
       </CardFooter>

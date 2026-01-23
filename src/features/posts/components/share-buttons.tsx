@@ -43,11 +43,7 @@ export function ShareButtons({ url, title, className }: Props) {
         size="icon-sm"
         variant="outline"
       >
-        <a
-          href={facebookUrl}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
+        <a href={facebookUrl} rel="noopener noreferrer" target="_blank">
           <FacebookIcon className="size-4" />
         </a>
       </Button>
@@ -59,11 +55,7 @@ export function ShareButtons({ url, title, className }: Props) {
         size="icon-sm"
         variant="outline"
       >
-        <a
-          href={twitterUrl}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
+        <a href={twitterUrl} rel="noopener noreferrer" target="_blank">
           <TwitterIcon className="size-4" />
         </a>
       </Button>

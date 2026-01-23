@@ -6,7 +6,10 @@ import { PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAllTags, getPublishedPosts } from "@/features/posts/api/queries";
-import { BlogGrid, BlogGridSkeleton } from "@/features/posts/components/blog-grid";
+import {
+  BlogGrid,
+  BlogGridSkeleton,
+} from "@/features/posts/components/blog-grid";
 import { TagFilter } from "@/features/posts/components/tag-filter";
 import { createMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/utils";
@@ -25,6 +28,12 @@ type Props = {
     search?: string;
   }>;
 };
+
+function getArticleCountText(total: number): string {
+  if (total === 0) return "Žiadne články";
+  if (total === 1) return "1 článok";
+  return `${total} článkov`;
+}
 
 async function BlogContent({ searchParams }: Props) {
   const params = await searchParams;
@@ -46,11 +55,7 @@ async function BlogContent({ searchParams }: Props) {
 
       {/* Results Count */}
       <p className="text-muted-foreground text-sm">
-        {total === 0
-          ? "Žiadne články"
-          : total === 1
-            ? "1 článok"
-            : `${total} článkov`}
+        {getArticleCountText(total)}
       </p>
 
       {/* Blog Grid */}

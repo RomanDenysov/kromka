@@ -10,7 +10,10 @@ function CommentsQueueSkeleton() {
       <Skeleton className="h-5 w-48" />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div className="space-y-3 rounded-lg border p-4" key={`skeleton-${i.toString()}`}>
+          <div
+            className="space-y-3 rounded-lg border p-4"
+            key={`skeleton-${i.toString()}`}
+          >
             <div className="flex items-center gap-3">
               <Skeleton className="size-10 rounded-full" />
               <div className="space-y-1">

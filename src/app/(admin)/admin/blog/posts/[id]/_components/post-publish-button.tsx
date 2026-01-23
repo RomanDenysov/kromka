@@ -1,6 +1,6 @@
 "use client";
 
-import { GlobeIcon, FileTextIcon } from "lucide-react";
+import { FileTextIcon, GlobeIcon } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,12 @@ export function PostPublishButton({ postId, status }: Props) {
     });
   };
 
+  const renderIcon = () => {
+    if (isPending) return <Spinner />;
+    if (isPublished) return <FileTextIcon className="size-4" />;
+    return <GlobeIcon className="size-4" />;
+  };
+
   return (
     <Button
       disabled={isPending}
@@ -38,13 +44,7 @@ export function PostPublishButton({ postId, status }: Props) {
       type="button"
       variant={isPublished ? "outline" : "secondary"}
     >
-      {isPending ? (
-        <Spinner />
-      ) : isPublished ? (
-        <FileTextIcon className="size-4" />
-      ) : (
-        <GlobeIcon className="size-4" />
-      )}
+      {renderIcon()}
       {isPublished ? "Odložiť" : "Publikovať"}
     </Button>
   );

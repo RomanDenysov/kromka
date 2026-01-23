@@ -28,7 +28,7 @@ export function BlogCard({ post, className, preload = false }: Props) {
         className
       )}
     >
-      <Link href={`/blog/${post.slug}`} className="flex flex-col h-full">
+      <Link className="flex h-full flex-col" href={`/blog/${post.slug}`}>
         {/* Cover Image */}
         <div className="relative aspect-[16/10] overflow-hidden">
           {post.coverImageUrl ? (
@@ -83,7 +83,10 @@ export function BlogCard({ post, className, preload = false }: Props) {
           {/* Footer: Author and Date */}
           <div className="flex items-center gap-3 pt-2">
             <Avatar className="size-8">
-              <AvatarImage alt={post.author?.name ?? ""} src={post.author?.image ?? undefined} />
+              <AvatarImage
+                alt={post.author?.name ?? ""}
+                src={post.author?.image ?? undefined}
+              />
               <AvatarFallback className="text-xs">
                 {getInitials(post.author?.name)}
               </AvatarFallback>

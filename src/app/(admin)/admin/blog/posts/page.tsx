@@ -20,7 +20,9 @@ export default function BlogPostsPage() {
         ]}
       />
       <section className="h-full flex-1">
-        <Suspense fallback={<DataTableSkeleton columnCount={8} rowCount={10} />}>
+        <Suspense
+          fallback={<DataTableSkeleton columnCount={8} rowCount={10} />}
+        >
           <PostsLoader />
         </Suspense>
       </section>

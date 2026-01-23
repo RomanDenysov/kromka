@@ -81,7 +81,10 @@ export function CommentForm({ postId, parentId, className, onSuccess }: Props) {
   }
 
   return (
-    <form className={cn("flex flex-col gap-3", className)} onSubmit={handleSubmit}>
+    <form
+      className={cn("flex flex-col gap-3", className)}
+      onSubmit={handleSubmit}
+    >
       <Textarea
         disabled={isPending}
         onChange={(e) => setContent(e.target.value)}

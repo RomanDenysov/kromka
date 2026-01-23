@@ -1,10 +1,9 @@
 "use client";
 
-import type { JSONContent } from "@tiptap/react";
-import { generateHTML } from "@tiptap/html";
-import StarterKit from "@tiptap/starter-kit";
 import TiptapLink from "@tiptap/extension-link";
-import TiptapImage from "@tiptap/extension-image";
+import { generateHTML } from "@tiptap/html";
+import type { JSONContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 
@@ -13,13 +12,12 @@ type Props = {
   className?: string;
 };
 
-// TipTap extensions for rendering
+// TipTap extensions for rendering (matches editor configuration)
 const extensions = [
   StarterKit,
   TiptapLink.configure({
     openOnClick: false,
   }),
-  TiptapImage,
 ];
 
 export function PostContent({ content, className }: Props) {
@@ -51,12 +49,12 @@ export function PostContent({ content, className }: Props) {
         // Links
         "prose-a:text-primary prose-a:no-underline hover:prose-a:underline",
         // Lists
-        "prose-ul:my-4 prose-ol:my-4 prose-li:my-1",
+        "prose-li:my-1 prose-ol:my-4 prose-ul:my-4",
         // Images
-        "prose-img:rounded-lg prose-img:my-8",
+        "prose-img:my-8 prose-img:rounded-lg",
         // Code
         "prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:font-normal",
-        "prose-pre:bg-muted prose-pre:rounded-lg",
+        "prose-pre:rounded-lg prose-pre:bg-muted",
         // Blockquotes
         "prose-blockquote:border-l-primary prose-blockquote:not-italic",
         className

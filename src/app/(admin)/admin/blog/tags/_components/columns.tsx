@@ -94,7 +94,9 @@ export const columns: ColumnDef<AdminTag, TagTableMeta>[] = [
     enableSorting: true,
     enableGlobalFilter: true,
     cell: ({ row }) => (
-      <span className="text-muted-foreground text-sm">/{row.original.slug}</span>
+      <span className="text-muted-foreground text-sm">
+        /{row.original.slug}
+      </span>
     ),
   },
   {

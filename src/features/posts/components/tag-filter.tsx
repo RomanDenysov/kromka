@@ -35,7 +35,8 @@ export function TagFilter({ tags, activeTag, className }: Props) {
 
   const handleTagClick = (tagSlug: string | null) => {
     const query = createQueryString("tag", tagSlug);
-    router.push(`${pathname}${query ? `?${query}` : ""}`);
+    const url = `${pathname}${query ? `?${query}` : ""}`;
+    router.push(url as "/blog");
   };
 
   if (tags.length === 0) {
@@ -49,9 +50,9 @@ export function TagFilter({ tags, activeTag, className }: Props) {
         <button
           className={cn(
             "inline-flex shrink-0 items-center justify-center gap-1 overflow-hidden whitespace-nowrap rounded-full border px-3 py-1.5 font-medium text-sm transition-colors",
-            !activeTag
-              ? "border-primary bg-primary text-primary-foreground"
-              : "border-border bg-background hover:bg-accent hover:text-accent-foreground"
+            activeTag
+              ? "border-border bg-background hover:bg-accent hover:text-accent-foreground"
+              : "border-primary bg-primary text-primary-foreground"
           )}
           onClick={() => handleTagClick(null)}
           type="button"

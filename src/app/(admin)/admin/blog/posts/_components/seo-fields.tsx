@@ -1,23 +1,19 @@
 "use client";
 
-import type { FieldValues } from "react-hook-form";
+import type { FieldValues, Path } from "react-hook-form";
 import { TextField } from "@/components/forms/fields/text-field";
 import { TextareaField } from "@/components/forms/fields/textarea-field";
-import {
-  FieldDescription,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
+import { FieldDescription, FieldLabel, FieldSet } from "@/components/ui/field";
 
-type Props = {
-  titleName?: string;
-  descriptionName?: string;
+type Props<T extends FieldValues> = {
+  titleName: Path<T>;
+  descriptionName: Path<T>;
 };
 
 export function SeoFields<T extends FieldValues>({
-  titleName = "metaTitle",
-  descriptionName = "metaDescription",
-}: Props) {
+  titleName,
+  descriptionName,
+}: Props<T>) {
   return (
     <FieldSet className="gap-4">
       <div className="space-y-1">
@@ -32,13 +28,13 @@ export function SeoFields<T extends FieldValues>({
           description="Odporúčaná dĺžka: 50-60 znakov"
           label="Meta title"
           maxLength={70}
-          name={titleName as any}
+          name={titleName}
           placeholder="SEO titulok článku"
         />
         <TextareaField<T>
           description="Odporúčaná dĺžka: 150-160 znakov"
           label="Meta description"
-          name={descriptionName as any}
+          name={descriptionName}
           placeholder="Krátky popis pre vyhľadávače..."
           rows={3}
         />

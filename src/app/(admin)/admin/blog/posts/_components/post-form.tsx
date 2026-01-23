@@ -108,20 +108,24 @@ export function PostForm({
       <form id={formId} onSubmit={form.handleSubmit(onSubmit)} ref={formRef}>
         <div
           className={cn(
-            "grid max-w-full gap-6 @lg/page:p-5 @xl/page:max-w-5xl @xl/page:p-8 p-4",
+            "grid @xl/page:max-w-5xl max-w-full gap-6 @lg/page:p-5 @xl/page:p-8 p-4",
             className
           )}
         >
           {/* Basic Info */}
-          <FieldSet className="gap-5 @xl/page:gap-8">
-            <FieldGroup className="grid grid-cols-2 gap-4 @xl/page:grid-cols-4 @xl/page:gap-6">
+          <FieldSet className="@xl/page:gap-8 gap-5">
+            <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-4">
               <ImageUploadField
-                className="col-span-full row-span-2 @xl/page:col-span-3"
+                className="@xl/page:col-span-3 col-span-full row-span-2"
                 folder="posts"
                 imageUrl={post.coverImageUrl ?? undefined}
                 name="coverImageId"
               />
-              <TextField label="Názov článku" name="title" placeholder="Názov" />
+              <TextField
+                label="Názov článku"
+                name="title"
+                placeholder="Názov"
+              />
               <SlugField label="Slug" name="slug" />
             </FieldGroup>
           </FieldSet>
@@ -169,7 +173,10 @@ export function PostForm({
           </FieldSet>
 
           {/* SEO */}
-          <SeoFields />
+          <SeoFields<PostFormSchema>
+            descriptionName="metaDescription"
+            titleName="metaTitle"
+          />
         </div>
       </form>
       {renderFooter({ isPending: form.formState.isSubmitting })}

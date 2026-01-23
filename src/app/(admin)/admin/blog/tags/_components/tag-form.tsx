@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useTransition } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, type UseFormReturn, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { SlugField } from "@/components/forms/fields/slug-field";
 import { TextField } from "@/components/forms/fields/text-field";
@@ -16,10 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  createTagAction,
-  updateTagAction,
-} from "@/features/posts/api/actions";
+import { createTagAction, updateTagAction } from "@/features/posts/api/actions";
 import type { AdminTag } from "@/features/posts/api/queries";
 import { type TagSchema, tagSchema } from "@/features/posts/schema";
 
@@ -28,6 +25,36 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
+
+type ActionResult = { success: boolean; error?: string };
+
+type HandleResultOptions = {
+  result: ActionResult;
+  successMessage: string;
+  errorMessage: string;
+  form: UseFormReturn<TagSchema>;
+  onSuccess: () => void;
+};
+
+function getButtonText(isPending: boolean, isEditing: boolean): string {
+  if (isPending) return "Ukladanie...";
+  return isEditing ? "Uložiť" : "Vytvoriť";
+}
+
+function handleTagResult(options: HandleResultOptions) {
+  const { result, successMessage, errorMessage, form, onSuccess } = options;
+  if (result.success) {
+    toast.success(successMessage);
+    onSuccess();
+    return;
+  }
+  if (result.error === "SLUG_TAKEN") {
+    toast.error("Tento slug je už použitý iným štítkom");
+    form.setError("slug", { message: "Slug je už použitý" });
+    return;
+  }
+  toast.error(errorMessage);
+}
 
 export function TagForm({ tag, open, onOpenChange }: Props) {
   const [isPending, startTransition] = useTransition();
@@ -51,6 +78,8 @@ export function TagForm({ tag, open, onOpenChange }: Props) {
     }
   }, [tag, open, form]);
 
+  const closeDialog = () => onOpenChange(false);
+
   const onSubmit = (data: TagSchema) => {
     startTransition(async () => {
       if (isEditing) {
@@ -59,28 +88,22 @@ export function TagForm({ tag, open, onOpenChange }: Props) {
           name: data.name,
           slug: data.slug,
         });
-
-        if (result.success) {
-          toast.success("Štítok bol aktualizovaný");
-          onOpenChange(false);
-        } else if (result.error === "SLUG_TAKEN") {
-          toast.error("Tento slug je už použitý iným štítkom");
-          form.setError("slug", { message: "Slug je už použitý" });
-        } else {
-          toast.error("Nepodarilo sa aktualizovať štítok");
-        }
+        handleTagResult({
+          result,
+          successMessage: "Štítok bol aktualizovaný",
+          errorMessage: "Nepodarilo sa aktualizovať štítok",
+          form,
+          onSuccess: closeDialog,
+        });
       } else {
         const result = await createTagAction(data);
-
-        if (result.success) {
-          toast.success("Štítok bol vytvorený");
-          onOpenChange(false);
-        } else if (result.error === "SLUG_TAKEN") {
-          toast.error("Tento slug je už použitý iným štítkom");
-          form.setError("slug", { message: "Slug je už použitý" });
-        } else {
-          toast.error("Nepodarilo sa vytvoriť štítok");
-        }
+        handleTagResult({
+          result,
+          successMessage: "Štítok bol vytvorený",
+          errorMessage: "Nepodarilo sa vytvoriť štítok",
+          form,
+          onSuccess: closeDialog,
+        });
       }
     });
   };
@@ -121,16 +144,8 @@ export function TagForm({ tag, open, onOpenChange }: Props) {
             Zrušiť
           </Button>
           <Button disabled={isPending} form="tag-form" type="submit">
-            {isPending ? (
-              <>
-                <Spinner />
-                Ukladanie...
-              </>
-            ) : isEditing ? (
-              "Uložiť"
-            ) : (
-              "Vytvoriť"
-            )}
+            {isPending && <Spinner />}
+            {getButtonText(isPending, isEditing)}
           </Button>
         </DialogFooter>
       </DialogContent>

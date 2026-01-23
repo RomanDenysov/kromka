@@ -8,6 +8,12 @@ type Props = {
   comments: PendingComment[];
 };
 
+function getPendingText(count: number): string {
+  if (count === 1) return "komentár čaká";
+  if (count < 5) return "komentáre čakajú";
+  return "komentárov čaká";
+}
+
 export function CommentsQueue({ comments }: Props) {
   if (comments.length === 0) {
     return (
@@ -16,7 +22,9 @@ export function CommentsQueue({ comments }: Props) {
           <InboxIcon className="size-8 text-muted-foreground" />
         </div>
         <div className="space-y-1">
-          <h3 className="font-semibold text-lg">Žiadne komentáre na schválenie</h3>
+          <h3 className="font-semibold text-lg">
+            Žiadne komentáre na schválenie
+          </h3>
           <p className="text-muted-foreground text-sm">
             Všetky komentáre boli spracované. Nové komentáre sa zobrazia tu.
           </p>
@@ -29,13 +37,7 @@ export function CommentsQueue({ comments }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-muted-foreground text-sm">
-          {comments.length}{" "}
-          {comments.length === 1
-            ? "komentár čaká"
-            : comments.length < 5
-              ? "komentáre čakajú"
-              : "komentárov čaká"}{" "}
-          na schválenie
+          {comments.length} {getPendingText(comments.length)} na schválenie
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
