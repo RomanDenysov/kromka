@@ -26,7 +26,7 @@ function transformPost<T extends { coverImage: { url: string } | null }>(
  */
 export const getLatestPosts = cache(async (limit = 3) => {
   "use cache";
-  cacheLife("hours");
+  cacheLife("max");
   cacheTag("posts");
 
   const data = await db.query.posts.findMany({
@@ -68,7 +68,7 @@ export const getPublishedPosts = cache(
     limit?: number;
   }) => {
     "use cache";
-    cacheLife("hours");
+    cacheLife("max");
     cacheTag("posts");
 
     const offset = (page - 1) * limit;
@@ -149,11 +149,27 @@ export const getPublishedPosts = cache(
 );
 
 /**
+ * Get all published post slugs for generateStaticParams
+ */
+export const getPublishedPostSlugs = cache(async () => {
+  "use cache";
+  cacheLife("max");
+  cacheTag("posts");
+
+  const data = await db.query.posts.findMany({
+    where: (p, { eq: eqOp }) => eqOp(p.status, "published"),
+    columns: { slug: true },
+  });
+
+  return data.map((post) => post.slug);
+});
+
+/**
  * Get single post by slug with author, tags, and like count
  */
 export const getPostBySlug = cache(async (slug: string) => {
   "use cache";
-  cacheLife("hours");
+  cacheLife("max");
   cacheTag("posts", `post-${slug}`);
 
   const post = await db.query.posts.findFirst({
@@ -188,7 +204,7 @@ export const getPostBySlug = cache(async (slug: string) => {
 export const getRelatedPosts = cache(
   async (postId: string, tagIds: string[], limit = 3) => {
     "use cache";
-    cacheLife("hours");
+    cacheLife("max");
     cacheTag("posts");
 
     if (tagIds.length === 0) {
@@ -238,7 +254,7 @@ export const getRelatedPosts = cache(
  */
 export const getAllTags = cache(async () => {
   "use cache";
-  cacheLife("hours");
+  cacheLife("max");
   cacheTag("tags");
 
   const tags = await db.query.postTags.findMany({

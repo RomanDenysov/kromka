@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   getPostBySlug,
+  getPublishedPostSlugs,
   getRelatedPosts,
   hasUserLikedPost,
 } from "@/features/posts/api/queries";
@@ -25,6 +26,19 @@ import { getSiteUrl } from "@/lib/utils";
 type Props = {
   params: Promise<{ slug: string }>;
 };
+
+/**
+ * Generate static params for all published blog posts.
+ * Cache Components requires at least one param for build validation.
+ * Returns a placeholder slug if no posts exist (will 404 at runtime).
+ */
+export async function generateStaticParams() {
+  const slugs = await getPublishedPostSlugs();
+  if (slugs.length === 0) {
+    return [{ slug: "__placeholder__" }];
+  }
+  return slugs.map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
