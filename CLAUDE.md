@@ -138,7 +138,25 @@ This project uses Ultracite, a zero-config Biome preset. Key rules:
 - Arrow functions for callbacks
 - Optional chaining (`?.`) and nullish coalescing (`??`)
 - Remove `console.log` and `debugger` from production
-- Avoid barrel files (index re-exports)
+
+### IMPORTANT: No Barrel Files
+
+**DO NOT create `index.ts` files that re-export from other modules.** This applies to:
+- Feature modules (no `src/features/posts/index.ts`)
+- Component folders (no `src/components/ui/index.ts`)
+- Any directory that would use `export * from` pattern
+
+Instead, import directly from the specific file:
+```typescript
+// ✅ Correct - direct imports
+import { getProducts } from "@/features/products/api/queries";
+import { updateProductAction } from "@/features/products/api/actions";
+
+// ❌ Wrong - barrel file imports
+import { getProducts, updateProductAction } from "@/features/products";
+```
+
+Barrel files hurt tree-shaking, increase bundle size, and slow down builds.
 
 ## Conventions
 

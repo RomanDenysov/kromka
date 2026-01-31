@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getPublishedPosts } from "@/features/posts/api/queries";
 import { getProducts } from "@/features/products/api/queries";
 import { getStores } from "@/features/stores/api/queries";
 import { getSiteUrl } from "@/lib/utils";
@@ -76,14 +77,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // TODO: Add blog posts when blog feature is implemented
-  // const posts = await getPublishedPosts();
-  // const blogPages: MetadataRoute.Sitemap = posts.map((post) => ({
-  //   url: getSiteUrl(`/blog/${post.slug}`),
-  //   lastModified: post.updatedAt ?? post.publishedAt ?? undefined,
-  //   changeFrequency: "weekly" as const,
-  //   priority: 0.6,
-  // }));
+  // Dynamic blog post pages
+  const { posts: blogPosts } = await getPublishedPosts({ limit: 1000 });
+  const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    url: getSiteUrl(`/blog/${post.slug}`),
+    lastModified: post.updatedAt ?? post.publishedAt ?? undefined,
+    changeFrequency: "weekly" as const,
+    priority: 0.6,
+  }));
 
-  return [...staticPages, ...productPages, ...storePages];
+  return [...staticPages, ...productPages, ...storePages, ...blogPages];
 }

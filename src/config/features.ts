@@ -9,6 +9,7 @@ export const featureFlags = {
   partnership: true,
   stores: true,
   blog: false,
+  game: false,
 } as const;
 
 export type FeatureFlag = keyof typeof featureFlags;

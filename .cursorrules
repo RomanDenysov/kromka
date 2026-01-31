@@ -1,0 +1,36 @@
+# Cursor Rules for Kromka Project
+
+## Critical Rules
+
+### No Barrel Files
+DO NOT create `index.ts` files that re-export from other modules. Import directly from specific files.
+
+```typescript
+// ✅ Correct
+import { getProducts } from "@/features/products/api/queries";
+
+// ❌ Wrong
+import { getProducts } from "@/features/products";
+```
+
+### Server/Client Separation
+- Server Components by default
+- `"use client"` only for event handlers, browser APIs, client state
+- `"use server"` for server actions
+- `"use cache"` for cached queries
+
+### Feature Module Structure
+```
+src/features/{name}/
+├── api/
+│   ├── queries.ts   # "use cache" for public, no cache for admin
+│   └── actions.ts   # "use server" with auth guards
+├── schema.ts        # Zod validation
+└── components/      # Feature-specific components
+```
+
+No index.ts re-exports!
+
+## See Also
+- `CLAUDE.md` - Full project documentation
+- `.cursor/rules/` - Detailed AI agent rules

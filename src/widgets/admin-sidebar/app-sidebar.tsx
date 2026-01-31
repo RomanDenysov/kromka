@@ -6,6 +6,8 @@ import {
   FileTextIcon,
   ImagesIcon,
   LayoutDashboardIcon,
+  MessageSquareIcon,
+  NewspaperIcon,
   Package2Icon,
   SettingsIcon,
   ShoppingBasketIcon,
@@ -48,6 +50,24 @@ const NAV_ESHOP: NavItem[] = [
   { href: "/admin/stores", label: "Predajne", icon: StoreIcon },
   { href: "/admin/categories", label: "Kategórie", icon: TagsIcon },
   { href: "/admin/products", label: "Produkty", icon: Package2Icon },
+];
+
+const NAV_BLOG: NavItem[] = [
+  {
+    href: "/admin/blog/posts" as Route,
+    label: "Články",
+    icon: NewspaperIcon,
+  },
+  {
+    href: "/admin/blog/tags" as Route,
+    label: "Štítky",
+    icon: TagsIcon,
+  },
+  {
+    href: "/admin/blog/comments" as Route,
+    label: "Komentáre",
+    icon: MessageSquareIcon,
+  },
 ];
 
 const NAV_B2B: NavItem[] = [
@@ -187,6 +207,21 @@ export default function AppSidebar({
                 isActive={isActive("/admin/orders")}
                 newOrdersCount={newOrdersCount}
               />
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Blog</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {NAV_BLOG.map((item) => (
+                <NavMenuItem
+                  isActive={isActive(item.href)}
+                  item={item}
+                  key={item.href}
+                />
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
