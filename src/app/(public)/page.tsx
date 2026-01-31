@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { GameCardWrapper } from "@/components/game/game-card-wrapper";
 import { CallToAction } from "@/components/landing/cta";
 import { HomeGrid } from "@/components/landing/home-grid";
+import { featureFlags } from "@/config/features";
 import { createMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/utils";
 
@@ -17,9 +18,11 @@ export default function Home() {
   return (
     <>
       <HomeGrid />
-      <section className="container mx-auto flex justify-center px-4 py-8">
-        <GameCardWrapper />
-      </section>
+      {featureFlags.game && (
+        <section className="container mx-auto flex justify-center px-4 py-8">
+          <GameCardWrapper />
+        </section>
+      )}
       <CallToAction />
     </>
   );

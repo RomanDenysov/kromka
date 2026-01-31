@@ -16,7 +16,7 @@ let itemIdCounter = 0;
 
 export function getOvens(): Oven[] {
   const ovenY = 10;
-  const spacing = GAME_WIDTH / 3;
+  const spacing = GAME_WIDTH / 4;
 
   return [
     {
@@ -24,14 +24,30 @@ export function getOvens(): Oven[] {
       y: ovenY,
       width: OVEN_WIDTH,
       height: OVEN_HEIGHT,
+      spriteKey: "oven_1",
+      heatState: "idle",
     },
     {
       x: spacing * 2 - OVEN_WIDTH / 2,
       y: ovenY,
       width: OVEN_WIDTH,
       height: OVEN_HEIGHT,
+      spriteKey: "oven_1",
+      heatState: "idle",
+    },
+    {
+      x: spacing * 3 - OVEN_WIDTH / 2,
+      y: ovenY,
+      width: OVEN_WIDTH,
+      height: OVEN_HEIGHT,
+      spriteKey: "oven_1",
+      heatState: "idle",
     },
   ];
+}
+
+export function selectRandomOven(ovens: Oven[]): number {
+  return Math.floor(Math.random() * ovens.length);
 }
 
 export function getRandomItemType(): ItemType {
@@ -60,8 +76,15 @@ export function getRandomSpawnInterval(): number {
   );
 }
 
-export function spawnItem(ovens: Oven[], score: number): FallingItem {
-  const oven = ovens[Math.floor(Math.random() * ovens.length)];
+export function spawnItem(
+  ovens: Oven[],
+  score: number,
+  ovenIndex?: number
+): FallingItem {
+  const oven =
+    ovenIndex !== undefined
+      ? ovens[ovenIndex]
+      : ovens[Math.floor(Math.random() * ovens.length)];
   const itemType = getRandomItemType();
 
   itemIdCounter += 1;
