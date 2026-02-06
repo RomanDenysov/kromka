@@ -44,13 +44,25 @@ function LastOrderCardSkeleton() {
   );
 }
 
+/**
+ * Cart drawer footer for non-B2B users.
+ * B2B users get their footer embedded in the tabbed CartDrawerContent.
+ * This component returns null for B2B members.
+ */
 export async function CartDrawerFooter() {
   const user = await getUserDetails();
-  const priceTierId =
+
+  // B2B members get their footer inside CartDrawerContent (tabbed view)
+  const isB2bMember =
     user?.members && user.members.length > 0
-      ? (user.members[0]?.organization?.priceTierId ?? null)
-      : null;
-  const items = await getDetailedCart(priceTierId);
+      ? Boolean(user.members[0]?.organization)
+      : false;
+
+  if (isB2bMember) {
+    return null;
+  }
+
+  const items = await getDetailedCart(null);
   const { totalCents } = getCartTotals(items);
   const isEmpty = items.length === 0;
 

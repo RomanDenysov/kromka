@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { FavoriteButton } from "@/components/favorites/favorite-button";
-import { AddToCartButton } from "@/components/shared/add-to-cart-button";
+import {
+  AddToB2bCartButton,
+  AddToCartButton,
+} from "@/components/shared/add-to-cart-button";
 import { ProductImage } from "@/components/shared/product-image";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -13,6 +16,7 @@ type Props = {
   className?: string;
   preload?: boolean;
   isFavorite?: boolean;
+  cartVariant?: "b2c" | "b2b";
 };
 
 export function ProductCard({
@@ -20,6 +24,7 @@ export function ProductCard({
   className,
   preload = false,
   isFavorite,
+  cartVariant = "b2c",
 }: Props) {
   const isActive = product.status === "active";
 
@@ -84,7 +89,11 @@ export function ProductCard({
             {formatPrice(product.priceCents)}
           </span>
 
-          <AddToCartButton disabled={!isActive} id={product.id} />
+          {cartVariant === "b2b" ? (
+            <AddToB2bCartButton disabled={!isActive} id={product.id} />
+          ) : (
+            <AddToCartButton disabled={!isActive} id={product.id} />
+          )}
         </div>
       </div>
     </article>

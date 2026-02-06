@@ -583,6 +583,8 @@ export const orders = pgTable(
       onDelete: "set null",
     }),
 
+    deliveryAddress: jsonb("delivery_address").$type<Address>(),
+
     orderStatus: text("order_status")
       .$type<OrderStatus>()
       .default("new")

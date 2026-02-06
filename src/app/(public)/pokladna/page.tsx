@@ -36,12 +36,8 @@ export const metadata: Metadata = {
  */
 async function CheckoutDataLoader() {
   const user = await getUserDetails();
-  const priceTierId =
-    user?.members && user.members.length > 0
-      ? (user.members[0]?.organization?.priceTierId ?? null)
-      : null;
   const [items, stores, ordersEnabled, lastOrderPrefill] = await Promise.all([
-    getDetailedCart(priceTierId),
+    getDetailedCart(null),
     getStores(),
     getSiteConfig("orders_enabled"),
     getLastOrderPrefillAction(),
@@ -90,11 +86,6 @@ async function CheckoutDataLoader() {
 
       <section className="size-full md:col-span-4 lg:col-span-5">
         <CheckoutForm
-          isB2B={
-            user?.members && user.members.length > 0
-              ? Boolean(user.members[0]?.organization)
-              : false
-          }
           items={items}
           lastOrderPrefill={lastOrderPrefill}
           ordersEnabled={ordersEnabled}

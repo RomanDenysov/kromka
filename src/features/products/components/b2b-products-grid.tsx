@@ -32,6 +32,7 @@ export async function B2BProductsGrid({ searchParams, priceTierId }: Props) {
         <ShowMore className="col-span-full" initial={12}>
           {products.map((product, index) => (
             <ProductCard
+              cartVariant="b2b"
               isFavorite={favoriteSet.has(product.id)}
               key={product.id}
               preload={index < PRELOAD_LIMIT}

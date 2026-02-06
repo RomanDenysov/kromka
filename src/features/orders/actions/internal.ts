@@ -9,7 +9,7 @@ import {
   products,
   stores,
 } from "@/db/schema";
-import type { PaymentMethod } from "@/db/types";
+import type { Address, PaymentMethod } from "@/db/types";
 import { clearCart, getCart } from "@/features/cart/cookies";
 import { sendEmail } from "@/lib/email";
 import { createPrefixedNumericId } from "@/lib/ids";
@@ -132,13 +132,14 @@ export async function validateCart(): Promise<
 type PersistOrderParams = {
   userId: string | null;
   customerInfo: GuestCustomerInfo;
-  storeId: string;
+  storeId: string | null;
   companyId: string | null;
   paymentMethod: PaymentMethod;
   pickupDate: string;
   pickupTime: string;
   totalCents: number;
   orderItemsData: OrderItemData[];
+  deliveryAddress?: Address | null;
 };
 
 /**
@@ -162,6 +163,7 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
       customerInfo: params.customerInfo,
       storeId: params.storeId,
       companyId: params.companyId,
+      deliveryAddress: params.deliveryAddress ?? null,
       orderStatus: "new",
       paymentStatus: "pending",
       paymentMethod: params.paymentMethod,
@@ -204,4 +206,27 @@ export async function notifyOrderCreated(orderId: string): Promise<void> {
  */
 export async function clearCartAfterOrder(): Promise<void> {
   await clearCart();
+}
+
+/**
+ * Clear B2B cart after successful order creation.
+ */
+export async function clearB2bCartAfterOrder(): Promise<void> {
+  const { clearB2bCart } = await import("@/features/cart/cookies");
+  await clearB2bCart();
+}
+
+/**
+ * Validate that B2B cart is not empty.
+ */
+export async function validateB2bCart(): Promise<
+  | { success: false; error: string }
+  | { success: true; cartItems: Awaited<ReturnType<typeof getCart>> }
+> {
+  const { getB2bCart } = await import("@/features/cart/cookies");
+  const cartItems = await getB2bCart();
+  if (cartItems.length === 0) {
+    return { success: false, error: "B2B košík je prázdny" };
+  }
+  return { success: true, cartItems };
 }

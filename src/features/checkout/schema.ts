@@ -58,3 +58,26 @@ export const checkoutFormSchema = z.object({
 });
 
 export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
+
+/** B2B checkout form schema — delivery-based, no store selection */
+export const b2bCheckoutFormSchema = z.object({
+  pickupDate: z
+    .date()
+    .refine((date) => date >= startOfToday(), "Dátum doručenia je povinný"),
+  pickupTime: z.string().min(1, "Čas doručenia je povinný"),
+  paymentMethod: z.enum(["in_store", "invoice"], "Spôsob platby je povinný"),
+  /**
+   * Future: recurring order schedule.
+   * When implemented, this will allow B2B customers to set up automatic
+   * recurring orders (e.g., every Friday, or every 10th of the month).
+   */
+  recurringSchedule: z
+    .object({
+      type: z.enum(["weekly", "monthly"]),
+      dayOfWeek: z.number().min(0).max(6).optional(),
+      dayOfMonth: z.number().min(1).max(28).optional(),
+    })
+    .optional(),
+});
+
+export type B2bCheckoutFormData = z.infer<typeof b2bCheckoutFormSchema>;

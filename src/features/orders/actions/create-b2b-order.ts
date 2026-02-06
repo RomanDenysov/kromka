@@ -6,13 +6,10 @@ import { getSiteConfig } from "@/features/site-config/api/queries";
 import { requireB2bMember } from "@/lib/auth/guards";
 import {
   buildOrderItems,
-  clearCartAfterOrder,
-  type GuestCustomerInfo,
-  isValidGuestInfo,
+  clearB2bCartAfterOrder,
   notifyOrderCreated,
   persistOrder,
-  validateCart,
-  validateStoreExists,
+  validateB2bCart,
 } from "./internal";
 
 type CreateOrderResult =
@@ -25,11 +22,9 @@ type CreateOrderResult =
  * Allows invoice payment method.
  */
 export async function createB2BOrder(data: {
-  storeId: string;
   pickupDate: string;
   pickupTime: string;
   paymentMethod: PaymentMethod;
-  customerInfo: GuestCustomerInfo;
 }): Promise<CreateOrderResult> {
   try {
     const ordersEnabled = await getSiteConfig("orders_enabled");
@@ -37,17 +32,7 @@ export async function createB2BOrder(data: {
       return { success: false, error: "Objednávky sú momentálne vypnuté" };
     }
 
-    if (!(await isValidGuestInfo(data.customerInfo))) {
-      return { success: false, error: "Vyplňte prosím všetky kontaktné údaje" };
-    }
-
-    // Require B2B membership
     const b2bContext = await requireB2bMember();
-
-    const storeValidation = await validateStoreExists(data.storeId);
-    if (!storeValidation.success) {
-      return storeValidation;
-    }
 
     // Server-side pickup date validation
     const pickupDate = new Date(data.pickupDate);
@@ -63,7 +48,7 @@ export async function createB2BOrder(data: {
       };
     }
 
-    const cartValidation = await validateCart();
+    const cartValidation = await validateB2bCart();
     if (!cartValidation.success) {
       return cartValidation;
     }
@@ -82,31 +67,27 @@ export async function createB2BOrder(data: {
       0
     );
 
+    const customerInfo = {
+      name:
+        b2bContext.organization.billingName ?? b2bContext.organization.name,
+      email: b2bContext.organization.billingEmail ?? b2bContext.user.email,
+      phone: b2bContext.user.phone ?? "",
+    };
+
     const { orderId, orderNumber } = await persistOrder({
       userId: b2bContext.user.id,
-      customerInfo: data.customerInfo,
-      storeId: data.storeId,
+      customerInfo,
+      storeId: null,
       companyId: b2bContext.organization.id,
       paymentMethod: data.paymentMethod,
       pickupDate: data.pickupDate,
       pickupTime: data.pickupTime,
       totalCents,
       orderItemsData,
+      deliveryAddress: b2bContext.organization.billingAddress,
     });
 
-    await clearCartAfterOrder();
-
-    // Update user profile as side effect
-    const { updateCurrentUserProfile } = await import(
-      "@/features/user-profile/api/actions"
-    );
-    updateCurrentUserProfile({
-      name: data.customerInfo.name,
-      email: data.customerInfo.email,
-      phone: data.customerInfo.phone,
-    }).catch((err) => {
-      console.error("Failed to update user profile:", err);
-    });
+    await clearB2bCartAfterOrder();
 
     await notifyOrderCreated(orderId);
 
