@@ -80,6 +80,18 @@ Key entities: users, organizations (B2B), products, categories, orders, orderIte
 
 IDs use prefixed CUIDs: `prod_`, `ord_`, `cat_`, `sto_`, etc.
 
+## Database (Neon HTTP)
+
+This project uses Neon's **HTTP serverless driver** (`@neondatabase/serverless` + `drizzle-orm/neon-http`). This driver does NOT support interactive transactions (`db.transaction()` will fail).
+
+**Instead of transactions, use:**
+- Sequential DB calls with defensive ordering (most critical/irreversible operation last)
+- Idempotency checks and guard clauses to prevent duplicate operations
+- Application-level status checks before mutations (e.g., verify current state before updating)
+- Unique constraints in the DB schema as a safety net for race conditions
+
+**DO NOT use `db.transaction()` or `db.batch()` — they are not supported by the Neon HTTP driver.**
+
 ## Caching (cacheComponents)
 
 This project uses Next.js 16's `cacheComponents: true` - an opt-in caching model that replaces the old implicit caching behavior.
@@ -117,6 +129,20 @@ export async function updateProductAction({ id, product }: { id: string; product
   return { success: true };
 }
 ```
+
+### Authentication & Route Protection
+
+Admin routes are protected at two levels:
+- **Middleware (`src/proxy.ts`)** — Guards all `/admin/*` page navigation. Checks session role and redirects non-admins to `/prihlasenie`. This only protects page loads, NOT server actions.
+- **Server action guards (`requireAdmin()`, `requireAuth()`)** — Every server action that mutates data must call the appropriate guard. Middleware does NOT protect server actions, so these guards are always required.
+
+**DO NOT add `requireAdmin()` to admin layouts or pages** — the middleware already handles route protection, and calling auth guards in layouts/pages causes build failures (uncached data outside Suspense in Next.js 16 PPR).
+
+Auth guards (`src/lib/auth/guards.ts`):
+- `requireAdmin()` — Admin-only server actions
+- `requireAuth()` — Any authenticated user (favorites, profile, comments)
+- `requireStaff()` — Admin or manager role
+- `requireB2bMember()` — B2B organization members
 
 ### Components
 - Server Components by default

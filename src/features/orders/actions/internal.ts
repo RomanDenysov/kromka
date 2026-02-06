@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import {
   orderItems,
@@ -44,8 +44,21 @@ export async function buildOrderItems(
 ): Promise<OrderItemData[]> {
   const productIds = cartItems.map((item) => item.productId);
   const productData = await db.query.products.findMany({
-    where: inArray(products.id, productIds),
+    where: and(
+      inArray(products.id, productIds),
+      eq(products.isActive, true),
+      eq(products.status, "active")
+    ),
   });
+
+  // Verify all requested products were found and active
+  const foundIds = new Set(productData.map((p) => p.id));
+  const missingIds = productIds.filter((id) => !foundIds.has(id));
+  if (missingIds.length > 0) {
+    throw new Error(
+      `Niektoré produkty nie sú dostupné: ${missingIds.join(", ")}`
+    );
+  }
 
   const productPrices = productData.map((p) => ({
     productId: p.id,
@@ -87,7 +100,7 @@ export async function validateStoreExists(storeId: string): Promise<
   | { success: true }
 > {
   const storeExists = await db.query.stores.findFirst({
-    where: eq(stores.id, storeId),
+    where: and(eq(stores.id, storeId), eq(stores.isActive, true)),
     columns: { id: true },
   });
 
@@ -135,6 +148,10 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
   orderId: string;
   orderNumber: string;
 }> {
+  if (params.orderItemsData.length === 0) {
+    throw new Error("Nie je možné vytvoriť objednávku bez položiek");
+  }
+
   const orderNumber = createPrefixedNumericId("OBJ");
 
   const [order] = await db

@@ -11,7 +11,12 @@ import {
   postTags,
   postToTags,
 } from "@/db/schema";
-import type { TagSchema, UpdatePostSchema } from "@/features/posts/schema";
+import {
+  commentSchema,
+  updatePostSchema,
+  type TagSchema,
+  type UpdatePostSchema,
+} from "@/features/posts/schema";
 import { requireAdmin, requireAuth } from "@/lib/auth/guards";
 
 // ==========================================
@@ -48,7 +53,12 @@ export async function updatePostAction({
 }) {
   await requireAdmin();
 
-  const { tagIds, ...updateData } = post;
+  const parsed = updatePostSchema.safeParse(post);
+  if (!parsed.success) {
+    return { success: false, error: "INVALID_DATA" };
+  }
+
+  const { tagIds, ...updateData } = parsed.data;
 
   // Get current post to check for slug changes
   const currentPost = await db.query.posts.findFirst({
@@ -69,7 +79,15 @@ export async function updatePostAction({
     }
   }
 
-  await db.update(posts).set(updateData).where(eq(posts.id, id));
+  const [updatedPost] = await db
+    .update(posts)
+    .set(updateData)
+    .where(eq(posts.id, id))
+    .returning({ id: posts.id });
+
+  if (!updatedPost) {
+    return { success: false, error: "POST_NOT_FOUND" };
+  }
 
   // Update tags if provided
   if (tagIds !== undefined) {
@@ -188,27 +206,38 @@ export async function togglePostLikeAction(postId: string) {
       .delete(postLikes)
       .where(and(eq(postLikes.userId, user.id), eq(postLikes.postId, postId)));
 
-    // Decrement likes count
+    // Decrement likes count (prevent negative)
     await db
       .update(posts)
       .set({
-        likesCount: sql`${posts.likesCount} - 1`,
+        likesCount: sql`GREATEST(${posts.likesCount} - 1, 0)`,
       })
       .where(eq(posts.id, postId));
   } else {
-    // Like
-    await db.insert(postLikes).values({
-      userId: user.id,
-      postId,
-    });
+    // Like - try-catch to handle duplicate key (race condition)
+    try {
+      await db.insert(postLikes).values({
+        userId: user.id,
+        postId,
+      });
 
-    // Increment likes count
-    await db
-      .update(posts)
-      .set({
-        likesCount: sql`${posts.likesCount} + 1`,
-      })
-      .where(eq(posts.id, postId));
+      // Increment likes count
+      await db
+        .update(posts)
+        .set({
+          likesCount: sql`${posts.likesCount} + 1`,
+        })
+        .where(eq(posts.id, postId));
+    } catch (error) {
+      // Duplicate key = already liked (race condition), treat as no-op
+      if (
+        error instanceof Error &&
+        error.message.includes("duplicate key")
+      ) {
+        return { success: true, liked: true };
+      }
+      throw error;
+    }
   }
 
   // Get post slug for cache invalidation
@@ -244,6 +273,11 @@ export async function submitCommentAction({
 }) {
   const user = await requireAuth();
 
+  const parsed = commentSchema.safeParse({ postId, content, parentId });
+  if (!parsed.success) {
+    return { success: false, error: "INVALID_DATA" };
+  }
+
   await db.insert(postComments).values({
     postId,
     userId: user.id,
@@ -265,23 +299,26 @@ export async function submitCommentAction({
 export async function approveCommentAction(id: string) {
   await requireAdmin();
 
-  const comment = await db.query.postComments.findFirst({
-    where: (c, { eq: eqFn }) => eqFn(c.id, id),
-    columns: { postId: true, isPublished: true },
-  });
-
-  if (!comment) {
-    return { success: false, error: "COMMENT_NOT_FOUND" };
-  }
-
-  if (comment.isPublished) {
-    return { success: false, error: "ALREADY_PUBLISHED" };
-  }
-
-  await db
+  // Atomically approve only if not yet published (prevents double-approve)
+  const [updated] = await db
     .update(postComments)
     .set({ isPublished: true })
-    .where(eq(postComments.id, id));
+    .where(
+      and(eq(postComments.id, id), eq(postComments.isPublished, false))
+    )
+    .returning({ postId: postComments.postId });
+
+  if (!updated) {
+    // Either comment doesn't exist or was already approved
+    const comment = await db.query.postComments.findFirst({
+      where: (c, { eq: eqFn }) => eqFn(c.id, id),
+      columns: { isPublished: true },
+    });
+    if (!comment) {
+      return { success: false, error: "COMMENT_NOT_FOUND" };
+    }
+    return { success: false, error: "ALREADY_PUBLISHED" };
+  }
 
   // Increment comments count on post
   await db
@@ -289,17 +326,17 @@ export async function approveCommentAction(id: string) {
     .set({
       commentsCount: sql`${posts.commentsCount} + 1`,
     })
-    .where(eq(posts.id, comment.postId));
+    .where(eq(posts.id, updated.postId));
 
   // Get post for cache invalidation
   const post = await db.query.posts.findFirst({
-    where: (p, { eq: eqFn }) => eqFn(p.id, comment.postId),
+    where: (p, { eq: eqFn }) => eqFn(p.id, updated.postId),
     columns: { slug: true },
   });
 
   updateTag("posts");
   updateTag("comments");
-  updateTag(`post-comments-${comment.postId}`);
+  updateTag(`post-comments-${updated.postId}`);
   if (post?.slug) {
     updateTag(`post-${post.slug}`);
   }
@@ -313,29 +350,31 @@ export async function approveCommentAction(id: string) {
 export async function rejectCommentAction(id: string) {
   await requireAdmin();
 
-  const comment = await db.query.postComments.findFirst({
-    where: (c, { eq: eqFn }) => eqFn(c.id, id),
-    columns: { postId: true, isPublished: true },
-  });
+  // Delete and return the comment to verify it existed
+  const [deleted] = await db
+    .delete(postComments)
+    .where(eq(postComments.id, id))
+    .returning({
+      postId: postComments.postId,
+      isPublished: postComments.isPublished,
+    });
 
-  if (!comment) {
+  if (!deleted) {
     return { success: false, error: "COMMENT_NOT_FOUND" };
   }
 
-  // If comment was already published, decrement count
-  if (comment.isPublished) {
+  // If comment was published, decrement count (prevent negative)
+  if (deleted.isPublished) {
     await db
       .update(posts)
       .set({
-        commentsCount: sql`${posts.commentsCount} - 1`,
+        commentsCount: sql`GREATEST(${posts.commentsCount} - 1, 0)`,
       })
-      .where(eq(posts.id, comment.postId));
+      .where(eq(posts.id, deleted.postId));
   }
 
-  await db.delete(postComments).where(eq(postComments.id, id));
-
   updateTag("comments");
-  updateTag(`post-comments-${comment.postId}`);
+  updateTag(`post-comments-${deleted.postId}`);
 
   refresh();
   return { success: true };

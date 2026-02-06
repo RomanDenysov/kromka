@@ -257,7 +257,7 @@ export async function getRevenueHistory({
         ne(orders.orderStatus, "cancelled"),
         gte(
           orders.createdAt,
-          sql`CURRENT_DATE - INTERVAL '${sql.raw(String(days))} days'`
+          sql`CURRENT_DATE - make_interval(days => ${days})`
         )
       )
     )
@@ -268,7 +268,7 @@ export async function getRevenueHistory({
   const fullRange = await db.execute<{ date: string }>(
     sql`SELECT to_char(d::date, 'YYYY-MM-DD') as date
         FROM generate_series(
-          CURRENT_DATE - INTERVAL '${sql.raw(String(days - 1))} days',
+          CURRENT_DATE - make_interval(days => ${days - 1}),
           CURRENT_DATE,
           '1 day'
         ) d`
@@ -313,7 +313,7 @@ export async function getRevenueAndOrdersHistory({
       and(
         gte(
           orders.createdAt,
-          sql`CURRENT_DATE - INTERVAL '${sql.raw(String(days))} days'`
+          sql`CURRENT_DATE - make_interval(days => ${days})`
         ),
         ne(orders.orderStatus, "cancelled")
       )
@@ -325,7 +325,7 @@ export async function getRevenueAndOrdersHistory({
   const fullRange = await db.execute<{ date: string }>(
     sql`SELECT to_char(d::date, 'YYYY-MM-DD') as date
         FROM generate_series(
-          CURRENT_DATE - INTERVAL '${sql.raw(String(days - 1))} days',
+          CURRENT_DATE - make_interval(days => ${days - 1}),
           CURRENT_DATE,
           '1 day'
         ) d`

@@ -2,10 +2,11 @@
 
 import { eq, inArray } from "drizzle-orm";
 import { refresh } from "next/cache";
+import { z } from "zod";
 import { db } from "@/db";
 import { orderStatusEvents, orders } from "@/db/schema";
-import type { OrderStatus, PaymentStatus } from "@/db/types";
-import { requireAdmin, requireAuth } from "@/lib/auth/guards";
+import { ORDER_STATUSES, type OrderStatus, type PaymentStatus } from "@/db/types";
+import { requireAdmin } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
 
@@ -48,6 +49,12 @@ export async function updateOrderStatusAction({
   note?: string;
 }) {
   const admin = await requireAdmin();
+
+  const statusSchema = z.enum(ORDER_STATUSES);
+  const parsed = statusSchema.safeParse(status);
+  if (!parsed.success) {
+    throw new Error("Invalid order status");
+  }
 
   // Get current order to check payment status
   const currentOrder = await db.query.orders.findFirst({
@@ -100,7 +107,7 @@ export async function updateOrderPaymentStatusAction({
   orderId: string;
   status: PaymentStatus;
 }) {
-  await requireAuth();
+  await requireAdmin();
   await db
     .update(orders)
     .set({ paymentStatus: status })

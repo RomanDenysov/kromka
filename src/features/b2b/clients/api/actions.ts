@@ -1,6 +1,7 @@
 "use server";
 
 import { eq } from "drizzle-orm";
+import { updateTag } from "next/cache";
 import { db } from "@/db";
 import { organizations } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/guards";
@@ -76,12 +77,24 @@ export async function updateOrganization(
       }
     }
 
+    // Validate ico is non-empty if present
+    if (validated.ico !== undefined && validated.ico.length === 0) {
+      return { success: false, error: "IČO nemôže byť prázdne" };
+    }
+
     const updates = buildOrganizationUpdates(validated);
 
-    await db
+    const [updated] = await db
       .update(organizations)
       .set(updates)
-      .where(eq(organizations.id, validated.organizationId));
+      .where(eq(organizations.id, validated.organizationId))
+      .returning({ id: organizations.id });
+
+    if (!updated) {
+      return { success: false, error: "Organizácia nebola nájdená" };
+    }
+
+    updateTag("organizations");
 
     return { success: true };
   } catch (error) {

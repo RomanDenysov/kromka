@@ -32,12 +32,14 @@ type Props = {
 function getArticleCountText(total: number): string {
   if (total === 0) return "Žiadne články";
   if (total === 1) return "1 článok";
+  if (total >= 2 && total <= 4) return `${total} články`;
   return `${total} článkov`;
 }
 
 async function BlogContent({ searchParams }: Props) {
   const params = await searchParams;
-  const page = params.page ? Number.parseInt(params.page, 10) : 1;
+  const rawPage = params.page ? Number.parseInt(params.page, 10) : 1;
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
   const tag = params.tag;
   const search = params.search;
 

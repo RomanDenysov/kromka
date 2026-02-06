@@ -76,6 +76,7 @@ export function StoreCard({
           alt={store.name}
           className="absolute inset-0 object-cover transition-transform duration-500 group-hover:scale-105"
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           src={store.image.url}
         />
       ) : (
@@ -180,6 +181,7 @@ export function StoreCardCompact({
             alt={store.name}
             className="object-cover"
             fill
+            sizes="64px"
             src={store.image.url}
           />
         ) : null}

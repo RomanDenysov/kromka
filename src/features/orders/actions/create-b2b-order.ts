@@ -1,5 +1,6 @@
 "use server";
 
+import { isBefore, isSameDay, startOfToday } from "date-fns";
 import type { PaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { requireB2bMember } from "@/lib/auth/guards";
@@ -46,6 +47,20 @@ export async function createB2BOrder(data: {
     const storeValidation = await validateStoreExists(data.storeId);
     if (!storeValidation.success) {
       return storeValidation;
+    }
+
+    // Server-side pickup date validation
+    const pickupDate = new Date(data.pickupDate);
+    const today = startOfToday();
+    if (
+      Number.isNaN(pickupDate.getTime()) ||
+      isBefore(pickupDate, today) ||
+      isSameDay(pickupDate, today)
+    ) {
+      return {
+        success: false,
+        error: "Neplatný dátum vyzdvihnutia",
+      };
     }
 
     const cartValidation = await validateCart();

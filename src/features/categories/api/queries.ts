@@ -60,7 +60,7 @@ export const getFeaturedCategories = cache(async () => {
 export function getAdminCategories() {
   return db.query.categories.findMany({
     with: {
-      products: true,
+      products: { columns: { id: true } },
       image: true,
     },
     orderBy: (cat, { asc }) => asc(cat.sortOrder),

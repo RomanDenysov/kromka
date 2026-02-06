@@ -1,13 +1,29 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { z } from "zod";
 import {
   clearCart as clearCartCookie,
   getCart,
   setCart,
 } from "@/features/cart/cookies";
 
+const addToCartSchema = z.object({
+  productId: z.string().min(1),
+  qty: z.number().int().positive().default(1),
+});
+
+const updateQuantitySchema = z.object({
+  productId: z.string().min(1),
+  qty: z.number().int(),
+});
+
 export async function addToCart(productId: string, qty = 1) {
+  const parsed = addToCartSchema.safeParse({ productId, qty });
+  if (!parsed.success) {
+    throw new Error("Invalid cart input");
+  }
+
   const cart = await getCart();
 
   const existingIndex = cart.findIndex((item) => item.productId === productId);
@@ -24,6 +40,11 @@ export async function addToCart(productId: string, qty = 1) {
 }
 
 export async function updateQuantity(productId: string, qty: number) {
+  const parsed = updateQuantitySchema.safeParse({ productId, qty });
+  if (!parsed.success) {
+    throw new Error("Invalid cart input");
+  }
+
   const cart = await getCart();
 
   if (qty <= 0) {

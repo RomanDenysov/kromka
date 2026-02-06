@@ -1,5 +1,6 @@
 "use server";
 
+import { isBefore, isSameDay, startOfToday } from "date-fns";
 import type { PaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { getUser } from "@/lib/auth/session";
@@ -32,6 +33,10 @@ export async function createB2COrder(data: {
   customerInfo: GuestCustomerInfo;
 }): Promise<CreateOrderResult> {
   try {
+    if ((data.paymentMethod as string) === "invoice") {
+      return { success: false, error: "Platba na faktúru nie je dostupná pre B2C objednávky" };
+    }
+
     const ordersEnabled = await getSiteConfig("orders_enabled");
     if (!ordersEnabled) {
       return { success: false, error: "Objednávky sú momentálne vypnuté" };
@@ -44,6 +49,20 @@ export async function createB2COrder(data: {
     const storeValidation = await validateStoreExists(data.storeId);
     if (!storeValidation.success) {
       return storeValidation;
+    }
+
+    // Server-side pickup date validation
+    const pickupDate = new Date(data.pickupDate);
+    const today = startOfToday();
+    if (
+      Number.isNaN(pickupDate.getTime()) ||
+      isBefore(pickupDate, today) ||
+      isSameDay(pickupDate, today)
+    ) {
+      return {
+        success: false,
+        error: "Neplatný dátum vyzdvihnutia",
+      };
     }
 
     const cartValidation = await validateCart();

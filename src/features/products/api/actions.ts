@@ -6,7 +6,10 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { prices, products } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
-import type { UpdateProductSchema } from "@/features/products/schema";
+import {
+  updateProductSchema,
+  type UpdateProductSchema,
+} from "@/features/products/schema";
 import { requireAdmin } from "@/lib/auth/guards";
 
 export async function updateProductAction({
@@ -18,8 +21,13 @@ export async function updateProductAction({
 }) {
   await requireAdmin();
 
+  const parsed = updateProductSchema.safeParse(product);
+  if (!parsed.success) {
+    return { success: false, error: "INVALID_DATA" };
+  }
+
   // Remove id from update data since it's used in the where clause
-  const { id: _id, ...updateData } = product;
+  const { id: _id, ...updateData } = parsed.data;
 
   // Get current product to check for slug changes
   const currentProduct = await db.query.products.findFirst({

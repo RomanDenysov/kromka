@@ -65,6 +65,8 @@ export async function createDraftCategoryAction() {
 }
 
 export async function copyCategoryAction({ id }: { id: string }) {
+  await requireAdmin();
+
   const referenceCategory = await db.query.categories.findFirst({
     where: (category, { eq: eqFn }) => eqFn(category.id, id),
   });

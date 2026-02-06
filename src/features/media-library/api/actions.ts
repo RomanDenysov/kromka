@@ -5,6 +5,7 @@ import { updateTag } from "next/cache";
 import sharp from "sharp";
 import { db } from "@/db";
 import { media } from "@/db/schema";
+import { requireAdmin } from "@/lib/auth/guards";
 
 const imageExtensions = /\.(jpg|jpeg|png|gif|webp)$/i;
 
@@ -12,6 +13,7 @@ const MAX_SIZE = 1600;
 const TARGET_QUALITY = 85;
 
 export async function uploadMedia(file: File, folder: string) {
+  await requireAdmin();
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const optimized = await sharp(buffer)

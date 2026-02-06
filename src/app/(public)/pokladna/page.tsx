@@ -44,7 +44,7 @@ async function CheckoutDataLoader() {
     getDetailedCart(priceTierId),
     getStores(),
     getSiteConfig("orders_enabled"),
-    getLastOrderPrefillAction(user?.id),
+    getLastOrderPrefillAction(),
   ]);
 
   const totals = getCartTotals(items);
