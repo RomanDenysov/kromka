@@ -5,7 +5,6 @@ import { type ReactNode, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
-import { ComboboxField } from "@/components/forms/fields/combobox-field";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
 import { PickupDatesField } from "@/components/forms/fields/pickup-dates-field";
 import { QuantityField } from "@/components/forms/fields/quantity-field";
@@ -23,14 +22,12 @@ import { cn } from "@/lib/utils";
 type Props = {
   category: AdminCategory;
   children: (props: { isPending: boolean }) => ReactNode;
-  categories: AdminCategory[];
   className?: string;
 };
 
 export function CategoryForm({
   category,
   children,
-  categories,
   className,
 }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -51,7 +48,6 @@ export function CategoryForm({
       name: category.name ?? "",
       slug: category.slug ?? "",
       description: category.description ?? "",
-      parentId: category.parentId ?? null,
       pickupDates: category.pickupDates ?? [],
       isActive: category.isActive ?? false,
       showInMenu: category.showInMenu ?? true,
@@ -61,8 +57,6 @@ export function CategoryForm({
       sortOrder: category.sortOrder ?? 0,
     },
   });
-
-  const filteredCategories = categories.filter((c) => c.id !== category.id);
 
   const onSubmit = async (data: CategorySchema) => {
     const result = await updateCategoryAction({
@@ -105,15 +99,6 @@ export function CategoryForm({
               label="Popis"
               name="description"
               placeholder="Popis kategórie..."
-            />
-            <ComboboxField
-              className="@xl/page:col-span-2 col-span-full"
-              label="Rodičovská kategória"
-              name="parentId"
-              options={filteredCategories.map((c) => ({
-                value: c.id,
-                label: c.name,
-              }))}
             />
             <PickupDatesField
               className="@xl/page:col-span-2 col-span-full"

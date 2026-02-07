@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { log } from "@/lib/logger";
 import { type CartItem, cartSchema } from "./schema";
 
 const CART_COOKIE = "krmk-kosik";
@@ -12,7 +13,8 @@ export async function getCart(): Promise<CartItem[]> {
 
   try {
     return cartSchema.parse(JSON.parse(raw));
-  } catch {
+  } catch (err) {
+    log.cart.warn({ err }, "Cart cookie corrupted, resetting to empty");
     return [];
   }
 }
@@ -41,7 +43,8 @@ export async function getB2bCart(): Promise<CartItem[]> {
 
   try {
     return cartSchema.parse(JSON.parse(raw));
-  } catch {
+  } catch (err) {
+    log.cart.warn({ err }, "B2B cart cookie corrupted, resetting to empty");
     return [];
   }
 }

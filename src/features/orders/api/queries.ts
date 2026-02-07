@@ -36,6 +36,7 @@ export function getAllOrders() {
   return db.query.orders.findMany({
     with: orderRelations,
     orderBy: desc(orders.createdAt),
+    limit: 500,
   });
 }
 

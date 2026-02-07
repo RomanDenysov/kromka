@@ -1,7 +1,6 @@
 /** biome-ignore-all lint/style/noMagicNumbers: Date calculation constants */
 /** biome-ignore-all lint/nursery/noIncrementDecrement: we need to use increment/decrement */
 /** biome-ignore-all lint/style/noInferrableTypes: Return types are useful for TypeScript */
-"use cache";
 import "server-only";
 
 import {
@@ -39,6 +38,7 @@ export async function getWeeklyRevenue(): Promise<{
   previousWeekCents: number;
   percentChange: number;
 }> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -108,6 +108,7 @@ export async function getAverageOrderValue(): Promise<{
   allOrdersAverageCents: number;
   allOrdersCount: number;
 }> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -157,6 +158,7 @@ export async function getAverageOrderValue(): Promise<{
  * Count of orders created in the last 7 days (excluding cancelled)
  */
 export async function getOrdersCreatedLast7Days(): Promise<number> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -183,6 +185,7 @@ export async function getTomorrowOrdersSummary(): Promise<{
   expectedRevenueCents: number;
   productCount: number;
 }> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -228,6 +231,7 @@ export async function getTomorrowOrdersSummary(): Promise<{
  * Combined new dashboard metrics for top cards
  */
 export async function getNewDashboardMetrics() {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -275,6 +279,7 @@ export async function getAttentionRequired(): Promise<{
   notPickedUp: number;
   total: number;
 }> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -344,6 +349,7 @@ export async function getStoreLoad(days: number = 7): Promise<
     percentage: number;
   }[]
 > {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders", "stores");
 
@@ -397,6 +403,7 @@ export async function getPopularPickupDays(days: number = 90): Promise<
     averageRevenueCents: number;
   }[]
 > {
+  "use cache";
   cacheLife("hours");
   cacheTag("orders");
 
@@ -465,6 +472,7 @@ export async function getCustomerRetention(days: number = 30): Promise<{
   returningPercentage: number;
   averageOrdersPerCustomer: number;
 }> {
+  "use cache";
   cacheLife("hours");
   cacheTag("orders");
 
@@ -551,6 +559,7 @@ export async function getPromoCodeEffectiveness(limit: number = 10): Promise<
     roi: number; // Revenue / Discount ratio
   }[]
 > {
+  "use cache";
   cacheLife("hours");
   cacheTag("orders", "promo-codes");
 
@@ -615,6 +624,7 @@ export async function getGrowthComparison(): Promise<{
     customersPercent: number;
   };
 }> {
+  "use cache";
   cacheLife("hours");
   cacheTag("orders");
 
@@ -764,6 +774,7 @@ export async function getSeasonalTrends(days: number = 14): Promise<{
     changePercent: number;
   }[];
 }> {
+  "use cache";
   cacheLife("hours");
   cacheTag("orders", "products");
 
@@ -867,6 +878,7 @@ export async function getUnusedProducts(days: number = 30): Promise<
     daysSinceLastOrder: number | null;
   }[]
 > {
+  "use cache";
   cacheLife("hours");
   cacheTag("products", "orders");
 
@@ -943,6 +955,7 @@ export async function getFrequentlyBoughtTogether(limit: number = 5): Promise<
     frequency: number;
   }[]
 > {
+  "use cache";
   cacheLife("hours");
   cacheTag("orders", "products");
 
@@ -997,6 +1010,7 @@ export async function getRevenueComparison(days: number = 7): Promise<{
   pendingCents: number;
   completionRate: number;
 }> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -1054,6 +1068,7 @@ export async function getStoreDashboard(storeId: string): Promise<{
   tomorrowProducts: number;
   pendingPickup: number;
 }> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders", "stores");
 
@@ -1165,6 +1180,7 @@ export type StoreDashboard = Awaited<ReturnType<typeof getStoreDashboard>>;
  * Use this for the main admin dashboard
  */
 export async function getFullDashboardData() {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders", "products", "stores");
 

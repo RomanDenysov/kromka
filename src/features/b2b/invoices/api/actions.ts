@@ -1,10 +1,11 @@
 "use server";
 
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { db } from "@/db";
 import { invoices, orders, organizations } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/guards";
+import { log } from "@/lib/logger";
 
 const INVOICE_NUMBER_PADDING = 4;
 
@@ -120,20 +121,25 @@ export async function generateInvoiceForCompany(
     })
     .returning();
 
-  // Link orders to invoice (only unclaimed orders)
-  await db
+  // Link orders to invoice — use specific IDs + isNull guard to prevent race condition
+  const orderIds = unpaidOrders.map((o) => o.id);
+  const updatedOrders = await db
     .update(orders)
     .set({ invoiceId: invoice.id })
     .where(
       and(
-        eq(orders.companyId, companyId),
-        eq(orders.paymentMethod, "invoice"),
-        eq(orders.paymentStatus, "pending"),
-        isNull(orders.invoiceId),
-        sql`${orders.createdAt} >= ${periodStart}`,
-        sql`${orders.createdAt} <= ${periodEnd}`
+        inArray(orders.id, orderIds),
+        isNull(orders.invoiceId)
       )
+    )
+    .returning({ id: orders.id });
+
+  if (updatedOrders.length !== orderIds.length) {
+    log.invoices.warn(
+      { expected: orderIds.length, actual: updatedOrders.length, invoiceId: invoice.id },
+      "Some orders were already claimed by another invoice"
     );
+  }
 
   updateTag("invoices");
   updateTag("orders");
@@ -189,4 +195,5 @@ export async function markInvoiceAsPaid(invoiceId: string) {
     .where(eq(orders.invoiceId, invoiceId));
 
   updateTag("invoices");
+  updateTag("orders");
 }

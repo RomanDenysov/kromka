@@ -1,5 +1,3 @@
-"use cache";
-
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 
@@ -7,6 +5,7 @@ export async function getUsers({
   limit = 50,
   offset = 0,
 }: { limit?: number; offset?: number } = {}) {
+  "use cache";
   cacheLife("minutes");
   cacheTag("users");
 
@@ -35,6 +34,7 @@ export async function getUsers({
 }
 
 export async function getUserById(id: string) {
+  "use cache";
   cacheLife("minutes");
   cacheTag("users", `user-${id}`);
 

@@ -156,7 +156,7 @@ export async function toggleIsFeaturedCategoryAction({ id }: { id: string }) {
 
   // Invalidate public cache
   updateTag("categories");
-  updateTag("featured");
+  updateTag("featured-categories");
   updateTag("products");
   if (updatedCategory.slug) {
     updateTag(`category-${updatedCategory.slug}`);

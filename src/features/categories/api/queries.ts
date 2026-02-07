@@ -8,7 +8,7 @@ import { getProducts } from "@/features/products/api/queries";
 // PUBLIC (cached)
 export const getCategories = cache(async () => {
   "use cache";
-  cacheLife("days");
+  cacheLife("max");
   cacheTag("categories");
 
   const allProducts = await getProducts();
@@ -31,8 +31,8 @@ export const getCategories = cache(async () => {
 
 export const getFeaturedCategories = cache(async () => {
   "use cache";
-  cacheLife("days");
-  cacheTag("featured", "products");
+  cacheLife("max");
+  cacheTag("featured-categories");
 
   const allProducts = await getProducts();
 

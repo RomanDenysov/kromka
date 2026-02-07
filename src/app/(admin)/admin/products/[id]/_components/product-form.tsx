@@ -95,7 +95,6 @@ export function ProductForm({
         categoryId: data.categoryId ?? null,
       },
     });
-    console.log(result);
     if (result.success) {
       toast.success("Produkt bol uložený");
     }

@@ -218,10 +218,15 @@ export async function notifyOrderCreated(orderId: string): Promise<void> {
   }
 
   // Send emails independently — one failure shouldn't block the other
-  await Promise.allSettled([
+  const results = await Promise.allSettled([
     sendEmail.newOrder({ order: fullOrder }),
     sendEmail.receipt({ order: fullOrder }),
   ]);
+  for (const result of results) {
+    if (result.status === "rejected") {
+      log.email.error({ err: result.reason, orderId }, "Failed to send order notification email");
+    }
+  }
 }
 
 /**

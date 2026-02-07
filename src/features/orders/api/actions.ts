@@ -146,9 +146,14 @@ async function handleBulkStatusNotifications(
   const CHUNK_SIZE = 5;
   for (let i = 0; i < allOrders.length; i += CHUNK_SIZE) {
     const chunk = allOrders.slice(i, i + CHUNK_SIZE);
-    await Promise.allSettled(
+    const results = await Promise.allSettled(
       chunk.map((order) => sendEmailBasedOnOrderStatus(order, orderStatus))
     );
+    for (const result of results) {
+      if (result.status === "rejected") {
+        log.email.error({ err: result.reason }, "Failed to send order status email");
+      }
+    }
 
     // Small delay between chunks if there are more
     if (i + CHUNK_SIZE < allOrders.length) {

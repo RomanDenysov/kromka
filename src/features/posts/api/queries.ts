@@ -321,7 +321,7 @@ export const getPostComments = cache(async (postId: string) => {
 export async function getAdminPosts({
   page = 1,
   status,
-  limit = 20,
+  limit = 200,
 }: {
   page?: number;
   status?: "draft" | "published" | "archived";
@@ -410,6 +410,7 @@ export async function getAdminTags() {
       },
     },
     orderBy: (t, { asc }) => [asc(t.name)],
+    limit: 100,
   });
 
   return tags.map((tag) => ({

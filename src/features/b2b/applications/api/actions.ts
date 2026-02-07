@@ -8,6 +8,7 @@ import { b2bApplications, invitations, organizations } from "@/db/schema";
 import { DEFAULT_PAYMENT_TERM_DAYS } from "@/db/types";
 import { requireAdmin } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
+import { log } from "@/lib/logger";
 import { getSlug } from "@/lib/get-slug";
 import { createId } from "@/lib/ids";
 import {
@@ -71,7 +72,7 @@ export async function submitB2bApplication(
 
     return { success: true };
   } catch (error) {
-    console.error("[SERVER] Submit B2B application failed:", error);
+    log.b2b.error({ err: error }, "Submit B2B application failed");
     return {
       success: false,
       error: "Nastala chyba pri odosielaní žiadosti. Skúste to prosím znova.",
@@ -195,7 +196,7 @@ export async function approveB2bApplication(
       organizationId: organization.id,
     };
   } catch (error) {
-    console.error("[SERVER] Approve B2B application failed:", error);
+    log.b2b.error({ err: error }, "Approve B2B application failed");
     return {
       success: false,
       error: "Nastala chyba pri schvaľovaní žiadosti",
@@ -254,7 +255,7 @@ export async function rejectB2bApplication(
 
     return { success: true };
   } catch (error) {
-    console.error("[SERVER] Reject B2B application failed:", error);
+    log.b2b.error({ err: error }, "Reject B2B application failed");
     return {
       success: false,
       error: "Nastala chyba pri zamietnutí žiadosti",
