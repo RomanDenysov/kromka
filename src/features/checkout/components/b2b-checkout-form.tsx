@@ -1,6 +1,5 @@
 "use client";
 
-import { addDays, startOfToday } from "date-fns";
 import {
   BuildingIcon,
   FileTextIcon,
@@ -8,7 +7,6 @@ import {
   PencilIcon,
   StoreIcon,
 } from "lucide-react";
-import { useMemo } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
@@ -29,7 +27,6 @@ import { Spinner } from "@/components/ui/spinner";
 import type { Address, PaymentMethod } from "@/db/types";
 import type { DetailedCartItem } from "@/features/cart/api/queries";
 import { useB2bCheckoutForm } from "@/features/checkout/hooks/use-b2b-checkout-form";
-import { isBeforeDailyCutoff } from "@/features/checkout/utils";
 import { buildFullAddress } from "@/lib/geo-utils";
 import { formatPrice } from "@/lib/utils";
 import { B2bOrgEditSheet } from "./b2b-org-edit-sheet";
@@ -50,6 +47,7 @@ type B2bCheckoutFormProps = {
   items: DetailedCartItem[];
   ordersEnabled: boolean;
   contactPhone: string;
+  contactEmail: string;
 };
 
 export function B2bCheckoutForm({
@@ -57,6 +55,7 @@ export function B2bCheckoutForm({
   items,
   ordersEnabled,
   contactPhone,
+  contactEmail,
 }: B2bCheckoutFormProps) {
   const { form, handleFormSubmit } = useB2bCheckoutForm({ orgId: org.id });
 
@@ -71,12 +70,6 @@ export function B2bCheckoutForm({
   const addressString = org.billingAddress
     ? buildFullAddress(org.billingAddress)
     : null;
-
-  const _calendarStartDate = useMemo(() => {
-    const today = startOfToday();
-    const canOrderForTomorrow = isBeforeDailyCutoff();
-    return canOrderForTomorrow ? addDays(today, 1) : addDays(today, 2);
-  }, []);
 
   const pickupDate = form.watch("pickupDate");
 
@@ -100,6 +93,7 @@ export function B2bCheckoutForm({
                   initialName={org.billingName ?? org.name}
                   initialPhone={contactPhone}
                   orgId={org.id}
+                  userEmail={contactEmail}
                 >
                   <Button size="sm" type="button" variant="ghost">
                     <PencilIcon className="size-4" />

@@ -15,6 +15,7 @@ type Props = {
   size?: "icon-xs" | "icon" | "icon-sm" | "icon-lg";
   textSize?: string;
   max?: number;
+  onUpdate?: (productId: string, qty: number) => Promise<void>;
 };
 
 /**
@@ -27,13 +28,18 @@ export function QuantitySetter({
   size = "icon-xs",
   textSize = "text-sm",
   max = 100,
+  onUpdate,
 }: Props) {
   const [localQty, setLocalQty] = useState(quantity);
   const [isPending, startTransition] = useTransition();
 
   const syncToServer = useDebouncedCallback((newQty: number) => {
     startTransition(async () => {
-      await updateQuantity(id, newQty);
+      if (onUpdate) {
+        await onUpdate(id, newQty);
+      } else {
+        await updateQuantity(id, newQty);
+      }
     });
   }, DEBOUNCE_DELAY);
 

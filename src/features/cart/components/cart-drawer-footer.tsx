@@ -50,7 +50,10 @@ function LastOrderCardSkeleton() {
  * This component returns null for B2B members.
  */
 export async function CartDrawerFooter() {
-  const user = await getUserDetails();
+  const [user, items] = await Promise.all([
+    getUserDetails(),
+    getDetailedCart(null),
+  ]);
 
   // B2B members get their footer inside CartDrawerContent (tabbed view)
   const isB2bMember =
@@ -62,7 +65,6 @@ export async function CartDrawerFooter() {
     return null;
   }
 
-  const items = await getDetailedCart(null);
   const { totalCents } = getCartTotals(items);
   const isEmpty = items.length === 0;
 

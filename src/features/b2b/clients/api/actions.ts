@@ -1,6 +1,7 @@
 "use server";
 
 import { eq } from "drizzle-orm";
+import { log } from "@/lib/logger";
 import { updateTag } from "next/cache";
 import { db } from "@/db";
 import { organizations } from "@/db/schema";
@@ -98,7 +99,7 @@ export async function updateOrganization(
 
     return { success: true };
   } catch (error) {
-    console.error("[SERVER] Update organization failed:", error);
+    log.b2b.error({ err: error }, "Update organization failed");
     return {
       success: false,
       error: "Nastala chyba pri aktualizácii organizácie",

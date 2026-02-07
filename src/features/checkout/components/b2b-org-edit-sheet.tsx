@@ -29,6 +29,7 @@ type Props = {
   orgId: string;
   initialName: string;
   initialPhone: string;
+  userEmail: string;
   children: React.ReactNode;
 };
 
@@ -36,6 +37,7 @@ export function B2bOrgEditSheet({
   orgId,
   initialName,
   initialPhone,
+  userEmail,
   children,
 }: Props) {
   const [isPending, startTransition] = useTransition();
@@ -63,6 +65,11 @@ export function B2bOrgEditSheet({
         } else {
           toast.error(result.error ?? "Nepodarilo sa aktualizovať údaje");
         }
+
+        // Update user phone (fire-and-forget)
+        import("@/features/user-profile/api/actions").then(({ updateCurrentUserProfile }) => {
+          updateCurrentUserProfile({ name: data.name, email: userEmail, phone: data.phone }).catch(() => {});
+        }).catch(() => {});
       } catch {
         toast.error("Nastala chyba");
       }

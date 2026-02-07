@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { db } from "@/db";
 import { products } from "@/db/schema";
@@ -13,7 +14,7 @@ import { getEffectivePrices } from "@/lib/pricing";
  * Note: This is a pure query - unavailable items are filtered from results but not
  * removed from the cookie. Cookie cleanup happens lazily via cart actions.
  */
-export async function getDetailedCart(priceTierId?: string | null) {
+export const getDetailedCart = cache(async function getDetailedCart(priceTierId?: string | null) {
   const cart = await getCart();
 
   if (cart.length === 0) {
@@ -86,13 +87,13 @@ export async function getDetailedCart(priceTierId?: string | null) {
       },
     ];
   });
-}
+});
 
 export type DetailedCartItem = NonNullable<
   Awaited<ReturnType<typeof getDetailedCart>>[number]
 >;
 
-export async function getDetailedB2bCart(priceTierId: string | null) {
+export const getDetailedB2bCart = cache(async function getDetailedB2bCart(priceTierId: string | null) {
   const { getB2bCart } = await import("@/features/cart/cookies");
   const cart = await getB2bCart();
 
@@ -165,7 +166,7 @@ export async function getDetailedB2bCart(priceTierId: string | null) {
       },
     ];
   });
-}
+});
 
 export function getCartTotals(items: DetailedCartItem[]) {
   return {

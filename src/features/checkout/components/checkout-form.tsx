@@ -1,6 +1,5 @@
 "use client";
 
-import { addDays, startOfToday } from "date-fns";
 import { CreditCardIcon, StoreIcon } from "lucide-react";
 import { useMemo } from "react";
 import { Controller, FormProvider } from "react-hook-form";
@@ -30,7 +29,6 @@ import type { PaymentMethod } from "@/db/types";
 import type { DetailedCartItem } from "@/features/cart/api/queries";
 import { useCheckoutForm } from "@/features/checkout/hooks/use-checkout-form";
 import { usePickupRestrictions } from "@/features/checkout/hooks/use-pickup-restrictions";
-import { isBeforeDailyCutoff } from "@/features/checkout/utils";
 import type { Store } from "@/features/stores/api/queries";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import type { User } from "@/lib/auth/session";
@@ -87,13 +85,6 @@ export function CheckoutForm({
     lastOrderPrefill,
     restrictedPickupDates,
   });
-
-  // Calculate calendar start date for MiniCalendar
-  const _calendarStartDate = useMemo(() => {
-    const today = startOfToday();
-    const canOrderForTomorrow = isBeforeDailyCutoff();
-    return canOrderForTomorrow ? addDays(today, 1) : addDays(today, 2);
-  }, []);
 
   // Calculate total price
   const totalCents = items.reduce(

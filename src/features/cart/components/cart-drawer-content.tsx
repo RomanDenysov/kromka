@@ -132,7 +132,10 @@ function LastOrderCardSkeleton() {
  * For B2C users: renders single cart with footer.
  */
 export async function CartDrawerContent() {
-  const user = await getUserDetails();
+  const [user, b2cItems] = await Promise.all([
+    getUserDetails(),
+    getDetailedCart(null),
+  ]);
 
   const isB2bMember =
     user?.members && user.members.length > 0
@@ -143,8 +146,6 @@ export async function CartDrawerContent() {
     ? (user?.members?.[0]?.organization?.priceTierId ?? null)
     : null;
 
-  // Always load B2C cart with base pricing
-  const b2cItems = await getDetailedCart(null);
   const b2cTotals = getCartTotals(b2cItems);
 
   // B2B member: show tabbed cart with both B2C and B2B

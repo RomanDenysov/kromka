@@ -81,6 +81,7 @@ async function B2bCheckoutDataLoader() {
 
       <section className="size-full md:col-span-4 lg:col-span-5">
         <B2bCheckoutForm
+          contactEmail={user?.email ?? ""}
           contactPhone={user?.phone ?? ""}
           items={items}
           ordersEnabled={ordersEnabled}
