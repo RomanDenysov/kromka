@@ -36,6 +36,13 @@
       "when": 1770452226697,
       "tag": "0004_hard_celestials",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1770499705142,
+      "tag": "0005_quiet_marvex",
+      "breakpoints": true
     }
   ]
 }
