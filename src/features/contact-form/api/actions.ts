@@ -1,6 +1,7 @@
 "use server";
 
 import { sendEmail } from "@/lib/email";
+import { log } from "@/lib/logger";
 import { supportRequestSchema } from "../schema";
 
 type SubmitSupportRequestResult =
@@ -54,8 +55,8 @@ export async function submitSupportRequest(data: {
       await sendEmail.supportConfirmation({
         email: validatedData.email,
       });
-    } catch {
-      // ignore
+    } catch (err) {
+      log.email.warn({ err }, "Failed to send support confirmation email");
     }
 
     return { success: true };

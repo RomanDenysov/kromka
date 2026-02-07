@@ -68,9 +68,10 @@ export async function updatePostAction({
 
   // Check if slug is taken by another post
   if (updateData.slug) {
+    const slugToCheck = updateData.slug;
     const existingPost = await db.query.posts.findFirst({
       where: (p, { and: andFn, eq: eqFn, ne }) =>
-        andFn(eqFn(p.slug, updateData.slug as string), ne(p.id, id)),
+        andFn(eqFn(p.slug, slugToCheck), ne(p.id, id)),
       columns: { id: true },
     });
 
@@ -214,29 +215,21 @@ export async function togglePostLikeAction(postId: string) {
       })
       .where(eq(posts.id, postId));
   } else {
-    // Like - try-catch to handle duplicate key (race condition)
-    try {
-      await db.insert(postLikes).values({
-        userId: user.id,
-        postId,
-      });
+    // Like - use onConflictDoNothing to handle race condition atomically
+    const inserted = await db
+      .insert(postLikes)
+      .values({ userId: user.id, postId })
+      .onConflictDoNothing()
+      .returning({ userId: postLikes.userId });
 
-      // Increment likes count
+    if (inserted.length > 0) {
+      // Only increment if we actually inserted
       await db
         .update(posts)
         .set({
           likesCount: sql`${posts.likesCount} + 1`,
         })
         .where(eq(posts.id, postId));
-    } catch (error) {
-      // Duplicate key = already liked (race condition), treat as no-op
-      if (
-        error instanceof Error &&
-        error.message.includes("duplicate key")
-      ) {
-        return { success: true, liked: true };
-      }
-      throw error;
     }
   }
 

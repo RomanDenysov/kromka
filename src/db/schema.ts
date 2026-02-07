@@ -632,6 +632,7 @@ export const orders = pgTable(
     index("idx_payment_method").on(table.paymentMethod),
     index("idx_pickup_date").on(table.pickupDate),
     index("idx_created_at").on(table.createdAt),
+    index("orders_company_id_idx").on(table.companyId),
     check("orders_total_cents_non_negative", sql`${table.totalCents} >= 0`),
     check(
       "orders_discount_cents_non_negative",

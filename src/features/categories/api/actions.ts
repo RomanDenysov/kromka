@@ -22,9 +22,10 @@ export async function updateCategoryAction({
 
   // Check if slug is taken by another category
   if (updateData.slug) {
+    const slugToCheck = updateData.slug;
     const existingCategory = await db.query.categories.findFirst({
       where: (c, { and: andFn, eq: eqFn, ne }) =>
-        andFn(eqFn(c.slug, updateData.slug as string), ne(c.id, id)),
+        andFn(eqFn(c.slug, slugToCheck), ne(c.id, id)),
       columns: { id: true },
     });
 

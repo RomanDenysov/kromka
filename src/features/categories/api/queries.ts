@@ -95,8 +95,10 @@ export async function getCategoriesByCatalog({
 }: {
   catalog: "b2b" | "b2c";
 }) {
-  const allCategories = await getCategories();
-  const allProducts = await getProducts();
+  const [allCategories, allProducts] = await Promise.all([
+    getCategories(),
+    getProducts(),
+  ]);
 
   // Filter products by catalog visibility
   const visibleProductIds = new Set(

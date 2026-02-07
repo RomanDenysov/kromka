@@ -37,9 +37,10 @@ export async function updateProductAction({
 
   // Check if slug is taken by another product
   if (updateData.slug) {
+    const slugToCheck = updateData.slug;
     const existingProduct = await db.query.products.findFirst({
       where: (p, { and: andFn, eq: eqFn, ne }) =>
-        andFn(eqFn(p.slug, updateData.slug as string), ne(p.id, id)),
+        andFn(eqFn(p.slug, slugToCheck), ne(p.id, id)),
       columns: { id: true },
     });
 

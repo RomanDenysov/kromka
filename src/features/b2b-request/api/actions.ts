@@ -1,6 +1,7 @@
 "use server";
 
 import { sendEmail } from "@/lib/email";
+import { log } from "@/lib/logger";
 import { b2bRequestSchema } from "../schema";
 
 type SubmitB2BRequestResult =
@@ -35,7 +36,8 @@ export async function submitB2BRequest(data: {
     });
 
     return { success: true };
-  } catch (_error) {
+  } catch (error) {
+    log.b2b.error({ err: error }, "B2B request submission failed");
     return {
       success: false,
       error: "Nastala chyba pri odosielaní žiadosti. Skúste to prosím znova.",
