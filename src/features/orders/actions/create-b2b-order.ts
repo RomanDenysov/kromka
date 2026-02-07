@@ -1,6 +1,11 @@
 "use server";
 
 import { isBefore, isSameDay, startOfToday } from "date-fns";
+import { and, eq, gte } from "drizzle-orm";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { db } from "@/db";
+import { log } from "@/lib/logger";
+import { orders } from "@/db/schema";
 import type { PaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { requireB2bMember } from "@/lib/auth/guards";
@@ -67,6 +72,20 @@ export async function createB2BOrder(data: {
       0
     );
 
+    // Duplicate order protection
+    const recentDuplicate = await db.query.orders.findFirst({
+      where: and(
+        eq(orders.createdBy, b2bContext.user.id),
+        eq(orders.companyId, b2bContext.organization.id),
+        eq(orders.totalCents, totalCents),
+        eq(orders.pickupDate, data.pickupDate),
+        gte(orders.createdAt, new Date(Date.now() - 5 * 60 * 1000))
+      ),
+    });
+    if (recentDuplicate) {
+      return { success: true, orderId: recentDuplicate.id, orderNumber: recentDuplicate.orderNumber };
+    }
+
     const customerInfo = {
       name:
         b2bContext.organization.billingName ?? b2bContext.organization.name,
@@ -89,11 +108,17 @@ export async function createB2BOrder(data: {
 
     await clearB2bCartAfterOrder();
 
-    await notifyOrderCreated(orderId);
+    // Fire-and-forget: don't block order success on email
+    notifyOrderCreated(orderId).catch((err) => {
+      log.email.error({ err, orderId }, "Failed to send order notification");
+    });
 
     return { success: true, orderId, orderNumber };
   } catch (error) {
-    console.error("[SERVER] Create B2B ORDER failed:", error);
+    if (isRedirectError(error)) {
+      throw error;
+    }
+    log.orders.error({ err: error }, "Create B2B order failed");
     return { success: false, error: "Nastala chyba pri vytváraní objednávky" };
   }
 }

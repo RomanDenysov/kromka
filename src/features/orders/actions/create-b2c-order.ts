@@ -1,6 +1,11 @@
 "use server";
 
 import { isBefore, isSameDay, startOfToday } from "date-fns";
+import { and, eq, gte } from "drizzle-orm";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { db } from "@/db";
+import { log } from "@/lib/logger";
+import { orders } from "@/db/schema";
 import type { PaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { getUser } from "@/lib/auth/session";
@@ -84,6 +89,22 @@ export async function createB2COrder(data: {
     );
 
     const user = await getUser();
+
+    // Duplicate order protection (authenticated users only)
+    if (user) {
+      const recentDuplicate = await db.query.orders.findFirst({
+        where: and(
+          eq(orders.createdBy, user.id),
+          eq(orders.totalCents, totalCents),
+          eq(orders.pickupDate, data.pickupDate),
+          gte(orders.createdAt, new Date(Date.now() - 5 * 60 * 1000))
+        ),
+      });
+      if (recentDuplicate) {
+        return { success: true, orderId: recentDuplicate.id, orderNumber: recentDuplicate.orderNumber };
+      }
+    }
+
     const { orderId, orderNumber } = await persistOrder({
       userId: user?.id ?? null,
       customerInfo: data.customerInfo,
@@ -108,19 +129,25 @@ export async function createB2COrder(data: {
         email: data.customerInfo.email,
         phone: data.customerInfo.phone,
       }).catch((err) => {
-        console.error("Failed to update user profile:", err);
+        log.orders.error({ err }, "Failed to update user profile after order");
       });
     } else {
       setLastOrderIdAction(orderId).catch((err) => {
-        console.error("Failed to set last order ID:", err);
+        log.orders.error({ err }, "Failed to set last order ID for guest");
       });
     }
 
-    await notifyOrderCreated(orderId);
+    // Fire-and-forget: don't block order success on email
+    notifyOrderCreated(orderId).catch((err) => {
+      log.email.error({ err, orderId }, "Failed to send order notification");
+    });
 
     return { success: true, orderId, orderNumber };
   } catch (error) {
-    console.error("[SERVER] Create B2C ORDER failed:", error);
+    if (isRedirectError(error)) {
+      throw error;
+    }
+    log.orders.error({ err: error }, "Create B2C order failed");
     return { success: false, error: "Nastala chyba pri vytváraní objednávky" };
   }
 }

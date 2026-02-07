@@ -22,10 +22,15 @@ async function B2bOrderConfirmationContent({
 }: {
   orderId: string;
 }) {
-  await requireB2bMember();
+  const b2bContext = await requireB2bMember();
   const order = await getOrderById(orderId);
 
   if (!order) {
+    notFound();
+  }
+
+  // Verify order belongs to user's organization to prevent IDOR
+  if (order.companyId !== b2bContext.organization.id) {
     notFound();
   }
 

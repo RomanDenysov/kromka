@@ -36,17 +36,21 @@ export function useB2bCheckoutForm({ orgId }: UseB2bCheckoutFormProps) {
   const onSubmit = async (value: B2bCheckoutFormData) => {
     const formattedDate = format(value.pickupDate, "yyyy-MM-dd");
 
-    const result = await createB2BOrder({
-      pickupDate: formattedDate,
-      pickupTime: value.pickupTime,
-      paymentMethod: value.paymentMethod,
-    });
+    try {
+      const result = await createB2BOrder({
+        pickupDate: formattedDate,
+        pickupTime: value.pickupTime,
+        paymentMethod: value.paymentMethod,
+      });
 
-    if (result.success) {
-      toast.success("Vaša B2B objednávka bola vytvorená");
-      router.push(`/b2b/pokladna/${result.orderId}` as Route);
-    } else {
-      toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
+      if (result.success) {
+        toast.success("Vaša B2B objednávka bola vytvorená");
+        router.push(`/b2b/pokladna/${result.orderId}` as Route);
+      } else {
+        toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
+      }
+    } catch {
+      toast.error("Nepodarilo sa spojiť so serverom. Skúste to znova.");
     }
   };
 

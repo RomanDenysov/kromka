@@ -182,22 +182,26 @@ export function useCheckoutForm({
       phone: value.phone,
     };
 
-    const result = await createB2COrder({
-      storeId: value.storeId,
-      pickupDate: formattedDate,
-      pickupTime: value.pickupTime,
-      paymentMethod: value.paymentMethod as Exclude<
-        typeof value.paymentMethod,
-        "invoice"
-      >,
-      customerInfo,
-    });
+    try {
+      const result = await createB2COrder({
+        storeId: value.storeId,
+        pickupDate: formattedDate,
+        pickupTime: value.pickupTime,
+        paymentMethod: value.paymentMethod as Exclude<
+          typeof value.paymentMethod,
+          "invoice"
+        >,
+        customerInfo,
+      });
 
-    if (result.success) {
-      toast.success("Vaša objednávka bola vytvorená");
-      router.push(`/pokladna/${result.orderId}` as Route);
-    } else {
-      toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
+      if (result.success) {
+        toast.success("Vaša objednávka bola vytvorená");
+        router.push(`/pokladna/${result.orderId}` as Route);
+      } else {
+        toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
+      }
+    } catch {
+      toast.error("Nepodarilo sa spojiť so serverom. Skúste to znova.");
     }
   };
 

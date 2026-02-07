@@ -8,6 +8,7 @@ import { orderStatusEvents, orders } from "@/db/schema";
 import { ORDER_STATUSES, type OrderStatus, type PaymentStatus } from "@/db/types";
 import { requireAdmin } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
+import { log } from "@/lib/logger";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
 
 // "in_progress" | "ready_for_pickup" | "completed" | "cancelled" | "refunded";
@@ -216,7 +217,7 @@ export async function bulkUpdateOrdersAction(data: {
     refresh();
     return { success: true, updatedCount: orderIds.length };
   } catch (error) {
-    console.error("[SERVER] Bulk update orders failed:", error);
+    log.orders.error({ err: error }, "Bulk update orders failed");
     return {
       success: false,
       error: "Nastala chyba pri aktualizácii objednávok",

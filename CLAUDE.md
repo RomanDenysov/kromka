@@ -184,6 +184,31 @@ import { getProducts, updateProductAction } from "@/features/products";
 
 Barrel files hurt tree-shaking, increase bundle size, and slow down builds.
 
+## Logging (`src/lib/logger.ts`)
+
+This project uses **pino** for structured logging. DO NOT use `console.log`/`console.error` — use the module loggers instead.
+
+```typescript
+import { log } from "@/lib/logger";
+
+// Module-scoped loggers (orders, b2b, blog, auth, email, stores, users, cart, db, payments, invoices)
+log.orders.error({ err: error, orderId }, "Create order failed");
+log.email.error({ err, orderId }, "Failed to send notification");
+log.cart.warn({ productId }, "Product not found in cart");
+
+// Pino convention: first arg is context object, second is message string
+// Use { err: error } (not { error }) for error objects — pino serializes them properly
+```
+
+In development: pretty-printed with colors via `pino-pretty`. In production: structured JSON for log aggregation.
+
+For request-scoped logging with correlation IDs:
+```typescript
+import { createRequestLogger } from "@/lib/logger";
+const reqLog = createRequestLogger("orders", { userId: "usr_abc" });
+reqLog.info("Processing order");
+```
+
 ## Conventions
 
 - Conventional commits: `type(scope): subject`

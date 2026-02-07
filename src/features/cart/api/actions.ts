@@ -11,6 +11,8 @@ import {
   setCart,
 } from "@/features/cart/cookies";
 
+const MAX_ITEM_QTY = 999;
+
 const addToCartSchema = z.object({
   productId: z.string().min(1),
   qty: z.number().int().positive().default(1),
@@ -32,9 +34,9 @@ export async function addToCart(productId: string, qty = 1) {
   const existingIndex = cart.findIndex((item) => item.productId === productId);
 
   if (existingIndex >= 0) {
-    cart[existingIndex].qty += qty;
+    cart[existingIndex].qty = Math.min(cart[existingIndex].qty + qty, MAX_ITEM_QTY);
   } else {
-    cart.push({ productId, qty });
+    cart.push({ productId, qty: Math.min(qty, MAX_ITEM_QTY) });
   }
 
   await setCart(cart);
@@ -53,9 +55,10 @@ export async function updateQuantity(productId: string, qty: number) {
   if (qty <= 0) {
     await setCart(cart.filter((item) => item.productId !== productId));
   } else {
+    const clampedQty = Math.min(qty, MAX_ITEM_QTY);
     await setCart(
       cart.map((item) =>
-        item.productId === productId ? { ...item, qty } : item
+        item.productId === productId ? { ...item, qty: clampedQty } : item
       )
     );
   }
@@ -94,9 +97,9 @@ export async function addItemsToCart(
     );
 
     if (existingIndex >= 0) {
-      cart[existingIndex].qty += item.quantity;
+      cart[existingIndex].qty = Math.min(cart[existingIndex].qty + item.quantity, MAX_ITEM_QTY);
     } else {
-      cart.push({ productId: item.productId, qty: item.quantity });
+      cart.push({ productId: item.productId, qty: Math.min(item.quantity, MAX_ITEM_QTY) });
     }
   }
 
@@ -114,9 +117,9 @@ export async function addToB2bCart(productId: string, qty = 1) {
   const existingIndex = cart.findIndex((item) => item.productId === productId);
 
   if (existingIndex >= 0) {
-    cart[existingIndex].qty += qty;
+    cart[existingIndex].qty = Math.min(cart[existingIndex].qty + qty, MAX_ITEM_QTY);
   } else {
-    cart.push({ productId, qty });
+    cart.push({ productId, qty: Math.min(qty, MAX_ITEM_QTY) });
   }
 
   await setB2bCart(cart);
@@ -134,9 +137,10 @@ export async function updateB2bQuantity(productId: string, qty: number) {
   if (qty <= 0) {
     await setB2bCart(cart.filter((item) => item.productId !== productId));
   } else {
+    const clampedQty = Math.min(qty, MAX_ITEM_QTY);
     await setB2bCart(
       cart.map((item) =>
-        item.productId === productId ? { ...item, qty } : item
+        item.productId === productId ? { ...item, qty: clampedQty } : item
       )
     );
   }
@@ -170,9 +174,9 @@ export async function addItemsToB2bCart(
     );
 
     if (existingIndex >= 0) {
-      cart[existingIndex].qty += item.quantity;
+      cart[existingIndex].qty = Math.min(cart[existingIndex].qty + item.quantity, MAX_ITEM_QTY);
     } else {
-      cart.push({ productId: item.productId, qty: item.quantity });
+      cart.push({ productId: item.productId, qty: Math.min(item.quantity, MAX_ITEM_QTY) });
     }
   }
 

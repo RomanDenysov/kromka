@@ -12,6 +12,7 @@ import {
 import type { Address, PaymentMethod } from "@/db/types";
 import { clearCart, getCart } from "@/features/cart/cookies";
 import { sendEmail } from "@/lib/email";
+import { log } from "@/lib/logger";
 import { createPrefixedNumericId } from "@/lib/ids";
 import { getEffectivePrices } from "@/lib/pricing";
 import { getOrderById } from "../api/queries";
@@ -194,11 +195,15 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
 export async function notifyOrderCreated(orderId: string): Promise<void> {
   const fullOrder = await getOrderById(orderId);
   if (!fullOrder) {
-    throw new Error("Order not found after creation");
+    log.orders.error({ orderId }, "Order not found for notification after creation");
+    return;
   }
 
-  await sendEmail.newOrder({ order: fullOrder });
-  await sendEmail.receipt({ order: fullOrder });
+  // Send emails independently — one failure shouldn't block the other
+  await Promise.allSettled([
+    sendEmail.newOrder({ order: fullOrder }),
+    sendEmail.receipt({ order: fullOrder }),
+  ]);
 }
 
 /**
