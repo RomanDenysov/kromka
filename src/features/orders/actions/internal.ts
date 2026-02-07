@@ -1,7 +1,9 @@
 "use server";
 
+import { isBefore, isSameDay, startOfToday } from "date-fns";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
+import { fail, guard, succeed, type StepResult } from "@/lib/pipeline";
 import {
   orderItems,
   orderStatusEvents,
@@ -30,10 +32,32 @@ export type GuestCustomerInfo = {
   phone: string;
 };
 
-export async function isValidGuestInfo(
+/** Duplicate order detection window (5 minutes) */
+export const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export async function validateGuestInfo(
   info: GuestCustomerInfo
-): Promise<boolean> {
-  return Boolean(info.name.trim() && info.email.trim() && info.phone.trim());
+): Promise<StepResult<void>> {
+  if (!info.name.trim()) return fail("Meno je povinné", "INVALID_NAME");
+  if (!info.email.trim() || !EMAIL_REGEX.test(info.email))
+    return fail("Neplatný email", "INVALID_EMAIL");
+  if (!info.phone.trim()) return fail("Neplatné telefónne číslo", "INVALID_PHONE");
+  return succeed(undefined);
+}
+
+export async function validatePickupDate(dateStr: string): Promise<StepResult<void>> {
+  const pickupDate = new Date(dateStr);
+  const today = startOfToday();
+  if (
+    Number.isNaN(pickupDate.getTime()) ||
+    isBefore(pickupDate, today) ||
+    isSameDay(pickupDate, today)
+  ) {
+    return fail("Neplatný dátum vyzdvihnutia", "BAD_REQUEST");
+  }
+  return succeed(undefined);
 }
 
 /**
@@ -55,11 +79,11 @@ export async function buildOrderItems(
   // Verify all requested products were found and active
   const foundIds = new Set(productData.map((p) => p.id));
   const missingIds = productIds.filter((id) => !foundIds.has(id));
-  if (missingIds.length > 0) {
-    throw new Error(
-      `Niektoré produkty nie sú dostupné: ${missingIds.join(", ")}`
-    );
-  }
+  guard(
+    missingIds.length === 0,
+    `Niektoré produkty nie sú dostupné: ${missingIds.join(", ")}`,
+    "INVALID_PRODUCTS"
+  );
 
   const productPrices = productData.map((p) => ({
     productId: p.id,
@@ -93,41 +117,33 @@ export async function buildOrderItems(
 /**
  * Validate that store exists.
  */
-export async function validateStoreExists(storeId: string): Promise<
-  | {
-      success: false;
-      error: string;
-    }
-  | { success: true }
-> {
+export async function validateStoreExists(
+  storeId: string
+): Promise<StepResult<void>> {
   const storeExists = await db.query.stores.findFirst({
     where: and(eq(stores.id, storeId), eq(stores.isActive, true)),
     columns: { id: true },
   });
 
   if (!storeExists) {
-    return { success: false, error: "Vybraná predajňa neexistuje" };
+    return fail("Vybraná predajňa neexistuje", "STORE_NOT_FOUND");
   }
 
-  return { success: true };
+  return succeed(undefined);
 }
 
 /**
  * Validate that cart is not empty.
  */
 export async function validateCart(): Promise<
-  | {
-      success: false;
-      error: string;
-    }
-  | { success: true; cartItems: Awaited<ReturnType<typeof getCart>> }
+  StepResult<Awaited<ReturnType<typeof getCart>>>
 > {
   const cartItems = await getCart();
   if (cartItems.length === 0) {
-    return { success: false, error: "Košík je prázdny" };
+    return fail("Košík je prázdny", "EMPTY_CART");
   }
 
-  return { success: true, cartItems };
+  return succeed(cartItems);
 }
 
 type PersistOrderParams = {
@@ -150,9 +166,11 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
   orderId: string;
   orderNumber: string;
 }> {
-  if (params.orderItemsData.length === 0) {
-    throw new Error("Nie je možné vytvoriť objednávku bez položiek");
-  }
+  guard(
+    params.orderItemsData.length > 0,
+    "Nie je možné vytvoriť objednávku bez položiek",
+    "INVALID_PRODUCTS"
+  );
 
   const orderNumber = createPrefixedNumericId("OBJ");
 
@@ -225,13 +243,12 @@ export async function clearB2bCartAfterOrder(): Promise<void> {
  * Validate that B2B cart is not empty.
  */
 export async function validateB2bCart(): Promise<
-  | { success: false; error: string }
-  | { success: true; cartItems: Awaited<ReturnType<typeof getCart>> }
+  StepResult<Awaited<ReturnType<typeof getCart>>>
 > {
   const { getB2bCart } = await import("@/features/cart/cookies");
   const cartItems = await getB2bCart();
   if (cartItems.length === 0) {
-    return { success: false, error: "B2B košík je prázdny" };
+    return fail("B2B košík je prázdny", "EMPTY_CART");
   }
-  return { success: true, cartItems };
+  return succeed(cartItems);
 }

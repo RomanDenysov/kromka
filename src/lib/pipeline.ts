@@ -13,6 +13,21 @@ class PipelineError extends Error {
     this.name = "PipelineError";
   }
 }
+
+/**
+ * Assert a condition, throwing PipelineError if falsy.
+ * Works as a type guard — narrows the condition to truthy after the call.
+ */
+export function guard(
+  condition: unknown,
+  error: string,
+  code: ErrorCode
+): asserts condition {
+  if (!condition) {
+    throw new PipelineError(error, code);
+  }
+}
+
 /**
  * Unwrap a StepResult, throwing PipelineError if not ok
  */
@@ -39,24 +54,6 @@ export async function runPipeline<T>(
   }
 }
 
-/**
- * Run multiple steps in sequence, stopping on first error
- */
-export async function pipeline<T>(
-  steps: Array<() => Promise<StepResult<T>>>,
-  onSuccess: (results: unknown[]) => T
-): Promise<StepResult<T>> {
-  const results: unknown[] = [];
-  for (const step of steps) {
-    const result = await step();
-    if (!result.ok) {
-      return result;
-    }
-    results.push(result.data);
-  }
-
-  return { ok: true, data: onSuccess(results) };
-}
 
 export function fail(error: string, code: ErrorCode): StepResult<never> {
   return { ok: false, error, code };
