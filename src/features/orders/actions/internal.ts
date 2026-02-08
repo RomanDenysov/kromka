@@ -1,5 +1,3 @@
-"use server";
-
 import { isBefore, isSameDay, startOfToday } from "date-fns";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
@@ -31,9 +29,6 @@ export type GuestCustomerInfo = {
   email: string;
   phone: string;
 };
-
-/** Duplicate order detection window (5 minutes) */
-const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

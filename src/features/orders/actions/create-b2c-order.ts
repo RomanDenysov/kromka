@@ -1,9 +1,6 @@
 "use server";
 
-import { and, eq, gte } from "drizzle-orm";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { db } from "@/db";
-import { orders } from "@/db/schema";
 import { isB2cPaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { getUser } from "@/lib/auth/session";
@@ -21,9 +18,6 @@ import {
   validatePickupDate,
   validateStoreExists,
 } from "./internal";
-
-/** Duplicate order detection window (5 minutes) */
-const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
 
 type CreateOrderResult =
   | { success: true; orderId: string; orderNumber: string }
@@ -66,29 +60,6 @@ export async function createB2COrder(data: {
       );
 
       const user = await getUser();
-
-      // Duplicate order protection (authenticated users only)
-      // Note: TOCTOU race possible on double-click; mitigated by short window + client-side disable
-      if (user) {
-        const recentDuplicate = await db.query.orders.findFirst({
-          where: and(
-            eq(orders.createdBy, user.id),
-            eq(orders.totalCents, totalCents),
-            eq(orders.pickupDate, data.pickupDate),
-            gte(orders.createdAt, new Date(Date.now() - DUPLICATE_WINDOW_MS))
-          ),
-        });
-        if (recentDuplicate) {
-          log.orders.info(
-            { orderId: recentDuplicate.id, userId: user.id },
-            "Duplicate B2C order detected, returning existing"
-          );
-          return {
-            orderId: recentDuplicate.id,
-            orderNumber: recentDuplicate.orderNumber,
-          };
-        }
-      }
 
       const { orderId, orderNumber } = await persistOrder({
         userId: user?.id ?? null,

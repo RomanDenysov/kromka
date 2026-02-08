@@ -1,9 +1,6 @@
 "use server";
 
-import { and, eq, gte } from "drizzle-orm";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { db } from "@/db";
-import { orders } from "@/db/schema";
 import type { PaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { requireB2bMember } from "@/lib/auth/guards";
@@ -17,9 +14,6 @@ import {
   validateB2bCart,
   validatePickupDate,
 } from "./internal";
-
-/** Duplicate order detection window (5 minutes) */
-const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
 
 type CreateOrderResult =
   | { success: true; orderId: string; orderNumber: string }
@@ -58,28 +52,6 @@ export async function createB2BOrder(data: {
         (sum, item) => sum + item.price * item.quantity,
         0
       );
-
-      // Duplicate order protection
-      // Note: TOCTOU race possible on double-click; mitigated by short window + client-side disable
-      const recentDuplicate = await db.query.orders.findFirst({
-        where: and(
-          eq(orders.createdBy, b2bContext.user.id),
-          eq(orders.companyId, b2bContext.organization.id),
-          eq(orders.totalCents, totalCents),
-          eq(orders.pickupDate, data.pickupDate),
-          gte(orders.createdAt, new Date(Date.now() - DUPLICATE_WINDOW_MS))
-        ),
-      });
-      if (recentDuplicate) {
-        log.orders.info(
-          { orderId: recentDuplicate.id, userId: b2bContext.user.id },
-          "Duplicate B2B order detected, returning existing"
-        );
-        return {
-          orderId: recentDuplicate.id,
-          orderNumber: recentDuplicate.orderNumber,
-        };
-      }
 
       const customerInfo = {
         name:
