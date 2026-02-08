@@ -33,7 +33,7 @@ export type GuestCustomerInfo = {
 };
 
 /** Duplicate order detection window (5 minutes) */
-export const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
+const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

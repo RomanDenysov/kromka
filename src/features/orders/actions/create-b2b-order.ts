@@ -12,12 +12,14 @@ import { guard, runPipeline, unwrap } from "@/lib/pipeline";
 import {
   buildOrderItems,
   clearB2bCartAfterOrder,
-  DUPLICATE_WINDOW_MS,
   notifyOrderCreated,
   persistOrder,
   validateB2bCart,
   validatePickupDate,
 } from "./internal";
+
+/** Duplicate order detection window (5 minutes) */
+const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
 
 type CreateOrderResult =
   | { success: true; orderId: string; orderNumber: string }

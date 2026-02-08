@@ -13,7 +13,6 @@ import { setLastOrderIdAction } from "../../checkout/api/actions";
 import {
   buildOrderItems,
   clearCartAfterOrder,
-  DUPLICATE_WINDOW_MS,
   type GuestCustomerInfo,
   notifyOrderCreated,
   persistOrder,
@@ -22,6 +21,9 @@ import {
   validatePickupDate,
   validateStoreExists,
 } from "./internal";
+
+/** Duplicate order detection window (5 minutes) */
+const DUPLICATE_WINDOW_MS = 5 * 60 * 1000;
 
 type CreateOrderResult =
   | { success: true; orderId: string; orderNumber: string }
