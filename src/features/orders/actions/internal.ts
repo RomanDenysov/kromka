@@ -9,7 +9,12 @@ import {
   stores,
 } from "@/db/schema";
 import type { Address, PaymentMethod } from "@/db/types";
-import { clearB2bCart, clearCart, getB2bCart, getCart } from "@/features/cart/cookies";
+import {
+  clearB2bCart,
+  clearCart,
+  getB2bCart,
+  getCart,
+} from "@/features/cart/cookies";
 import { sendEmail } from "@/lib/email";
 import { createPrefixedNumericId } from "@/lib/ids";
 import { log } from "@/lib/logger";
@@ -76,7 +81,13 @@ export async function buildOrderItems(
 
   // Verify all requested products were found and active
   const foundIds = new Set(productData.map((p) => p.id));
+
+  console.log("foundIds", foundIds);
+
   const missingIds = productIds.filter((id) => !foundIds.has(id));
+
+  console.log("missingIds", missingIds);
+
   guard(
     missingIds.length === 0,
     `Niektoré produkty nie sú dostupné: ${missingIds.join(", ")}`,
