@@ -17,6 +17,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
+import { updateOrganization } from "@/features/b2b/clients/api/actions";
+import { updateCurrentUserProfile } from "@/features/user-profile/api/actions";
 
 const editOrgSchema = z.object({
   name: z.string().min(1, "Meno je povinné").max(150),
@@ -53,9 +55,6 @@ export function B2bOrgEditSheet({
   const onSubmit = (data: EditOrgData) => {
     startTransition(async () => {
       try {
-        const { updateOrganization } = await import(
-          "@/features/b2b/clients/api/actions"
-        );
         const result = await updateOrganization({
           organizationId: orgId,
           billingName: data.name,
@@ -67,9 +66,7 @@ export function B2bOrgEditSheet({
         }
 
         // Update user phone (fire-and-forget)
-        import("@/features/user-profile/api/actions").then(({ updateCurrentUserProfile }) => {
-          updateCurrentUserProfile({ name: data.name, email: userEmail, phone: data.phone }).catch(() => {});
-        }).catch(() => {});
+        updateCurrentUserProfile({ name: data.name, email: userEmail, phone: data.phone }).catch(() => {});
       } catch {
         toast.error("Nastala chyba");
       }

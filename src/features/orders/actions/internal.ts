@@ -1,7 +1,6 @@
 import { isBefore, isSameDay, startOfToday } from "date-fns";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
-import { fail, guard, succeed, type StepResult } from "@/lib/pipeline";
 import {
   orderItems,
   orderStatusEvents,
@@ -10,10 +9,11 @@ import {
   stores,
 } from "@/db/schema";
 import type { Address, PaymentMethod } from "@/db/types";
-import { clearCart, getCart } from "@/features/cart/cookies";
+import { clearB2bCart, clearCart, getB2bCart, getCart } from "@/features/cart/cookies";
 import { sendEmail } from "@/lib/email";
-import { log } from "@/lib/logger";
 import { createPrefixedNumericId } from "@/lib/ids";
+import { log } from "@/lib/logger";
+import { fail, guard, type StepResult, succeed } from "@/lib/pipeline";
 import { getEffectivePrices } from "@/lib/pricing";
 import { getOrderById } from "../api/queries";
 
@@ -32,17 +32,20 @@ export type GuestCustomerInfo = {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export async function validateGuestInfo(
-  info: GuestCustomerInfo
-): Promise<StepResult<void>> {
-  if (!info.name.trim()) return fail("Meno je povinné", "INVALID_NAME");
-  if (!info.email.trim() || !EMAIL_REGEX.test(info.email))
+export function validateGuestInfo(info: GuestCustomerInfo): StepResult<void> {
+  if (!info.name.trim()) {
+    return fail("Meno je povinné", "INVALID_NAME");
+  }
+  if (!(info.email.trim() && EMAIL_REGEX.test(info.email))) {
     return fail("Neplatný email", "INVALID_EMAIL");
-  if (!info.phone.trim()) return fail("Neplatné telefónne číslo", "INVALID_PHONE");
+  }
+  if (!info.phone.trim()) {
+    return fail("Neplatné telefónne číslo", "INVALID_PHONE");
+  }
   return succeed(undefined);
 }
 
-export async function validatePickupDate(dateStr: string): Promise<StepResult<void>> {
+export function validatePickupDate(dateStr: string): StepResult<void> {
   const pickupDate = new Date(dateStr);
   const today = startOfToday();
   if (
@@ -208,7 +211,10 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
 export async function notifyOrderCreated(orderId: string): Promise<void> {
   const fullOrder = await getOrderById(orderId);
   if (!fullOrder) {
-    log.orders.error({ orderId }, "Order not found for notification after creation");
+    log.orders.error(
+      { orderId },
+      "Order not found for notification after creation"
+    );
     return;
   }
 
@@ -219,7 +225,10 @@ export async function notifyOrderCreated(orderId: string): Promise<void> {
   ]);
   for (const result of results) {
     if (result.status === "rejected") {
-      log.email.error({ err: result.reason, orderId }, "Failed to send order notification email");
+      log.email.error(
+        { err: result.reason, orderId },
+        "Failed to send order notification email"
+      );
     }
   }
 }
@@ -235,7 +244,6 @@ export async function clearCartAfterOrder(): Promise<void> {
  * Clear B2B cart after successful order creation.
  */
 export async function clearB2bCartAfterOrder(): Promise<void> {
-  const { clearB2bCart } = await import("@/features/cart/cookies");
   await clearB2bCart();
 }
 
@@ -245,7 +253,6 @@ export async function clearB2bCartAfterOrder(): Promise<void> {
 export async function validateB2bCart(): Promise<
   StepResult<Awaited<ReturnType<typeof getCart>>>
 > {
-  const { getB2bCart } = await import("@/features/cart/cookies");
   const cartItems = await getB2bCart();
   if (cartItems.length === 0) {
     return fail("B2B košík je prázdny", "EMPTY_CART");

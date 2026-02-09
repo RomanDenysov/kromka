@@ -4,7 +4,7 @@ import { cache } from "react";
 import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { db } from "@/db";
 import { products } from "@/db/schema";
-import { getCart } from "@/features/cart/cookies";
+import { getB2bCart, getCart } from "@/features/cart/cookies";
 import { getEffectivePrices } from "@/lib/pricing";
 
 /**
@@ -94,7 +94,6 @@ export type DetailedCartItem = NonNullable<
 >;
 
 export const getDetailedB2bCart = cache(async function getDetailedB2bCart(priceTierId: string | null) {
-  const { getB2bCart } = await import("@/features/cart/cookies");
   const cart = await getB2bCart();
 
   if (cart.length === 0) {

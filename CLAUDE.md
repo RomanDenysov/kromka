@@ -144,6 +144,24 @@ Auth guards (`src/lib/auth/guards.ts`):
 - `requireStaff()` — Admin or manager role
 - `requireB2bMember()` — B2B organization members
 
+### IMPORTANT: No Dynamic Imports for Internal Modules
+
+**DO NOT use `await import()` or inline `import()` for internal project modules.** All imports must be static `import` statements at the top of the file. Dynamic imports scatter dependencies, make code harder to trace, and bypass tree-shaking.
+
+**Exception:** Dynamic `import()` is allowed for heavy third-party libraries (e.g. `xlsx`) that should be lazy-loaded to reduce client bundle size.
+
+```typescript
+// ✅ Correct - static import at top of file
+import { getB2bCart } from "@/features/cart/cookies";
+import { updateOrganization } from "@/features/b2b/clients/api/actions";
+
+// ❌ Wrong - dynamic import of internal module
+const { getB2bCart } = await import("@/features/cart/cookies");
+
+// ✅ OK - lazy-loading a heavy third-party library
+const XLSX = await import("xlsx");
+```
+
 ### Components
 - Server Components by default
 - `"use client"` only when needed (event handlers, browser APIs, client state)
