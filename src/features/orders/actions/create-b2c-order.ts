@@ -1,5 +1,6 @@
 "use server";
 
+import { updateTag } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { isB2cPaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
@@ -81,6 +82,8 @@ export async function createB2COrder(data: {
     }
 
     const { orderId, orderNumber, userId } = result.data;
+
+    updateTag("orders");
 
     // Clear cart only after confirmed pipeline success
     await clearCartAfterOrder();

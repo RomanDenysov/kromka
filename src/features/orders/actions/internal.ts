@@ -77,16 +77,19 @@ export async function buildOrderItems(
       eq(products.isActive, true),
       eq(products.status, "active")
     ),
+    with: {
+      category: { columns: { isActive: true } },
+    },
   });
 
-  // Verify all requested products were found and active
-  const foundIds = new Set(productData.map((p) => p.id));
+  // Filter out products in inactive categories
+  const activeProducts = productData.filter(
+    (p) => p.category?.isActive !== false
+  );
 
-  console.log("foundIds", foundIds);
-
+  // Verify all requested products were found and active (including category)
+  const foundIds = new Set(activeProducts.map((p) => p.id));
   const missingIds = productIds.filter((id) => !foundIds.has(id));
-
-  console.log("missingIds", missingIds);
 
   guard(
     missingIds.length === 0,
@@ -94,7 +97,7 @@ export async function buildOrderItems(
     "INVALID_PRODUCTS"
   );
 
-  const productPrices = productData.map((p) => ({
+  const productPrices = activeProducts.map((p) => ({
     productId: p.id,
     basePriceCents: p.priceCents,
   }));
@@ -104,7 +107,7 @@ export async function buildOrderItems(
       : new Map<string, number>();
 
   return cartItems.flatMap((item) => {
-    const product = productData.find((p) => p.id === item.productId);
+    const product = activeProducts.find((p) => p.id === item.productId);
     if (!product) {
       return [];
     }
