@@ -136,7 +136,7 @@ export function GameCard() {
         onInteractOutside={(e) => {
           if (isPlaying) e.preventDefault()
         }}
-        showCloseButton={!isPlaying}
+        showCloseButton
       >
         <DialogTitle className="sr-only">Pekáreň Kromka - Hra</DialogTitle>
         <DialogDescription className="sr-only">

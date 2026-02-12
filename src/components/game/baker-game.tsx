@@ -391,16 +391,8 @@ export function BakerGame({ sprites, onGameOver }: BakerGameProps) {
         ctx.drawImage(decorSprite, decor.x, decor.y, decor.width, decor.height);
       }
 
-      // 3. Ovens with shadows
+      // 3. Ovens
       for (const oven of ovensRef.current) {
-        // Draw shadow under oven
-        drawShadow(
-          ctx,
-          oven.x + oven.width / 2,
-          oven.y + oven.height + 8,
-          oven.width * 0.8,
-          12
-        );
         const ovenSprite = sprites[oven.spriteKey];
         ctx.drawImage(ovenSprite, oven.x, oven.y, oven.width, oven.height);
       }
