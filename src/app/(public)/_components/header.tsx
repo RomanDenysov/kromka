@@ -6,15 +6,15 @@ import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { featureFlags } from "@/config/features";
 import { cn } from "@/lib/utils";
 
 const navigation: { name: string; href: Route }[] = [
   { name: "E-shop", href: "/e-shop" },
   { name: "B2B", href: "/b2b" },
   { name: "Predajne", href: "/predajne" },
-  // TODO: add blog back when it's ready
-  // { name: "Blog", href: "/blog" },
-] as const;
+  ...(featureFlags.blog ? [{ name: "Blog", href: "/blog" as Route }] : []),
+];
 
 export function Header({ children }: { children: ReactNode }) {
   return (
