@@ -31,7 +31,7 @@ export default function AdminPostEditorPage({ params }: Props) {
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Blog", href: "/admin/blog" },
+          { label: "Blog", href: "/admin/blog/posts" },
           { label: "Články", href: "/admin/blog/posts" },
           { label: "Upraviť článok" },
         ]}

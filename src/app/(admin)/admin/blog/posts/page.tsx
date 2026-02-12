@@ -15,7 +15,7 @@ export default function BlogPostsPage() {
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Blog", href: "/admin/blog" },
+          { label: "Blog", href: "/admin/blog/posts" },
           { label: "Články" },
         ]}
       />

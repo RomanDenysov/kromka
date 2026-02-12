@@ -1,10 +1,9 @@
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { Container } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 
 export function CallToAction() {
-  // TODO: Link to actual registration flow
-
   return (
     <section className="w-full border-t bg-muted/30">
       <Container className="py-16 md:py-24">
@@ -18,13 +17,13 @@ export function CallToAction() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="sm">
-              <a href="/prihlasenie">
+              <Link href="/prihlasenie">
                 Registrovať sa
                 <ArrowRight className="ml-2 size-4" />
-              </a>
+              </Link>
             </Button>
             <Button asChild size="sm" variant="outline">
-              <a href="/o-nas">Zistiť viac</a>
+              <Link href="/o-nas">Zistiť viac</Link>
             </Button>
           </div>
         </div>
