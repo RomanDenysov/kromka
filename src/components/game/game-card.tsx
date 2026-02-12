@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useGameSprites } from '@/hooks/game/use-game-sprites'
 import { GAME_HEIGHT, GAME_WIDTH, HIGH_SCORE_KEY } from '@/lib/game/constants'
 import type { GameSprites, GameState } from '@/lib/game/types'
-import { BakerGame, type BakerGameRef } from './baker-game'
+import { BakerGame } from './baker-game'
 import { GameLoadingState } from './game-loading-state'
 import { GameOverScreen } from './game-over-screen'
 
@@ -58,7 +58,7 @@ function StartScreen({ onStart, sprites }: { onStart: () => void; sprites: GameS
       <div className="absolute inset-x-0 bottom-8 flex justify-center">
         <Button className="gap-2" onClick={onStart} size="lg">
           <Play className="h-5 w-5" />
-          Hrat
+          Hrať
         </Button>
       </div>
     </div>
@@ -69,8 +69,8 @@ export function GameCard() {
   const [gameState, setGameState] = useState<GameState>('idle')
   const [finalScore, setFinalScore] = useState(0)
   const [highScore, setHighScore] = useState(0)
+  const [resetKey, setResetKey] = useState(0)
 
-  const gameRef = useRef<BakerGameRef>(null)
   const { sprites, loading, error } = useGameSprites()
 
   const handleStart = useCallback(() => {
@@ -84,7 +84,7 @@ export function GameCard() {
   }, [])
 
   const handleRestart = useCallback(() => {
-    gameRef.current?.reset()
+    setResetKey(prev => prev + 1)
     setGameState('playing')
   }, [])
 
@@ -92,7 +92,7 @@ export function GameCard() {
     return (
       <Card className="aspect-8/5 w-full max-w-5xl">
         <CardContent className="flex h-full items-center justify-center p-6">
-          <p className="text-destructive">Nepodarilo sa nacitat hru</p>
+          <p className="text-destructive">Nepodarilo sa načítať hru</p>
         </CardContent>
       </Card>
     )
@@ -108,11 +108,11 @@ export function GameCard() {
     }
 
     if (gameState === 'playing' && sprites) {
-      return <BakerGame onGameOver={handleGameOver} ref={gameRef} sprites={sprites} />
+      return <BakerGame key={resetKey} onGameOver={handleGameOver} sprites={sprites} />
     }
 
-    if (gameState === 'gameover') {
-      return <GameOverScreen highScore={highScore} onRestart={handleRestart} score={finalScore} />
+    if (gameState === 'gameover' && sprites) {
+      return <GameOverScreen highScore={highScore} onRestart={handleRestart} score={finalScore} sprites={sprites} />
     }
 
     return null

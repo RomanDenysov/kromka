@@ -14,6 +14,10 @@ import type { FallingItem, ItemType, Oven } from "./types";
 
 let itemIdCounter = 0;
 
+export function resetItemIdCounter() {
+  itemIdCounter = 0;
+}
+
 export function getOvens(): Oven[] {
   const ovenY = 10;
   const spacing = GAME_WIDTH / 4;
