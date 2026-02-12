@@ -4,7 +4,7 @@ import { createTransport } from "nodemailer";
 import { env } from "@/env";
 import type { Order } from "@/features/orders/api/queries";
 import { renderB2BApplicationEmail } from "./templates/b2b-application";
-import { renderB2BRequestEmail } from "./templates/b2b-request";
+
 import { renderMagicLink } from "./templates/magic-link";
 import { renderNewOrderEmail } from "./templates/new-order";
 import { renderOrderConfirmationEmail } from "./templates/order-confirmation";
@@ -336,40 +336,6 @@ export const sendEmail = {
       from: `"Kromka" <${env.EMAIL_USER}>`,
       to: email,
       subject: "Vaša žiadosť o podporu bola prijatá – Kromka",
-      html,
-    });
-  },
-
-  /**
-   * Send B2B request from registration form to staff.
-   * @deprecated Use b2bApplication instead
-   */
-  b2bRequest: async ({
-    companyName,
-    businessType,
-    userName,
-    email,
-    phone,
-  }: {
-    companyName: string;
-    businessType: string;
-    userName: string;
-    email: string;
-    phone: string;
-  }) => {
-    const html = await renderB2BRequestEmail({
-      companyName,
-      businessType,
-      userName,
-      email,
-      phone,
-    });
-
-    return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
-      to: STAFF_EMAIL,
-      replyTo: email,
-      subject: `Nová B2B žiadosť od ${companyName}`,
       html,
     });
   },
