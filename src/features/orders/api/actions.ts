@@ -2,11 +2,13 @@
 
 import { eq, inArray } from "drizzle-orm";
 import { refresh } from "next/cache";
+import { z } from "zod";
 import { db } from "@/db";
 import { orderStatusEvents, orders } from "@/db/schema";
-import type { OrderStatus, PaymentStatus } from "@/db/types";
-import { requireAdmin, requireAuth } from "@/lib/auth/guards";
+import { ORDER_STATUSES, type OrderStatus, type PaymentStatus } from "@/db/types";
+import { requireAdmin } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
+import { log } from "@/lib/logger";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
 
 // "in_progress" | "ready_for_pickup" | "completed" | "cancelled" | "refunded";
@@ -48,6 +50,12 @@ export async function updateOrderStatusAction({
   note?: string;
 }) {
   const admin = await requireAdmin();
+
+  const statusSchema = z.enum(ORDER_STATUSES);
+  const parsed = statusSchema.safeParse(status);
+  if (!parsed.success) {
+    throw new Error("Invalid order status");
+  }
 
   // Get current order to check payment status
   const currentOrder = await db.query.orders.findFirst({
@@ -100,7 +108,7 @@ export async function updateOrderPaymentStatusAction({
   orderId: string;
   status: PaymentStatus;
 }) {
-  await requireAuth();
+  await requireAdmin();
   await db
     .update(orders)
     .set({ paymentStatus: status })
@@ -138,9 +146,14 @@ async function handleBulkStatusNotifications(
   const CHUNK_SIZE = 5;
   for (let i = 0; i < allOrders.length; i += CHUNK_SIZE) {
     const chunk = allOrders.slice(i, i + CHUNK_SIZE);
-    await Promise.allSettled(
+    const results = await Promise.allSettled(
       chunk.map((order) => sendEmailBasedOnOrderStatus(order, orderStatus))
     );
+    for (const result of results) {
+      if (result.status === "rejected") {
+        log.email.error({ err: result.reason }, "Failed to send order status email");
+      }
+    }
 
     // Small delay between chunks if there are more
     if (i + CHUNK_SIZE < allOrders.length) {
@@ -209,7 +222,7 @@ export async function bulkUpdateOrdersAction(data: {
     refresh();
     return { success: true, updatedCount: orderIds.length };
   } catch (error) {
-    console.error("[SERVER] Bulk update orders failed:", error);
+    log.orders.error({ err: error }, "Bulk update orders failed");
     return {
       success: false,
       error: "Nastala chyba pri aktualizácii objednávok",

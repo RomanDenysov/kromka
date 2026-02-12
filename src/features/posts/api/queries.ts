@@ -5,7 +5,7 @@ import { and, count, eq, inArray, sql } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
-import { posts } from "@/db/schema";
+import { posts, postTags, postToTags } from "@/db/schema";
 
 // Helper to transform post cover image
 function transformPost<T extends { coverImage: { url: string } | null }>(
@@ -78,8 +78,12 @@ export const getPublishedPosts = cache(
 
     // Add search condition if provided
     if (search) {
+      const escaped = search
+        .replace(/\\/g, "\\\\")
+        .replace(/%/g, "\\%")
+        .replace(/_/g, "\\_");
       conditions.push(
-        sql`(${posts.title} ILIKE ${`%${search}%`} OR ${posts.excerpt} ILIKE ${`%${search}%`})`
+        sql`(${posts.title} ILIKE ${`%${escaped}%`} OR ${posts.excerpt} ILIKE ${`%${escaped}%`})`
       );
     }
 
@@ -257,37 +261,22 @@ export const getAllTags = cache(async () => {
   cacheLife("max");
   cacheTag("tags");
 
-  const tags = await db.query.postTags.findMany({
-    with: {
-      posts: {
-        columns: { postId: true },
-      },
-    },
-  });
-
-  // Count only published posts for each tag
-  const tagsWithCounts = await Promise.all(
-    tags.map(async (tag) => {
-      const postIds = tag.posts.map((p) => p.postId);
-      if (postIds.length === 0) {
-        return { ...tag, postCount: 0 };
-      }
-
-      const [{ publishedCount }] = await db
-        .select({ publishedCount: count() })
-        .from(posts)
-        .where(and(inArray(posts.id, postIds), eq(posts.status, "published")));
-
-      return {
-        id: tag.id,
-        name: tag.name,
-        slug: tag.slug,
-        postCount: publishedCount,
-      };
+  const result = await db
+    .select({
+      id: postTags.id,
+      name: postTags.name,
+      slug: postTags.slug,
+      postCount: count(posts.id),
     })
-  );
+    .from(postTags)
+    .leftJoin(postToTags, eq(postToTags.tagId, postTags.id))
+    .leftJoin(
+      posts,
+      and(eq(posts.id, postToTags.postId), eq(posts.status, "published"))
+    )
+    .groupBy(postTags.id, postTags.name, postTags.slug);
 
-  return tagsWithCounts.filter((tag) => tag.postCount > 0);
+  return result.filter((tag) => tag.postCount > 0);
 });
 
 /**
@@ -332,7 +321,7 @@ export const getPostComments = cache(async (postId: string) => {
 export async function getAdminPosts({
   page = 1,
   status,
-  limit = 20,
+  limit = 200,
 }: {
   page?: number;
   status?: "draft" | "published" | "archived";
@@ -421,6 +410,7 @@ export async function getAdminTags() {
       },
     },
     orderBy: (t, { asc }) => [asc(t.name)],
+    limit: 100,
   });
 
   return tags.map((tag) => ({

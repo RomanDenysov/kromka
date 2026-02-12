@@ -7,13 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { getCartTotals, getDetailedCart } from "@/features/cart/api/queries";
 import { getLastOrderWithItemsAction } from "@/features/checkout/api/actions";
-import { getUser, getUserDetails } from "@/lib/auth/session";
+import { getUserDetails } from "@/lib/auth/session";
 import { cn, formatPrice } from "@/lib/utils";
 import { LastOrderCard } from "./last-order-card";
 
 async function LastOrderCardContent() {
-  const user = await getUser();
-  const lastOrder = await getLastOrderWithItemsAction(user?.id);
+  const lastOrder = await getLastOrderWithItemsAction();
   if (!lastOrder) {
     return null;
   }
@@ -45,13 +44,27 @@ function LastOrderCardSkeleton() {
   );
 }
 
+/**
+ * Cart drawer footer for non-B2B users.
+ * B2B users get their footer embedded in the tabbed CartDrawerContent.
+ * This component returns null for B2B members.
+ */
 export async function CartDrawerFooter() {
-  const user = await getUserDetails();
-  const priceTierId =
+  const [user, items] = await Promise.all([
+    getUserDetails(),
+    getDetailedCart(null),
+  ]);
+
+  // B2B members get their footer inside CartDrawerContent (tabbed view)
+  const isB2bMember =
     user?.members && user.members.length > 0
-      ? (user.members[0]?.organization?.priceTierId ?? null)
-      : null;
-  const items = await getDetailedCart(priceTierId);
+      ? Boolean(user.members[0]?.organization)
+      : false;
+
+  if (isB2bMember) {
+    return null;
+  }
+
   const { totalCents } = getCartTotals(items);
   const isEmpty = items.length === 0;
 

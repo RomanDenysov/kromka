@@ -1,17 +1,19 @@
 "use server";
 
+import { updateTag } from "next/cache";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import type { PaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { requireB2bMember } from "@/lib/auth/guards";
+import { log } from "@/lib/logger";
+import { guard, runPipeline, unwrap } from "@/lib/pipeline";
 import {
   buildOrderItems,
-  clearCartAfterOrder,
-  type GuestCustomerInfo,
-  isValidGuestInfo,
+  clearB2bCartAfterOrder,
   notifyOrderCreated,
   persistOrder,
-  validateCart,
-  validateStoreExists,
+  validateB2bCart,
+  validatePickupDate,
 } from "./internal";
 
 type CreateOrderResult =
@@ -24,80 +26,77 @@ type CreateOrderResult =
  * Allows invoice payment method.
  */
 export async function createB2BOrder(data: {
-  storeId: string;
   pickupDate: string;
   pickupTime: string;
   paymentMethod: PaymentMethod;
-  customerInfo: GuestCustomerInfo;
 }): Promise<CreateOrderResult> {
   try {
-    const ordersEnabled = await getSiteConfig("orders_enabled");
-    if (!ordersEnabled) {
-      return { success: false, error: "Objednávky sú momentálne vypnuté" };
-    }
+    const result = await runPipeline(async () => {
+      const ordersEnabled = await getSiteConfig("orders_enabled");
+      guard(ordersEnabled, "Objednávky sú momentálne vypnuté", "ORDERS_DISABLED");
 
-    if (!(await isValidGuestInfo(data.customerInfo))) {
-      return { success: false, error: "Vyplňte prosím všetky kontaktné údaje" };
-    }
+      const b2bContext = await requireB2bMember();
+      unwrap(await validatePickupDate(data.pickupDate));
 
-    // Require B2B membership
-    const b2bContext = await requireB2bMember();
+      const cartItems = unwrap(await validateB2bCart());
+      const orderItemsData = await buildOrderItems(
+        cartItems,
+        b2bContext.priceTierId
+      );
+      guard(
+        orderItemsData.length > 0,
+        "Žiadne platné produkty v košíku",
+        "INVALID_PRODUCTS"
+      );
 
-    const storeValidation = await validateStoreExists(data.storeId);
-    if (!storeValidation.success) {
-      return storeValidation;
-    }
+      const totalCents = orderItemsData.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
 
-    const cartValidation = await validateCart();
-    if (!cartValidation.success) {
-      return cartValidation;
-    }
+      const customerInfo = {
+        name:
+          b2bContext.organization.billingName ?? b2bContext.organization.name,
+        email: b2bContext.organization.billingEmail ?? b2bContext.user.email,
+        phone: b2bContext.user.phone ?? "",
+      };
 
-    // Build order items with tier pricing
-    const orderItemsData = await buildOrderItems(
-      cartValidation.cartItems,
-      b2bContext.priceTierId
-    );
-    if (orderItemsData.length === 0) {
-      return { success: false, error: "Žiadne platné produkty v košíku" };
-    }
+      const { orderId, orderNumber } = await persistOrder({
+        userId: b2bContext.user.id,
+        customerInfo,
+        storeId: null,
+        companyId: b2bContext.organization.id,
+        paymentMethod: data.paymentMethod,
+        pickupDate: data.pickupDate,
+        pickupTime: data.pickupTime,
+        totalCents,
+        orderItemsData,
+        deliveryAddress: b2bContext.organization.billingAddress,
+      });
 
-    const totalCents = orderItemsData.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-
-    const { orderId, orderNumber } = await persistOrder({
-      userId: b2bContext.user.id,
-      customerInfo: data.customerInfo,
-      storeId: data.storeId,
-      companyId: b2bContext.organization.id,
-      paymentMethod: data.paymentMethod,
-      pickupDate: data.pickupDate,
-      pickupTime: data.pickupTime,
-      totalCents,
-      orderItemsData,
+      return { orderId, orderNumber };
     });
 
-    await clearCartAfterOrder();
+    if (!result.ok) {
+      return { success: false, error: result.error };
+    }
 
-    // Update user profile as side effect
-    const { updateCurrentUserProfile } = await import(
-      "@/features/user-profile/api/actions"
-    );
-    updateCurrentUserProfile({
-      name: data.customerInfo.name,
-      email: data.customerInfo.email,
-      phone: data.customerInfo.phone,
-    }).catch((err) => {
-      console.error("Failed to update user profile:", err);
+    const { orderId, orderNumber } = result.data;
+
+    updateTag("orders");
+
+    // Clear B2B cart only after confirmed pipeline success
+    await clearB2bCartAfterOrder();
+
+    // Fire-and-forget: don't block order success on email
+    notifyOrderCreated(orderId).catch((err) => {
+      log.email.error({ err, orderId }, "Failed to send order notification");
     });
-
-    await notifyOrderCreated(orderId);
 
     return { success: true, orderId, orderNumber };
   } catch (error) {
-    console.error("[SERVER] Create B2B ORDER failed:", error);
+    if (isRedirectError(error)) throw error;
+    log.orders.error({ err: error }, "Create B2B order failed");
     return { success: false, error: "Nastala chyba pri vytváraní objednávky" };
   }
 }

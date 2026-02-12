@@ -70,8 +70,8 @@ export function UsersTable({
       onOpen: (id: string) => {
         setParams({ customerId: id });
       },
-      onLock: (id: string) => {
-        console.log(id);
+      onLock: (_id: string) => {
+        // TODO: implement user lock functionality
       },
     },
     getRowId: ({ id }) => id,

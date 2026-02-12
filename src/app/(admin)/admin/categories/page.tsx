@@ -21,11 +21,10 @@ async function CategorySheetLoader({
 }) {
   const { categoryId } = await searchParams;
   const category = await getAdminCategoryById(categoryId as string);
-  const categories = await getAdminCategories();
   if (!category) {
     return null;
   }
-  return <EditCategorySheet categories={categories} category={category} />;
+  return <EditCategorySheet category={category} />;
 }
 
 export default function CategoriesPage({

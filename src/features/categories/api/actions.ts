@@ -22,9 +22,10 @@ export async function updateCategoryAction({
 
   // Check if slug is taken by another category
   if (updateData.slug) {
+    const slugToCheck = updateData.slug;
     const existingCategory = await db.query.categories.findFirst({
       where: (c, { and: andFn, eq: eqFn, ne }) =>
-        andFn(eqFn(c.slug, updateData.slug as string), ne(c.id, id)),
+        andFn(eqFn(c.slug, slugToCheck), ne(c.id, id)),
       columns: { id: true },
     });
 
@@ -65,6 +66,8 @@ export async function createDraftCategoryAction() {
 }
 
 export async function copyCategoryAction({ id }: { id: string }) {
+  await requireAdmin();
+
   const referenceCategory = await db.query.categories.findFirst({
     where: (category, { eq: eqFn }) => eqFn(category.id, id),
   });
@@ -154,7 +157,7 @@ export async function toggleIsFeaturedCategoryAction({ id }: { id: string }) {
 
   // Invalidate public cache
   updateTag("categories");
-  updateTag("featured");
+  updateTag("featured-categories");
   updateTag("products");
   if (updatedCategory.slug) {
     updateTag(`category-${updatedCategory.slug}`);

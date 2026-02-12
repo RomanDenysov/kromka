@@ -8,12 +8,11 @@ import type { AdminCategory } from "@/features/categories/api/queries";
 
 type Props = {
   category: AdminCategory;
-  categories: AdminCategory[];
 };
 
-export function CategoryFormContainer({ category, categories }: Props) {
+export function CategoryFormContainer({ category }: Props) {
   return (
-    <CategoryForm categories={categories} category={category}>
+    <CategoryForm category={category}>
       {({ isPending }) => (
         <div className="flex items-center justify-end gap-2">
           <Button disabled={isPending} size="sm" type="submit">

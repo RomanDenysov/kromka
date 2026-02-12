@@ -1,12 +1,14 @@
 "use server";
 
 import { addDays } from "date-fns";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { updateTag } from "next/cache";
 import { db } from "@/db";
 import { b2bApplications, invitations, organizations } from "@/db/schema";
 import { DEFAULT_PAYMENT_TERM_DAYS } from "@/db/types";
 import { requireAdmin } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
+import { log } from "@/lib/logger";
 import { getSlug } from "@/lib/get-slug";
 import { createId } from "@/lib/ids";
 import {
@@ -70,7 +72,7 @@ export async function submitB2bApplication(
 
     return { success: true };
   } catch (error) {
-    console.error("[SERVER] Submit B2B application failed:", error);
+    log.b2b.error({ err: error }, "Submit B2B application failed");
     return {
       success: false,
       error: "Nastala chyba pri odosielaní žiadosti. Skúste to prosím znova.",
@@ -105,13 +107,6 @@ export async function approveB2bApplication(
       return { success: false, error: "Žiadosť nebola nájdená" };
     }
 
-    if (application.status !== "pending") {
-      return {
-        success: false,
-        error: "Žiadosť už bola spracovaná",
-      };
-    }
-
     // Validate price tier exists
     const priceTier = await db.query.priceTiers.findFirst({
       where: (tier, { eq: eqOp }) => eqOp(tier.id, priceTierId),
@@ -120,6 +115,29 @@ export async function approveB2bApplication(
 
     if (!priceTier) {
       return { success: false, error: "Cenová skupina nebola nájdená" };
+    }
+
+    // Atomic claim: update status FIRST with WHERE status = 'pending'
+    const [claimed] = await db
+      .update(b2bApplications)
+      .set({
+        status: "approved",
+        reviewedAt: new Date(),
+        reviewedBy: admin.id,
+      })
+      .where(
+        and(
+          eq(b2bApplications.id, applicationId),
+          eq(b2bApplications.status, "pending")
+        )
+      )
+      .returning({ id: b2bApplications.id });
+
+    if (!claimed) {
+      return {
+        success: false,
+        error: "Žiadosť už bola spracovaná",
+      };
     }
 
     // Create organization slug from company name
@@ -158,7 +176,7 @@ export async function approveB2bApplication(
       .returning();
 
     // Create invitation
-    const expiresAt = addDays(new Date(), 7); // Invitation expires in 7 days
+    const expiresAt = addDays(new Date(), 7);
     await db.insert(invitations).values({
       id: createId(),
       organizationId: organization.id,
@@ -169,17 +187,8 @@ export async function approveB2bApplication(
       inviterId: admin.id,
     });
 
-    // Update application status
-    await db
-      .update(b2bApplications)
-      .set({
-        status: "approved",
-        reviewedAt: new Date(),
-        reviewedBy: admin.id,
-      })
-      .where(eq(b2bApplications.id, applicationId));
+    updateTag("b2b-applications");
 
-    // Send invitation email (better-auth handles this, but we can send a custom one too)
     // TODO: Send approval email with invitation link
 
     return {
@@ -187,7 +196,7 @@ export async function approveB2bApplication(
       organizationId: organization.id,
     };
   } catch (error) {
-    console.error("[SERVER] Approve B2B application failed:", error);
+    log.b2b.error({ err: error }, "Approve B2B application failed");
     return {
       success: false,
       error: "Nastala chyba pri schvaľovaní žiadosti",
@@ -216,21 +225,8 @@ export async function rejectB2bApplication(
 
     const { applicationId, rejectionReason } = validationResult.data;
 
-    const application = await getB2bApplicationById(applicationId);
-
-    if (!application) {
-      return { success: false, error: "Žiadosť nebola nájdená" };
-    }
-
-    if (application.status !== "pending") {
-      return {
-        success: false,
-        error: "Žiadosť už bola spracovaná",
-      };
-    }
-
-    // Update application status
-    await db
+    // Atomic claim: update with WHERE status = 'pending'
+    const [claimed] = await db
       .update(b2bApplications)
       .set({
         status: "rejected",
@@ -238,13 +234,28 @@ export async function rejectB2bApplication(
         reviewedAt: new Date(),
         reviewedBy: admin.id,
       })
-      .where(eq(b2bApplications.id, applicationId));
+      .where(
+        and(
+          eq(b2bApplications.id, applicationId),
+          eq(b2bApplications.status, "pending")
+        )
+      )
+      .returning({ id: b2bApplications.id });
+
+    if (!claimed) {
+      return {
+        success: false,
+        error: "Žiadosť nebola nájdená alebo už bola spracovaná",
+      };
+    }
+
+    updateTag("b2b-applications");
 
     // TODO: Send rejection email
 
     return { success: true };
   } catch (error) {
-    console.error("[SERVER] Reject B2B application failed:", error);
+    log.b2b.error({ err: error }, "Reject B2B application failed");
     return {
       success: false,
       error: "Nastala chyba pri zamietnutí žiadosti",

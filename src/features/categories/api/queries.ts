@@ -8,7 +8,7 @@ import { getProducts } from "@/features/products/api/queries";
 // PUBLIC (cached)
 export const getCategories = cache(async () => {
   "use cache";
-  cacheLife("days");
+  cacheLife("max");
   cacheTag("categories");
 
   const allProducts = await getProducts();
@@ -31,8 +31,8 @@ export const getCategories = cache(async () => {
 
 export const getFeaturedCategories = cache(async () => {
   "use cache";
-  cacheLife("days");
-  cacheTag("featured", "products");
+  cacheLife("max");
+  cacheTag("featured-categories");
 
   const allProducts = await getProducts();
 
@@ -60,7 +60,7 @@ export const getFeaturedCategories = cache(async () => {
 export function getAdminCategories() {
   return db.query.categories.findMany({
     with: {
-      products: true,
+      products: { columns: { id: true } },
       image: true,
     },
     orderBy: (cat, { asc }) => asc(cat.sortOrder),
@@ -95,8 +95,10 @@ export async function getCategoriesByCatalog({
 }: {
   catalog: "b2b" | "b2c";
 }) {
-  const allCategories = await getCategories();
-  const allProducts = await getProducts();
+  const [allCategories, allProducts] = await Promise.all([
+    getCategories(),
+    getProducts(),
+  ]);
 
   // Filter products by catalog visibility
   const visibleProductIds = new Set(

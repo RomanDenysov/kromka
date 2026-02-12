@@ -5,7 +5,7 @@ import { orders } from "@/db/schema";
 
 export async function getUserOrders(userId: string) {
   "use cache";
-  cacheLife("days");
+  cacheLife("hours");
   cacheTag("orders", `user-${userId}`);
   return await db.query.orders.findMany({
     where: eq(orders.createdBy, userId),

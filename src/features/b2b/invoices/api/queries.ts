@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, gte, lte, type SQL } from "drizzle-orm";
+import { and, desc, eq, gte, lte, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { invoices } from "@/db/schema";
 import type { InvoiceStatus } from "@/db/types";
@@ -31,11 +31,11 @@ export function getInvoices({
   }
 
   if (dateFrom) {
-    conditions.push(gte(invoices.issuedAt ?? invoices.createdAt, dateFrom));
+    conditions.push(gte(sql`COALESCE(${invoices.issuedAt}, ${invoices.createdAt})`, dateFrom));
   }
 
   if (dateTo) {
-    conditions.push(lte(invoices.issuedAt ?? invoices.createdAt, dateTo));
+    conditions.push(lte(sql`COALESCE(${invoices.issuedAt}, ${invoices.createdAt})`, dateTo));
   }
 
   return db.query.invoices.findMany({

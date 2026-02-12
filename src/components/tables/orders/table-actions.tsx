@@ -144,8 +144,7 @@ export function OrdersTableActions({
         `Exportovaných ${orders.length} objednávok (${format.toUpperCase()})`
       );
       setOpen(false);
-    } catch (err) {
-      console.error("Export failed", err);
+    } catch {
       toast.error("Export sa nepodaril");
     }
   };

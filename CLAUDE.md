@@ -80,6 +80,18 @@ Key entities: users, organizations (B2B), products, categories, orders, orderIte
 
 IDs use prefixed CUIDs: `prod_`, `ord_`, `cat_`, `sto_`, etc.
 
+## Database (Neon HTTP)
+
+This project uses Neon's **HTTP serverless driver** (`@neondatabase/serverless` + `drizzle-orm/neon-http`). This driver does NOT support interactive transactions (`db.transaction()` will fail).
+
+**Instead of transactions, use:**
+- Sequential DB calls with defensive ordering (most critical/irreversible operation last)
+- Idempotency checks and guard clauses to prevent duplicate operations
+- Application-level status checks before mutations (e.g., verify current state before updating)
+- Unique constraints in the DB schema as a safety net for race conditions
+
+**DO NOT use `db.transaction()` or `db.batch()` — they are not supported by the Neon HTTP driver.**
+
 ## Caching (cacheComponents)
 
 This project uses Next.js 16's `cacheComponents: true` - an opt-in caching model that replaces the old implicit caching behavior.
@@ -116,6 +128,38 @@ export async function updateProductAction({ id, product }: { id: string; product
   updateTag("products");
   return { success: true };
 }
+```
+
+### Authentication & Route Protection
+
+Admin routes are protected at two levels:
+- **Middleware (`src/proxy.ts`)** — Guards all `/admin/*` page navigation. Checks session role and redirects non-admins to `/prihlasenie`. This only protects page loads, NOT server actions.
+- **Server action guards (`requireAdmin()`, `requireAuth()`)** — Every server action that mutates data must call the appropriate guard. Middleware does NOT protect server actions, so these guards are always required.
+
+**DO NOT add `requireAdmin()` to admin layouts or pages** — the middleware already handles route protection, and calling auth guards in layouts/pages causes build failures (uncached data outside Suspense in Next.js 16 PPR).
+
+Auth guards (`src/lib/auth/guards.ts`):
+- `requireAdmin()` — Admin-only server actions
+- `requireAuth()` — Any authenticated user (favorites, profile, comments)
+- `requireStaff()` — Admin or manager role
+- `requireB2bMember()` — B2B organization members
+
+### IMPORTANT: No Dynamic Imports for Internal Modules
+
+**DO NOT use `await import()` or inline `import()` for internal project modules.** All imports must be static `import` statements at the top of the file. Dynamic imports scatter dependencies, make code harder to trace, and bypass tree-shaking.
+
+**Exception:** Dynamic `import()` is allowed for heavy third-party libraries (e.g. `xlsx`) that should be lazy-loaded to reduce client bundle size.
+
+```typescript
+// ✅ Correct - static import at top of file
+import { getB2bCart } from "@/features/cart/cookies";
+import { updateOrganization } from "@/features/b2b/clients/api/actions";
+
+// ❌ Wrong - dynamic import of internal module
+const { getB2bCart } = await import("@/features/cart/cookies");
+
+// ✅ OK - lazy-loading a heavy third-party library
+const XLSX = await import("xlsx");
 ```
 
 ### Components
@@ -157,6 +201,31 @@ import { getProducts, updateProductAction } from "@/features/products";
 ```
 
 Barrel files hurt tree-shaking, increase bundle size, and slow down builds.
+
+## Logging (`src/lib/logger.ts`)
+
+This project uses **pino** for structured logging. DO NOT use `console.log`/`console.error` — use the module loggers instead.
+
+```typescript
+import { log } from "@/lib/logger";
+
+// Module-scoped loggers (orders, b2b, blog, auth, email, stores, users, cart, db, payments, invoices)
+log.orders.error({ err: error, orderId }, "Create order failed");
+log.email.error({ err, orderId }, "Failed to send notification");
+log.cart.warn({ productId }, "Product not found in cart");
+
+// Pino convention: first arg is context object, second is message string
+// Use { err: error } (not { error }) for error objects — pino serializes them properly
+```
+
+In development: pretty-printed with colors via `pino-pretty`. In production: structured JSON for log aggregation.
+
+For request-scoped logging with correlation IDs:
+```typescript
+import { createRequestLogger } from "@/lib/logger";
+const reqLog = createRequestLogger("orders", { userId: "usr_abc" });
+reqLog.info("Processing order");
+```
 
 ## Conventions
 

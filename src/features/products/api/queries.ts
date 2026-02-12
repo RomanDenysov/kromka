@@ -22,7 +22,7 @@ function transformProduct<T extends { image: { url: string } | null }>(
 // One function to get all products just reused for all queries for better performance
 export const getProducts = cache(async () => {
   "use cache";
-  cacheLife("days");
+  cacheLife("max");
   cacheTag("products");
 
   const data = await db.query.products.findMany({
@@ -44,7 +44,7 @@ export const preloadProducts = () => void getProducts();
 
 export const getProductBySlug = cache(async (slug: string) => {
   "use cache";
-  cacheLife("days");
+  cacheLife("max");
   cacheTag("products", `product-${slug}`);
 
   const product = await db.query.products.findFirst({
@@ -63,7 +63,7 @@ export const getProductBySlug = cache(async (slug: string) => {
 
 export const getProductsByCategory = cache(async (slug: string) => {
   "use cache";
-  cacheLife("days");
+  cacheLife("max");
   cacheTag("products", `category-${slug}`);
 
   const allProducts = await getProducts();
@@ -130,6 +130,7 @@ export async function getAdminProducts() {
       image: true,
     },
     orderBy: (product, { desc }) => desc(product.createdAt),
+    limit: 500,
   });
 
   return fetchedProducts.map((p) => ({

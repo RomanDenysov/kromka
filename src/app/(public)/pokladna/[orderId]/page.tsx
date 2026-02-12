@@ -5,7 +5,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ContinueShoppingLink } from "@/components/continue-shopping-link";
+import { getLastOrderId } from "@/features/checkout/cookies";
 import { getOrderById } from "@/features/orders/api/queries";
+import { getSession } from "@/lib/auth/session";
 import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -19,6 +21,21 @@ async function OrderConfirmationContent({ orderId }: { orderId: string }) {
 
   if (!order) {
     notFound();
+  }
+
+  // Verify order ownership to prevent IDOR
+  const session = await getSession();
+  if (session?.user) {
+    // Authenticated user: must own the order
+    if (order.createdBy?.id !== session.user.id) {
+      notFound();
+    }
+  } else {
+    // Guest: verify via last-order cookie
+    const lastOrderId = await getLastOrderId();
+    if (lastOrderId !== order.id) {
+      notFound();
+    }
   }
 
   return (

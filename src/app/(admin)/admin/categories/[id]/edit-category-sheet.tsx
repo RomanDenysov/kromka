@@ -21,10 +21,8 @@ import { cn } from "@/lib/utils";
 
 export function EditCategorySheet({
   category,
-  categories,
 }: {
   category: AdminCategory;
-  categories: AdminCategory[];
 }) {
   const [{ categoryId }, setSearchParams] = useCategoryParams();
 
@@ -46,7 +44,6 @@ export function EditCategorySheet({
         </SheetHeader>
         <div className="min-h-0 flex-1 overflow-y-auto">
           <CategoryForm
-            categories={categories}
             category={category}
             className="h-full flex-1"
           >

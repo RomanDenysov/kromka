@@ -2,7 +2,7 @@
 
 import { Loader2, Navigation } from "lucide-react";
 import type { Route } from "next";
-import { use, useMemo } from "react";
+import { use, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { StoreCard } from "@/app/(public)/predajne/store-card";
 import { StoresMap } from "@/components/stores-map";
@@ -25,12 +25,16 @@ export function StoresSection({ promises }: StoresSectionProps) {
   };
 
   // Show error toast when status changes to denied
-  if (status === "denied") {
-    toast.error("Prístup k polohe bol zamietnutý", {
-      description: "Povoľte prístup k polohe v nastaveniach prehliadača.",
-      id: "geolocation-denied",
-    });
-  }
+  const prevStatusRef = useRef(status);
+  useEffect(() => {
+    if (status === "denied" && prevStatusRef.current !== "denied") {
+      toast.error("Prístup k polohe bol zamietnutý", {
+        description: "Povoľte prístup k polohe v nastaveniach prehliadača.",
+        id: "geolocation-denied",
+      });
+    }
+    prevStatusRef.current = status;
+  }, [status]);
 
   const storesWithDistance = useMemo(() => {
     if (!position) {

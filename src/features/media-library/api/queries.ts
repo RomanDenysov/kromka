@@ -3,7 +3,7 @@ import { db } from "@/db";
 
 export async function getMedia() {
   "use cache";
-  cacheLife("days");
+  cacheLife("hours");
   cacheTag("media");
   return await db.query.media.findMany({
     orderBy: (mediaTable, { desc }) => [desc(mediaTable.createdAt)],
@@ -22,7 +22,7 @@ export async function getMedia() {
 
 export async function getMediaById(id: string) {
   "use cache";
-  cacheLife("days");
+  cacheLife("hours");
   cacheTag("media", `media-${id}`);
   return await db.query.media.findFirst({
     where: (mediaTable, { eq }) => eq(mediaTable.id, id),

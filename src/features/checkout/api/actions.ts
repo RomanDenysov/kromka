@@ -1,5 +1,7 @@
 "use server";
 
+import { getUser } from "@/lib/auth/session";
+import { log } from "@/lib/logger";
 import { setLastOrderId } from "../cookies";
 import {
   getLastOrderPrefill,
@@ -10,30 +12,28 @@ import {
 
 /**
  * Server action: Get last order prefill data
- * Wraps query with error handling for client consumption
+ * Derives userId from session internally to prevent IDOR
  */
-export async function getLastOrderPrefillAction(
-  userId?: string
-): Promise<LastOrderPrefill | null> {
+export async function getLastOrderPrefillAction(): Promise<LastOrderPrefill | null> {
   try {
-    return await getLastOrderPrefill(userId);
+    const user = await getUser();
+    return await getLastOrderPrefill(user?.id);
   } catch (error) {
-    console.error("Failed to get last order prefill:", error);
+    log.orders.error({ err: error }, "Failed to get last order prefill");
     return null;
   }
 }
 
 /**
  * Server action: Get last order with items for "repeat order" feature
- * Wraps query with error handling for client consumption
+ * Derives userId from session internally to prevent IDOR
  */
-export async function getLastOrderWithItemsAction(
-  userId?: string
-): Promise<LastOrderWithItems | null> {
+export async function getLastOrderWithItemsAction(): Promise<LastOrderWithItems | null> {
   try {
-    return await getLastOrderWithItems(userId);
+    const user = await getUser();
+    return await getLastOrderWithItems(user?.id);
   } catch (error) {
-    console.error("Failed to get last order with items:", error);
+    log.orders.error({ err: error }, "Failed to get last order with items");
     return null;
   }
 }
@@ -46,6 +46,6 @@ export async function setLastOrderIdAction(orderId: string): Promise<void> {
   try {
     await setLastOrderId(orderId);
   } catch (error) {
-    console.error("Failed to set last order ID:", error);
+    log.orders.error({ err: error }, "Failed to set last order ID");
   }
 }

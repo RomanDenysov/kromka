@@ -65,7 +65,7 @@ const isStoreOpen = (regularHours: StoreSchedule["regularHours"]) => {
 
 async function getStoreBySlug(slug: string) {
   "use cache";
-  cacheLife("max");
+  cacheLife("minutes");
   cacheTag("stores", `store-${slug}`);
   return await db.query.stores.findFirst({
     where: (s, { eq, and }) => and(eq(s.slug, slug), eq(s.isActive, true)),

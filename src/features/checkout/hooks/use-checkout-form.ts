@@ -16,7 +16,6 @@ import {
   getTimeRangeForDate,
   isBeforeDailyCutoff,
 } from "@/features/checkout/utils";
-import { createB2BOrder } from "@/features/orders/actions/create-b2b-order";
 import { createB2COrder } from "@/features/orders/actions/create-b2c-order";
 import type { GuestCustomerInfo } from "@/features/orders/actions/internal";
 import type { Store } from "@/features/stores/api/queries";
@@ -39,7 +38,6 @@ type UseCheckoutFormProps = {
   stores: Store[];
   lastOrderPrefill?: LastOrderPrefill | null;
   restrictedPickupDates: Set<string> | null;
-  isB2B?: boolean;
 };
 
 /**
@@ -51,7 +49,6 @@ export function useCheckoutForm({
   stores,
   lastOrderPrefill,
   restrictedPickupDates,
-  isB2B = false,
 }: UseCheckoutFormProps) {
   const router = useRouter();
 
@@ -185,30 +182,26 @@ export function useCheckoutForm({
       phone: value.phone,
     };
 
-    const result = isB2B
-      ? await createB2BOrder({
-          storeId: value.storeId,
-          pickupDate: formattedDate,
-          pickupTime: value.pickupTime,
-          paymentMethod: value.paymentMethod,
-          customerInfo,
-        })
-      : await createB2COrder({
-          storeId: value.storeId,
-          pickupDate: formattedDate,
-          pickupTime: value.pickupTime,
-          paymentMethod: value.paymentMethod as Exclude<
-            typeof value.paymentMethod,
-            "invoice"
-          >,
-          customerInfo,
-        });
+    try {
+      const result = await createB2COrder({
+        storeId: value.storeId,
+        pickupDate: formattedDate,
+        pickupTime: value.pickupTime,
+        paymentMethod: value.paymentMethod as Exclude<
+          typeof value.paymentMethod,
+          "invoice"
+        >,
+        customerInfo,
+      });
 
-    if (result.success) {
-      toast.success("Vaša objednávka bola vytvorená");
-      router.push(`/pokladna/${result.orderId}` as Route);
-    } else {
-      toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
+      if (result.success) {
+        toast.success("Vaša objednávka bola vytvorená");
+        router.push(`/pokladna/${result.orderId}` as Route);
+      } else {
+        toast.error(result.error ?? "Nepodarilo sa vytvoriť objednávku");
+      }
+    } catch {
+      toast.error("Nepodarilo sa spojiť so serverom. Skúste to znova.");
     }
   };
 

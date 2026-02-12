@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 type Props = ButtonProps & {
   id: string;
   iconClassName?: string;
+  onRemove?: (productId: string) => Promise<void>;
 };
 
 export function RemoveItemButton({
@@ -17,6 +18,7 @@ export function RemoveItemButton({
   variant = "ghost",
   size = "icon-sm",
   iconClassName,
+  onRemove,
   ...props
 }: Props) {
   const [isPending, startTransition] = useTransition();
@@ -26,7 +28,11 @@ export function RemoveItemButton({
       disabled={isPending}
       onClick={() =>
         startTransition(async () => {
-          await removeFromCart(id);
+          if (onRemove) {
+            await onRemove(id);
+          } else {
+            await removeFromCart(id);
+          }
         })
       }
       size={size}

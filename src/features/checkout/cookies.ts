@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 
 const LAST_ORDER_COOKIE = "krmk-last-order";
-const LAST_ORDER_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 1 year
+const LAST_ORDER_MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 /** Get the last order ID from cookie (for guests) */
 export async function getLastOrderId(): Promise<string | null> {

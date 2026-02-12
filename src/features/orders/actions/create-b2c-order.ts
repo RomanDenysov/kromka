@@ -1,17 +1,22 @@
 "use server";
 
-import type { PaymentMethod } from "@/db/types";
+import { updateTag } from "next/cache";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { isB2cPaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { getUser } from "@/lib/auth/session";
+import { log } from "@/lib/logger";
+import { guard, runPipeline, unwrap } from "@/lib/pipeline";
 import { setLastOrderIdAction } from "../../checkout/api/actions";
 import {
   buildOrderItems,
   clearCartAfterOrder,
   type GuestCustomerInfo,
-  isValidGuestInfo,
   notifyOrderCreated,
   persistOrder,
   validateCart,
+  validateGuestInfo,
+  validatePickupDate,
   validateStoreExists,
 } from "./internal";
 
@@ -28,80 +33,88 @@ export async function createB2COrder(data: {
   storeId: string;
   pickupDate: string;
   pickupTime: string;
-  paymentMethod: Exclude<PaymentMethod, "invoice">;
+  paymentMethod: string;
   customerInfo: GuestCustomerInfo;
 }): Promise<CreateOrderResult> {
   try {
-    const ordersEnabled = await getSiteConfig("orders_enabled");
-    if (!ordersEnabled) {
-      return { success: false, error: "Objednávky sú momentálne vypnuté" };
-    }
+    const result = await runPipeline(async () => {
+      guard(
+        isB2cPaymentMethod(data.paymentMethod),
+        "Neplatný spôsob platby",
+        "INVALID_PAYMENT_METHOD"
+      );
 
-    if (!(await isValidGuestInfo(data.customerInfo))) {
-      return { success: false, error: "Vyplňte prosím všetky kontaktné údaje" };
-    }
+      const ordersEnabled = await getSiteConfig("orders_enabled");
+      guard(ordersEnabled, "Objednávky sú momentálne vypnuté", "ORDERS_DISABLED");
 
-    const storeValidation = await validateStoreExists(data.storeId);
-    if (!storeValidation.success) {
-      return storeValidation;
-    }
+      unwrap(await validateGuestInfo(data.customerInfo));
+      unwrap(await validateStoreExists(data.storeId));
+      unwrap(await validatePickupDate(data.pickupDate));
 
-    const cartValidation = await validateCart();
-    if (!cartValidation.success) {
-      return cartValidation;
-    }
+      const cartItems = unwrap(await validateCart());
+      const orderItemsData = await buildOrderItems(cartItems, null);
+      guard(orderItemsData.length > 0, "Žiadne platné produkty v košíku", "INVALID_PRODUCTS");
 
-    const orderItemsData = await buildOrderItems(
-      cartValidation.cartItems,
-      null
-    );
-    if (orderItemsData.length === 0) {
-      return { success: false, error: "Žiadne platné produkty v košíku" };
-    }
+      const totalCents = orderItemsData.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
 
-    const totalCents = orderItemsData.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+      const user = await getUser();
 
-    const user = await getUser();
-    const { orderId, orderNumber } = await persistOrder({
-      userId: user?.id ?? null,
-      customerInfo: data.customerInfo,
-      storeId: data.storeId,
-      companyId: null,
-      paymentMethod: data.paymentMethod,
-      pickupDate: data.pickupDate,
-      pickupTime: data.pickupTime,
-      totalCents,
-      orderItemsData,
+      const { orderId, orderNumber } = await persistOrder({
+        userId: user?.id ?? null,
+        customerInfo: data.customerInfo,
+        storeId: data.storeId,
+        companyId: null,
+        paymentMethod: data.paymentMethod,
+        pickupDate: data.pickupDate,
+        pickupTime: data.pickupTime,
+        totalCents,
+        orderItemsData,
+      });
+
+      return { orderId, orderNumber, userId: user?.id ?? null };
     });
 
+    if (!result.ok) {
+      return { success: false, error: result.error };
+    }
+
+    const { orderId, orderNumber, userId } = result.data;
+
+    updateTag("orders");
+
+    // Clear cart only after confirmed pipeline success
     await clearCartAfterOrder();
 
-    // Handle post-order side effects
-    if (user) {
-      const { updateCurrentUserProfile } = await import(
-        "@/features/user-profile/api/actions"
-      );
-      updateCurrentUserProfile({
-        name: data.customerInfo.name,
-        email: data.customerInfo.email,
-        phone: data.customerInfo.phone,
-      }).catch((err) => {
-        console.error("Failed to update user profile:", err);
-      });
+    // Fire-and-forget side effects
+    if (userId) {
+      import("@/features/user-profile/api/actions")
+        .then(({ updateCurrentUserProfile }) =>
+          updateCurrentUserProfile({
+            name: data.customerInfo.name,
+            email: data.customerInfo.email,
+            phone: data.customerInfo.phone,
+          })
+        )
+        .catch((err) => {
+          log.orders.error({ err }, "Failed to update user profile after order");
+        });
     } else {
       setLastOrderIdAction(orderId).catch((err) => {
-        console.error("Failed to set last order ID:", err);
+        log.orders.error({ err }, "Failed to set last order ID for guest");
       });
     }
 
-    await notifyOrderCreated(orderId);
+    notifyOrderCreated(orderId).catch((err) => {
+      log.email.error({ err, orderId }, "Failed to send order notification");
+    });
 
     return { success: true, orderId, orderNumber };
   } catch (error) {
-    console.error("[SERVER] Create B2C ORDER failed:", error);
+    if (isRedirectError(error)) throw error;
+    log.orders.error({ err: error }, "Create B2C order failed");
     return { success: false, error: "Nastala chyba pri vytváraní objednávky" };
   }
 }

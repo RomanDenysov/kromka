@@ -1,6 +1,8 @@
 import type { JSONContent } from "@tiptap/react";
+import { sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   date,
   foreignKey,
   index,
@@ -282,8 +284,6 @@ export const categories = pgTable(
       .notNull()
       .default("Popis vašej kategórie..."),
 
-    parentId: text("parent_id"),
-
     showInMenu: boolean("show_in_menu").default(true).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
 
@@ -308,11 +308,6 @@ export const categories = pgTable(
   (table) => [
     index("categories_sort_order_idx").on(table.sortOrder),
     index("categories_slug_idx").on(table.slug),
-
-    foreignKey({
-      columns: [table.parentId],
-      foreignColumns: [table.id],
-    }).onDelete("set null"),
   ]
 );
 
@@ -392,7 +387,14 @@ export const promoCodes = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [index("idx_promo_codes_code").on(table.code)]
+  (table) => [
+    index("idx_promo_codes_code").on(table.code),
+    check("promo_codes_value_non_negative", sql`${table.value} >= 0`),
+    check(
+      "promo_codes_min_order_cents_non_negative",
+      sql`${table.minOrderCents} >= 0`
+    ),
+  ]
 );
 
 // Promo code usages
@@ -554,6 +556,7 @@ export const invoices = pgTable(
     index("idx_invoices_issued_at").on(table.issuedAt),
     index("idx_invoices_paid_at").on(table.paidAt),
     index("idx_invoices_invoice_number").on(table.invoiceNumber),
+    check("invoices_total_cents_non_negative", sql`${table.totalCents} >= 0`),
   ]
 );
 
@@ -582,6 +585,8 @@ export const orders = pgTable(
     companyId: text("company_id").references(() => organizations.id, {
       onDelete: "set null",
     }),
+
+    deliveryAddress: jsonb("delivery_address").$type<Address>(),
 
     orderStatus: text("order_status")
       .$type<OrderStatus>()
@@ -627,6 +632,12 @@ export const orders = pgTable(
     index("idx_payment_method").on(table.paymentMethod),
     index("idx_pickup_date").on(table.pickupDate),
     index("idx_created_at").on(table.createdAt),
+    index("orders_company_id_idx").on(table.companyId),
+    check("orders_total_cents_non_negative", sql`${table.totalCents} >= 0`),
+    check(
+      "orders_discount_cents_non_negative",
+      sql`${table.discountCents} >= 0`
+    ),
   ]
 );
 
@@ -666,7 +677,10 @@ export const orderItems = pgTable(
     quantity: integer("quantity").notNull().default(1),
     price: integer("price").notNull(),
   },
-  (table) => [primaryKey({ columns: [table.orderId, table.productId] })]
+  (table) => [
+    primaryKey({ columns: [table.orderId, table.productId] }),
+    check("order_items_price_non_negative", sql`${table.price} >= 0`),
+  ]
 );
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -760,6 +774,7 @@ export const prices = pgTable(
     primaryKey({
       columns: [table.productId, table.priceTierId],
     }),
+    check("prices_price_cents_non_negative", sql`${table.priceCents} >= 0`),
   ]
 );
 
@@ -832,6 +847,7 @@ export const products = pgTable(
     index("idx_products_category_id").on(t.categoryId),
     index("idx_products_active_status").on(t.isActive, t.status),
     index("idx_products_sort").on(t.sortOrder, t.createdAt),
+    check("products_price_cents_non_negative", sql`${t.priceCents} >= 0`),
   ]
 );
 
@@ -1162,8 +1178,7 @@ export const reviews = pgTable(
   (table) => [
     index("idx_reviews_product_id").on(table.productId),
     index("idx_reviews_user_id").on(table.userId),
-    // One review per product per user
-    // unique([table.userId, table.productId]) if needed
+    unique("reviews_user_product_unique").on(table.userId, table.productId),
   ]
 );
 

@@ -1,4 +1,3 @@
-"use cache";
 import "server-only";
 
 import { format } from "date-fns";
@@ -25,6 +24,7 @@ export async function getOrdersByPickupDate(
     storeId?: string;
   }
 ) {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -69,6 +69,7 @@ export async function getProductsAggregateByPickupDate(
   date: string,
   storeId?: string
 ) {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders", "products");
 
@@ -99,6 +100,7 @@ export async function getProductsAggregateByPickupDate(
 }
 
 export async function getMonthlyOrderStats(year: number, month: number) {
+  "use cache";
   cacheLife("hours");
   cacheTag("orders");
 
@@ -135,6 +137,7 @@ export type DashboardMetrics = {
 };
 
 export async function getOrdersCount(): Promise<number> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -145,6 +148,7 @@ export async function getOrdersCount(): Promise<number> {
     .then((res) => res[0]?.count ?? 0);
 }
 export async function getCartsCount(): Promise<number> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("carts");
 
@@ -155,6 +159,7 @@ export async function getCartsCount(): Promise<number> {
 }
 
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders", "products", "stores");
 
@@ -220,6 +225,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 export type OrderStatusDistributionResult = { status: string; count: number }[];
 
 export async function getOrderStatusDistribution(): Promise<OrderStatusDistributionResult> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -240,6 +246,7 @@ export async function getRevenueHistory({
 }: {
   days: number;
 }): Promise<RevenueHistoryResult> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -257,7 +264,7 @@ export async function getRevenueHistory({
         ne(orders.orderStatus, "cancelled"),
         gte(
           orders.createdAt,
-          sql`CURRENT_DATE - INTERVAL '${sql.raw(String(days))} days'`
+          sql`CURRENT_DATE - make_interval(days => ${days})`
         )
       )
     )
@@ -268,7 +275,7 @@ export async function getRevenueHistory({
   const fullRange = await db.execute<{ date: string }>(
     sql`SELECT to_char(d::date, 'YYYY-MM-DD') as date
         FROM generate_series(
-          CURRENT_DATE - INTERVAL '${sql.raw(String(days - 1))} days',
+          CURRENT_DATE - make_interval(days => ${days - 1}),
           CURRENT_DATE,
           '1 day'
         ) d`
@@ -294,6 +301,7 @@ export async function getRevenueAndOrdersHistory({
 }: {
   days: number;
 }): Promise<RevenueAndOrdersHistoryResult> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -313,7 +321,7 @@ export async function getRevenueAndOrdersHistory({
       and(
         gte(
           orders.createdAt,
-          sql`CURRENT_DATE - INTERVAL '${sql.raw(String(days))} days'`
+          sql`CURRENT_DATE - make_interval(days => ${days})`
         ),
         ne(orders.orderStatus, "cancelled")
       )
@@ -325,7 +333,7 @@ export async function getRevenueAndOrdersHistory({
   const fullRange = await db.execute<{ date: string }>(
     sql`SELECT to_char(d::date, 'YYYY-MM-DD') as date
         FROM generate_series(
-          CURRENT_DATE - INTERVAL '${sql.raw(String(days - 1))} days',
+          CURRENT_DATE - make_interval(days => ${days - 1}),
           CURRENT_DATE,
           '1 day'
         ) d`
@@ -361,6 +369,7 @@ type TopProductsResult = {
 }[];
 
 export async function getTopProducts(): Promise<TopProductsResult> {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders", "products");
 
@@ -396,6 +405,7 @@ export async function getTopProducts(): Promise<TopProductsResult> {
 export type RecentOrder = Awaited<ReturnType<typeof getRecentOrders>>[number];
 
 export async function getRecentOrders() {
+  "use cache";
   cacheLife("minutes");
   cacheTag("orders");
 
@@ -432,6 +442,7 @@ export async function getRecentOrders() {
 }
 
 export async function getActiveCarts() {
+  "use cache";
   cacheLife("minutes");
   cacheTag("carts");
 

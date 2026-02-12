@@ -30,6 +30,13 @@ export const PAYMENT_METHODS = [
 ] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
+export const ALLOWED_B2C_PAYMENT_METHODS: readonly string[] = ["in_store", "card"];
+export type B2cPaymentMethod = "in_store" | "card";
+
+export function isB2cPaymentMethod(value: string): value is B2cPaymentMethod {
+  return ALLOWED_B2C_PAYMENT_METHODS.includes(value);
+}
+
 export const INVOICE_STATUSES = [
   "draft",
   "issued",

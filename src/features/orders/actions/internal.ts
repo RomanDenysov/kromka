@@ -1,6 +1,5 @@
-"use server";
-
-import { eq, inArray } from "drizzle-orm";
+import { isBefore, isSameDay, startOfToday } from "date-fns";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import {
   orderItems,
@@ -9,10 +8,17 @@ import {
   products,
   stores,
 } from "@/db/schema";
-import type { PaymentMethod } from "@/db/types";
-import { clearCart, getCart } from "@/features/cart/cookies";
+import type { Address, PaymentMethod } from "@/db/types";
+import {
+  clearB2bCart,
+  clearCart,
+  getB2bCart,
+  getCart,
+} from "@/features/cart/cookies";
 import { sendEmail } from "@/lib/email";
 import { createPrefixedNumericId } from "@/lib/ids";
+import { log } from "@/lib/logger";
+import { fail, guard, type StepResult, succeed } from "@/lib/pipeline";
 import { getEffectivePrices } from "@/lib/pricing";
 import { getOrderById } from "../api/queries";
 
@@ -29,10 +35,32 @@ export type GuestCustomerInfo = {
   phone: string;
 };
 
-export async function isValidGuestInfo(
-  info: GuestCustomerInfo
-): Promise<boolean> {
-  return Boolean(info.name.trim() && info.email.trim() && info.phone.trim());
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function validateGuestInfo(info: GuestCustomerInfo): StepResult<void> {
+  if (!info.name.trim()) {
+    return fail("Meno je povinné", "INVALID_NAME");
+  }
+  if (!(info.email.trim() && EMAIL_REGEX.test(info.email))) {
+    return fail("Neplatný email", "INVALID_EMAIL");
+  }
+  if (!info.phone.trim()) {
+    return fail("Neplatné telefónne číslo", "INVALID_PHONE");
+  }
+  return succeed(undefined);
+}
+
+export function validatePickupDate(dateStr: string): StepResult<void> {
+  const pickupDate = new Date(dateStr);
+  const today = startOfToday();
+  if (
+    Number.isNaN(pickupDate.getTime()) ||
+    isBefore(pickupDate, today) ||
+    isSameDay(pickupDate, today)
+  ) {
+    return fail("Neplatný dátum vyzdvihnutia", "BAD_REQUEST");
+  }
+  return succeed(undefined);
 }
 
 /**
@@ -44,10 +72,32 @@ export async function buildOrderItems(
 ): Promise<OrderItemData[]> {
   const productIds = cartItems.map((item) => item.productId);
   const productData = await db.query.products.findMany({
-    where: inArray(products.id, productIds),
+    where: and(
+      inArray(products.id, productIds),
+      eq(products.isActive, true),
+      eq(products.status, "active")
+    ),
+    with: {
+      category: { columns: { isActive: true } },
+    },
   });
 
-  const productPrices = productData.map((p) => ({
+  // Filter out products in inactive categories
+  const activeProducts = productData.filter(
+    (p) => p.category?.isActive !== false
+  );
+
+  // Verify all requested products were found and active (including category)
+  const foundIds = new Set(activeProducts.map((p) => p.id));
+  const missingIds = productIds.filter((id) => !foundIds.has(id));
+
+  guard(
+    missingIds.length === 0,
+    `Niektoré produkty nie sú dostupné: ${missingIds.join(", ")}`,
+    "INVALID_PRODUCTS"
+  );
+
+  const productPrices = activeProducts.map((p) => ({
     productId: p.id,
     basePriceCents: p.priceCents,
   }));
@@ -57,7 +107,7 @@ export async function buildOrderItems(
       : new Map<string, number>();
 
   return cartItems.flatMap((item) => {
-    const product = productData.find((p) => p.id === item.productId);
+    const product = activeProducts.find((p) => p.id === item.productId);
     if (!product) {
       return [];
     }
@@ -79,53 +129,46 @@ export async function buildOrderItems(
 /**
  * Validate that store exists.
  */
-export async function validateStoreExists(storeId: string): Promise<
-  | {
-      success: false;
-      error: string;
-    }
-  | { success: true }
-> {
+export async function validateStoreExists(
+  storeId: string
+): Promise<StepResult<void>> {
   const storeExists = await db.query.stores.findFirst({
-    where: eq(stores.id, storeId),
+    where: and(eq(stores.id, storeId), eq(stores.isActive, true)),
     columns: { id: true },
   });
 
   if (!storeExists) {
-    return { success: false, error: "Vybraná predajňa neexistuje" };
+    return fail("Vybraná predajňa neexistuje", "STORE_NOT_FOUND");
   }
 
-  return { success: true };
+  return succeed(undefined);
 }
 
 /**
  * Validate that cart is not empty.
  */
 export async function validateCart(): Promise<
-  | {
-      success: false;
-      error: string;
-    }
-  | { success: true; cartItems: Awaited<ReturnType<typeof getCart>> }
+  StepResult<Awaited<ReturnType<typeof getCart>>>
 > {
   const cartItems = await getCart();
   if (cartItems.length === 0) {
-    return { success: false, error: "Košík je prázdny" };
+    return fail("Košík je prázdny", "EMPTY_CART");
   }
 
-  return { success: true, cartItems };
+  return succeed(cartItems);
 }
 
 type PersistOrderParams = {
   userId: string | null;
   customerInfo: GuestCustomerInfo;
-  storeId: string;
+  storeId: string | null;
   companyId: string | null;
   paymentMethod: PaymentMethod;
   pickupDate: string;
   pickupTime: string;
   totalCents: number;
   orderItemsData: OrderItemData[];
+  deliveryAddress?: Address | null;
 };
 
 /**
@@ -135,6 +178,12 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
   orderId: string;
   orderNumber: string;
 }> {
+  guard(
+    params.orderItemsData.length > 0,
+    "Nie je možné vytvoriť objednávku bez položiek",
+    "INVALID_PRODUCTS"
+  );
+
   const orderNumber = createPrefixedNumericId("OBJ");
 
   const [order] = await db
@@ -145,6 +194,7 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
       customerInfo: params.customerInfo,
       storeId: params.storeId,
       companyId: params.companyId,
+      deliveryAddress: params.deliveryAddress ?? null,
       orderStatus: "new",
       paymentStatus: "pending",
       paymentMethod: params.paymentMethod,
@@ -175,11 +225,26 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
 export async function notifyOrderCreated(orderId: string): Promise<void> {
   const fullOrder = await getOrderById(orderId);
   if (!fullOrder) {
-    throw new Error("Order not found after creation");
+    log.orders.error(
+      { orderId },
+      "Order not found for notification after creation"
+    );
+    return;
   }
 
-  await sendEmail.newOrder({ order: fullOrder });
-  await sendEmail.receipt({ order: fullOrder });
+  // Send emails independently — one failure shouldn't block the other
+  const results = await Promise.allSettled([
+    sendEmail.newOrder({ order: fullOrder }),
+    sendEmail.receipt({ order: fullOrder }),
+  ]);
+  for (const result of results) {
+    if (result.status === "rejected") {
+      log.email.error(
+        { err: result.reason, orderId },
+        "Failed to send order notification email"
+      );
+    }
+  }
 }
 
 /**
@@ -187,4 +252,24 @@ export async function notifyOrderCreated(orderId: string): Promise<void> {
  */
 export async function clearCartAfterOrder(): Promise<void> {
   await clearCart();
+}
+
+/**
+ * Clear B2B cart after successful order creation.
+ */
+export async function clearB2bCartAfterOrder(): Promise<void> {
+  await clearB2bCart();
+}
+
+/**
+ * Validate that B2B cart is not empty.
+ */
+export async function validateB2bCart(): Promise<
+  StepResult<Awaited<ReturnType<typeof getCart>>>
+> {
+  const cartItems = await getB2bCart();
+  if (cartItems.length === 0) {
+    return fail("B2B košík je prázdny", "EMPTY_CART");
+  }
+  return succeed(cartItems);
 }

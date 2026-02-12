@@ -24,7 +24,7 @@ async function AdminSidebarLoader() {
   return <AppSidebar collapsible="icon" newOrdersCount={newOrdersCount} />;
 }
 
-export default function AdminLayout({ children }: Props) {
+export default async function AdminLayout({ children }: Props) {
   return (
     <SidebarProvider
       style={

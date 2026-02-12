@@ -1,10 +1,22 @@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getCart } from "@/features/cart/cookies";
+import { getB2bCart, getCart } from "@/features/cart/cookies";
+import { getUserDetails } from "@/lib/auth/session";
 
 export async function CartBadge() {
-  const cart = await getCart();
-  const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
+  const [cart, user] = await Promise.all([getCart(), getUserDetails()]);
+  let totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
+
+  // Add B2B cart items for B2B members
+  const isB2bMember =
+    user?.members && user.members.length > 0
+      ? Boolean(user.members[0]?.organization)
+      : false;
+
+  if (isB2bMember) {
+    const b2bCart = await getB2bCart();
+    totalQty += b2bCart.reduce((sum, i) => sum + i.qty, 0);
+  }
 
   if (totalQty === 0) {
     return null;

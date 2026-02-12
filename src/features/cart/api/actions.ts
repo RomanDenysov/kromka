@@ -1,21 +1,42 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { z } from "zod";
 import {
+  clearB2bCart as clearB2bCartCookie,
   clearCart as clearCartCookie,
+  getB2bCart,
   getCart,
+  setB2bCart,
   setCart,
 } from "@/features/cart/cookies";
 
+const MAX_ITEM_QTY = 999;
+
+const addToCartSchema = z.object({
+  productId: z.string().min(1),
+  qty: z.number().int().positive().default(1),
+});
+
+const updateQuantitySchema = z.object({
+  productId: z.string().min(1),
+  qty: z.number().int(),
+});
+
 export async function addToCart(productId: string, qty = 1) {
+  const parsed = addToCartSchema.safeParse({ productId, qty });
+  if (!parsed.success) {
+    throw new Error("Invalid cart input");
+  }
+
   const cart = await getCart();
 
   const existingIndex = cart.findIndex((item) => item.productId === productId);
 
   if (existingIndex >= 0) {
-    cart[existingIndex].qty += qty;
+    cart[existingIndex].qty = Math.min(cart[existingIndex].qty + qty, MAX_ITEM_QTY);
   } else {
-    cart.push({ productId, qty });
+    cart.push({ productId, qty: Math.min(qty, MAX_ITEM_QTY) });
   }
 
   await setCart(cart);
@@ -24,14 +45,20 @@ export async function addToCart(productId: string, qty = 1) {
 }
 
 export async function updateQuantity(productId: string, qty: number) {
+  const parsed = updateQuantitySchema.safeParse({ productId, qty });
+  if (!parsed.success) {
+    throw new Error("Invalid cart input");
+  }
+
   const cart = await getCart();
 
   if (qty <= 0) {
     await setCart(cart.filter((item) => item.productId !== productId));
   } else {
+    const clampedQty = Math.min(qty, MAX_ITEM_QTY);
     await setCart(
       cart.map((item) =>
-        item.productId === productId ? { ...item, qty } : item
+        item.productId === productId ? { ...item, qty: clampedQty } : item
       )
     );
   }
@@ -70,12 +97,89 @@ export async function addItemsToCart(
     );
 
     if (existingIndex >= 0) {
-      cart[existingIndex].qty += item.quantity;
+      cart[existingIndex].qty = Math.min(cart[existingIndex].qty + item.quantity, MAX_ITEM_QTY);
     } else {
-      cart.push({ productId: item.productId, qty: item.quantity });
+      cart.push({ productId: item.productId, qty: Math.min(item.quantity, MAX_ITEM_QTY) });
     }
   }
 
   await setCart(cart);
+  refresh();
+}
+
+export async function addToB2bCart(productId: string, qty = 1) {
+  const parsed = addToCartSchema.safeParse({ productId, qty });
+  if (!parsed.success) {
+    throw new Error("Invalid cart input");
+  }
+
+  const cart = await getB2bCart();
+  const existingIndex = cart.findIndex((item) => item.productId === productId);
+
+  if (existingIndex >= 0) {
+    cart[existingIndex].qty = Math.min(cart[existingIndex].qty + qty, MAX_ITEM_QTY);
+  } else {
+    cart.push({ productId, qty: Math.min(qty, MAX_ITEM_QTY) });
+  }
+
+  await setB2bCart(cart);
+  refresh();
+}
+
+export async function updateB2bQuantity(productId: string, qty: number) {
+  const parsed = updateQuantitySchema.safeParse({ productId, qty });
+  if (!parsed.success) {
+    throw new Error("Invalid cart input");
+  }
+
+  const cart = await getB2bCart();
+
+  if (qty <= 0) {
+    await setB2bCart(cart.filter((item) => item.productId !== productId));
+  } else {
+    const clampedQty = Math.min(qty, MAX_ITEM_QTY);
+    await setB2bCart(
+      cart.map((item) =>
+        item.productId === productId ? { ...item, qty: clampedQty } : item
+      )
+    );
+  }
+
+  refresh();
+}
+
+export async function removeFromB2bCart(productId: string) {
+  const cart = await getB2bCart();
+  await setB2bCart(cart.filter((item) => item.productId !== productId));
+  refresh();
+}
+
+export async function clearB2bCartAction() {
+  await clearB2bCartCookie();
+  refresh();
+}
+
+export async function addItemsToB2bCart(
+  items: { productId: string; quantity: number }[]
+) {
+  if (items.length === 0) {
+    return;
+  }
+
+  const cart = await getB2bCart();
+
+  for (const item of items) {
+    const existingIndex = cart.findIndex(
+      (ci) => ci.productId === item.productId
+    );
+
+    if (existingIndex >= 0) {
+      cart[existingIndex].qty = Math.min(cart[existingIndex].qty + item.quantity, MAX_ITEM_QTY);
+    } else {
+      cart.push({ productId: item.productId, qty: Math.min(item.quantity, MAX_ITEM_QTY) });
+    }
+  }
+
+  await setB2bCart(cart);
   refresh();
 }

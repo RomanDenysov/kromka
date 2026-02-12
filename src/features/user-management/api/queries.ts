@@ -1,32 +1,40 @@
-"use cache";
-
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 
-export async function getUsers() {
+export async function getUsers({
+  limit = 50,
+  offset = 0,
+}: { limit?: number; offset?: number } = {}) {
+  "use cache";
   cacheLife("minutes");
   cacheTag("users");
 
   return db.query.users.findMany({
+    columns: {
+      id: true,
+      name: true,
+      email: true,
+      emailVerified: true,
+      phone: true,
+      role: true,
+      createdAt: true,
+      image: true,
+    },
     orderBy: (user, { desc }) => [desc(user.createdAt)],
     with: {
-      orders: true,
       members: {
         with: {
           organization: true,
         },
       },
-      postComments: true,
-      postLikes: true,
-      posts: true,
-      reviews: true,
-      favorites: true,
-      promoCodeUsages: true,
     },
+    limit,
+    offset,
   });
 }
 
 export async function getUserById(id: string) {
+  "use cache";
   cacheLife("minutes");
   cacheTag("users", `user-${id}`);
 

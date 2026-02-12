@@ -5,7 +5,6 @@ export const categorySchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string(),
-  parentId: z.string().nullable(),
   showInMenu: z.boolean(),
   isActive: z.boolean(),
   showInB2c: z.boolean(),
