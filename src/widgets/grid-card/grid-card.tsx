@@ -1,11 +1,11 @@
-import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { CardContent } from "./card-content";
-import { CardWrapper } from "./card-wrapper";
-import { GridCardCarousel } from "./grid-card-carousel";
-import { GridCardVideo } from "./grid-card-video";
-import type { GridCardProps } from "./types";
-import { getCardSizeClasses, getExtraSpanClass, getImageSizes } from "./utils";
+import Image from 'next/image'
+import { cn } from '@/lib/utils'
+import { CardContent } from './card-content'
+import { CardWrapper } from './card-wrapper'
+import { GridCardCarousel } from './grid-card-carousel'
+import { GridCardVideo } from './grid-card-video'
+import type { GridCardProps } from './types'
+import { getCardSizeClasses, getExtraSpanClass, getImageSizes } from './utils'
 
 export function GridCard({
   title,
@@ -15,25 +15,27 @@ export function GridCard({
   images,
   video,
   color,
-  size = "medium",
+  size = 'medium',
   preload = false,
   className,
   textColor,
   autoplay = true,
   autoplayDelay = 3000,
   extraSpan = 0,
+  externalLink = false,
 }: GridCardProps) {
-  const allImages = images || (image ? [image] : []);
-  const hasCarousel = allImages.length > 1;
-  const hasVideo = !!video;
-  const hasImage = allImages.length > 0;
-  const hasSolidColor = !!color && !hasImage && !hasVideo;
+  const allImages = images || (image ? [image] : [])
+  const hasCarousel = allImages.length > 1
+  const hasVideo = !!video
+  const hasImage = allImages.length > 0
+  const hasSolidColor = !!color && !hasImage && !hasVideo
 
   // Delegate to client component for video
   if (hasVideo) {
     return (
       <GridCardVideo
         className={className}
+        externalLink={externalLink}
         extraSpan={extraSpan}
         href={href}
         poster={allImages[0]}
@@ -44,7 +46,7 @@ export function GridCard({
         title={title}
         video={video}
       />
-    );
+    )
   }
 
   // Delegate to client component for carousels
@@ -54,6 +56,7 @@ export function GridCard({
         autoplay={autoplay}
         autoplayDelay={autoplayDelay}
         className={className}
+        externalLink={externalLink}
         extraSpan={extraSpan}
         href={href}
         images={allImages}
@@ -63,18 +66,19 @@ export function GridCard({
         textColor={textColor}
         title={title}
       />
-    );
+    )
   }
 
   // Server-rendered static card
   return (
     <CardWrapper
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg transition-transform",
+        'group relative flex flex-col overflow-hidden rounded-lg transition-transform',
         getCardSizeClasses(size),
         getExtraSpanClass(size, extraSpan),
-        className
+        className,
       )}
+      external={externalLink}
       href={href}
     >
       {/* Single image background */}
@@ -85,7 +89,7 @@ export function GridCard({
             className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             decoding="sync"
             fill
-            loading={preload ? "eager" : "lazy"}
+            loading={preload ? 'eager' : 'lazy'}
             priority={preload}
             sizes={getImageSizes(size)}
             src={allImages[0]}
@@ -95,7 +99,7 @@ export function GridCard({
       )}
 
       {/* Solid color background */}
-      {hasSolidColor && <div className={cn("absolute inset-0", color)} />}
+      {hasSolidColor && <div className={cn('absolute inset-0', color)} />}
 
       {/* Content */}
       <CardContent
@@ -107,5 +111,5 @@ export function GridCard({
         title={title}
       />
     </CardWrapper>
-  );
+  )
 }
