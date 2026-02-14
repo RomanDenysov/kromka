@@ -15,6 +15,7 @@ export function useGameControls({
   containerRef,
 }: UseGameControlsOptions) {
   const isDraggingRef = useRef(false);
+  const pressedKeysRef = useRef(new Set<string>());
 
   const getClampedX = useCallback((x: number): number => {
     const halfWidth = BAKER_WIDTH / 2;
@@ -34,24 +35,46 @@ export function useGameControls({
     [containerRef]
   );
 
+  // Keyboard: track pressed keys (movement applied in game loop)
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      pressedKeysRef.current.clear();
+      return;
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      const step = 20;
-      if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
-        onMove((prev: number) => getClampedX(prev - step));
-        e.preventDefault();
-      } else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
-        onMove((prev: number) => getClampedX(prev + step));
+      if (
+        e.key === "ArrowLeft" ||
+        e.key === "a" ||
+        e.key === "A" ||
+        e.key === "ArrowRight" ||
+        e.key === "d" ||
+        e.key === "D"
+      ) {
+        pressedKeysRef.current.add(e.key);
         e.preventDefault();
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [enabled, onMove, getClampedX]);
+    const handleKeyUp = (e: KeyboardEvent) => {
+      pressedKeysRef.current.delete(e.key);
+    };
 
+    const handleBlur = () => {
+      pressedKeysRef.current.clear();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleBlur);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleBlur);
+    };
+  }, [enabled]);
+
+  // Mouse and touch: position-based (unchanged)
   useEffect(() => {
     if (!enabled) return;
 
@@ -115,4 +138,6 @@ export function useGameControls({
       window.removeEventListener("touchend", handleTouchEnd);
     };
   }, [enabled, containerRef, onMove, getRelativeX, getClampedX]);
+
+  return { pressedKeysRef, getClampedX };
 }

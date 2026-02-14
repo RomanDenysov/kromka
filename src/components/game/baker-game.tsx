@@ -1,10 +1,8 @@
 "use client";
 
 import {
-  forwardRef,
   useCallback,
   useEffect,
-  useImperativeHandle,
   useRef,
   useState,
 } from "react";
@@ -12,6 +10,7 @@ import { useGameControls } from "@/hooks/game/use-game-controls";
 import { useGameLoop } from "@/hooks/game/use-game-loop";
 import {
   BAKER_HEIGHT,
+  BAKER_SPEED,
   BAKER_WIDTH,
   BAKER_Y_OFFSET,
   CATCH_ANIMATION_DURATION,
@@ -29,6 +28,7 @@ import {
   getOvens,
   getRandomSpawnInterval,
   itemLosesLife,
+  resetItemIdCounter,
   selectRandomOven,
   spawnItem,
 } from "@/lib/game/spawner";
@@ -40,12 +40,7 @@ type BakerGameProps = {
   onGameOver: (score: number, highScore: number) => void;
 };
 
-export type BakerGameRef = {
-  reset: () => void;
-};
-
-export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
-  function BakerGameComponent({ sprites, onGameOver }, ref) {
+export function BakerGame({ sprites, onGameOver }: BakerGameProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -72,6 +67,7 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
     const scoreRef = useRef(0);
     const livesRef = useRef(INITIAL_LIVES);
     const spawnTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const ovenTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
     const highScoreRef = useRef(0);
 
     useEffect(() => {
@@ -81,34 +77,9 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
       }
     }, []);
 
-    const resetGame = useCallback(() => {
-      if (bakerRef.current.animationTimeout) {
-        clearTimeout(bakerRef.current.animationTimeout);
-      }
-      bakerRef.current = {
-        x: GAME_WIDTH / 2,
-        y: GAME_HEIGHT - BAKER_HEIGHT - BAKER_Y_OFFSET,
-        width: BAKER_WIDTH,
-        height: BAKER_HEIGHT,
-        isCatching: false,
-        catchTimeout: null,
-        animationState: "idle",
-        animationTimeout: null,
-        lastMoveTime: 0,
-        facingDirection: "right",
-      };
-      itemsRef.current = [];
-      // Reset all ovens to idle state
-      for (const oven of ovensRef.current) {
-        oven.heatState = "idle";
-        oven.spriteKey = "oven_1";
-      }
-      scoreRef.current = 0;
-      livesRef.current = INITIAL_LIVES;
-      setScore(0);
-      setLives(INITIAL_LIVES);
-      setIsPlaying(true);
-      setIsPaused(false);
+    // Reset item ID counter on mount (component remounts via key prop for reset)
+    useEffect(() => {
+      resetItemIdCounter();
     }, []);
 
     const handlePause = useCallback(() => {
@@ -118,10 +89,6 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
     const handleResume = useCallback(() => {
       setIsPaused(false);
     }, []);
-
-    useImperativeHandle(ref, () => ({
-      reset: resetGame,
-    }));
 
     // Keyboard shortcut for pause (Escape or P)
     useEffect(() => {
@@ -162,7 +129,7 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
 
     const isActive = isPlaying && !isPaused;
 
-    useGameControls({
+    const { pressedKeysRef, getClampedX } = useGameControls({
       onMove: handleMove,
       enabled: isActive,
       containerRef,
@@ -182,13 +149,13 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
         oven.spriteKey = "oven_2";
 
         // Phase 2: Heat up to hot
-        setTimeout(() => {
+        const warmupTimeout = setTimeout(() => {
           if (!isPlaying || isPaused) return;
           oven.heatState = "hot";
           oven.spriteKey = "oven_3";
 
           // Phase 3: Spawn item and reset oven
-          setTimeout(() => {
+          const hotTimeout = setTimeout(() => {
             if (!isPlaying || isPaused) return;
             const newItem = spawnItem(ovensRef.current, scoreRef.current, ovenIndex);
             itemsRef.current.push(newItem);
@@ -199,7 +166,9 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
 
             scheduleSpawn();
           }, OVEN_HOT_DURATION);
+          ovenTimeoutsRef.current.push(hotTimeout);
         }, OVEN_WARMUP_DURATION);
+        ovenTimeoutsRef.current.push(warmupTimeout);
       }, interval);
     }, [isPlaying, isPaused]);
 
@@ -212,6 +181,10 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
         if (spawnTimeoutRef.current) {
           clearTimeout(spawnTimeoutRef.current);
         }
+        for (const t of ovenTimeoutsRef.current) {
+          clearTimeout(t);
+        }
+        ovenTimeoutsRef.current = [];
       };
     }, [isPlaying, isPaused, scheduleSpawn]);
 
@@ -259,6 +232,10 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
       if (spawnTimeoutRef.current) {
         clearTimeout(spawnTimeoutRef.current);
       }
+      for (const t of ovenTimeoutsRef.current) {
+        clearTimeout(t);
+      }
+      ovenTimeoutsRef.current = [];
 
       const finalScore = scoreRef.current;
       let finalHighScore = highScoreRef.current;
@@ -313,6 +290,24 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
         const baker = bakerRef.current;
         const items = itemsRef.current;
         const normalizedDelta = deltaTime / 16.67;
+        const keys = pressedKeysRef.current;
+
+        // Apply keyboard movement scaled by delta time
+        const isLeft = keys.has("ArrowLeft") || keys.has("a") || keys.has("A");
+        const isRight = keys.has("ArrowRight") || keys.has("d") || keys.has("D");
+
+        if (isLeft || isRight) {
+          const dx = BAKER_SPEED * normalizedDelta * (isLeft ? -1 : 1);
+          const newX = getClampedX(baker.x + dx);
+          if (newX !== baker.x) {
+            baker.facingDirection = isLeft ? "left" : "right";
+            baker.x = newX;
+            baker.lastMoveTime = Date.now();
+            if (baker.animationState !== "gotBread" && baker.animationState !== "sad") {
+              baker.animationState = "running";
+            }
+          }
+        }
 
         // Check if baker should transition from running to idle
         const timeSinceMove = Date.now() - baker.lastMoveTime;
@@ -338,7 +333,7 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
           }
         }
       },
-      [handleItemCatch, handleItemMiss]
+      [handleItemCatch, handleItemMiss, pressedKeysRef, getClampedX]
     );
 
     const getBakerSprite = useCallback(() => {
@@ -396,16 +391,8 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
         ctx.drawImage(decorSprite, decor.x, decor.y, decor.width, decor.height);
       }
 
-      // 3. Ovens with shadows
+      // 3. Ovens
       for (const oven of ovensRef.current) {
-        // Draw shadow under oven
-        drawShadow(
-          ctx,
-          oven.x + oven.width / 2,
-          oven.y + oven.height + 8,
-          oven.width * 0.8,
-          12
-        );
         const ovenSprite = sprites[oven.spriteKey];
         ctx.drawImage(ovenSprite, oven.x, oven.y, oven.width, oven.height);
       }
@@ -481,14 +468,13 @@ export const BakerGame = forwardRef<BakerGameRef, BakerGameProps>(
               onClick={handleResume}
               type="button"
             >
-              Pokracovat
+              Pokračovať
             </button>
             <p className="mt-4 text-gray-300 text-sm">
-              Stlac Esc alebo P pre pokracovanie
+              Stlač Esc alebo P pre pokračovanie
             </p>
           </div>
         )}
       </div>
     );
-  }
-);
+}

@@ -72,21 +72,21 @@ export function GameHUD({ score, lives, onPause }: GameHUDProps) {
         <DialogContent className="max-w-md" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="text-center text-xl">
-              Ako hrat hru
+              Ako hrať hru
             </DialogTitle>
             <DialogDescription className="text-center">
-              Chytaj padajuce pecivo a zbieraj body!
+              Chytaj padajúce pečivo a zbieraj body!
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             {/* Controls section */}
             <div className="space-y-2">
-              <h4 className="font-semibold text-sm">Ovladanie</h4>
+              <h4 className="font-semibold text-sm">Ovládanie</h4>
               <div className="space-y-1.5 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">⌨️</span>
-                  <span>Klavesnica:</span>
+                  <span>Klávesnica:</span>
                   <Kbd>←</Kbd> <Kbd>→</Kbd>
                   <span className="text-muted-foreground">alebo</span>
                   <Kbd>A</Kbd> <Kbd>D</Kbd>
@@ -126,7 +126,7 @@ export function GameHUD({ score, lives, onPause }: GameHUDProps) {
                 </div>
                 <div className="flex items-center gap-2 rounded-md bg-red-50 p-2 dark:bg-red-950/30">
                   <span className="text-lg">🔥</span>
-                  <span>Spalene</span>
+                  <span>Spálené</span>
                   <span className="ml-auto font-bold text-red-600">−5</span>
                 </div>
               </div>
@@ -134,7 +134,7 @@ export function GameHUD({ score, lives, onPause }: GameHUDProps) {
 
             {/* Lives section */}
             <div className="space-y-2">
-              <h4 className="font-semibold text-sm">Zivoty</h4>
+              <h4 className="font-semibold text-sm">Životy</h4>
               <div className="flex items-center gap-2 text-sm">
                 <div className="flex gap-0.5">
                   <Heart className="size-5 fill-red-500 text-red-500" />
@@ -142,8 +142,8 @@ export function GameHUD({ score, lives, onPause }: GameHUDProps) {
                   <Heart className="size-5 fill-red-500 text-red-500" />
                 </div>
                 <span>
-                  Mas 3 zivoty. Kazde spadnute pecivo{" "}
-                  <span className="font-medium text-red-600">−1 zivot</span>
+                  Máš 3 životy. Každé spadnuté pečivo{" "}
+                  <span className="font-medium text-red-600">−1 život</span>
                 </span>
               </div>
             </div>

@@ -1,13 +1,20 @@
 'use client'
 
 import { Play } from 'lucide-react'
+import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { useGameSprites } from '@/hooks/game/use-game-sprites'
-import { GAME_HEIGHT, GAME_WIDTH, HIGH_SCORE_KEY } from '@/lib/game/constants'
+import { GAME_HEIGHT, GAME_WIDTH, HIGH_SCORE_KEY, SPRITE_PATHS } from '@/lib/game/constants'
 import type { GameSprites, GameState } from '@/lib/game/types'
-import { BakerGame, type BakerGameRef } from './baker-game'
+import { BakerGame } from './baker-game'
 import { GameLoadingState } from './game-loading-state'
 import { GameOverScreen } from './game-over-screen'
 
@@ -30,11 +37,8 @@ function StartScreen({ onStart, sprites }: { onStart: () => void; sprites: GameS
     if (!ctx) return
 
     ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
-
-    // Draw background image
     ctx.drawImage(sprites.game_start, 0, 0, GAME_WIDTH, GAME_HEIGHT)
 
-    // Draw high score text with outline for visibility
     if (highScore > 0) {
       ctx.font = 'bold 24px monospace'
       ctx.textAlign = 'center'
@@ -58,7 +62,7 @@ function StartScreen({ onStart, sprites }: { onStart: () => void; sprites: GameS
       <div className="absolute inset-x-0 bottom-8 flex justify-center">
         <Button className="gap-2" onClick={onStart} size="lg">
           <Play className="h-5 w-5" />
-          Hrat
+          Hrať
         </Button>
       </div>
     </div>
@@ -66,11 +70,12 @@ function StartScreen({ onStart, sprites }: { onStart: () => void; sprites: GameS
 }
 
 export function GameCard() {
+  const [open, setOpen] = useState(false)
   const [gameState, setGameState] = useState<GameState>('idle')
   const [finalScore, setFinalScore] = useState(0)
   const [highScore, setHighScore] = useState(0)
+  const [resetKey, setResetKey] = useState(0)
 
-  const gameRef = useRef<BakerGameRef>(null)
   const { sprites, loading, error } = useGameSprites()
 
   const handleStart = useCallback(() => {
@@ -84,43 +89,75 @@ export function GameCard() {
   }, [])
 
   const handleRestart = useCallback(() => {
-    gameRef.current?.reset()
+    setResetKey(prev => prev + 1)
     setGameState('playing')
   }, [])
 
-  if (error) {
-    return (
-      <Card className="aspect-8/5 w-full max-w-5xl">
-        <CardContent className="flex h-full items-center justify-center p-6">
-          <p className="text-destructive">Nepodarilo sa nacitat hru</p>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const renderContent = () => {
-    if (loading) {
-      return <GameLoadingState />
+  const handleOpenChange = useCallback((isOpen: boolean) => {
+    setOpen(isOpen)
+    if (!isOpen) {
+      setGameState('idle')
+      setResetKey(prev => prev + 1)
     }
+  }, [])
 
-    if (gameState === 'idle' && sprites) {
-      return <StartScreen onStart={handleStart} sprites={sprites} />
-    }
-
-    if (gameState === 'playing' && sprites) {
-      return <BakerGame onGameOver={handleGameOver} ref={gameRef} sprites={sprites} />
-    }
-
-    if (gameState === 'gameover') {
-      return <GameOverScreen highScore={highScore} onRestart={handleRestart} score={finalScore} />
-    }
-
-    return null
-  }
+  const isPlaying = gameState === 'playing'
 
   return (
-    <Card className="aspect-8/5 w-full max-w-5xl overflow-hidden">
-      <CardContent className="relative h-full p-0">{renderContent()}</CardContent>
-    </Card>
+    <Dialog onOpenChange={handleOpenChange} open={open}>
+      <DialogTrigger asChild>
+        <button
+          className="group relative aspect-[8/5] w-full max-w-2xl overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md"
+          type="button"
+        >
+          <Image
+            alt="Pekáreň Kromka - Hra"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            sizes="(max-width: 768px) 100vw, 640px"
+            src={SPRITE_PATHS.game_start}
+            style={{ imageRendering: 'pixelated' }}
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/30 transition-colors group-hover:bg-black/40">
+            <div className="flex size-14 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
+              <Play className="ml-1 size-7 text-amber-600" />
+            </div>
+            <span className="font-semibold text-sm text-white drop-shadow-md">
+              Zahraj si hru
+            </span>
+          </div>
+        </button>
+      </DialogTrigger>
+      <DialogContent
+        className="aspect-[8/5] max-h-[90dvh] w-full max-w-[calc(100%-2rem)] overflow-hidden p-0 sm:max-w-5xl"
+        onEscapeKeyDown={(e) => {
+          if (isPlaying) e.preventDefault()
+        }}
+        onInteractOutside={(e) => {
+          if (isPlaying) e.preventDefault()
+        }}
+        showCloseButton
+      >
+        <DialogTitle className="sr-only">Pekáreň Kromka - Hra</DialogTitle>
+        <DialogDescription className="sr-only">
+          Chytaj padajúce pečivo a zbieraj body
+        </DialogDescription>
+        {loading && <GameLoadingState />}
+        {error && (
+          <div className="flex h-full items-center justify-center">
+            <p className="text-destructive">Nepodarilo sa načítať hru</p>
+          </div>
+        )}
+        {!loading && !error && gameState === 'idle' && sprites && (
+          <StartScreen onStart={handleStart} sprites={sprites} />
+        )}
+        {!loading && !error && isPlaying && sprites && (
+          <BakerGame key={resetKey} onGameOver={handleGameOver} sprites={sprites} />
+        )}
+        {!loading && !error && gameState === 'gameover' && sprites && (
+          <GameOverScreen highScore={highScore} onRestart={handleRestart} score={finalScore} sprites={sprites} />
+        )}
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -10,6 +10,6 @@ export const featureFlags = {
   stores: true,
   blog: false,
   game: false,
-} as const;
+} as const
 
-export type FeatureFlag = keyof typeof featureFlags;
+export type FeatureFlag = keyof typeof featureFlags

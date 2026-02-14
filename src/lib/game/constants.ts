@@ -22,6 +22,7 @@ export const OVEN_HOT_DURATION = 200;
 export const BAKER_WIDTH = 80;
 export const BAKER_HEIGHT = 100;
 export const BAKER_Y_OFFSET = 50;
+export const BAKER_SPEED = 5;
 
 export const ITEM_SIZE = 50;
 
