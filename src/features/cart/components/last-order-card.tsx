@@ -12,6 +12,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { addItemsToCart } from "@/features/cart/api/actions";
+import { analytics } from "@/lib/analytics";
 import { getItemCountString } from "@/lib/item-count-string";
 import { cn, formatPrice } from "@/lib/utils";
 
@@ -58,6 +59,10 @@ export function LastOrderCard({ items }: Props) {
           quantity: item.quantity,
         }))
       );
+      analytics.orderRepeated({
+        item_count: items.length,
+        total: totalPrice,
+      });
       setShowCard(false);
     });
   };

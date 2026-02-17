@@ -3,7 +3,7 @@
 import { ShoppingCartIcon } from "lucide-react";
 import { useTransition } from "react";
 import { addToB2bCart, addToCart } from "@/features/cart/api/actions";
-import { analytics } from "@/lib/analytics";
+import { type AddToCartSource, analytics } from "@/lib/analytics";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 
@@ -16,6 +16,7 @@ type Props = {
 	id: string;
 	disabled?: boolean;
 	product?: ProductInfo;
+	source?: AddToCartSource;
 };
 
 function useAddToCart(
@@ -23,6 +24,7 @@ function useAddToCart(
 	product: ProductInfo | undefined,
 	action: (id: string, qty: number) => Promise<void>,
 	cartType: "b2c" | "b2b",
+	source?: AddToCartSource,
 ) {
 	const [isPending, startTransition] = useTransition();
 
@@ -36,6 +38,7 @@ function useAddToCart(
 					price: product.price,
 					quantity: 1,
 					cart_type: cartType,
+					source,
 				});
 			}
 		});
@@ -44,8 +47,8 @@ function useAddToCart(
 	return { isPending, handleClick };
 }
 
-export function AddToCartButton({ id, disabled = false, product }: Props) {
-	const { isPending, handleClick } = useAddToCart(id, product, addToCart, "b2c");
+export function AddToCartButton({ id, disabled = false, product, source }: Props) {
+	const { isPending, handleClick } = useAddToCart(id, product, addToCart, "b2c", source);
 
 	return (
 		<Button
@@ -60,8 +63,8 @@ export function AddToCartButton({ id, disabled = false, product }: Props) {
 	);
 }
 
-export function AddToCartButtonIcon({ id, disabled = false, product }: Props) {
-	const { isPending, handleClick } = useAddToCart(id, product, addToCart, "b2c");
+export function AddToCartButtonIcon({ id, disabled = false, product, source }: Props) {
+	const { isPending, handleClick } = useAddToCart(id, product, addToCart, "b2c", source);
 
 	return (
 		<Button
@@ -84,12 +87,13 @@ export function AddToCartButtonIcon({ id, disabled = false, product }: Props) {
 	);
 }
 
-export function AddToB2bCartButton({ id, disabled = false, product }: Props) {
+export function AddToB2bCartButton({ id, disabled = false, product, source }: Props) {
 	const { isPending, handleClick } = useAddToCart(
 		id,
 		product,
 		addToB2bCart,
 		"b2b",
+		source,
 	);
 
 	return (
@@ -109,12 +113,14 @@ export function AddToB2bCartButtonIcon({
 	id,
 	disabled = false,
 	product,
+	source,
 }: Props) {
 	const { isPending, handleClick } = useAddToCart(
 		id,
 		product,
 		addToB2bCart,
 		"b2b",
+		source,
 	);
 
 	return (

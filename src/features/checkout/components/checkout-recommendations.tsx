@@ -39,7 +39,7 @@ export async function CheckoutRecommendations({
       </h3>
       <GridView>
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} source="recommendation" />
         ))}
       </GridView>
     </section>

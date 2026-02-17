@@ -22,6 +22,7 @@ async function RecommendationsGrid({ recommendations }: Props) {
           isFavorite={favoriteSet.has(product.id)}
           key={product.id}
           product={product}
+          source="recommendation"
         />
       ))}
     </GridView>

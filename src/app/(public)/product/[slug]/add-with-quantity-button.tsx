@@ -56,6 +56,7 @@ export function AddWithQuantityButton({
           price: product.price,
           quantity: qty,
           cart_type: "b2c",
+          source: "product_page",
         });
       }
       setQuantity(1);

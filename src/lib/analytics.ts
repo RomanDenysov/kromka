@@ -2,6 +2,12 @@
 
 import posthog from "posthog-js";
 
+export type AddToCartSource =
+	| "product_page"
+	| "product_card"
+	| "recommendation"
+	| "last_order";
+
 export const analytics = {
 	productViewed(p: {
 		product_id: string;
@@ -18,6 +24,7 @@ export const analytics = {
 		price: number;
 		quantity: number;
 		cart_type: "b2c" | "b2b";
+		source?: AddToCartSource;
 	}) {
 		posthog.capture("product added", p);
 	},
@@ -50,5 +57,11 @@ export const analytics = {
 		action: "added" | "removed";
 	}) {
 		posthog.capture("favorite toggled", p);
+	},
+	orderRepeated(p: {
+		item_count: number;
+		total: number;
+	}) {
+		posthog.capture("order repeated", p);
 	},
 } as const;
