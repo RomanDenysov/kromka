@@ -31,8 +31,8 @@ export default function ObchodnePodmienkyPage() {
           kúpnej zmluvy, kedy na jednej strane je spoločnosť KROMKA s.r.o., IČO:
           46 670 068, so sídlom ul. 17. novembra 8288/106, Prešov 080 01,
           zapísaná v Obchodnom registri Okresného súdu Prešov, Oddiel: Sro,
-          Vložka číslo: 26041/P (ďalej len "predávajúci") a na druhej strane je
-          zákazník (ďalej len "kupujúci").
+          Vložka číslo: 26041/P (ďalej len &quot;predávajúci&quot;) a na druhej
+          strane je zákazník (ďalej len &quot;kupujúci&quot;).
         </p>
         <div className="font-normal text-base">
           <p className="font-normal text-base">
@@ -108,8 +108,8 @@ export default function ObchodnePodmienkyPage() {
           <p className="font-normal text-base">3.2. Komentáre a hodnotenia:</p>
           <ul className="ml-6 list-disc space-y-1">
             <li>
-              Používateľ môže pridávať komentáre a označovať obsah ako "Páči sa
-              mi"
+              Používateľ môže pridávať komentáre a označovať obsah ako
+              &quot;Páči sa mi&quot;
             </li>
             <li>
               Komentáre musia byť vecné a nesmú obsahovať urážlivý, nezákonný
@@ -144,47 +144,75 @@ export default function ObchodnePodmienkyPage() {
             kupujúci uhradiť nasledovnými spôsobmi:
           </p>
           <ul className="ml-6 list-disc space-y-1">
-            <li>Platba kartou online prostredníctvom služby Stripe</li>
             <li>Platba v hotovosti pri osobnom odbere</li>
             <li>Platba kartou pri osobnom odbere</li>
           </ul>
         </div>
         <p className="font-normal text-base">
-          4.2. V prípade platby prostredníctvom platobnej brány Stripe postupuje
-          kupujúci podľa pokynov príslušného poskytovateľa elektronických
-          platieb.
+          4.2. Platba kartou je spracovaná prostredníctvom platobného terminálu
+          na predajnom mieste. Predávajúci neuchováva údaje o platobných kartách
+          kupujúceho.
         </p>
         <p className="font-normal text-base">
-          4.3. Predávajúci vystaví kupujúcemu daňový doklad - faktúru. Daňový
+          4.3. Pre B2B zákazníkov (firemných odberateľov) je k dispozícii platba
+          na faktúru so splatnosťou podľa individuálnej dohody.
+        </p>
+        <p className="font-normal text-base">
+          4.4. Predávajúci vystaví kupujúcemu daňový doklad — faktúru. Daňový
           doklad je odoslaný na elektronickú adresu kupujúceho.
         </p>
       </article>
 
-      <article className="space-y-4" id="zaverecne-ustanovenia">
-        <h2 className="font-semibold text-xl">5. Záverečné ustanovenia</h2>
+      <article className="space-y-4" id="objednavka-osobny-odber">
+        <h2 className="font-semibold text-xl">5. Objednávka a osobný odber</h2>
         <p className="font-normal text-base">
-          5.1. Všetky právne vzťahy vznikajúce na základe alebo v súvislosti s
+          5.1. Kupujúci si objednáva tovar prostredníctvom e-shopu
+          predávajúceho. Po odoslaní objednávky obdrží kupujúci potvrdenie na
+          svoju e-mailovú adresu.
+        </p>
+        <p className="font-normal text-base">
+          5.2. Kupujúci si pri objednávke zvolí predajňu a časové okno pre
+          osobný odber. Tovar je potrebné vyzdvihnúť v rámci zvoleného časového
+          okna.
+        </p>
+        <p className="font-normal text-base">
+          5.3. Ak si kupujúci objednaný tovar nevyzdvihne v stanovenom čase,
+          objednávka môže byť zrušená. Predávajúci si vyhradzuje právo účtovať
+          náklady spojené s prípravou nevyzdvihnutej objednávky.
+        </p>
+        <p className="font-normal text-base">
+          5.4. Vzhľadom na to, že predmetom predaja je tovar podliehajúci
+          rýchlej skaze (pekárenské a cukrárenské výrobky), kupujúci nemôže
+          odstúpiť od zmluvy v zmysle §7 ods. 6 písm. d) Zákona č. 102/2014 Z.z.
+          o ochrane spotrebiteľa pri predaji tovaru na diaľku.
+        </p>
+      </article>
+
+      <article className="space-y-4" id="zaverecne-ustanovenia">
+        <h2 className="font-semibold text-xl">6. Záverečné ustanovenia</h2>
+        <p className="font-normal text-base">
+          6.1. Všetky právne vzťahy vznikajúce na základe alebo v súvislosti s
           týmito obchodnými podmienkami sa riadia právnym poriadkom Slovenskej
           republiky.
         </p>
         <p className="font-normal text-base">
-          5.2. V prípade sporu medzi predávajúcim a kupujúcim môže kupujúci
+          6.2. V prípade sporu medzi predávajúcim a kupujúcim môže kupujúci
           využiť možnosť mimosúdneho riešenia sporu. V takom prípade môže
           kupujúci kontaktovať subjekt mimosúdneho riešenia sporov.
         </p>
         <p className="font-normal text-base">
-          5.3. Tieto obchodné podmienky nadobúdajú účinnosť dňom ich
+          6.3. Tieto obchodné podmienky nadobúdajú účinnosť dňom ich
           zverejnenia. Predávajúci si vyhradzuje právo zmeniť tieto obchodné
           podmienky. Zmenu obchodných podmienok predávajúci zverejní na svojich
           internetových stránkach.
         </p>
         <p className="font-normal text-base">
-          5.4. Kupujúci vyjadruje súhlas s týmito obchodnými podmienkami pri
+          6.4. Kupujúci vyjadruje súhlas s týmito obchodnými podmienkami pri
           vytvorení používateľského účtu alebo pri odoslaní objednávky.
         </p>
         <div className="font-normal text-base">
           <p className="font-normal text-base">
-            5.5. Neoddeliteľnou súčasťou týchto obchodných podmienok sú aj:
+            6.5. Neoddeliteľnou súčasťou týchto obchodných podmienok sú aj:
           </p>
           <ul className="ml-6 list-disc space-y-1">
             <li>Zásady ochrany osobných údajov</li>
@@ -192,7 +220,7 @@ export default function ObchodnePodmienkyPage() {
           </ul>
         </div>
         <p className="mt-8 text-muted-foreground text-sm italic">
-          Tieto obchodné podmienky sú platné a účinné od 1.12.2024
+          Tieto obchodné podmienky sú platné a účinné od 17.02.2026
         </p>
       </article>
     </PageWrapper>

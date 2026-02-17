@@ -50,6 +50,29 @@ export default function PouzivanieCookiesPage() {
                 <li>Umožňujú prihlásenie a autentifikáciu používateľa</li>
                 <li>Uchovávajú obsah košíka</li>
               </ul>
+              <div className="mt-2 ml-6">
+                <p className="font-medium text-muted-foreground text-sm">
+                  Konkrétne nevyhnutné cookies:
+                </p>
+                <ul className="ml-4 list-disc space-y-1 text-sm">
+                  <li>
+                    <span className="font-mono">krmk-kosik</span> — obsah
+                    nákupného košíka (30 dní, httpOnly)
+                  </li>
+                  <li>
+                    <span className="font-mono">krmk-kosik-b2b</span> — obsah
+                    B2B košíka (30 dní, httpOnly)
+                  </li>
+                  <li>
+                    <span className="font-mono">kromka-consent</span> —
+                    nastavenia súhlasu s cookies (1 rok)
+                  </li>
+                  <li>
+                    <span className="font-mono">better-auth.session_token</span>{" "}
+                    — autentifikácia prihlásenia
+                  </li>
+                </ul>
+              </div>
             </div>
             <div>
               <p className="font-medium">b) Funkčné cookies:</p>
@@ -230,7 +253,7 @@ export default function PouzivanieCookiesPage() {
         </div>
         <p className="mt-8 text-muted-foreground text-sm italic">
           Tieto zásady používania súborov cookies sú platné a účinné od
-          5.12.2025
+          17.02.2026
         </p>
       </article>
     </PageWrapper>
