@@ -12,6 +12,7 @@ import type {
   WebSite,
   WithContext,
 } from "schema-dts";
+import { formatISO } from "date-fns";
 import type { Address, StoreSchedule } from "@/db/types";
 import { getSiteUrl } from "@/lib/utils";
 
@@ -170,7 +171,7 @@ export function getReviewSchema(
       bestRating: "5",
       worstRating: "1",
     },
-    datePublished: new Date(review.datePublished).toISOString(),
+    datePublished: formatISO(review.datePublished),
     itemReviewed: {
       "@type": "Product",
       name: review.productName,
@@ -375,11 +376,11 @@ export function getBlogPostingSchema(
   }
 
   if (post.publishedAt) {
-    schema.datePublished = post.publishedAt.toISOString();
+    schema.datePublished = formatISO(post.publishedAt);
   }
 
   if (post.updatedAt) {
-    schema.dateModified = post.updatedAt.toISOString();
+    schema.dateModified = formatISO(post.updatedAt);
   }
 
   return schema;
