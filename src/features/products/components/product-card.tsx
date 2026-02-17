@@ -9,6 +9,7 @@ import { ProductImage } from "@/components/shared/product-image";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Product } from "@/features/products/api/queries";
+import type { AddToCartSource } from "@/lib/analytics";
 import { cn, formatPrice } from "@/lib/utils";
 
 type Props = {
@@ -17,6 +18,7 @@ type Props = {
   preload?: boolean;
   isFavorite?: boolean;
   cartVariant?: "b2c" | "b2b";
+  source?: AddToCartSource;
 };
 
 export function ProductCard({
@@ -25,6 +27,7 @@ export function ProductCard({
   preload = false,
   isFavorite,
   cartVariant = "b2c",
+  source = "product_card",
 }: Props) {
   const isActive = product.status === "active";
 
@@ -44,6 +47,7 @@ export function ProductCard({
                 className="hover:bg-accent/50 [&_svg:not([class*='size-'])]:size-5"
                 initialIsFavorite={isFavorite}
                 productId={product.id}
+                productName={product.name}
                 size="icon"
                 variant="ghost"
               />
@@ -90,9 +94,19 @@ export function ProductCard({
           </span>
 
           {cartVariant === "b2b" ? (
-            <AddToB2bCartButton disabled={!isActive} id={product.id} />
+            <AddToB2bCartButton
+              disabled={!isActive}
+              id={product.id}
+              product={{ name: product.name, price: product.priceCents }}
+              source={source}
+            />
           ) : (
-            <AddToCartButton disabled={!isActive} id={product.id} />
+            <AddToCartButton
+              disabled={!isActive}
+              id={product.id}
+              product={{ name: product.name, price: product.priceCents }}
+              source={source}
+            />
           )}
         </div>
       </div>

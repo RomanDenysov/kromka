@@ -158,7 +158,10 @@ export default async function ProductPage({ params }: Props) {
     category: result.category?.name,
     isAvailable: isInStock,
     rating: reviewAggregate
-      ? { value: reviewAggregate.averageRating, count: reviewAggregate.reviewCount }
+      ? {
+          value: reviewAggregate.averageRating,
+          count: reviewAggregate.reviewCount,
+        }
       : null,
   });
 
@@ -240,6 +243,7 @@ export default async function ProductPage({ params }: Props) {
               <FavoriteButton
                 className="[&_svg:not([class*='size-'])]:size-6"
                 productId={result.id}
+                productName={result.name}
                 size="icon-lg"
                 variant="ghost"
               />
@@ -284,7 +288,16 @@ export default async function ProductPage({ params }: Props) {
           </div>
           <Separator />
           <div className="flex w-full items-center justify-between gap-2">
-            <AddWithQuantityButton disabled={!isInStock} id={result.id} />
+            <AddWithQuantityButton
+              disabled={!isInStock}
+              id={result.id}
+              product={{
+                name: result.name,
+                price: result.priceCents,
+                category: result.category?.name ?? "",
+                categoryId: result.category?.id ?? "",
+              }}
+            />
           </div>
         </div>
       </section>

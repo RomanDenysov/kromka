@@ -8,11 +8,13 @@ import { cn } from "@/lib/utils";
 
 type Props = ButtonProps & {
   productId: string;
+  productName?: string;
   initialIsFavorite?: boolean;
 };
 
 export function FavoriteButton({
   productId,
+  productName,
   className,
   size = "icon-sm",
   variant = "ghost",
@@ -20,7 +22,8 @@ export function FavoriteButton({
 }: Props) {
   const { isFavorite, isLoading, toggle } = useFavorite(
     productId,
-    initialIsFavorite
+    initialIsFavorite,
+    productName
   );
 
   return (

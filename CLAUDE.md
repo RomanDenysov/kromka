@@ -227,6 +227,17 @@ const reqLog = createRequestLogger("orders", { userId: "usr_abc" });
 reqLog.info("Processing order");
 ```
 
+## Analytics (PostHog)
+
+Client-side events use typed helpers in `src/lib/analytics.ts`. Server-side events use `captureServerEvent()` from `src/lib/posthog.ts`.
+
+**When modifying customer-facing components, check if analytics tracking is affected:**
+- Adding/removing/renaming product interactions (add to cart, favorites, search) — update the corresponding `analytics.*()` call
+- Changing cart, checkout, or order flows — verify events still fire at the right point
+- New components that accept product data props (`product`, `productInfo`, `productName`) — these exist for analytics, pass them through
+
+Event naming: **Object Action** format (`product viewed`, `order completed`). Properties: snake_case, prices in cents.
+
 ## Conventions
 
 - Conventional commits: `type(scope): subject`

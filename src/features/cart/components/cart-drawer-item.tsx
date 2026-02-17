@@ -35,7 +35,10 @@ export function CartDrawerItem({ item }: Props) {
 
         <div className="flex items-center justify-between">
           <QuantitySetter id={item.productId} quantity={item.quantity} />
-          <RemoveItemButton id={item.productId} />
+          <RemoveItemButton
+            id={item.productId}
+            productInfo={{ name: item.name, quantity: item.quantity }}
+          />
         </div>
       </div>
     </div>

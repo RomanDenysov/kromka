@@ -8,6 +8,7 @@ import { ShowMoreInline } from "@/components/show-more";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Category } from "@/features/categories/api/queries";
+import { analytics } from "@/lib/analytics";
 import { getCategoriesLink, useEshopParams } from "./eshop-params";
 
 type Props = {
@@ -29,7 +30,15 @@ export function CategoriesChips({ categories }: Props) {
             key={c.slug}
             variant={category === c.slug ? "default" : "outline"}
           >
-            <Link href={getCategoriesLink({ category: c.slug })}>
+            <Link
+              href={getCategoriesLink({ category: c.slug })}
+              onClick={() =>
+                analytics.categorySelected({
+                  category_slug: c.slug || "all",
+                  category_name: c.name,
+                })
+              }
+            >
               <LinkStatus>{c.name}</LinkStatus>
             </Link>
           </Badge>

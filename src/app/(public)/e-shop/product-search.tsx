@@ -1,37 +1,48 @@
 "use client";
 
 import { debounce } from "nuqs";
-import { useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { SearchInput } from "@/components/shared/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { analytics } from "@/lib/analytics";
 import { useEshopParams } from "./eshop-params";
 
 const DEBOUNCE_DELAY = 300;
+const SEARCH_ANALYTICS_DELAY = 800;
 
 export function ProductSearch() {
   const [isPending, startTransition] = useTransition();
   const [{ q }, setSearchParams] = useEshopParams({
     startTransition,
   });
+  const analyticsTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cleanup only
+  useEffect(() => {
+    return () => clearTimeout(analyticsTimer.current);
+  }, []);
 
   return (
     <SearchInput
       className="flex-2"
       isLoading={isPending}
-      onChange={(e) =>
+      onChange={(e) => {
+        const value = e.target.value;
         startTransition(async () => {
           await setSearchParams(
+            { q: value },
             {
-              q: e.target.value,
-            },
-            {
-              limitUrlUpdates: e.target.value
-                ? debounce(DEBOUNCE_DELAY)
-                : undefined,
+              limitUrlUpdates: value ? debounce(DEBOUNCE_DELAY) : undefined,
             }
           );
-        })
-      }
+        });
+        clearTimeout(analyticsTimer.current);
+        if (value.trim()) {
+          analyticsTimer.current = setTimeout(() => {
+            analytics.searchPerformed({ query: value.trim() });
+          }, SEARCH_ANALYTICS_DELAY);
+        }
+      }}
       placeholder="Hľadať produkty..."
       value={q}
     />

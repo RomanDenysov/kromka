@@ -7,6 +7,7 @@ import { getSiteConfig } from "@/features/site-config/api/queries";
 import { getUser } from "@/lib/auth/session";
 import { log } from "@/lib/logger";
 import { guard, runPipeline, unwrap } from "@/lib/pipeline";
+import { captureServerEvent } from "@/lib/posthog";
 import { setLastOrderIdAction } from "../../checkout/api/actions";
 import {
   buildOrderItems,
@@ -45,7 +46,11 @@ export async function createB2COrder(data: {
       );
 
       const ordersEnabled = await getSiteConfig("orders_enabled");
-      guard(ordersEnabled, "Objednávky sú momentálne vypnuté", "ORDERS_DISABLED");
+      guard(
+        ordersEnabled,
+        "Objednávky sú momentálne vypnuté",
+        "ORDERS_DISABLED"
+      );
 
       unwrap(await validateGuestInfo(data.customerInfo));
       unwrap(await validateStoreExists(data.storeId));
@@ -53,7 +58,11 @@ export async function createB2COrder(data: {
 
       const cartItems = unwrap(await validateCart());
       const orderItemsData = await buildOrderItems(cartItems, null);
-      guard(orderItemsData.length > 0, "Žiadne platné produkty v košíku", "INVALID_PRODUCTS");
+      guard(
+        orderItemsData.length > 0,
+        "Žiadne platné produkty v košíku",
+        "INVALID_PRODUCTS"
+      );
 
       const totalCents = orderItemsData.reduce(
         (sum, item) => sum + item.price * item.quantity,
@@ -74,14 +83,20 @@ export async function createB2COrder(data: {
         orderItemsData,
       });
 
-      return { orderId, orderNumber, userId: user?.id ?? null };
+      return {
+        orderId,
+        orderNumber,
+        userId: user?.id ?? null,
+        totalCents,
+        itemCount: orderItemsData.length,
+      };
     });
 
     if (!result.ok) {
       return { success: false, error: result.error };
     }
 
-    const { orderId, orderNumber, userId } = result.data;
+    const { orderId, orderNumber, userId, totalCents, itemCount } = result.data;
 
     updateTag("orders");
 
@@ -99,7 +114,10 @@ export async function createB2COrder(data: {
           })
         )
         .catch((err) => {
-          log.orders.error({ err }, "Failed to update user profile after order");
+          log.orders.error(
+            { err },
+            "Failed to update user profile after order"
+          );
         });
     } else {
       setLastOrderIdAction(orderId).catch((err) => {
@@ -111,9 +129,27 @@ export async function createB2COrder(data: {
       log.email.error({ err, orderId }, "Failed to send order notification");
     });
 
+    captureServerEvent(userId ?? data.customerInfo.email, "order completed", {
+      order_id: orderId,
+      order_number: orderNumber,
+      total: totalCents,
+      item_count: itemCount,
+      payment_method: data.paymentMethod,
+      store_id: data.storeId,
+      pickup_date: data.pickupDate,
+      is_b2b: false,
+    }).catch((err) => {
+      log.orders.error(
+        { err, orderId },
+        "Failed to capture PostHog order event"
+      );
+    });
+
     return { success: true, orderId, orderNumber };
   } catch (error) {
-    if (isRedirectError(error)) throw error;
+    if (isRedirectError(error)) {
+      throw error;
+    }
     log.orders.error({ err: error }, "Create B2C order failed");
     return { success: false, error: "Nastala chyba pri vytváraní objednávky" };
   }

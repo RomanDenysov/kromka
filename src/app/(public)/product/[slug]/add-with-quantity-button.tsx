@@ -1,7 +1,7 @@
 "use client";
 
 import { MinusIcon, PlusIcon, ShoppingCartIcon } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ButtonGroup,
@@ -11,21 +11,59 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { addToCart } from "@/features/cart/api/actions";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { analytics } from "@/lib/analytics";
 
 type Props = {
   id: string;
   disabled: boolean;
   max?: number;
+  product?: {
+    name: string;
+    price: number;
+    category: string;
+    categoryId: string;
+  };
 };
 
-export function AddWithQuantityButton({ id, disabled, max = 100 }: Props) {
+export function AddWithQuantityButton({
+  id,
+  disabled,
+  max = 100,
+  product,
+}: Props) {
   const isMobile = useIsMobile();
   const [quantity, setQuantity] = useState(1);
   const [isPending, startTransition] = useTransition();
 
+  // Track product view on mount (replaces ProductViewTracker component)
+  const hasTracked = useRef(false);
+  useEffect(() => {
+    if (product && !hasTracked.current) {
+      hasTracked.current = true;
+      analytics.productViewed({
+        product_id: id,
+        product_name: product.name,
+        price: product.price,
+        category: product.category,
+        category_id: product.categoryId,
+      });
+    }
+  }, [id, product]);
+
   const handleAddToCart = () => {
-    startTransition(() => {
-      addToCart(id, quantity);
+    const qty = quantity;
+    startTransition(async () => {
+      await addToCart(id, qty);
+      if (product) {
+        analytics.productAdded({
+          product_id: id,
+          product_name: product.name,
+          price: product.price,
+          quantity: qty,
+          cart_type: "b2c",
+          source: "product_page",
+        });
+      }
       setQuantity(1);
     });
   };

@@ -5,7 +5,6 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
 import { env } from "@/env";
-import { useConsent } from "@/hooks/use-consent";
 import { consent } from "@/lib/consent";
 import { AuthIdentitySync } from "./auth-identity-sync";
 
@@ -24,9 +23,14 @@ if (typeof window !== "undefined" && !IS_DEV) {
       person_profiles: "identified_only",
       persistence: "localStorage+cookie",
       capture_pageview: false,
-      capture_pageleave: true,
-      // Important setting:
-      cookieless_mode: "on_reject",
+      capture_pageleave: false,
+      autocapture: false,
+      opt_out_capturing_by_default: true,
+      disable_session_recording: false,
+      session_recording: {
+        maskAllInputs: true,
+        maskTextSelector: "[data-mask]",
+      },
     });
   }
 }
@@ -39,11 +43,13 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     if (state.decision === "decided") {
       if (state.snapshot.choices.analytics) {
         posthog.opt_in_capturing();
+        posthog.startSessionRecording();
       } else {
         posthog.opt_out_capturing();
+        posthog.stopSessionRecording();
       }
     }
-    // If decision === "unset" — cookieless mode is already working
+    // If decision === "unset" — opt_out_capturing_by_default prevents all tracking
   }, []);
 
   return (
@@ -60,17 +66,16 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 function PostHogPageView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { analytics } = useConsent();
 
   useEffect(() => {
-    if (pathname && analytics) {
+    if (pathname) {
       const url =
         window.location.origin +
         pathname +
         (searchParams.toString() ? `?${searchParams}` : "");
       posthog.capture("$pageview", { $current_url: url });
     }
-  }, [pathname, searchParams, analytics]);
+  }, [pathname, searchParams]);
 
   return null;
 }

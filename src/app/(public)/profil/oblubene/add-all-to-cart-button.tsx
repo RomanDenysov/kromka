@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { addToCart } from "@/features/cart/api/actions";
+import { analytics } from "@/lib/analytics";
 
 type Props = {
   productIds: string[];
@@ -26,6 +27,7 @@ export function AddAllToCartButton({ productIds }: Props) {
         for (const productId of productIds) {
           await addToCart(productId, 1);
         }
+        analytics.favoritesAllAdded({ item_count: productIds.length });
         toast.success(
           `Pridaných ${productIds.length} ${
             productIds.length === 1

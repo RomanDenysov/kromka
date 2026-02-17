@@ -4,10 +4,15 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { isFavorite, toggleFavorite } from "@/features/favorites/api/actions";
+import { analytics } from "@/lib/analytics";
 import { useSession } from "@/lib/auth/client";
 import { useLoginModalOpen } from "@/store/login-modal-store";
 
-export function useFavorite(productId: string, initialValue?: boolean) {
+export function useFavorite(
+  productId: string,
+  initialValue?: boolean,
+  productName?: string
+) {
   const openLogin = useLoginModalOpen();
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -64,6 +69,12 @@ export function useFavorite(productId: string, initialValue?: boolean) {
         setFavorite(previousFavorite);
         openLogin("favorites", pathname);
         toast.error("Nastala chyba pri aktualizácii obľúbených");
+      } else if (productName) {
+        analytics.favoriteToggled({
+          product_id: productId,
+          product_name: productName,
+          action: previousFavorite ? "removed" : "added",
+        });
       }
     });
   };
