@@ -1,19 +1,21 @@
 "use client";
 
 import { debounce } from "nuqs";
-import { useTransition } from "react";
+import { useRef, useTransition } from "react";
 import { SearchInput } from "@/components/shared/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { analytics } from "@/lib/analytics";
 import { useEshopParams } from "./eshop-params";
 
 const DEBOUNCE_DELAY = 300;
+const SEARCH_ANALYTICS_DELAY = 800;
 
 export function ProductSearch() {
   const [isPending, startTransition] = useTransition();
   const [{ q }, setSearchParams] = useEshopParams({
     startTransition,
   });
+  const analyticsTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   return (
     <SearchInput
@@ -30,10 +32,13 @@ export function ProductSearch() {
                 : undefined,
             }
           );
-          if (value.trim()) {
-            analytics.searchPerformed({ query: value.trim() });
-          }
         });
+        clearTimeout(analyticsTimer.current);
+        if (value.trim()) {
+          analyticsTimer.current = setTimeout(() => {
+            analytics.searchPerformed({ query: value.trim() });
+          }, SEARCH_ANALYTICS_DELAY);
+        }
       }}
       placeholder="Hľadať produkty..."
       value={q}

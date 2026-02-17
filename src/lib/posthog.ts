@@ -2,7 +2,7 @@ import "server-only";
 
 import { PostHog } from "posthog-node";
 import { env } from "@/env";
-import { log } from "@/lib/logger";
+import { logger } from "@/lib/logger";
 
 const IS_DEV = process.env.NODE_ENV === "development";
 
@@ -44,6 +44,6 @@ export async function captureServerEvent(
 		client.capture({ distinctId, event, properties });
 		await client.flush();
 	} catch (err) {
-		log.db.error({ err, event }, "Failed to capture PostHog server event");
+		logger.error({ err, event }, "Failed to capture PostHog server event");
 	}
 }

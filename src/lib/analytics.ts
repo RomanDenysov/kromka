@@ -6,7 +6,8 @@ export type AddToCartSource =
 	| "product_page"
 	| "product_card"
 	| "recommendation"
-	| "last_order";
+	| "last_order"
+	| "favorites";
 
 export const analytics = {
 	productViewed(p: {
@@ -63,5 +64,8 @@ export const analytics = {
 		total: number;
 	}) {
 		posthog.capture("order repeated", p);
+	},
+	favoritesAllAdded(p: { item_count: number }) {
+		posthog.capture("favorites all added", p);
 	},
 } as const;

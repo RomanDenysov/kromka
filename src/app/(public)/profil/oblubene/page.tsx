@@ -55,6 +55,7 @@ async function OblubenePageContent() {
                 key={product.id}
                 preload={index < PRELOAD_LIMIT}
                 product={product}
+                source="favorites"
               />
             ))}
           </GridView>
