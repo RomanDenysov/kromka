@@ -5,6 +5,7 @@ import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 import { Suspense, useEffect } from "react";
 import { env } from "@/env";
+import { useConsent } from "@/hooks/use-consent";
 import { consent } from "@/lib/consent";
 import { AuthIdentitySync } from "./auth-identity-sync";
 
@@ -59,16 +60,17 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 function PostHogPageView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { analytics } = useConsent();
 
   useEffect(() => {
-    if (pathname) {
+    if (pathname && analytics) {
       const url =
         window.location.origin +
         pathname +
         (searchParams.toString() ? `?${searchParams}` : "");
       posthog.capture("$pageview", { $current_url: url });
     }
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, analytics]);
 
   return null;
 }

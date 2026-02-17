@@ -30,8 +30,9 @@ export default function OchranaOsobnychUdajovPage() {
           1.1. Prevádzkovateľom osobných údajov podľa čl. 4 bod 7 nariadenia
           Európskeho parlamentu a Rady (EÚ) 2016/679 o ochrane fyzických osôb
           pri spracúvaní osobných údajov a o voľnom pohybe takýchto údajov
-          (ďalej len "GDPR") je KROMKA s.r.o., IČO: 46 670 068, so sídlom ul.
-          17. novembra 8288/106, Prešov 080 01 (ďalej len "prevádzkovateľ").
+          (ďalej len &quot;GDPR&quot;) je KROMKA s.r.o., IČO: 46 670 068, so
+          sídlom ul. 17. novembra 8288/106, Prešov 080 01 (ďalej len
+          &quot;prevádzkovateľ&quot;).
         </p>
         <div className="font-normal text-base">
           <p className="font-normal text-base">
@@ -78,17 +79,52 @@ export default function OchranaOsobnychUdajovPage() {
             <li>Meno a priezvisko</li>
             <li>E-mailovú adresu</li>
             <li>Telefónne číslo</li>
+            <li>
+              Pri prihlásení cez Google: meno, e-mail a profilový obrázok z
+              Google účtu
+            </li>
           </ul>
         </div>
         <div className="font-normal text-base">
+          <p className="font-normal text-base">2.3. Platobné údaje:</p>
+          <ul className="ml-6 list-disc space-y-1">
+            <li>
+              Platby sú realizované výlučne na predajnom mieste (v hotovosti
+              alebo kartou cez platobný terminál)
+            </li>
+            <li>
+              Prevádzkovateľ neuchováva ani nespracúva údaje o platobných
+              kartách zákazníkov
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <article className="space-y-4" id="pravny-zaklad">
+        <h2 className="font-semibold text-xl">3. Právny základ spracúvania</h2>
+        <div className="font-normal text-base">
           <p className="font-normal text-base">
-            2.3. Pri platbe cez Stripe spracúvame:
+            3.1. Osobné údaje spracúvame na základe nasledujúcich právnych
+            základov podľa čl. 6 GDPR:
           </p>
           <ul className="ml-6 list-disc space-y-1">
-            <li>Platobné údaje v rozsahu nevyhnutnom pre realizáciu platby</li>
             <li>
-              Platobné údaje nie sú ukladané na našich serveroch, ale sú
-              spracúvané priamo spoločnosťou Stripe
+              <span className="font-semibold">Plnenie zmluvy</span> (čl. 6 ods.
+              1 písm. b) — spracovanie objednávok, správa používateľského účtu,
+              komunikácia so zákazníkom
+            </li>
+            <li>
+              <span className="font-semibold">Súhlas</span> (čl. 6 ods. 1 písm.
+              a) — analytické cookies (PostHog), marketingová komunikácia
+            </li>
+            <li>
+              <span className="font-semibold">Oprávnený záujem</span> (čl. 6
+              ods. 1 písm. f) — zabezpečenie webovej stránky, predchádzanie
+              podvodom, základná analýza návštevnosti
+            </li>
+            <li>
+              <span className="font-semibold">Zákonná povinnosť</span> (čl. 6
+              ods. 1 písm. c) — plnenie daňových a účtovných povinností
             </li>
           </ul>
         </div>
@@ -96,16 +132,16 @@ export default function OchranaOsobnychUdajovPage() {
 
       <article className="space-y-4" id="ucel-spracovania">
         <h2 className="font-semibold text-xl">
-          3. Účel spracovania osobných údajov
+          4. Účel spracovania osobných údajov
         </h2>
         <div className="font-normal text-base">
           <p className="font-normal text-base">
-            3.1. Osobné údaje spracúvame na tieto účely:
+            4.1. Osobné údaje spracúvame na tieto účely:
           </p>
           <ul className="ml-6 list-disc space-y-1">
             <li>Vytvorenie a správa používateľského účtu</li>
             <li>Poskytovanie personalizovaných služieb</li>
-            <li>Spracovanie objednávok a platieb</li>
+            <li>Spracovanie objednávok</li>
             <li>Komunikácia so zákazníkom</li>
             <li>Plnenie zákonných povinností</li>
           </ul>
@@ -113,10 +149,10 @@ export default function OchranaOsobnychUdajovPage() {
       </article>
 
       <article className="space-y-4" id="doba-uchovavania">
-        <h2 className="font-semibold text-xl">4. Doba uchovávania údajov</h2>
+        <h2 className="font-semibold text-xl">5. Doba uchovávania údajov</h2>
         <div className="font-normal text-base">
           <p className="font-normal text-base">
-            4.1. Osobné údaje spracúvame a uchovávame:
+            5.1. Osobné údaje spracúvame a uchovávame:
           </p>
           <ul className="ml-6 list-disc space-y-1">
             <li>Po dobu používania účtu</li>
@@ -125,30 +161,67 @@ export default function OchranaOsobnychUdajovPage() {
           </ul>
         </div>
         <p className="font-normal text-base">
-          4.2. Po uplynutí doby uchovávania osobných údajov prevádzkovateľ
+          5.2. Po uplynutí doby uchovávania osobných údajov prevádzkovateľ
           osobné údaje vymaže.
         </p>
       </article>
 
       <article className="space-y-4" id="prijemcovia">
         <h2 className="font-semibold text-xl">
-          5. Príjemcovia osobných údajov
+          6. Príjemcovia a sprostredkovatelia
         </h2>
         <p className="font-normal text-base">
-          5.1. K osobným údajom majú prístup len oprávnení zamestnanci
+          6.1. K osobným údajom majú prístup len oprávnení zamestnanci
           prevádzkovateľa.
         </p>
+        <div className="font-normal text-base">
+          <p className="font-normal text-base">
+            6.2. Na prevádzku služieb využívame nasledujúcich
+            sprostredkovateľov:
+          </p>
+          <ul className="ml-6 list-disc space-y-1">
+            <li>
+              <span className="font-semibold">Vercel Inc.</span> (USA) — hosting
+              webovej stránky. Prenos údajov do USA je zabezpečený štandardnými
+              zmluvnými doložkami EÚ (SCC).
+            </li>
+            <li>
+              <span className="font-semibold">PostHog Inc.</span> — analytický
+              nástroj. Dáta sú uložené v EÚ (eu.posthog.com). Aktivovaný len s
+              výslovným súhlasom používateľa.
+            </li>
+            <li>
+              <span className="font-semibold">Neon Inc.</span> — databázové
+              služby. Dáta sú uložené v EÚ regióne.
+            </li>
+            <li>
+              <span className="font-semibold">Google LLC</span> (USA) —
+              autentifikácia cez Google OAuth. Prenos údajov do USA je
+              zabezpečený štandardnými zmluvnými doložkami EÚ (SCC).
+            </li>
+          </ul>
+        </div>
+      </article>
+
+      <article className="space-y-4" id="prenos-udajov">
+        <h2 className="font-semibold text-xl">7. Medzinárodný prenos údajov</h2>
         <p className="font-normal text-base">
-          5.2. Na spracovanie platieb využívame službu Stripe, ktorá spracúva
-          platobné údaje v súlade s GDPR.
+          7.1. Niektorí z našich sprostredkovateľov (Vercel, Google) sídlia v
+          USA. Prenos osobných údajov do tretích krajín je zabezpečený
+          prostredníctvom štandardných zmluvných doložiek (SCC) schválených
+          Európskou komisiou v súlade s čl. 46 ods. 2 písm. c) GDPR.
+        </p>
+        <p className="font-normal text-base">
+          7.2. Dáta analytického nástroja PostHog a databázy Neon sú uložené
+          výlučne v EÚ regióne.
         </p>
       </article>
 
       <article className="space-y-4" id="prava-osoby">
-        <h2 className="font-semibold text-xl">6. Práva dotknutej osoby</h2>
+        <h2 className="font-semibold text-xl">8. Práva dotknutej osoby</h2>
         <div className="font-normal text-base">
           <p className="font-normal text-base">
-            6.1. Za podmienok stanovených v GDPR máte:
+            8.1. Za podmienok stanovených v GDPR máte:
           </p>
           <ul className="ml-6 list-disc space-y-1">
             <li>Právo na prístup k svojim osobným údajom</li>
@@ -161,7 +234,7 @@ export default function OchranaOsobnychUdajovPage() {
           </ul>
         </div>
         <p className="font-normal text-base">
-          6.2. Ďalej máte právo podať sťažnosť na Úrade pre ochranu osobných
+          8.2. Ďalej máte právo podať sťažnosť na Úrade pre ochranu osobných
           údajov v prípade, že sa domnievate, že bolo porušené Vaše právo na
           ochranu osobných údajov.
         </p>
@@ -169,33 +242,33 @@ export default function OchranaOsobnychUdajovPage() {
 
       <article className="space-y-4" id="zabezpecenie">
         <h2 className="font-semibold text-xl">
-          7. Zabezpečenie osobných údajov
+          9. Zabezpečenie osobných údajov
         </h2>
         <p className="font-normal text-base">
-          7.1. Prevádzkovateľ vyhlasuje, že prijal všetky primerané technické a
+          9.1. Prevádzkovateľ vyhlasuje, že prijal všetky primerané technické a
           organizačné opatrenia na zabezpečenie osobných údajov.
         </p>
         <p className="font-normal text-base">
-          7.2. Prevádzkovateľ prijal technické opatrenia na zabezpečenie
+          9.2. Prevádzkovateľ prijal technické opatrenia na zabezpečenie
           dátových úložísk a úložísk osobných údajov v písomnej podobe.
         </p>
       </article>
 
       <article className="space-y-4" id="zaverecne-ustanovenia">
-        <h2 className="font-semibold text-xl">8. Záverečné ustanovenia</h2>
+        <h2 className="font-semibold text-xl">10. Záverečné ustanovenia</h2>
         <p className="font-normal text-base">
-          8.1. Odoslaním registračného formulára potvrdzujete, že ste oboznámení
-          s podmienkami ochrany osobných údajov a že ich v celom rozsahu
-          prijímate.
+          10.1. Odoslaním registračného formulára potvrdzujete, že ste
+          oboznámení s podmienkami ochrany osobných údajov a že ich v celom
+          rozsahu prijímate.
         </p>
         <p className="font-normal text-base">
-          8.2. Prevádzkovateľ je oprávnený tieto podmienky zmeniť. Novú verziu
+          10.2. Prevádzkovateľ je oprávnený tieto podmienky zmeniť. Novú verziu
           podmienok ochrany osobných údajov zverejní na svojich internetových
           stránkach.
         </p>
         <p className="mt-8 text-muted-foreground text-sm italic">
           Tieto podmienky ochrany osobných údajov sú platné a účinné od
-          1.12.2024
+          17.02.2026
         </p>
       </article>
     </PageWrapper>
