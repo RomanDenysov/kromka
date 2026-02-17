@@ -170,7 +170,7 @@ export function getReviewSchema(
       bestRating: "5",
       worstRating: "1",
     },
-    datePublished: review.datePublished.toISOString(),
+    datePublished: new Date(review.datePublished).toISOString(),
     itemReviewed: {
       "@type": "Product",
       name: review.productName,
@@ -446,7 +446,7 @@ export function getBreadcrumbSchema(
 // FAQPage Schema
 // ============================================================================
 
-type FAQItem = {
+export type FAQItem = {
   question: string;
   answer: string;
 };

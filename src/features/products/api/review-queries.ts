@@ -32,7 +32,8 @@ export const getReviewAggregate = cache(
     }
 
     return {
-      averageRating: Number.parseFloat(result.averageRating ?? "0"),
+      averageRating:
+        Math.round(Number.parseFloat(result.averageRating ?? "0") * 10) / 10,
       reviewCount: result.reviewCount,
     };
   }

@@ -25,6 +25,7 @@ import {
   getReviewAggregate,
 } from "@/features/products/api/review-queries";
 import { jsonContentToHtml, jsonContentToText } from "@/lib/editor-utils";
+import { log } from "@/lib/logger";
 import { createMetadata } from "@/lib/metadata";
 import {
   getBreadcrumbSchema,
@@ -133,10 +134,20 @@ export default async function ProductPage({ params }: Props) {
   const descriptionText =
     jsonContentToText(result?.description) || "Popis produktu chýba";
 
-  const [reviewAggregate, publishedReviews] = await Promise.all([
-    getReviewAggregate(result.id),
-    getPublishedReviews(result.id, 10),
-  ]);
+  let reviewAggregate: Awaited<ReturnType<typeof getReviewAggregate>> = null;
+  let publishedReviews: Awaited<ReturnType<typeof getPublishedReviews>> = [];
+
+  try {
+    [reviewAggregate, publishedReviews] = await Promise.all([
+      getReviewAggregate(result.id),
+      getPublishedReviews(result.id, 10),
+    ]);
+  } catch (err) {
+    log.db.error(
+      { err, productId: result.id, slug: result.slug },
+      "Failed to fetch review data for product page"
+    );
+  }
 
   const productSchema = getProductSchema({
     name: result.name,
