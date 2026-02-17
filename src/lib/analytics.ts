@@ -68,4 +68,7 @@ export const analytics = {
 	favoritesAllAdded(p: { item_count: number }) {
 		posthog.capture("favorites all added", p);
 	},
+	categorySelected(p: { category_slug: string; category_name: string }) {
+		posthog.capture("category selected", p);
+	},
 } as const;

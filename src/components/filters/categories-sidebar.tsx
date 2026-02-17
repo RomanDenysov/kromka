@@ -8,6 +8,7 @@ import {
 } from "@/app/(public)/e-shop/eshop-params";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Category } from "@/features/categories/api/queries";
+import { analytics } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { LinkStatus } from "../shared/link-status";
 
@@ -33,6 +34,12 @@ export function CategoriesSidebar({ categories }: Props) {
             )}
             href={getCategoriesLink({ category: c.slug })}
             key={c.slug}
+            onClick={() =>
+              analytics.categorySelected({
+                category_slug: c.slug || "all",
+                category_name: c.name,
+              })
+            }
           >
             <LinkStatus>{c.name}</LinkStatus>
           </Link>
