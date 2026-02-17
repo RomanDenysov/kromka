@@ -24,7 +24,7 @@ export function CartDrawer({ indicator, children }: Props) {
 	const handleOpenChange = (isOpen: boolean) => {
 		setOpen(isOpen);
 		if (isOpen) {
-			analytics.cartViewed({ item_count: 0, total: 0 });
+			analytics.cartViewed();
 		}
 	};
 

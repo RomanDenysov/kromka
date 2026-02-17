@@ -1,7 +1,7 @@
 "use client";
 
 import { MinusIcon, PlusIcon, ShoppingCartIcon } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ButtonGroup,
@@ -17,7 +17,7 @@ type Props = {
   id: string;
   disabled: boolean;
   max?: number;
-  product?: { name: string; price: number };
+  product?: { name: string; price: number; category: string; categoryId: string };
 };
 
 export function AddWithQuantityButton({
@@ -29,6 +29,21 @@ export function AddWithQuantityButton({
   const isMobile = useIsMobile();
   const [quantity, setQuantity] = useState(1);
   const [isPending, startTransition] = useTransition();
+
+  // Track product view on mount (replaces ProductViewTracker component)
+  const hasTracked = useRef(false);
+  useEffect(() => {
+    if (product && !hasTracked.current) {
+      hasTracked.current = true;
+      analytics.productViewed({
+        product_id: id,
+        product_name: product.name,
+        price: product.price,
+        category: product.category,
+        category_id: product.categoryId,
+      });
+    }
+  }, [id, product]);
 
   const handleAddToCart = () => {
     const qty = quantity;

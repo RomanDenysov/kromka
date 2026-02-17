@@ -18,23 +18,34 @@ type Props = {
 	product?: ProductInfo;
 };
 
-export function AddToCartButton({ id, disabled = false, product }: Props) {
+function useAddToCart(
+	id: string,
+	product: ProductInfo | undefined,
+	action: (id: string, qty: number) => Promise<void>,
+	cartType: "b2c" | "b2b",
+) {
 	const [isPending, startTransition] = useTransition();
 
 	const handleClick = () => {
 		startTransition(async () => {
-			await addToCart(id, 1);
+			await action(id, 1);
 			if (product) {
 				analytics.productAdded({
 					product_id: id,
 					product_name: product.name,
 					price: product.price,
 					quantity: 1,
-					cart_type: "b2c",
+					cart_type: cartType,
 				});
 			}
 		});
 	};
+
+	return { isPending, handleClick };
+}
+
+export function AddToCartButton({ id, disabled = false, product }: Props) {
+	const { isPending, handleClick } = useAddToCart(id, product, addToCart, "b2c");
 
 	return (
 		<Button
@@ -50,22 +61,7 @@ export function AddToCartButton({ id, disabled = false, product }: Props) {
 }
 
 export function AddToCartButtonIcon({ id, disabled = false, product }: Props) {
-	const [isPending, startTransition] = useTransition();
-
-	const handleClick = () => {
-		startTransition(async () => {
-			await addToCart(id, 1);
-			if (product) {
-				analytics.productAdded({
-					product_id: id,
-					product_name: product.name,
-					price: product.price,
-					quantity: 1,
-					cart_type: "b2c",
-				});
-			}
-		});
-	};
+	const { isPending, handleClick } = useAddToCart(id, product, addToCart, "b2c");
 
 	return (
 		<Button
@@ -89,22 +85,12 @@ export function AddToCartButtonIcon({ id, disabled = false, product }: Props) {
 }
 
 export function AddToB2bCartButton({ id, disabled = false, product }: Props) {
-	const [isPending, startTransition] = useTransition();
-
-	const handleClick = () => {
-		startTransition(async () => {
-			await addToB2bCart(id, 1);
-			if (product) {
-				analytics.productAdded({
-					product_id: id,
-					product_name: product.name,
-					price: product.price,
-					quantity: 1,
-					cart_type: "b2b",
-				});
-			}
-		});
-	};
+	const { isPending, handleClick } = useAddToCart(
+		id,
+		product,
+		addToB2bCart,
+		"b2b",
+	);
 
 	return (
 		<Button
@@ -124,22 +110,12 @@ export function AddToB2bCartButtonIcon({
 	disabled = false,
 	product,
 }: Props) {
-	const [isPending, startTransition] = useTransition();
-
-	const handleClick = () => {
-		startTransition(async () => {
-			await addToB2bCart(id, 1);
-			if (product) {
-				analytics.productAdded({
-					product_id: id,
-					product_name: product.name,
-					price: product.price,
-					quantity: 1,
-					cart_type: "b2b",
-				});
-			}
-		});
-	};
+	const { isPending, handleClick } = useAddToCart(
+		id,
+		product,
+		addToB2bCart,
+		"b2b",
+	);
 
 	return (
 		<Button

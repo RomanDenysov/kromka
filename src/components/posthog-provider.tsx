@@ -30,7 +30,6 @@ if (typeof window !== "undefined" && !IS_DEV) {
       session_recording: {
         maskAllInputs: true,
         maskTextSelector: "[data-mask]",
-        minRecordingDuration: 3000,
       },
     });
   }

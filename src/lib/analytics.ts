@@ -28,8 +28,8 @@ export const analytics = {
 	}) {
 		posthog.capture("product removed", p);
 	},
-	cartViewed(p: { item_count: number; total: number }) {
-		posthog.capture("cart viewed", p);
+	cartViewed() {
+		posthog.capture("cart viewed");
 	},
 	checkoutStarted(p: {
 		item_count: number;
@@ -41,7 +41,7 @@ export const analytics = {
 	storeSelected(p: { store_id: string; store_name: string }) {
 		posthog.capture("store selected", p);
 	},
-	searchPerformed(p: { query: string; results_count: number }) {
+	searchPerformed(p: { query: string }) {
 		posthog.capture("search performed", p);
 	},
 	favoriteToggled(p: {

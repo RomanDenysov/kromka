@@ -36,7 +36,6 @@ import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
 import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
 import { ProductRecommendations } from "./product-recommendations";
-import { ProductViewTracker } from "./product-view-tracker";
 
 type Props = {
   params: Promise<{
@@ -191,13 +190,6 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <PageWrapper>
-      <ProductViewTracker
-        category={result.category?.name ?? ""}
-        categoryId={result.category?.id ?? ""}
-        price={result.priceCents}
-        productId={result.id}
-        productName={result.name}
-      />
       <JsonLd data={[productSchema, breadcrumbSchema, ...reviewSchemas]} />
       <AppBreadcrumbs
         items={[{ label: "E-shop", href: "/e-shop" }, { label: result.name }]}
@@ -296,7 +288,12 @@ export default async function ProductPage({ params }: Props) {
             <AddWithQuantityButton
               disabled={!isInStock}
               id={result.id}
-              product={{ name: result.name, price: result.priceCents }}
+              product={{
+                name: result.name,
+                price: result.priceCents,
+                category: result.category?.name ?? "",
+                categoryId: result.category?.id ?? "",
+              }}
             />
           </div>
         </div>

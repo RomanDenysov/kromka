@@ -7,7 +7,7 @@ import {
   PencilIcon,
   StoreIcon,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
@@ -67,17 +67,14 @@ export function B2bCheckoutForm({
   );
 
   // Track checkout started on mount
-  const hasTrackedCheckout = useRef(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally fire once on mount
   useEffect(() => {
-    if (!hasTrackedCheckout.current) {
-      hasTrackedCheckout.current = true;
-      analytics.checkoutStarted({
-        item_count: items.length,
-        total: totalCents,
-        cart_type: "b2b",
-      });
-    }
-  }, [items.length, totalCents]);
+    analytics.checkoutStarted({
+      item_count: items.length,
+      total: totalCents,
+      cart_type: "b2b",
+    });
+  }, []);
 
   const { isSubmitting, isValid: canSubmit } = form.formState;
   const isSubmitDisabled = isSubmitting || !canSubmit || !ordersEnabled;

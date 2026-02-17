@@ -31,10 +31,7 @@ export function ProductSearch() {
             }
           );
           if (value.trim()) {
-            analytics.searchPerformed({
-              query: value.trim(),
-              results_count: 0,
-            });
+            analytics.searchPerformed({ query: value.trim() });
           }
         });
       }}

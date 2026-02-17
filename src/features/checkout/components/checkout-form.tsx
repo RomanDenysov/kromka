@@ -1,7 +1,7 @@
 "use client";
 
 import { CreditCardIcon, StoreIcon } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { ContinueShoppingLink } from "@/components/continue-shopping-link";
 import { PhoneField } from "@/components/forms/fields/phone-field";
@@ -94,17 +94,14 @@ export function CheckoutForm({
   );
 
   // Track checkout started on mount
-  const hasTrackedCheckout = useRef(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally fire once on mount
   useEffect(() => {
-    if (!hasTrackedCheckout.current) {
-      hasTrackedCheckout.current = true;
-      analytics.checkoutStarted({
-        item_count: items.length,
-        total: totalCents,
-        cart_type: "b2c",
-      });
-    }
-  }, [items.length, totalCents]);
+    analytics.checkoutStarted({
+      item_count: items.length,
+      total: totalCents,
+      cart_type: "b2c",
+    });
+  }, []);
 
   const { isSubmitting, isValid: canSubmit, errors } = form.formState;
   const isSubmitDisabled =
