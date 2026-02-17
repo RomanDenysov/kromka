@@ -20,9 +20,18 @@ import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProducts, type Product } from "@/features/products/api/queries";
+import {
+  getPublishedReviews,
+  getReviewAggregate,
+} from "@/features/products/api/review-queries";
 import { jsonContentToHtml, jsonContentToText } from "@/lib/editor-utils";
+import { log } from "@/lib/logger";
 import { createMetadata } from "@/lib/metadata";
-import { getBreadcrumbSchema, getProductSchema } from "@/lib/seo/json-ld";
+import {
+  getBreadcrumbSchema,
+  getProductSchema,
+  getReviewSchema,
+} from "@/lib/seo/json-ld";
 import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
 import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
@@ -125,6 +134,21 @@ export default async function ProductPage({ params }: Props) {
   const descriptionText =
     jsonContentToText(result?.description) || "Popis produktu chýba";
 
+  let reviewAggregate: Awaited<ReturnType<typeof getReviewAggregate>> = null;
+  let publishedReviews: Awaited<ReturnType<typeof getPublishedReviews>> = [];
+
+  try {
+    [reviewAggregate, publishedReviews] = await Promise.all([
+      getReviewAggregate(result.id),
+      getPublishedReviews(result.id, 10),
+    ]);
+  } catch (err) {
+    log.db.error(
+      { err, productId: result.id, slug: result.slug },
+      "Failed to fetch review data for product page"
+    );
+  }
+
   const productSchema = getProductSchema({
     name: result.name,
     description: descriptionText,
@@ -133,7 +157,21 @@ export default async function ProductPage({ params }: Props) {
     slug: result.slug,
     category: result.category?.name,
     isAvailable: isInStock,
+    rating: reviewAggregate
+      ? { value: reviewAggregate.averageRating, count: reviewAggregate.reviewCount }
+      : null,
   });
+
+  const reviewSchemas = publishedReviews.map((review) =>
+    getReviewSchema({
+      authorName: review.user.name,
+      rating: review.rating,
+      reviewBody: review.content,
+      datePublished: review.createdAt,
+      productName: result.name,
+      productSlug: result.slug,
+    })
+  );
 
   const breadcrumbItems = [
     { name: "E-shop", href: "/e-shop" },
@@ -152,7 +190,7 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <PageWrapper>
-      <JsonLd data={[productSchema, breadcrumbSchema]} />
+      <JsonLd data={[productSchema, breadcrumbSchema, ...reviewSchemas]} />
       <AppBreadcrumbs
         items={[{ label: "E-shop", href: "/e-shop" }, { label: result.name }]}
       />

@@ -233,6 +233,7 @@ reqLog.info("Processing order");
 - Slovak language for user-facing content, English for code
 - Price values stored as cents (integers)
 - Dates: pickup dates as `YYYY-MM-DD` strings
+- Date formatting/serialization: Use `date-fns` (`formatISO`, `format`, etc.) instead of `.toISOString()` or manual Date manipulation. Handles both Date objects and strings safely (important for `"use cache"` serialization boundaries).
 
 ## Documentation
 

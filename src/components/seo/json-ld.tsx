@@ -29,9 +29,9 @@ export function JsonLd({ data }: JsonLdProps) {
 
   return (
     <>
-      {jsonLdData.map((schema) => {
+      {jsonLdData.map((schema, index) => {
         const schemaType = getSchemaType(schema);
-        const key = `json-ld-${schemaType}`;
+        const key = `json-ld-${schemaType}-${index}`;
 
         return (
           <script

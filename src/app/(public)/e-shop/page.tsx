@@ -9,6 +9,7 @@ import {
   SortToggles,
   SortTogglesSkeleton,
 } from "@/components/filters/sort-toggles";
+import { JsonLd } from "@/components/seo/json-ld";
 import { PageWrapper } from "@/components/shared/container";
 import { getCategories } from "@/features/categories/api/queries";
 import {
@@ -16,6 +17,7 @@ import {
   ProductsGridSkeleton,
 } from "@/features/products/components/products-grid";
 import { defaultMetadata } from "@/lib/metadata";
+import { getCollectionPageSchema } from "@/lib/seo/json-ld";
 import { CategoriesChips, CategoriesChipsSkeleton } from "./categories-chips";
 import { loadEshopParams } from "./eshop-params";
 import { ProductSearch, ProductSearchSkeleton } from "./product-search";
@@ -38,7 +40,7 @@ export const metadata: Metadata = {
         url: "/images/kromka-vianoce-hero-min.webp",
         width: 1200,
         height: 630,
-        alt: "Vianočná ponuka Pekárne Kromka",
+        alt: "Ponuka pekárenských výrobkov Pekárne Kromka",
       },
     ],
   },
@@ -49,33 +51,36 @@ export default function EshopPage({ searchParams }: Props) {
   const eshopParams = loadEshopParams(searchParams);
 
   return (
-    <PageWrapper className="relative grid min-h-[calc(100svh-5rem)] w-full items-start gap-8 pt-2 md:grid-cols-[12rem_1fr]">
-      <Suspense fallback={<CategoriesSidebarSkeleton />}>
-        <CategoriesSidebar categories={categories} />
-      </Suspense>
-      <div className="min-w-0 space-y-4">
-        <div className="flex items-center justify-between gap-8">
-          <Suspense fallback={<ProductSearchSkeleton />}>
-            <ProductSearch />
+    <>
+      <JsonLd data={[getCollectionPageSchema()]} />
+      <PageWrapper className="relative grid min-h-[calc(100svh-5rem)] w-full items-start gap-8 pt-2 md:grid-cols-[12rem_1fr]">
+        <Suspense fallback={<CategoriesSidebarSkeleton />}>
+          <CategoriesSidebar categories={categories} />
+        </Suspense>
+        <div className="min-w-0 space-y-4">
+          <div className="flex items-center justify-between gap-8">
+            <Suspense fallback={<ProductSearchSkeleton />}>
+              <ProductSearch />
+            </Suspense>
+            <div className="hidden md:block">
+              <Suspense fallback={<SortTogglesSkeleton />}>
+                <SortToggles />
+              </Suspense>
+            </div>
+          </div>
+          <Suspense fallback={<CategoriesChipsSkeleton />}>
+            <CategoriesChips categories={categories} />
           </Suspense>
-          <div className="hidden md:block">
+          <div className="flex items-center justify-end md:hidden">
             <Suspense fallback={<SortTogglesSkeleton />}>
               <SortToggles />
             </Suspense>
           </div>
-        </div>
-        <Suspense fallback={<CategoriesChipsSkeleton />}>
-          <CategoriesChips categories={categories} />
-        </Suspense>
-        <div className="flex items-center justify-end md:hidden">
-          <Suspense fallback={<SortTogglesSkeleton />}>
-            <SortToggles />
+          <Suspense fallback={<ProductsGridSkeleton />}>
+            <ProductsGrid searchParams={eshopParams} />
           </Suspense>
         </div>
-        <Suspense fallback={<ProductsGridSkeleton />}>
-          <ProductsGrid searchParams={eshopParams} />
-        </Suspense>
-      </div>
-    </PageWrapper>
+      </PageWrapper>
+    </>
   );
 }
