@@ -2,6 +2,7 @@ import { Facebook, Instagram, MailIcon, PhoneIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
+import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { buttonVariants } from "@/components/ui/button";
@@ -13,7 +14,31 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { createMetadata } from "@/lib/metadata";
+import { getFAQSchema } from "@/lib/seo/json-ld";
 import { cn, getSiteUrl } from "@/lib/utils";
+
+const CONTACT_FAQ = [
+  {
+    question: "Ako si môžem objednať pečivo online?",
+    answer:
+      "Objednávku si vytvoríte jednoducho cez náš e-shop. Vyberte si produkty, zvoľte predajňu a termín vyzdvihnutia a dokončite objednávku. Po potvrdení vám príde email s detailmi.",
+  },
+  {
+    question: "Ako funguje vyzdvihnutie objednávky?",
+    answer:
+      "Po vytvorení objednávky si zvolíte predajňu a dátum vyzdvihnutia. V deň vyzdvihnutia si jednoducho prídete po svoju objednávku do zvolenej predajne počas otváracích hodín.",
+  },
+  {
+    question: "Aké platobné metódy akceptujete?",
+    answer:
+      "Akceptujeme platbu kartou online pri vytvorení objednávky. Pre B2B zákazníkov ponúkame aj platbu na faktúru.",
+  },
+  {
+    question: "Ako vás môžem kontaktovať?",
+    answer:
+      "Napíšte nám email na kromka@kavejo.sk alebo nám zavolajte na +421 912 345 678. Môžete tiež vyplniť kontaktný formulár na stránke Podpora.",
+  },
+];
 
 export const metadata: Metadata = createMetadata({
   title: "Kontakt",
@@ -25,6 +50,7 @@ export const metadata: Metadata = createMetadata({
 export default function KontaktPage() {
   return (
     <PageWrapper>
+      <JsonLd data={getFAQSchema(CONTACT_FAQ)} />
       <AppBreadcrumbs items={[{ label: "Kontakt" }]} />
 
       <div className="space-y-8">

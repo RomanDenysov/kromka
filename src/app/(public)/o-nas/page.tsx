@@ -1,9 +1,34 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { createMetadata } from "@/lib/metadata";
+import { getFAQSchema } from "@/lib/seo/json-ld";
 import { getSiteUrl } from "@/lib/utils";
+
+const ABOUT_FAQ = [
+  {
+    question: "Kedy bola Pekáreň Kromka založená?",
+    answer:
+      "Pekáreň Kromka bola založená v roku 2020. Našu prvú pobočku sme otvorili na ulici 17. novembra v Prešove.",
+  },
+  {
+    question: "Kde nájdem predajne Pekárne Kromka?",
+    answer:
+      "Naše predajne nájdete v Prešove a v Košiciach. Okrem vlastných pobočiek dodávame pečivo aj do ďalších podnikov v regióne.",
+  },
+  {
+    question: "Aké produkty ponúkate?",
+    answer:
+      "Ponúkame kváskový chlieb, čerstvé rožky, koláče, pečené buchty a ďalšie pekárenské výrobky. Okrem pečiva u nás nájdete aj lokálne produkty ako smotanové maslo, tvaroh, párky, remeselné pivo a naturálne víno.",
+  },
+  {
+    question: "Používate kvások pri pečení?",
+    answer:
+      "Áno, kvások je základom našej pekárne. Pečieme tradičné slovenské pekárenské výrobky s dôrazom na kvalitné suroviny a remeselný postup.",
+  },
+];
 
 export const metadata: Metadata = createMetadata({
   title: "O nás",
@@ -16,6 +41,7 @@ export const metadata: Metadata = createMetadata({
 export default function AboutPage() {
   return (
     <PageWrapper className="pb-20">
+      <JsonLd data={getFAQSchema(ABOUT_FAQ)} />
       <AppBreadcrumbs items={[{ label: "O nás", href: "/o-nas" }]} />
 
       <article className="space-y-20 md:space-y-32">

@@ -1,11 +1,14 @@
 import type {
   Article,
   BreadcrumbList,
+  CollectionPage,
+  FAQPage,
   LocalBusiness,
   Offer,
   OpeningHoursSpecification,
   Organization,
   Product,
+  Review,
   WebSite,
   WithContext,
 } from "schema-dts";
@@ -26,6 +29,8 @@ export function getOrganizationSchema(): WithContext<Organization> {
     name: SITE_NAME,
     url: SITE_URL,
     logo: getSiteUrl("/icons/icon-512x512.png"),
+    description:
+      "Remeselná pekáreň na východnom Slovensku. Pečieme kváskový chlieb, pečivo a koláče z kvalitných surovín podľa tradičných receptov.",
     sameAs: [
       "https://www.instagram.com/pekaren.kromka",
       "https://www.facebook.com/pekaren.kromka",
@@ -36,6 +41,15 @@ export function getOrganizationSchema(): WithContext<Organization> {
       email: "kromka@kavejo.sk",
       contactType: "customer service",
       availableLanguage: ["Slovak"],
+    },
+    areaServed: {
+      "@type": "Place",
+      name: "Východné Slovensko",
+    },
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Ponuka pekárenských výrobkov",
+      url: getSiteUrl("/e-shop"),
     },
   };
 }
@@ -128,6 +142,50 @@ export function getProductSchema(
 }
 
 // ============================================================================
+// Review Schema
+// ============================================================================
+
+type ReviewSchemaInput = {
+  authorName: string;
+  rating: number;
+  reviewBody?: string | null;
+  datePublished: Date;
+  productName: string;
+  productSlug: string;
+};
+
+export function getReviewSchema(
+  review: ReviewSchemaInput
+): WithContext<Review> {
+  const schema: WithContext<Review> = {
+    "@context": "https://schema.org",
+    "@type": "Review",
+    author: {
+      "@type": "Person",
+      name: review.authorName,
+    },
+    reviewRating: {
+      "@type": "Rating",
+      ratingValue: review.rating.toString(),
+      bestRating: "5",
+      worstRating: "1",
+    },
+    datePublished: review.datePublished.toISOString(),
+    itemReviewed: {
+      "@type": "Product",
+      name: review.productName,
+      url: getSiteUrl(`/product/${review.productSlug}`),
+    },
+  };
+
+  if (review.reviewBody) {
+    schema.reviewBody = review.reviewBody;
+  }
+
+  return schema;
+}
+
+// ============================================================================
 // LocalBusiness (Bakery) Schema
 // ============================================================================
 
@@ -205,6 +263,20 @@ export function getLocalBusinessSchema(
       "@type": "Organization",
       name: SITE_NAME,
       url: SITE_URL,
+    },
+    priceRange: "€",
+    servesCuisine: "Pekárenské výrobky, Chlieb, Pečivo",
+    paymentAccepted: "Hotovosť, Platobná karta",
+    currenciesAccepted: "EUR",
+    hasMenu: `${SITE_URL}/e-shop`,
+    areaServed: {
+      "@type": "GeoCircle",
+      geoMidpoint: {
+        "@type": "GeoCoordinates",
+        latitude: 48.72,
+        longitude: 21.26,
+      },
+      geoRadius: "100000",
     },
   };
 
@@ -314,6 +386,31 @@ export function getBlogPostingSchema(
 }
 
 // ============================================================================
+// CollectionPage Schema (for product listing pages)
+// ============================================================================
+
+export function getCollectionPageSchema(): WithContext<CollectionPage> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Naše Produkty",
+    description:
+      "Ponuka tradičných slovenských pekárenských výrobkov z Pekárne Kromka. Čerstvý chlieb, pečivo, koláče a ďalšie špeciality.",
+    url: getSiteUrl("/e-shop"),
+    isPartOf: {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    provider: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+  };
+}
+
+// ============================================================================
 // BreadcrumbList Schema
 // ============================================================================
 
@@ -342,5 +439,29 @@ export function getBreadcrumbSchema(
         item: item.href ? getSiteUrl(item.href) : undefined,
       })),
     ],
+  };
+}
+
+// ============================================================================
+// FAQPage Schema
+// ============================================================================
+
+type FAQItem = {
+  question: string;
+  answer: string;
+};
+
+export function getFAQSchema(items: FAQItem[]): WithContext<FAQPage> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question" as const,
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer" as const,
+        text: item.answer,
+      },
+    })),
   };
 }

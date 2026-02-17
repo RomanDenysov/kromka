@@ -23,6 +23,14 @@ export const defaultMetadata: Metadata = {
     type: "website",
     siteName,
     locale: "sk_SK",
+    images: [
+      {
+        url: "/images/kromka-vianoce-hero-min.webp",
+        width: 1200,
+        height: 630,
+        alt: "Pekáreň Kromka – Remeselná pekáreň",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

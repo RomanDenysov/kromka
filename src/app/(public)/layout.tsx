@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     template: "%s | Pekáreň Kromka",
   },
   description:
-    "Pripravte sa na Vianoce s Pekárňou Kromka. Voňavá kváskova vianočka, makový a orechový závin a čerstvý chlieb na sviatočný stôl. Remeselná kvalita s láskou.",
+    "Remeselná pekáreň na východnom Slovensku. Kváskový chlieb, pečivo a koláče z kvalitných surovín podľa tradičných receptov. Objednajte online, vyzdvihnite v predajni.",
   ...defaultMetadata,
 };
 

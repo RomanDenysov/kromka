@@ -6,12 +6,37 @@ import {
 } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
+import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { Container, PageWrapper } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createMetadata } from "@/lib/metadata";
+import { getFAQSchema } from "@/lib/seo/json-ld";
 import { getSiteUrl } from "@/lib/utils";
+
+const B2B_FAQ = [
+  {
+    question: "Pre koho je B2B spolupráca určená?",
+    answer:
+      "B2B spolupráca je určená pre kaviarne, reštaurácie, hotely, obchody a ďalšie podniky, ktoré chcú ponúkať čerstvé pekárenské výrobky od Pekárne Kromka.",
+  },
+  {
+    question: "Ako funguje fakturácia pre B2B zákazníkov?",
+    answer:
+      "B2B zákazníci platia na faktúru s flexibilnými splatnosťami. Po schválení vašej žiadosti nastavíme fakturačné podmienky podľa vzájomnej dohody.",
+  },
+  {
+    question: "Ako požiadať o B2B spoluprácu?",
+    answer:
+      "Vyplňte jednoduchý formulár na našej stránke s informáciami o vašej spoločnosti. Náš tím preverí vašu žiadosť a ozve sa vám do 2 pracovných dní.",
+  },
+  {
+    question: "Dodávate pečivo priamo do prevádzky?",
+    answer:
+      "Áno, pre B2B zákazníkov zabezpečujeme dodávku čerstvého pečiva priamo do vašej prevádzky podľa dohodnutého harmonogramu.",
+  },
+];
 
 export const metadata: Metadata = createMetadata({
   title: "B2B Spolupráca",
@@ -64,6 +89,7 @@ const STEPS = [
 export default function B2BPage() {
   return (
     <PageWrapper>
+      <JsonLd data={getFAQSchema(B2B_FAQ)} />
       <AppBreadcrumbs items={[{ label: "B2B", href: "/b2b" }]} />
 
       {/* Hero Section */}
