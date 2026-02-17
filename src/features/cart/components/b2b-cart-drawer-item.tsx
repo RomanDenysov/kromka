@@ -48,6 +48,7 @@ export function B2bCartDrawerItem({ item }: Props) {
           <RemoveItemButton
             id={item.productId}
             onRemove={removeFromB2bCart}
+            productInfo={{ name: item.name, quantity: item.quantity }}
             size="icon-xs"
           />
         </div>

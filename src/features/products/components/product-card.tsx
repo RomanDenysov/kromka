@@ -44,6 +44,7 @@ export function ProductCard({
                 className="hover:bg-accent/50 [&_svg:not([class*='size-'])]:size-5"
                 initialIsFavorite={isFavorite}
                 productId={product.id}
+                productName={product.name}
                 size="icon"
                 variant="ghost"
               />
@@ -90,9 +91,17 @@ export function ProductCard({
           </span>
 
           {cartVariant === "b2b" ? (
-            <AddToB2bCartButton disabled={!isActive} id={product.id} />
+            <AddToB2bCartButton
+              disabled={!isActive}
+              id={product.id}
+              product={{ name: product.name, price: product.priceCents }}
+            />
           ) : (
-            <AddToCartButton disabled={!isActive} id={product.id} />
+            <AddToCartButton
+              disabled={!isActive}
+              id={product.id}
+              product={{ name: product.name, price: product.priceCents }}
+            />
           )}
         </div>
       </div>

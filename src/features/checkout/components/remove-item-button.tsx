@@ -5,12 +5,14 @@ import { useTransition } from "react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { removeFromCart } from "@/features/cart/api/actions";
+import { analytics } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 
 type Props = ButtonProps & {
   id: string;
   iconClassName?: string;
   onRemove?: (productId: string) => Promise<void>;
+  productInfo?: { name: string; quantity: number };
 };
 
 export function RemoveItemButton({
@@ -19,6 +21,7 @@ export function RemoveItemButton({
   size = "icon-sm",
   iconClassName,
   onRemove,
+  productInfo,
   ...props
 }: Props) {
   const [isPending, startTransition] = useTransition();
@@ -32,6 +35,13 @@ export function RemoveItemButton({
             await onRemove(id);
           } else {
             await removeFromCart(id);
+          }
+          if (productInfo) {
+            analytics.productRemoved({
+              product_id: id,
+              product_name: productInfo.name,
+              quantity: productInfo.quantity,
+            });
           }
         })
       }

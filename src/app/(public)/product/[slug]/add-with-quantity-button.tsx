@@ -11,21 +11,38 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { addToCart } from "@/features/cart/api/actions";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { analytics } from "@/lib/analytics";
 
 type Props = {
   id: string;
   disabled: boolean;
   max?: number;
+  product?: { name: string; price: number };
 };
 
-export function AddWithQuantityButton({ id, disabled, max = 100 }: Props) {
+export function AddWithQuantityButton({
+  id,
+  disabled,
+  max = 100,
+  product,
+}: Props) {
   const isMobile = useIsMobile();
   const [quantity, setQuantity] = useState(1);
   const [isPending, startTransition] = useTransition();
 
   const handleAddToCart = () => {
-    startTransition(() => {
-      addToCart(id, quantity);
+    const qty = quantity;
+    startTransition(async () => {
+      await addToCart(id, qty);
+      if (product) {
+        analytics.productAdded({
+          product_id: id,
+          product_name: product.name,
+          price: product.price,
+          quantity: qty,
+          cart_type: "b2c",
+        });
+      }
       setQuantity(1);
     });
   };

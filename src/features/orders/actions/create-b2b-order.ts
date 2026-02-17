@@ -7,6 +7,7 @@ import { getSiteConfig } from "@/features/site-config/api/queries";
 import { requireB2bMember } from "@/lib/auth/guards";
 import { log } from "@/lib/logger";
 import { guard, runPipeline, unwrap } from "@/lib/pipeline";
+import { captureServerEvent } from "@/lib/posthog";
 import {
   buildOrderItems,
   clearB2bCartAfterOrder,
@@ -74,14 +75,14 @@ export async function createB2BOrder(data: {
         deliveryAddress: b2bContext.organization.billingAddress,
       });
 
-      return { orderId, orderNumber };
+      return { orderId, orderNumber, userId: b2bContext.user.id, totalCents, itemCount: orderItemsData.length };
     });
 
     if (!result.ok) {
       return { success: false, error: result.error };
     }
 
-    const { orderId, orderNumber } = result.data;
+    const { orderId, orderNumber, userId, totalCents, itemCount } = result.data;
 
     updateTag("orders");
 
@@ -91,6 +92,18 @@ export async function createB2BOrder(data: {
     // Fire-and-forget: don't block order success on email
     notifyOrderCreated(orderId).catch((err) => {
       log.email.error({ err, orderId }, "Failed to send order notification");
+    });
+
+    captureServerEvent(userId, "order completed", {
+      order_id: orderId,
+      order_number: orderNumber,
+      total: totalCents,
+      item_count: itemCount,
+      payment_method: data.paymentMethod,
+      pickup_date: data.pickupDate,
+      is_b2b: true,
+    }).catch((err) => {
+      log.orders.error({ err, orderId }, "Failed to capture PostHog order event");
     });
 
     return { success: true, orderId, orderNumber };

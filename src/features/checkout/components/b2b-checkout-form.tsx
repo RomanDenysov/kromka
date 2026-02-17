@@ -7,6 +7,7 @@ import {
   PencilIcon,
   StoreIcon,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { OrderPickupDatePicker } from "@/components/order-pickup-date-picker";
 import { OrderPickupTimePicker } from "@/components/order-pickup-time-picker";
@@ -27,6 +28,7 @@ import { Spinner } from "@/components/ui/spinner";
 import type { Address, PaymentMethod } from "@/db/types";
 import type { DetailedCartItem } from "@/features/cart/api/queries";
 import { useB2bCheckoutForm } from "@/features/checkout/hooks/use-b2b-checkout-form";
+import { analytics } from "@/lib/analytics";
 import { buildFullAddress } from "@/lib/geo-utils";
 import { formatPrice } from "@/lib/utils";
 import { B2bOrgEditSheet } from "./b2b-org-edit-sheet";
@@ -63,6 +65,19 @@ export function B2bCheckoutForm({
     (acc, item) => acc + item.priceCents * item.quantity,
     0
   );
+
+  // Track checkout started on mount
+  const hasTrackedCheckout = useRef(false);
+  useEffect(() => {
+    if (!hasTrackedCheckout.current) {
+      hasTrackedCheckout.current = true;
+      analytics.checkoutStarted({
+        item_count: items.length,
+        total: totalCents,
+        cart_type: "b2b",
+      });
+    }
+  }, [items.length, totalCents]);
 
   const { isSubmitting, isValid: canSubmit } = form.formState;
   const isSubmitDisabled = isSubmitting || !canSubmit || !ordersEnabled;

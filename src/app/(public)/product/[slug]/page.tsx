@@ -36,6 +36,7 @@ import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
 import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
 import { ProductRecommendations } from "./product-recommendations";
+import { ProductViewTracker } from "./product-view-tracker";
 
 type Props = {
   params: Promise<{
@@ -190,6 +191,13 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <PageWrapper>
+      <ProductViewTracker
+        category={result.category?.name ?? ""}
+        categoryId={result.category?.id ?? ""}
+        price={result.priceCents}
+        productId={result.id}
+        productName={result.name}
+      />
       <JsonLd data={[productSchema, breadcrumbSchema, ...reviewSchemas]} />
       <AppBreadcrumbs
         items={[{ label: "E-shop", href: "/e-shop" }, { label: result.name }]}
@@ -240,6 +248,7 @@ export default async function ProductPage({ params }: Props) {
               <FavoriteButton
                 className="[&_svg:not([class*='size-'])]:size-6"
                 productId={result.id}
+                productName={result.name}
                 size="icon-lg"
                 variant="ghost"
               />
@@ -284,7 +293,11 @@ export default async function ProductPage({ params }: Props) {
           </div>
           <Separator />
           <div className="flex w-full items-center justify-between gap-2">
-            <AddWithQuantityButton disabled={!isInStock} id={result.id} />
+            <AddWithQuantityButton
+              disabled={!isInStock}
+              id={result.id}
+              product={{ name: result.name, price: result.priceCents }}
+            />
           </div>
         </div>
       </section>

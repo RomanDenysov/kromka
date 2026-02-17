@@ -1,7 +1,7 @@
 "use client";
 
 import { CreditCardIcon, StoreIcon } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { ContinueShoppingLink } from "@/components/continue-shopping-link";
 import { PhoneField } from "@/components/forms/fields/phone-field";
@@ -34,6 +34,7 @@ import { useGeolocation } from "@/hooks/use-geolocation";
 import type { User } from "@/lib/auth/session";
 import { sortStoresByDistance } from "@/lib/geo-utils";
 import { formatPrice } from "@/lib/utils";
+import { analytics } from "@/lib/analytics";
 import type { LastOrderPrefill } from "../api/queries";
 import { CheckoutAlerts, PickupDateAlerts } from "./checkout-alerts";
 import { CheckoutCtaLogin } from "./checkout-cta-login";
@@ -91,6 +92,19 @@ export function CheckoutForm({
     (acc, item) => acc + item.priceCents * item.quantity,
     0
   );
+
+  // Track checkout started on mount
+  const hasTrackedCheckout = useRef(false);
+  useEffect(() => {
+    if (!hasTrackedCheckout.current) {
+      hasTrackedCheckout.current = true;
+      analytics.checkoutStarted({
+        item_count: items.length,
+        total: totalCents,
+        cart_type: "b2c",
+      });
+    }
+  }, [items.length, totalCents]);
 
   const { isSubmitting, isValid: canSubmit, errors } = form.formState;
   const isSubmitDisabled =
@@ -151,7 +165,16 @@ export function CheckoutForm({
               name="storeId"
               render={({ field }) => (
                 <OrderStorePicker
-                  onValueChange={(id) => field.onChange(id)}
+                  onValueChange={(id) => {
+                    field.onChange(id);
+                    const store = storeOptions.find((s) => s.id === id);
+                    if (store) {
+                      analytics.storeSelected({
+                        store_id: store.id,
+                        store_name: store.name,
+                      });
+                    }
+                  }}
                   storeOptions={storeOptions}
                   value={field.value}
                 />

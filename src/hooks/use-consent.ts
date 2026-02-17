@@ -21,11 +21,13 @@ export function useConsent() {
     consent.client.set({ analytics: true });
     posthog.set_config({ persistence: "localStorage+cookie" });
     posthog.opt_in_capturing();
+    posthog.startSessionRecording();
   }, []);
 
   const acceptNecessary = useCallback(() => {
     consent.client.set({ analytics: false });
     posthog.opt_out_capturing();
+    posthog.stopSessionRecording();
   }, []);
 
   const reset = useCallback(() => {
