@@ -23,7 +23,7 @@ export function FavoriteButton({
   const { isFavorite, isLoading, toggle } = useFavorite(
     productId,
     initialIsFavorite,
-    productName,
+    productName
   );
 
   return (

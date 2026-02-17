@@ -11,7 +11,7 @@ import { useLoginModalOpen } from "@/store/login-modal-store";
 export function useFavorite(
   productId: string,
   initialValue?: boolean,
-  productName?: string,
+  productName?: string
 ) {
   const openLogin = useLoginModalOpen();
   const pathname = usePathname();

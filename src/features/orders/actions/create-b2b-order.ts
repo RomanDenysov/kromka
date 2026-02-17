@@ -34,7 +34,11 @@ export async function createB2BOrder(data: {
   try {
     const result = await runPipeline(async () => {
       const ordersEnabled = await getSiteConfig("orders_enabled");
-      guard(ordersEnabled, "Objednávky sú momentálne vypnuté", "ORDERS_DISABLED");
+      guard(
+        ordersEnabled,
+        "Objednávky sú momentálne vypnuté",
+        "ORDERS_DISABLED"
+      );
 
       const b2bContext = await requireB2bMember();
       unwrap(await validatePickupDate(data.pickupDate));
@@ -75,7 +79,13 @@ export async function createB2BOrder(data: {
         deliveryAddress: b2bContext.organization.billingAddress,
       });
 
-      return { orderId, orderNumber, userId: b2bContext.user.id, totalCents, itemCount: orderItemsData.length };
+      return {
+        orderId,
+        orderNumber,
+        userId: b2bContext.user.id,
+        totalCents,
+        itemCount: orderItemsData.length,
+      };
     });
 
     if (!result.ok) {
@@ -103,12 +113,17 @@ export async function createB2BOrder(data: {
       pickup_date: data.pickupDate,
       is_b2b: true,
     }).catch((err) => {
-      log.orders.error({ err, orderId }, "Failed to capture PostHog order event");
+      log.orders.error(
+        { err, orderId },
+        "Failed to capture PostHog order event"
+      );
     });
 
     return { success: true, orderId, orderNumber };
   } catch (error) {
-    if (isRedirectError(error)) throw error;
+    if (isRedirectError(error)) {
+      throw error;
+    }
     log.orders.error({ err: error }, "Create B2B order failed");
     return { success: false, error: "Nastala chyba pri vytváraní objednávky" };
   }

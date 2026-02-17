@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { ProductImage } from "@/components/shared/product-image";
 import { QuantitySetter } from "@/components/shared/quantity-setter";
-import { RemoveItemButton } from "@/features/checkout/components/remove-item-button";
 import {
   removeFromB2bCart,
   updateB2bQuantity,
 } from "@/features/cart/api/actions";
 import type { DetailedCartItem } from "@/features/cart/api/queries";
+import { RemoveItemButton } from "@/features/checkout/components/remove-item-button";
 import { formatPrice } from "@/lib/utils";
 
 type Props = {

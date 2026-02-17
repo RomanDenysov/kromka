@@ -17,7 +17,12 @@ type Props = {
   id: string;
   disabled: boolean;
   max?: number;
-  product?: { name: string; price: number; category: string; categoryId: string };
+  product?: {
+    name: string;
+    price: number;
+    category: string;
+    categoryId: string;
+  };
 };
 
 export function AddWithQuantityButton({

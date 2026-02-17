@@ -1,7 +1,7 @@
 "use client";
 
 import { debounce } from "nuqs";
-import { useRef, useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { SearchInput } from "@/components/shared/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { analytics } from "@/lib/analytics";
@@ -17,6 +17,11 @@ export function ProductSearch() {
   });
   const analyticsTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: cleanup only
+  useEffect(() => {
+    return () => clearTimeout(analyticsTimer.current);
+  }, []);
+
   return (
     <SearchInput
       className="flex-2"
@@ -27,9 +32,7 @@ export function ProductSearch() {
           await setSearchParams(
             { q: value },
             {
-              limitUrlUpdates: value
-                ? debounce(DEBOUNCE_DELAY)
-                : undefined,
+              limitUrlUpdates: value ? debounce(DEBOUNCE_DELAY) : undefined,
             }
           );
         });

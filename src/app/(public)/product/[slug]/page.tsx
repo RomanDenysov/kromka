@@ -158,7 +158,10 @@ export default async function ProductPage({ params }: Props) {
     category: result.category?.name,
     isAvailable: isInStock,
     rating: reviewAggregate
-      ? { value: reviewAggregate.averageRating, count: reviewAggregate.reviewCount }
+      ? {
+          value: reviewAggregate.averageRating,
+          count: reviewAggregate.reviewCount,
+        }
       : null,
   });
 
