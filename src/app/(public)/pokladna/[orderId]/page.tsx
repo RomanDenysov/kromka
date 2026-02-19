@@ -17,14 +17,16 @@ export const metadata: Metadata = {
 };
 
 async function OrderConfirmationContent({ orderId }: { orderId: string }) {
-  const order = await getOrderById(orderId);
+  const [order, session] = await Promise.all([
+    getOrderById(orderId),
+    getSession(),
+  ]);
 
   if (!order) {
     notFound();
   }
 
   // Verify order ownership to prevent IDOR
-  const session = await getSession();
   if (session?.user) {
     // Authenticated user: must own the order
     if (order.createdBy?.id !== session.user.id) {
