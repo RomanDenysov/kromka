@@ -7,7 +7,7 @@ import { favorites } from "@/db/schema";
 import { getProducts } from "@/features/products/api/queries";
 import { getUser } from "@/lib/auth/session";
 
-export async function getFavoriteIds(): Promise<string[]> {
+export const getFavoriteIds = cache(async (): Promise<string[]> => {
   const user = await getUser();
 
   if (!user) {
@@ -21,7 +21,7 @@ export async function getFavoriteIds(): Promise<string[]> {
   });
 
   return userFavorites.map((f) => f.productId);
-}
+});
 
 export const getFavorites = cache(async () => {
   const productIds = await getFavoriteIds();
