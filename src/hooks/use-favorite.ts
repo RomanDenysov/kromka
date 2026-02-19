@@ -17,8 +17,8 @@ export function useFavorite(
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
-  const [favorite, setFavorite] = useState<boolean | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [favorite, setFavorite] = useState<boolean | null>(initialValue ?? null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Always prioritize session state - if no session, user can't have favorites
@@ -60,7 +60,7 @@ export function useFavorite(
     const previousFavorite = favorite;
 
     // Optimistic update
-    setFavorite(!favorite);
+    setFavorite((prev) => !prev);
 
     startTransition(async () => {
       const result = await toggleFavorite(productId);
