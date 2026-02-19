@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { getRevenueAndOrdersHistory } from "@/features/admin-dashboard/api/queries";
 import { formatPrice } from "@/lib/utils";
-import { RevenueChart } from "./revenue-chart";
+import { RevenueChartClient } from "./revenue-chart-client";
 
 export async function RevenueChartSection() {
   const revenueHistory = await getRevenueAndOrdersHistory({ days: 30 });
@@ -41,7 +41,7 @@ export async function RevenueChartSection() {
         </CardDescription>
       </CardHeader>
       <CardContent className="pl-2">
-        <RevenueChart
+        <RevenueChartClient
           data={revenueHistory}
           showExpectedRevenue={true}
           showOrderCorrelation={true}

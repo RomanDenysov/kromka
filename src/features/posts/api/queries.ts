@@ -114,30 +114,30 @@ export const getPublishedPosts = cache(
       conditions.push(inArray(posts.id, postIdsWithTag));
     }
 
-    // Get total count
-    const [{ total }] = await db
-      .select({ total: count() })
-      .from(posts)
-      .where(and(...conditions));
-
-    // Get posts
-    const data = await db.query.posts.findMany({
-      where: and(...conditions),
-      with: {
-        coverImage: true,
-        author: {
-          columns: { id: true, name: true, image: true },
-        },
-        tags: {
-          with: {
-            tag: true,
+    // Get total count and posts in parallel
+    const [[{ total }], data] = await Promise.all([
+      db
+        .select({ total: count() })
+        .from(posts)
+        .where(and(...conditions)),
+      db.query.posts.findMany({
+        where: and(...conditions),
+        with: {
+          coverImage: true,
+          author: {
+            columns: { id: true, name: true, image: true },
+          },
+          tags: {
+            with: {
+              tag: true,
+            },
           },
         },
-      },
-      orderBy: (p, { desc: descOp }) => [descOp(p.publishedAt)],
-      limit,
-      offset,
-    });
+        orderBy: (p, { desc: descOp }) => [descOp(p.publishedAt)],
+        limit,
+        offset,
+      }),
+    ]);
 
     const transformedPosts = data.map((post) => ({
       ...transformPost(post),
@@ -334,28 +334,33 @@ export async function getAdminPosts({
     conditions.push(eq(posts.status, status));
   }
 
-  const [{ total }] = await db
-    .select({ total: count() })
-    .from(posts)
-    .where(conditions.length > 0 ? and(...conditions) : undefined);
+  const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const data = await db.query.posts.findMany({
-    where: conditions.length > 0 ? and(...conditions) : undefined,
-    with: {
-      coverImage: true,
-      author: {
-        columns: { id: true, name: true, image: true },
-      },
-      tags: {
-        with: {
-          tag: true,
+  const [countResult, data] = await Promise.all([
+    db
+      .select({ total: count() })
+      .from(posts)
+      .where(whereCondition),
+    db.query.posts.findMany({
+      where: whereCondition,
+      with: {
+        coverImage: true,
+        author: {
+          columns: { id: true, name: true, image: true },
+        },
+        tags: {
+          with: {
+            tag: true,
+          },
         },
       },
-    },
-    orderBy: (p, { desc: descOp }) => [descOp(p.createdAt)],
-    limit,
-    offset,
-  });
+      orderBy: (p, { desc: descOp }) => [descOp(p.createdAt)],
+      limit,
+      offset,
+    }),
+  ]);
+
+  const total = countResult[0]?.total ?? 0;
 
   const transformedPosts = data.map((post) => ({
     ...transformPost(post),

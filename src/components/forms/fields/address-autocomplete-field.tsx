@@ -12,6 +12,17 @@ import { cn } from "@/lib/utils";
 
 const libraries: "places"[] = ["places"];
 
+const AUTOCOMPLETE_OPTIONS = {
+  componentRestrictions: { country: "sk" },
+  fields: [
+    "address_components",
+    "geometry",
+    "place_id",
+    "formatted_address",
+  ] as string[],
+  types: ["address"],
+};
+
 type Props<T extends FieldValues> = {
   name: FieldPath<T>;
   label?: string;
@@ -154,16 +165,7 @@ export function AddressAutocompleteField<T extends FieldValues>({
       <Autocomplete
         onLoad={onLoad}
         onPlaceChanged={onPlaceChanged}
-        options={{
-          componentRestrictions: { country: "sk" },
-          fields: [
-            "address_components",
-            "geometry",
-            "place_id",
-            "formatted_address",
-          ],
-          types: ["address"],
-        }}
+        options={AUTOCOMPLETE_OPTIONS}
       >
         <Input
           className="max-w-xs"

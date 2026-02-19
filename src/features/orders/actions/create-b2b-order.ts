@@ -2,6 +2,7 @@
 
 import { updateTag } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { after } from "next/server";
 import type { PaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { requireB2bMember } from "@/lib/auth/guards";
@@ -99,24 +100,28 @@ export async function createB2BOrder(data: {
     // Clear B2B cart only after confirmed pipeline success
     await clearB2bCartAfterOrder();
 
-    // Fire-and-forget: don't block order success on email
-    notifyOrderCreated(orderId).catch((err) => {
-      log.email.error({ err, orderId }, "Failed to send order notification");
+    // Non-blocking side effects via after()
+    after(async () => {
+      await notifyOrderCreated(orderId).catch((err) => {
+        log.email.error({ err, orderId }, "Failed to send order notification");
+      });
     });
 
-    captureServerEvent(userId, "order completed", {
-      order_id: orderId,
-      order_number: orderNumber,
-      total: totalCents,
-      item_count: itemCount,
-      payment_method: data.paymentMethod,
-      pickup_date: data.pickupDate,
-      is_b2b: true,
-    }).catch((err) => {
-      log.orders.error(
-        { err, orderId },
-        "Failed to capture PostHog order event"
-      );
+    after(async () => {
+      await captureServerEvent(userId, "order completed", {
+        order_id: orderId,
+        order_number: orderNumber,
+        total: totalCents,
+        item_count: itemCount,
+        payment_method: data.paymentMethod,
+        pickup_date: data.pickupDate,
+        is_b2b: true,
+      }).catch((err) => {
+        log.orders.error(
+          { err, orderId },
+          "Failed to capture PostHog order event"
+        );
+      });
     });
 
     return { success: true, orderId, orderNumber };

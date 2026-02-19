@@ -27,12 +27,16 @@ export async function ProductsGrid({ searchParams }: Props) {
       {total > 0 ? (
         <ShowMore className="col-span-full" initial={12}>
           {products.map((product, index) => (
-            <ProductCard
-              isFavorite={favoriteSet.has(product.id)}
+            <div
               key={product.id}
-              preload={index < PRELOAD_LIMIT}
-              product={product}
-            />
+              style={{ contentVisibility: "auto", containIntrinsicSize: "0 350px" }}
+            >
+              <ProductCard
+                isFavorite={favoriteSet.has(product.id)}
+                preload={index < PRELOAD_LIMIT}
+                product={product}
+              />
+            </div>
           ))}
         </ShowMore>
       ) : (
