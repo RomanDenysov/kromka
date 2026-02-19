@@ -9,6 +9,7 @@ import { getUser } from "@/lib/auth/session";
 import { log } from "@/lib/logger";
 import { guard, runPipeline, unwrap } from "@/lib/pipeline";
 import { captureServerEvent } from "@/lib/posthog";
+import { updateCurrentUserProfile } from "@/features/user-profile/api/actions";
 import { setLastOrderIdAction } from "../../checkout/api/actions";
 import {
   buildOrderItems,
@@ -107,22 +108,15 @@ export async function createB2COrder(data: {
     // Non-blocking side effects via after()
     after(async () => {
       if (userId) {
-        import("@/features/user-profile/api/actions")
-          .then(({ updateCurrentUserProfile }) =>
-            updateCurrentUserProfile({
-              name: data.customerInfo.name,
-              email: data.customerInfo.email,
-              phone: data.customerInfo.phone,
-            })
-          )
-          .catch((err) => {
-            log.orders.error(
-              { err },
-              "Failed to update user profile after order"
-            );
-          });
+        await updateCurrentUserProfile({
+          name: data.customerInfo.name,
+          email: data.customerInfo.email,
+          phone: data.customerInfo.phone,
+        }).catch((err) => {
+          log.orders.error({ err }, "Failed to update user profile after order");
+        });
       } else {
-        setLastOrderIdAction(orderId).catch((err) => {
+        await setLastOrderIdAction(orderId).catch((err) => {
           log.orders.error({ err }, "Failed to set last order ID for guest");
         });
       }

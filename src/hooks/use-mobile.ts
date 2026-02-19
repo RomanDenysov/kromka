@@ -1,15 +1,23 @@
+"use client";
+
 import { useSyncExternalStore } from "react";
 
 const MOBILE_BREAKPOINT = 768;
 
+let mql: MediaQueryList | null = null;
+
+function getMediaQuery() {
+  return (mql ??= window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`));
+}
+
 function subscribe(callback: () => void) {
-  const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-  mql.addEventListener("change", callback);
-  return () => mql.removeEventListener("change", callback);
+  const mq = getMediaQuery();
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
 }
 
 function getSnapshot() {
-  return window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches;
+  return getMediaQuery().matches;
 }
 
 function getServerSnapshot() {

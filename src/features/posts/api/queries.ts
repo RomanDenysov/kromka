@@ -336,7 +336,7 @@ export async function getAdminPosts({
 
   const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const [[{ total }], data] = await Promise.all([
+  const [countResult, data] = await Promise.all([
     db
       .select({ total: count() })
       .from(posts)
@@ -359,6 +359,8 @@ export async function getAdminPosts({
       offset,
     }),
   ]);
+
+  const total = countResult[0]?.total ?? 0;
 
   const transformedPosts = data.map((post) => ({
     ...transformPost(post),

@@ -27,6 +27,7 @@ export function useLike(
   const [likesCount, setLikesCount] = useState<number>(initialLikesCount ?? 0);
 
   const toggle = () => {
+    if (isPending) return;
     if (!session) {
       openLogin("default", pathname);
       return;
