@@ -1,10 +1,19 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type { FieldPath } from "react-hook-form";
 import { Controller, type FieldValues, useFormContext } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { Editor } from "@/widgets/editor/editor";
+
+const Editor = dynamic(
+  () => import("@/widgets/editor/editor").then((m) => m.Editor),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-32 w-full" />,
+  }
+);
 
 type Props<T extends FieldValues> = {
   name: FieldPath<T>;
