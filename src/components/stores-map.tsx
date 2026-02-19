@@ -1,16 +1,25 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { StoreNavigationButton } from "@/components/store-navigation-button";
 import {
-  Map as MapComponent,
   MapControls,
   MapMarker,
   MarkerContent,
   MarkerPopup,
 } from "@/components/ui/map";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Store } from "@/features/stores/api/queries";
 import type { GeolocationPosition } from "@/hooks/use-geolocation";
 import { buildFullAddress } from "@/lib/geo-utils";
+
+const MapComponent = dynamic(
+  () => import("@/components/ui/map").then((m) => m.Map),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-[400px] w-full rounded-lg" />,
+  }
+);
 
 // Center coordinates [longitude, latitude] - mapcn uses lng,lat order
 const CENTER_POSITION: [number, number] = [

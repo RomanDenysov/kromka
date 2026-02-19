@@ -1,14 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { FormProvider, type SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { AddressAutocompleteField } from "@/components/forms/fields/address-autocomplete-field";
 import { PhoneField } from "@/components/forms/fields/phone-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import { TextareaField } from "@/components/forms/fields/textarea-field";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   FieldGroup,
   FieldLegend,
@@ -21,6 +22,17 @@ import {
   type B2bApplicationSchema,
   b2bApplicationSchema,
 } from "@/validation/b2b";
+
+const AddressAutocompleteField = dynamic(
+  () =>
+    import("@/components/forms/fields/address-autocomplete-field").then(
+      (m) => m.AddressAutocompleteField
+    ),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-9 w-full" />,
+  }
+);
 
 export function B2BApplicationForm() {
   const router = useRouter();

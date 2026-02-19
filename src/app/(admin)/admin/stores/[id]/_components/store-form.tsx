@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import dynamic from "next/dynamic";
 import { type ReactNode, useRef } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
-import { AddressAutocompleteField } from "@/components/forms/fields/address-autocomplete-field";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
 import { OpeningHoursField } from "@/components/forms/fields/opening-hours-field";
 import { QuantityField } from "@/components/forms/fields/quantity-field";
@@ -14,11 +14,23 @@ import { SlugField } from "@/components/forms/fields/slug-field";
 import { SwitchField } from "@/components/forms/fields/switch-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
+import { Skeleton } from "@/components/ui/skeleton";
 import { updateStoreAction } from "@/features/stores/api/actions";
 import type { AdminStore } from "@/features/stores/api/queries";
 import type { StoreSchema } from "@/lib/stores/types";
 import { storeSchema } from "@/lib/stores/validation";
 import { cn } from "@/lib/utils";
+
+const AddressAutocompleteField = dynamic(
+  () =>
+    import("@/components/forms/fields/address-autocomplete-field").then(
+      (m) => m.AddressAutocompleteField
+    ),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-9 w-full" />,
+  }
+);
 
 type Props = {
   store: AdminStore;
