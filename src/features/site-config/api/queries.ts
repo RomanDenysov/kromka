@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
+import { cache } from "react";
 import { db } from "@/db";
 import { siteSettings } from "@/db/schema";
 
@@ -11,7 +12,7 @@ const CONFIG_DEFAULTS: Record<SiteConfigKey, boolean> = {
   promo_banner: false,
 };
 
-export async function getSiteConfig(key: SiteConfigKey) {
+export const getSiteConfig = cache(async (key: SiteConfigKey) => {
   "use cache";
   cacheLife("max");
   cacheTag(`site-setting-${key}`);
@@ -21,4 +22,4 @@ export async function getSiteConfig(key: SiteConfigKey) {
   });
 
   return setting?.value ?? CONFIG_DEFAULTS[key];
-}
+});

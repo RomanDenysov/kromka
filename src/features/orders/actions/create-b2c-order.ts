@@ -2,6 +2,7 @@
 
 import { updateTag } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { after } from "next/server";
 import { isB2cPaymentMethod } from "@/db/types";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { getUser } from "@/lib/auth/session";
@@ -103,46 +104,52 @@ export async function createB2COrder(data: {
     // Clear cart only after confirmed pipeline success
     await clearCartAfterOrder();
 
-    // Fire-and-forget side effects
-    if (userId) {
-      import("@/features/user-profile/api/actions")
-        .then(({ updateCurrentUserProfile }) =>
-          updateCurrentUserProfile({
-            name: data.customerInfo.name,
-            email: data.customerInfo.email,
-            phone: data.customerInfo.phone,
-          })
-        )
-        .catch((err) => {
-          log.orders.error(
-            { err },
-            "Failed to update user profile after order"
-          );
+    // Non-blocking side effects via after()
+    after(async () => {
+      if (userId) {
+        import("@/features/user-profile/api/actions")
+          .then(({ updateCurrentUserProfile }) =>
+            updateCurrentUserProfile({
+              name: data.customerInfo.name,
+              email: data.customerInfo.email,
+              phone: data.customerInfo.phone,
+            })
+          )
+          .catch((err) => {
+            log.orders.error(
+              { err },
+              "Failed to update user profile after order"
+            );
+          });
+      } else {
+        setLastOrderIdAction(orderId).catch((err) => {
+          log.orders.error({ err }, "Failed to set last order ID for guest");
         });
-    } else {
-      setLastOrderIdAction(orderId).catch((err) => {
-        log.orders.error({ err }, "Failed to set last order ID for guest");
-      });
-    }
-
-    notifyOrderCreated(orderId).catch((err) => {
-      log.email.error({ err, orderId }, "Failed to send order notification");
+      }
     });
 
-    captureServerEvent(userId ?? data.customerInfo.email, "order completed", {
-      order_id: orderId,
-      order_number: orderNumber,
-      total: totalCents,
-      item_count: itemCount,
-      payment_method: data.paymentMethod,
-      store_id: data.storeId,
-      pickup_date: data.pickupDate,
-      is_b2b: false,
-    }).catch((err) => {
-      log.orders.error(
-        { err, orderId },
-        "Failed to capture PostHog order event"
-      );
+    after(async () => {
+      await notifyOrderCreated(orderId).catch((err) => {
+        log.email.error({ err, orderId }, "Failed to send order notification");
+      });
+    });
+
+    after(async () => {
+      await captureServerEvent(userId ?? data.customerInfo.email, "order completed", {
+        order_id: orderId,
+        order_number: orderNumber,
+        total: totalCents,
+        item_count: itemCount,
+        payment_method: data.paymentMethod,
+        store_id: data.storeId,
+        pickup_date: data.pickupDate,
+        is_b2b: false,
+      }).catch((err) => {
+        log.orders.error(
+          { err, orderId },
+          "Failed to capture PostHog order event"
+        );
+      });
     });
 
     return { success: true, orderId, orderNumber };
