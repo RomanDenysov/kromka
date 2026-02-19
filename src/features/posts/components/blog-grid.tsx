@@ -29,7 +29,12 @@ export function BlogGrid({ posts, className }: Props) {
       )}
     >
       {posts.map((post, index) => (
-        <BlogCard key={post.id} post={post} preload={index < 6} />
+        <div
+          key={post.id}
+          style={{ contentVisibility: "auto", containIntrinsicSize: "0 300px" }}
+        >
+          <BlogCard post={post} preload={index < 6} />
+        </div>
       ))}
     </div>
   );
