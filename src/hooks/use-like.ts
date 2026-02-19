@@ -36,8 +36,8 @@ export function useLike(
     const previousLikesCount = likesCount;
 
     // Optimistic update
-    setIsLiked(!isLiked);
-    setLikesCount(isLiked ? likesCount - 1 : likesCount + 1);
+    setIsLiked((prev) => !prev);
+    setLikesCount((prev) => (previousIsLiked ? prev - 1 : prev + 1));
 
     startTransition(async () => {
       const result = await togglePostLikeAction(postId);
