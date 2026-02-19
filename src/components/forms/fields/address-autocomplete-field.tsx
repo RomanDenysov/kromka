@@ -19,9 +19,9 @@ const AUTOCOMPLETE_OPTIONS = {
     "geometry",
     "place_id",
     "formatted_address",
-  ],
+  ] as string[],
   types: ["address"],
-} as const;
+};
 
 type Props<T extends FieldValues> = {
   name: FieldPath<T>;
