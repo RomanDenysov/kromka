@@ -47,7 +47,7 @@ export const metadata: Metadata = {
 };
 
 export default function EshopPage({ searchParams }: Props) {
-  const categories = getCategories();
+  const categoriesPromise = getCategories();
   const eshopParams = loadEshopParams(searchParams);
 
   return (
@@ -55,7 +55,7 @@ export default function EshopPage({ searchParams }: Props) {
       <JsonLd data={[getCollectionPageSchema()]} />
       <PageWrapper className="relative grid min-h-[calc(100svh-5rem)] w-full items-start gap-8 pt-2 md:grid-cols-[12rem_1fr]">
         <Suspense fallback={<CategoriesSidebarSkeleton />}>
-          <CategoriesSidebar categories={categories} />
+          <CategoriesSidebar categories={categoriesPromise} />
         </Suspense>
         <div className="min-w-0 space-y-4">
           <div className="flex items-center justify-between gap-8">
@@ -69,7 +69,7 @@ export default function EshopPage({ searchParams }: Props) {
             </div>
           </div>
           <Suspense fallback={<CategoriesChipsSkeleton />}>
-            <CategoriesChips categories={categories} />
+            <CategoriesChips categories={categoriesPromise} />
           </Suspense>
           <div className="flex items-center justify-end md:hidden">
             <Suspense fallback={<SortTogglesSkeleton />}>
