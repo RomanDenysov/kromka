@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import {
   Card,
   CardContent,
@@ -5,9 +6,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getRevenueAndOrdersHistory } from "@/features/admin-dashboard/api/queries";
 import { formatPrice } from "@/lib/utils";
-import { RevenueChart } from "./revenue-chart";
+
+const RevenueChart = dynamic(
+  () => import("./revenue-chart").then((m) => m.RevenueChart),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-96 w-full" />,
+  }
+);
 
 export async function RevenueChartSection() {
   const revenueHistory = await getRevenueAndOrdersHistory({ days: 30 });
