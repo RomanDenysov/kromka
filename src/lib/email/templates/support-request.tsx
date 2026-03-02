@@ -23,18 +23,18 @@ import {
   EMAIL_SUBTITLE_CLASS,
 } from "./shared";
 
-type SupportRequestEmailData = {
-  name: string;
+interface SupportRequestEmailData {
   email: string;
-  rootCause: string;
-  message: string;
   logoUrl?: string;
-  sourcePath?: string;
-  sourceUrl?: string;
-  sourceRef?: string;
-  userAgent?: string;
+  message: string;
+  name: string;
   posthogId?: string;
-};
+  rootCause: string;
+  sourcePath?: string;
+  sourceRef?: string;
+  sourceUrl?: string;
+  userAgent?: string;
+}
 
 export function SupportRequestEmail({
   name,

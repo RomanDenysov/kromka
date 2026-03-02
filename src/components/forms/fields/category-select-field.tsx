@@ -6,12 +6,12 @@ import { CategorySelector } from "@/components/category-selector";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import type { Category } from "@/features/categories/api/queries";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  className?: string;
+interface Props<T extends FieldValues> {
   categories: Category[];
-};
+  className?: string;
+  label?: string;
+  name: FieldPath<T>;
+}
 
 export function CategorySelectField<T extends FieldValues>({
   name,

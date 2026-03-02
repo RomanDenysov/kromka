@@ -12,14 +12,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { BackButton } from "./back-button";
 
-export type BreadcrumbItemType = {
-  label: string;
+export interface BreadcrumbItemType {
   href?: Route;
-};
+  label: string;
+}
 
-type Props = {
+interface Props {
   items: BreadcrumbItemType[];
-};
+}
 
 export function AppBreadcrumbs({ items }: Props) {
   return (

@@ -13,7 +13,12 @@ const MAX_SIZE = 1600;
 const TARGET_QUALITY = 85;
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+];
 
 export async function uploadMedia(file: File, folder: string) {
   await requireAdmin();

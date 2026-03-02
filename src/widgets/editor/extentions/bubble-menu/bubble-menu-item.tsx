@@ -4,12 +4,12 @@ import type { Editor } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type BubbleMenuItemProps = {
-  editor: Editor;
+interface BubbleMenuItemProps {
   action: () => void;
-  isActive?: boolean;
   children: React.ReactNode;
-};
+  editor: Editor;
+  isActive?: boolean;
+}
 
 export function BubbleMenuItem({
   editor,

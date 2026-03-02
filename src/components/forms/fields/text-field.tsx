@@ -12,18 +12,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  placeholder?: string;
-  description?: string;
-  className?: string;
-  inputClassName?: string;
-  maxLength?: number;
-  type?: InputHTMLAttributes<HTMLInputElement>["type"];
-  inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
+interface Props<T extends FieldValues> {
   autoComplete?: InputHTMLAttributes<HTMLInputElement>["autoComplete"];
-};
+  className?: string;
+  description?: string;
+  inputClassName?: string;
+  inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
+  label?: string;
+  maxLength?: number;
+  name: FieldPath<T>;
+  placeholder?: string;
+  type?: InputHTMLAttributes<HTMLInputElement>["type"];
+}
 
 export function TextField<T extends FieldValues>({
   name,

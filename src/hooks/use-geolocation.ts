@@ -16,16 +16,16 @@ export type GeolocationStatus =
   | "denied"
   | "unavailable";
 
-export type GeolocationPosition = {
+export interface GeolocationPosition {
   latitude: number;
   longitude: number;
-};
+}
 
-type GeolocationState = {
-  status: GeolocationStatus;
-  position: GeolocationPosition | null;
+interface GeolocationState {
   error: GeolocationPositionError | null;
-};
+  position: GeolocationPosition | null;
+  status: GeolocationStatus;
+}
 
 export function useGeolocation() {
   const [state, setState] = useState<GeolocationState>({

@@ -17,7 +17,6 @@ export function ProductSearch() {
   });
   const analyticsTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: cleanup only
   useEffect(() => {
     return () => clearTimeout(analyticsTimer.current);
   }, []);

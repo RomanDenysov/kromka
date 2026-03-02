@@ -27,13 +27,13 @@ const editOrgSchema = z.object({
 
 type EditOrgData = z.infer<typeof editOrgSchema>;
 
-type Props = {
-  orgId: string;
+interface Props {
+  children: React.ReactNode;
   initialName: string;
   initialPhone: string;
+  orgId: string;
   userEmail: string;
-  children: React.ReactNode;
-};
+}
 
 export function B2bOrgEditSheet({
   orgId,
@@ -66,7 +66,11 @@ export function B2bOrgEditSheet({
         }
 
         // Update user phone (fire-and-forget)
-        updateCurrentUserProfile({ name: data.name, email: userEmail, phone: data.phone }).catch(() => {});
+        updateCurrentUserProfile({
+          name: data.name,
+          email: userEmail,
+          phone: data.phone,
+        }).catch(() => {});
       } catch {
         toast.error("Nastala chyba");
       }

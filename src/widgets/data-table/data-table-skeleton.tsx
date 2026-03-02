@@ -9,10 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type DataTableSkeletonProps = {
+interface DataTableSkeletonProps {
   columnCount: number;
   rowCount: number;
-};
+}
 
 export function DataTableSkeleton({
   columnCount,

@@ -19,11 +19,7 @@ import type { AdminCategory } from "@/features/categories/api/queries";
 import { useCategoryParams } from "@/hooks/use-category-params";
 import { cn } from "@/lib/utils";
 
-export function EditCategorySheet({
-  category,
-}: {
-  category: AdminCategory;
-}) {
+export function EditCategorySheet({ category }: { category: AdminCategory }) {
   const [{ categoryId }, setSearchParams] = useCategoryParams();
 
   if (!categoryId) {
@@ -43,10 +39,7 @@ export function EditCategorySheet({
           </SheetDescription>
         </SheetHeader>
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <CategoryForm
-            category={category}
-            className="h-full flex-1"
-          >
+          <CategoryForm category={category} className="h-full flex-1">
             {({ isPending }) => (
               <SheetFooter className="sticky bottom-0 mt-auto shrink-0 flex-row gap-2 border-t bg-background">
                 <Link

@@ -337,10 +337,7 @@ export async function getAdminPosts({
   const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
 
   const [countResult, data] = await Promise.all([
-    db
-      .select({ total: count() })
-      .from(posts)
-      .where(whereCondition),
+    db.select({ total: count() }).from(posts).where(whereCondition),
     db.query.posts.findMany({
       where: whereCondition,
       with: {

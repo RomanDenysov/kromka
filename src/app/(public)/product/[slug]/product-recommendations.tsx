@@ -7,9 +7,9 @@ import {
   ProductCardSkeleton,
 } from "@/features/products/components/product-card";
 
-type Props = {
+interface Props {
   recommendations: Product[];
-};
+}
 
 async function RecommendationsGrid({ recommendations }: Props) {
   const favoriteIds = await getFavoriteIds();

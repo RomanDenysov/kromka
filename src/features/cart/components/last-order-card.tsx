@@ -18,18 +18,18 @@ import { cn, formatPrice } from "@/lib/utils";
 
 const DISPLAY_ITEM_LIMIT = 3;
 
-type OrderItem = {
-  productId: string;
-  name: string;
-  slug: string;
-  priceCents: number;
+interface OrderItem {
   imageUrl: string | null;
+  name: string;
+  priceCents: number;
+  productId: string;
   quantity: number;
-};
+  slug: string;
+}
 
-type Props = {
+interface Props {
   items: OrderItem[];
-};
+}
 
 /**
  * Card showing the last 2-3 items from user's most recent order

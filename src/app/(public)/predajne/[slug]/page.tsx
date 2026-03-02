@@ -75,9 +75,9 @@ async function getStoreBySlug(slug: string) {
   });
 }
 
-type Props = {
+interface Props {
   params: Promise<{ slug: string }>;
-};
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;

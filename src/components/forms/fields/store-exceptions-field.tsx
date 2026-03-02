@@ -24,12 +24,12 @@ import type { DaySchedule } from "@/db/types";
 
 type ExceptionsRecord = Record<string, DaySchedule>;
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
+interface Props<T extends FieldValues> {
   label?: string;
-};
+  name: FieldPath<T>;
+}
 
-type ExceptionsInnerProps = {
+interface ExceptionsInnerProps {
   field: {
     value: unknown;
     onChange: (value: ExceptionsRecord) => void;
@@ -37,7 +37,7 @@ type ExceptionsInnerProps = {
   };
   isInvalid: boolean;
   label?: string;
-};
+}
 
 function ExceptionsInner({ field, isInvalid, label }: ExceptionsInnerProps) {
   const exceptions = (field.value as ExceptionsRecord | undefined) ?? {};

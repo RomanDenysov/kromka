@@ -5,14 +5,16 @@ import { Badge } from "@/components/ui/badge";
 import type { Post } from "@/features/posts/api/queries";
 import { cn, getInitials } from "@/lib/utils";
 
-type Props = {
-  post: Post;
+interface Props {
   className?: string;
+  post: Post;
   preload?: boolean;
-};
+}
 
 function formatDate(date: Date | null): string {
-  if (!date) return "";
+  if (!date) {
+    return "";
+  }
   return new Intl.DateTimeFormat("sk-SK", {
     day: "numeric",
     month: "long",

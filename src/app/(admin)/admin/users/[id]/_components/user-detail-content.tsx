@@ -4,9 +4,9 @@ import { OrderStatisticsCard } from "./order-statistics-card";
 import { RecentOrdersCard } from "./recent-orders-card";
 import { UserProfileCard } from "./user-profile-card";
 
-type Props = {
+interface Props {
   user: NonNullable<User>;
-};
+}
 
 export function UserDetailContent({ user }: Props) {
   const totalOrders = user.orders?.length ?? 0;

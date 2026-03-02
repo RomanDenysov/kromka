@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useRef } from "react";
 
 interface UseGameLoopOptions {
-  onUpdate: (deltaTime: number) => void;
-  onRender: () => void;
   enabled: boolean;
+  onRender: () => void;
+  onUpdate: (deltaTime: number) => void;
 }
 
 export function useGameLoop({

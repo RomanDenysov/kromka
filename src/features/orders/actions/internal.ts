@@ -22,18 +22,18 @@ import { fail, guard, type StepResult, succeed } from "@/lib/pipeline";
 import { getEffectivePrices } from "@/lib/pricing";
 import { getOrderById } from "../api/queries";
 
-export type OrderItemData = {
+export interface OrderItemData {
+  price: number;
   productId: string;
   productSnapshot: { name: string; price: number };
-  price: number;
   quantity: number;
-};
+}
 
-export type GuestCustomerInfo = {
-  name: string;
+export interface GuestCustomerInfo {
   email: string;
+  name: string;
   phone: string;
-};
+}
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -158,18 +158,18 @@ export async function validateCart(): Promise<
   return succeed(cartItems);
 }
 
-type PersistOrderParams = {
-  userId: string | null;
-  customerInfo: GuestCustomerInfo;
-  storeId: string | null;
+interface PersistOrderParams {
   companyId: string | null;
+  customerInfo: GuestCustomerInfo;
+  deliveryAddress?: Address | null;
+  orderItemsData: OrderItemData[];
   paymentMethod: PaymentMethod;
   pickupDate: string;
   pickupTime: string;
+  storeId: string | null;
   totalCents: number;
-  orderItemsData: OrderItemData[];
-  deliveryAddress?: Address | null;
-};
+  userId: string | null;
+}
 
 /**
  * Persist order to database: create order, items, and status event.

@@ -25,14 +25,14 @@ import {
   formatOrderCode,
 } from "./shared";
 
-export type OrderConfirmationEmailData = {
+export interface OrderConfirmationEmailData {
+  logoUrl?: string;
+  orderId: string | number;
+  pickupDate: string;
   pickupPlace: string;
   pickupPlaceUrl?: string;
-  pickupDate: string;
   pickupTime: string;
-  orderId: string | number;
-  logoUrl?: string;
-};
+}
 
 /**
  * Follows up with customers letting them know the order is processing.

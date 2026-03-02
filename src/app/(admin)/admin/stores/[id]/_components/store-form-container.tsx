@@ -6,9 +6,9 @@ import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import type { AdminStore } from "@/features/stores/api/queries";
 
-type Props = {
+interface Props {
   store: AdminStore;
-};
+}
 
 export function StoreFormContainer({ store }: Props) {
   return (

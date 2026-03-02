@@ -22,9 +22,10 @@ import type { UserList } from "@/features/user-management/api/queries";
 import { cn, getInitials } from "@/lib/utils";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
+// biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
 type UserTableMeta = {
-  onOpen: (id: string) => void;
   onLock: (id: string) => void;
+  onOpen: (id: string) => void;
 };
 
 export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [

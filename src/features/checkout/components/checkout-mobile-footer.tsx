@@ -2,13 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { formatPrice } from "@/lib/utils";
 
-type CheckoutMobileFooterProps = {
-  totalCents: number;
-  isSubmitting: boolean;
+interface CheckoutMobileFooterProps {
   canSubmit: boolean;
-  ordersEnabled: boolean;
   hasNoAvailableDates: boolean;
-};
+  isSubmitting: boolean;
+  ordersEnabled: boolean;
+  totalCents: number;
+}
 
 /**
  * Mobile sticky footer with total price and submit button.

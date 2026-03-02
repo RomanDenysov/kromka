@@ -20,9 +20,9 @@ import {
 } from "@/components/ui/popover";
 import { BubbleMenuItem } from "./bubble-menu-item";
 
-type LinkItemProps = {
+interface LinkItemProps {
   editor: Editor;
-};
+}
 
 function LinkItem({ editor }: LinkItemProps) {
   const [url, setUrl] = useState("");

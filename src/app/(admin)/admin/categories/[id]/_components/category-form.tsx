@@ -19,17 +19,13 @@ import type { CategorySchema } from "@/lib/categories/types";
 import { categorySchema } from "@/lib/categories/validation";
 import { cn } from "@/lib/utils";
 
-type Props = {
+interface Props {
   category: AdminCategory;
   children: (props: { isPending: boolean }) => ReactNode;
   className?: string;
-};
+}
 
-export function CategoryForm({
-  category,
-  children,
-  className,
-}: Props) {
+export function CategoryForm({ category, children, className }: Props) {
   const formRef = useRef<HTMLFormElement>(null);
 
   useHotkeys(

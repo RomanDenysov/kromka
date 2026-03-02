@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { getLatestPosts } from "@/features/posts/api/queries";
 import { BlogCard } from "./blog-card";
 
-type Props = {
+interface Props {
   className?: string;
-};
+}
 
 export async function HomeBlogSection({ className }: Props) {
   const posts = await getLatestPosts(3);

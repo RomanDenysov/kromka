@@ -1,6 +1,5 @@
 import { ChevronLeftIcon, ShoppingCartIcon } from "lucide-react";
-import type { Route } from "next";
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
@@ -14,10 +13,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  getCartTotals,
-  getDetailedB2bCart,
-} from "@/features/cart/api/queries";
+import { getCartTotals, getDetailedB2bCart } from "@/features/cart/api/queries";
 import { B2bCheckoutForm } from "@/features/checkout/components/b2b-checkout-form";
 import { CheckoutList } from "@/features/checkout/components/checkout-list";
 import { CheckoutListItem } from "@/features/checkout/components/checkout-list-item";

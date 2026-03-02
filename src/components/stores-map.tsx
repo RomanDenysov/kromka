@@ -35,10 +35,10 @@ function UserLocationMarker() {
   );
 }
 
-type StoresMapProps = {
+interface StoresMapProps {
   stores: Store[];
   userPosition?: GeolocationPosition | null;
-};
+}
 
 export function StoresMap({ stores, userPosition }: StoresMapProps) {
   // Filter stores with valid coordinates

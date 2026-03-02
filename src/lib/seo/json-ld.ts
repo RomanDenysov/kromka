@@ -1,3 +1,4 @@
+import { formatISO } from "date-fns";
 import type {
   Article,
   BreadcrumbList,
@@ -12,7 +13,6 @@ import type {
   WebSite,
   WithContext,
 } from "schema-dts";
-import { formatISO } from "date-fns";
 import type { Address, StoreSchedule } from "@/db/types";
 import { getSiteUrl } from "@/lib/utils";
 
@@ -81,19 +81,19 @@ export function getWebSiteSchema(): WithContext<WebSite> {
 // Product Schema
 // ============================================================================
 
-type ProductSchemaInput = {
-  name: string;
+interface ProductSchemaInput {
+  category?: string | null;
   description: string;
   image?: string | null;
-  priceCents: number;
-  slug: string;
-  category?: string | null;
   isAvailable?: boolean;
+  name: string;
+  priceCents: number;
   rating?: {
     value: number;
     count: number;
   } | null;
-};
+  slug: string;
+}
 
 export function getProductSchema(
   product: ProductSchemaInput
@@ -146,14 +146,14 @@ export function getProductSchema(
 // Review Schema
 // ============================================================================
 
-type ReviewSchemaInput = {
+interface ReviewSchemaInput {
   authorName: string;
-  rating: number;
-  reviewBody?: string | null;
   datePublished: Date;
   productName: string;
   productSlug: string;
-};
+  rating: number;
+  reviewBody?: string | null;
+}
 
 export function getReviewSchema(
   review: ReviewSchemaInput
@@ -190,18 +190,18 @@ export function getReviewSchema(
 // LocalBusiness (Bakery) Schema
 // ============================================================================
 
-type StoreSchemaInput = {
-  name: string;
-  description?: string | null;
-  slug: string;
+interface StoreSchemaInput {
   address?: Address | null;
-  phone?: string | null;
+  description?: string | null;
   email?: string | null;
+  image?: string | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  name: string;
   openingHours?: StoreSchedule | null | undefined;
-  image?: string | null;
-};
+  phone?: string | null;
+  slug: string;
+}
 
 const DAY_MAPPING = {
   monday: "https://schema.org/Monday",
@@ -329,16 +329,16 @@ export function getLocalBusinessSchema(
 // BlogPosting (Article) Schema
 // ============================================================================
 
-type BlogPostSchemaInput = {
-  title: string;
-  description?: string | null;
-  slug: string;
-  image?: string | null;
-  authorName?: string | null;
+interface BlogPostSchemaInput {
   authorImage?: string | null;
+  authorName?: string | null;
+  description?: string | null;
+  image?: string | null;
   publishedAt?: Date | null;
+  slug: string;
+  title: string;
   updatedAt?: Date | null;
-};
+}
 
 export function getBlogPostingSchema(
   post: BlogPostSchemaInput
@@ -415,10 +415,10 @@ export function getCollectionPageSchema(): WithContext<CollectionPage> {
 // BreadcrumbList Schema
 // ============================================================================
 
-type BreadcrumbItem = {
-  name: string;
+interface BreadcrumbItem {
   href?: string;
-};
+  name: string;
+}
 
 export function getBreadcrumbSchema(
   items: BreadcrumbItem[]
@@ -447,10 +447,10 @@ export function getBreadcrumbSchema(
 // FAQPage Schema
 // ============================================================================
 
-export type FAQItem = {
-  question: string;
+export interface FAQItem {
   answer: string;
-};
+  question: string;
+}
 
 export function getFAQSchema(items: FAQItem[]): WithContext<FAQPage> {
   return {

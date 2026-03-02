@@ -6,11 +6,11 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { requireAuth } from "@/lib/auth/guards";
 
-type UpdateCurrentUserProfileInput = {
-  name: string;
+interface UpdateCurrentUserProfileInput {
   email: string;
+  name: string;
   phone: string;
-};
+}
 
 type UpdateCurrentUserProfileResult =
   | { success: true }
@@ -42,10 +42,10 @@ export async function updateCurrentUserProfile(
   }
 }
 
-type UpdateProfileInput = {
+interface UpdateProfileInput {
   name: string;
   phone: string;
-};
+}
 
 export async function updateProfileAction(input: UpdateProfileInput) {
   try {

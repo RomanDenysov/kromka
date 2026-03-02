@@ -24,11 +24,11 @@ export type { StoreOption } from "@/features/checkout/hooks/use-checkout-form";
 
 import type { StoreOption } from "@/features/checkout/hooks/use-checkout-form";
 
-type OrderStorePickerProps = {
-  value: string;
+interface OrderStorePickerProps {
   onValueChange: (storeId: string) => void;
   storeOptions: StoreOption[];
-};
+  value: string;
+}
 
 function hasValidDistance(
   distance: number | null | undefined

@@ -8,13 +8,13 @@ import { SettingsRow } from "@/components/settings/settings-row";
 import { Switch } from "@/components/ui/switch";
 import { updateSiteConfig } from "@/features/site-config/api/actions";
 
-type SettingsConfigurationsClientProps = {
+interface SettingsConfigurationsClientProps {
   initialValues: {
     orders_enabled: boolean;
     registration_enabled: boolean;
     promo_banner: boolean;
   };
-};
+}
 
 const SETTINGS_CONFIG = [
   {

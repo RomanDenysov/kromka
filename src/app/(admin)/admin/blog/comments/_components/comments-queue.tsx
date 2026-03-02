@@ -4,13 +4,17 @@ import { InboxIcon } from "lucide-react";
 import type { PendingComment } from "@/features/posts/api/queries";
 import { CommentPreview } from "./comment-preview";
 
-type Props = {
+interface Props {
   comments: PendingComment[];
-};
+}
 
 function getPendingText(count: number): string {
-  if (count === 1) return "komentár čaká";
-  if (count < 5) return "komentáre čakajú";
+  if (count === 1) {
+    return "komentár čaká";
+  }
+  if (count < 5) {
+    return "komentáre čakajú";
+  }
   return "komentárov čaká";
 }
 

@@ -33,24 +33,24 @@ import { buildFullAddress } from "@/lib/geo-utils";
 import { formatPrice } from "@/lib/utils";
 import { B2bOrgEditSheet } from "./b2b-org-edit-sheet";
 
-type OrgInfo = {
-  id: string;
-  name: string;
+interface OrgInfo {
+  billingAddress: Address | null;
+  billingEmail: string | null;
   billingName: string | null;
-  ico: string | null;
   dic: string | null;
   icDph: string | null;
-  billingEmail: string | null;
-  billingAddress: Address | null;
-};
+  ico: string | null;
+  id: string;
+  name: string;
+}
 
-type B2bCheckoutFormProps = {
-  org: OrgInfo;
+interface B2bCheckoutFormProps {
+  contactEmail: string;
+  contactPhone: string;
   items: DetailedCartItem[];
   ordersEnabled: boolean;
-  contactPhone: string;
-  contactEmail: string;
-};
+  org: OrgInfo;
+}
 
 export function B2bCheckoutForm({
   org,

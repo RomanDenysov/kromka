@@ -7,11 +7,11 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { Tag } from "@/features/posts/api/queries";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  tags: Tag[];
+interface Props {
   activeTag?: string;
   className?: string;
-};
+  tags: Tag[];
+}
 
 export function TagFilter({ tags, activeTag, className }: Props) {
   const router = useRouter();

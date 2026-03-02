@@ -30,7 +30,10 @@ export const PAYMENT_METHODS = [
 ] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
-export const ALLOWED_B2C_PAYMENT_METHODS: readonly string[] = ["in_store", "card"];
+export const ALLOWED_B2C_PAYMENT_METHODS: readonly string[] = [
+  "in_store",
+  "card",
+];
 export type B2cPaymentMethod = "in_store" | "card";
 
 export function isB2cPaymentMethod(value: string): value is B2cPaymentMethod {
@@ -72,22 +75,23 @@ export const PROMO_TYPES = [
 export type PromoType = (typeof PROMO_TYPES)[number];
 
 // === JSONB Types ===
-export type Address = {
-  street?: string;
-  postalCode?: string;
+export interface Address {
   city?: string;
   country?: string;
   googleId?: string;
-};
+  postalCode?: string;
+  street?: string;
+}
 
-export type TimeRange = {
-  start: string;
+export interface TimeRange {
   end: string;
-};
+  start: string;
+}
 
 export type DaySchedule = TimeRange | "closed" | null;
 
-export type StoreSchedule = {
+export interface StoreSchedule {
+  exceptions?: Record<string, DaySchedule>;
   regularHours: {
     monday: DaySchedule;
     tuesday: DaySchedule;
@@ -97,13 +101,12 @@ export type StoreSchedule = {
     saturday: DaySchedule;
     sunday: DaySchedule;
   };
-  exceptions?: Record<string, DaySchedule>;
-};
+}
 
-export type ProductSnapshot = {
+export interface ProductSnapshot {
   name: string;
   price: number;
-};
+}
 
 // === Constants ===
 export const DEFAULT_PAYMENT_TERM_DAYS = 14;

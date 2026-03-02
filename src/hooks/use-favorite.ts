@@ -17,7 +17,9 @@ export function useFavorite(
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
-  const [favorite, setFavorite] = useState<boolean | null>(initialValue ?? null);
+  const [favorite, setFavorite] = useState<boolean | null>(
+    initialValue ?? null
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {

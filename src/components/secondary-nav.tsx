@@ -6,15 +6,15 @@ import { usePathname } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export type Item = {
-  label: string;
+export interface Item {
   href: Route;
-};
+  label: string;
+}
 
-type Props = {
-  items: Item[];
+interface Props {
   className?: string;
-};
+  items: Item[];
+}
 
 export function SecondaryNav({ items, className }: Props) {
   const pathname = usePathname();

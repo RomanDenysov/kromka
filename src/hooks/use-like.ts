@@ -7,12 +7,12 @@ import { togglePostLikeAction } from "@/features/posts/api/actions";
 import { useSession } from "@/lib/auth/client";
 import { useLoginModalOpen } from "@/store/login-modal-store";
 
-export type UseLikeReturn = {
+export interface UseLikeReturn {
   isLiked: boolean;
+  isPending: boolean;
   likesCount: number;
   toggle: () => void;
-  isPending: boolean;
-};
+}
 
 export function useLike(
   postId: string,
@@ -27,7 +27,9 @@ export function useLike(
   const [likesCount, setLikesCount] = useState<number>(initialLikesCount ?? 0);
 
   const toggle = () => {
-    if (isPending) return;
+    if (isPending) {
+      return;
+    }
     if (!session) {
       openLogin("default", pathname);
       return;

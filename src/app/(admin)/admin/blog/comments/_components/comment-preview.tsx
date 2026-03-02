@@ -28,9 +28,9 @@ import {
 } from "@/features/posts/api/actions";
 import type { PendingComment } from "@/features/posts/api/queries";
 
-type Props = {
+interface Props {
   comment: PendingComment;
-};
+}
 
 export function CommentPreview({ comment }: Props) {
   const [isApproving, startApproving] = useTransition();

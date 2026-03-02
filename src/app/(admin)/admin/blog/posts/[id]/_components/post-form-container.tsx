@@ -8,10 +8,10 @@ import { PostForm } from "../../_components/post-form";
 import { StatusBadge } from "../../_components/status-badge";
 import { PostPublishButton } from "./post-publish-button";
 
-type Props = {
+interface Props {
   post: AdminPost;
   tags: AdminTag[];
-};
+}
 
 export function PostFormContainer({ post, tags }: Props) {
   return (

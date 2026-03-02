@@ -21,15 +21,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type TimeSlot = {
-  open: string;
+interface TimeSlot {
   close: string;
-};
+  open: string;
+}
 
-type DaySchedule = {
-  period: TimeSlot | null;
+interface DaySchedule {
   isClosed: boolean;
-};
+  period: TimeSlot | null;
+}
 
 const DEFAULT_OPEN_TIME = "08:00";
 const DEFAULT_CLOSE_TIME = "18:00";
@@ -42,11 +42,11 @@ const TIME_OPTIONS = Array.from({ length: 96 }, (_, index) => {
   return `${hour}:${minute}`;
 });
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
+interface Props<T extends FieldValues> {
   description?: string;
-};
+  label?: string;
+  name: FieldPath<T>;
+}
 
 export function TimeField<T extends FieldValues>({
   name,

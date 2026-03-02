@@ -1,11 +1,11 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { log } from "@/lib/logger";
 import { updateTag } from "next/cache";
 import { db } from "@/db";
 import { organizations } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/guards";
+import { log } from "@/lib/logger";
 import {
   type UpdateOrganizationSchema,
   updateOrganizationSchema,

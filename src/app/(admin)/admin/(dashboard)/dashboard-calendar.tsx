@@ -7,13 +7,13 @@ import { cn } from "@/lib/utils";
 
 const DEFAULT_NUMBER_OF_MONTHS = 1;
 
-type DailyStats = {
+interface DailyStats {
   [date: string]: { orderCount: number; revenue: number };
-};
+}
 
-type Props = {
+interface Props {
   dailyStats: DailyStats;
-};
+}
 
 export function DashboardCalendar({ dailyStats }: Props) {
   const [{ date }, setSearchParams] = useDashboardParams();

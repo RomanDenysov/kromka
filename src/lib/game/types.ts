@@ -19,83 +19,83 @@ export interface Position {
 }
 
 export interface Dimensions {
-  width: number;
   height: number;
+  width: number;
 }
 
 export interface FallingItem {
+  height: number;
   id: string;
+  speed: number;
   type: ItemType;
+  width: number;
   x: number;
   y: number;
-  width: number;
-  height: number;
-  speed: number;
 }
 
 export interface Baker {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  isCatching: boolean;
-  catchTimeout: NodeJS.Timeout | null;
   animationState: BakerAnimationState;
   animationTimeout: NodeJS.Timeout | null;
-  lastMoveTime: number;
+  catchTimeout: NodeJS.Timeout | null;
   facingDirection: BakerDirection;
+  height: number;
+  isCatching: boolean;
+  lastMoveTime: number;
+  width: number;
+  x: number;
+  y: number;
 }
 
 export type OvenHeatState = "idle" | "warming" | "hot";
 
 export interface Oven {
-  x: number;
-  y: number;
-  width: number;
+  heatState: OvenHeatState;
   height: number;
   spriteKey: OvenSpriteKey;
-  heatState: OvenHeatState;
+  width: number;
+  x: number;
+  y: number;
 }
 
 export interface GameSprites {
+  // Background
+  background: HTMLImageElement;
+  baguette: HTMLImageElement;
+  baker_catch: HTMLImageElement;
+  baker_catch_left: HTMLImageElement;
+  baker_got_bread: HTMLImageElement;
+  baker_got_bread_left: HTMLImageElement;
   // Baker animations - right facing
   baker_run: HTMLImageElement;
-  baker_stay: HTMLImageElement;
-  baker_catch: HTMLImageElement;
-  baker_got_bread: HTMLImageElement;
-  baker_sad: HTMLImageElement;
   // Baker animations - left facing
   baker_run_left: HTMLImageElement;
-  baker_catch_left: HTMLImageElement;
-  baker_got_bread_left: HTMLImageElement;
+  baker_sad: HTMLImageElement;
   baker_sad_left: HTMLImageElement;
+  baker_stay: HTMLImageElement;
+  // Decorations
+  barrel_decor: HTMLImageElement;
   // Items
   bread: HTMLImageElement;
-  baguette: HTMLImageElement;
-  croissant: HTMLImageElement;
+  bread_box_decor: HTMLImageElement;
   burnt_bread: HTMLImageElement;
+  croissant: HTMLImageElement;
+  flour_decor: HTMLImageElement;
+  game_over: HTMLImageElement;
+  // Screens
+  game_start: HTMLImageElement;
+  // UI
+  heart: HTMLImageElement;
   // Ovens
   oven_1: HTMLImageElement;
   oven_2: HTMLImageElement;
   oven_3: HTMLImageElement;
-  // Decorations
-  barrel_decor: HTMLImageElement;
-  flour_decor: HTMLImageElement;
-  bread_box_decor: HTMLImageElement;
   wheat_decor: HTMLImageElement;
   window_decor: HTMLImageElement;
-  // Background
-  background: HTMLImageElement;
-  // Screens
-  game_start: HTMLImageElement;
-  game_over: HTMLImageElement;
-  // UI
-  heart: HTMLImageElement;
 }
 
 export interface ItemConfig {
-  type: ItemType;
-  points: number;
   chance: number;
   losesLife: boolean;
+  points: number;
+  type: ItemType;
 }

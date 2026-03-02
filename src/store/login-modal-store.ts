@@ -2,16 +2,16 @@ import { create } from "zustand";
 
 export type LoginReason = "favorites" | "checkout" | "default";
 
-export type LoginModalStore = {
+export interface LoginModalStore {
   isOpen: boolean;
-  reason: LoginReason;
   origin: string | null;
-};
+  reason: LoginReason;
+}
 
-type LoginModalActions = {
-  open: (reason?: LoginReason, origin?: string) => void;
+interface LoginModalActions {
   close: () => void;
-};
+  open: (reason?: LoginReason, origin?: string) => void;
+}
 
 const useLoginModalStore = create<LoginModalStore & LoginModalActions>(
   (set) => ({

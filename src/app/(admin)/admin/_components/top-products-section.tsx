@@ -14,10 +14,10 @@ import type { getFrequentlyBoughtTogether } from "@/features/admin-dashboard/api
 import type { getTopProducts } from "@/features/admin-dashboard/api/queries";
 import { formatPrice } from "@/lib/utils";
 
-type TopProductsSectionProps = {
-  topProducts: Awaited<ReturnType<typeof getTopProducts>>;
+interface TopProductsSectionProps {
   frequentlyBought: Awaited<ReturnType<typeof getFrequentlyBoughtTogether>>;
-};
+  topProducts: Awaited<ReturnType<typeof getTopProducts>>;
+}
 
 export function TopProductsSection({
   topProducts,

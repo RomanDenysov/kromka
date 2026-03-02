@@ -16,17 +16,12 @@ import {
 } from "@/features/orders/api/actions";
 import type { Order } from "@/features/orders/api/queries";
 
-type UseOrderStatusManagementResult = {
+interface UseOrderStatusManagementResult {
+  handlePaymentStatusChange: (status: PaymentStatus) => void;
+  handleStatusChange: (status: OrderStatus) => void;
+  isPending: boolean;
   optimisticOrderStatus: OrderStatus;
   optimisticPaymentStatus: PaymentStatus;
-  isPending: boolean;
-  statusDialog: {
-    isOpen: boolean;
-    pendingStatus: OrderStatus | null;
-    onValidate: (status: string) => Promise<boolean>;
-    onConfirm: () => void;
-    onCancel: () => void;
-  };
   paymentDialog: {
     isOpen: boolean;
     pendingStatus: PaymentStatus | null;
@@ -34,9 +29,14 @@ type UseOrderStatusManagementResult = {
     onConfirm: () => void;
     onCancel: () => void;
   };
-  handleStatusChange: (status: OrderStatus) => void;
-  handlePaymentStatusChange: (status: PaymentStatus) => void;
-};
+  statusDialog: {
+    isOpen: boolean;
+    pendingStatus: OrderStatus | null;
+    onValidate: (status: string) => Promise<boolean>;
+    onConfirm: () => void;
+    onCancel: () => void;
+  };
+}
 
 export function useOrderStatusManagement(
   order: Order | undefined

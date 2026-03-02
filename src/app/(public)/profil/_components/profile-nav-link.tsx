@@ -6,10 +6,10 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  href: Route;
+interface Props {
   children: ReactNode;
-};
+  href: Route;
+}
 
 export function ProfileNavLink({ href, children }: Props) {
   const pathname = usePathname();

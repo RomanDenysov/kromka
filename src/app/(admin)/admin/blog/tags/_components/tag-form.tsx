@@ -20,24 +20,29 @@ import { createTagAction, updateTagAction } from "@/features/posts/api/actions";
 import type { AdminTag } from "@/features/posts/api/queries";
 import { type TagSchema, tagSchema } from "@/features/posts/schema";
 
-type Props = {
-  tag: AdminTag | null;
-  open: boolean;
+interface Props {
   onOpenChange: (open: boolean) => void;
-};
+  open: boolean;
+  tag: AdminTag | null;
+}
 
-type ActionResult = { success: boolean; error?: string };
+interface ActionResult {
+  error?: string;
+  success: boolean;
+}
 
-type HandleResultOptions = {
-  result: ActionResult;
-  successMessage: string;
+interface HandleResultOptions {
   errorMessage: string;
   form: UseFormReturn<TagSchema>;
   onSuccess: () => void;
-};
+  result: ActionResult;
+  successMessage: string;
+}
 
 function getButtonText(isPending: boolean, isEditing: boolean): string {
-  if (isPending) return "Ukladanie...";
+  if (isPending) {
+    return "Ukladanie...";
+  }
   return isEditing ? "Uložiť" : "Vytvoriť";
 }
 

@@ -10,10 +10,10 @@ import {
   unpublishPostAction,
 } from "@/features/posts/api/actions";
 
-type Props = {
+interface Props {
   postId: string;
   status: "draft" | "published" | "archived";
-};
+}
 
 export function PostPublishButton({ postId, status }: Props) {
   const [isPending, startTransition] = useTransition();
@@ -32,8 +32,12 @@ export function PostPublishButton({ postId, status }: Props) {
   };
 
   const renderIcon = () => {
-    if (isPending) return <Spinner />;
-    if (isPublished) return <FileTextIcon className="size-4" />;
+    if (isPending) {
+      return <Spinner />;
+    }
+    if (isPublished) {
+      return <FileTextIcon className="size-4" />;
+    }
     return <GlobeIcon className="size-4" />;
   };
 

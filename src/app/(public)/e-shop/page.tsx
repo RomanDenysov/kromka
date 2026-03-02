@@ -22,9 +22,9 @@ import { CategoriesChips, CategoriesChipsSkeleton } from "./categories-chips";
 import { loadEshopParams } from "./eshop-params";
 import { ProductSearch, ProductSearchSkeleton } from "./product-search";
 
-type Props = {
+interface Props {
   searchParams: Promise<SearchParams>;
-};
+}
 
 export const metadata: Metadata = {
   ...defaultMetadata,

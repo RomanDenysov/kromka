@@ -14,14 +14,14 @@ import {
 } from "../ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
-type Props = {
-  value: string | null;
+interface Props {
   onChange: (value: string | null) => void;
   options: {
     value: string;
     label: string;
   }[];
-};
+  value: string | null;
+}
 
 export function ComboboxInput({ value, onChange, options }: Props) {
   const [open, setOpen] = useState(false);

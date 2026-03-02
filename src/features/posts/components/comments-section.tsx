@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils";
 import { CommentForm } from "./comment-form";
 import { CommentItem } from "./comment-item";
 
-type Props = {
-  postId: string;
-  commentsCount: number;
+interface Props {
   className?: string;
-};
+  commentsCount: number;
+  postId: string;
+}
 
 export async function CommentsSection({
   postId,

@@ -12,14 +12,14 @@ import type { Product } from "@/features/products/api/queries";
 import type { AddToCartSource } from "@/lib/analytics";
 import { cn, formatPrice } from "@/lib/utils";
 
-type Props = {
-  product: Product;
-  className?: string;
-  preload?: boolean;
-  isFavorite?: boolean;
+interface Props {
   cartVariant?: "b2c" | "b2b";
+  className?: string;
+  isFavorite?: boolean;
+  preload?: boolean;
+  product: Product;
   source?: AddToCartSource;
-};
+}
 
 export function ProductCard({
   product,

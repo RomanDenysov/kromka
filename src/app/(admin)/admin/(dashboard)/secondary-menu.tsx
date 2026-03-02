@@ -5,15 +5,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-type Item = {
+interface Item {
   href: Route;
   label: string;
-};
+}
 
-type Props = {
-  items: Item[];
+interface Props {
   className?: string;
-};
+  items: Item[];
+}
 
 export function SecondaryMenu({ items, className }: Props) {
   const pathname = usePathname();

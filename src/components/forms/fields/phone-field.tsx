@@ -9,13 +9,13 @@ import { cn } from "@/lib/utils";
 /** Max length: +421XXXXXXXXX = 16 chars (with spaces) */
 const MAX_PHONE_LENGTH = 16;
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  placeholder?: string;
+interface Props<T extends FieldValues> {
   className?: string;
   inputClassName?: string;
-};
+  label?: string;
+  name: FieldPath<T>;
+  placeholder?: string;
+}
 
 export function PhoneField<T extends FieldValues>({
   name,

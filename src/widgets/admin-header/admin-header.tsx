@@ -6,11 +6,11 @@ import {
   AdminBreadcrumbs,
 } from "./admin-breadcrumbs";
 
-type Props = {
+interface Props {
   breadcrumbs: AdminBreadcrumbItem[];
-  className?: string;
   children?: ReactNode;
-};
+  className?: string;
+}
 
 export function AdminHeader({ breadcrumbs, className, children }: Props) {
   return (

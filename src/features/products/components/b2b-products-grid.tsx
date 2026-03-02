@@ -9,10 +9,10 @@ import { ProductCard, ProductCardSkeleton } from "./product-card";
 
 const PRELOAD_LIMIT = 15;
 
-type Props = {
-  searchParams: Promise<EshopParams>;
+interface Props {
   priceTierId: string | null;
-};
+  searchParams: Promise<EshopParams>;
+}
 
 export async function B2BProductsGrid({ searchParams, priceTierId }: Props) {
   const eshopParams = await searchParams;

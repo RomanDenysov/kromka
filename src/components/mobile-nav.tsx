@@ -34,9 +34,9 @@ import { Separator } from "@/components/ui/separator";
 import { signOut, useSession } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
 
-type Props = {
+interface Props {
   navigation: { name: string; href: Route }[];
-};
+}
 
 const SOCIAL_LINKS = [
   {

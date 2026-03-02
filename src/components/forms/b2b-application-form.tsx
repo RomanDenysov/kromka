@@ -9,7 +9,6 @@ import { PhoneField } from "@/components/forms/fields/phone-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import { TextareaField } from "@/components/forms/fields/textarea-field";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   FieldGroup,
   FieldLegend,
@@ -17,6 +16,7 @@ import {
   FieldSet,
   FieldTitle,
 } from "@/components/ui/field";
+import { Skeleton } from "@/components/ui/skeleton";
 import { submitB2bApplication } from "@/features/b2b/applications/api/actions";
 import {
   type B2bApplicationSchema,

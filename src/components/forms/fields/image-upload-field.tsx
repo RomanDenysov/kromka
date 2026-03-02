@@ -10,13 +10,13 @@ import { MediaInput } from "@/components/shared/media-input";
 
 type MediaFolder = "products" | "categories" | "stores" | "posts";
 
-type ImageUploadFieldProps<T extends FieldValues> = {
-  name: FieldPath<T>;
-  imageUrl?: string;
-  folder: MediaFolder;
-  disabled?: boolean;
+interface ImageUploadFieldProps<T extends FieldValues> {
   className?: string;
-};
+  disabled?: boolean;
+  folder: MediaFolder;
+  imageUrl?: string;
+  name: FieldPath<T>;
+}
 
 /**
  * Form field wrapper for MediaInput.

@@ -23,9 +23,9 @@ import {
   EMAIL_MUTED_TEXT_CLASS,
 } from "./shared";
 
-export type ThankYouEmailData = {
+export interface ThankYouEmailData {
   logoUrl?: string;
-};
+}
 
 /**
  * Friendly thank-you message after the order lifecycle is completed.

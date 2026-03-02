@@ -23,19 +23,19 @@ import {
   EMAIL_SUBTITLE_CLASS,
 } from "./shared";
 
-type B2BApplicationEmailData = {
+interface B2BApplicationEmailData {
   applicationId: string;
+  billingAddress?: Address | null;
   companyName: string;
-  ico: string;
+  contactEmail: string;
+  contactName: string;
+  contactPhone: string;
   dic?: string | null;
   icDph?: string | null;
-  contactName: string;
-  contactEmail: string;
-  contactPhone: string;
-  billingAddress?: Address | null;
-  message?: string | null;
+  ico: string;
   logoUrl?: string;
-};
+  message?: string | null;
+}
 
 function formatAddress(address: Address | null | undefined): string {
   if (!address) {

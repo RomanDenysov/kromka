@@ -11,9 +11,9 @@ import {
 import { isBeforeDailyCutoff } from "@/features/checkout/utils";
 import { createB2BOrder } from "@/features/orders/actions/create-b2b-order";
 
-type UseB2bCheckoutFormProps = {
+interface UseB2bCheckoutFormProps {
   orgId: string;
-};
+}
 
 export function useB2bCheckoutForm({ orgId }: UseB2bCheckoutFormProps) {
   const router = useRouter();

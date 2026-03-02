@@ -24,14 +24,14 @@ import {
 import { updateProfileAction } from "@/features/user-profile/api/actions";
 import type { UserDetails } from "@/lib/auth/session";
 
-type Props = {
+interface Props {
   user: NonNullable<UserDetails>;
-};
+}
 
-type ProfileSchema = {
+interface ProfileSchema {
   name: string;
   phone: string;
-};
+}
 
 export function ProfileSettingsForm({ user }: Props) {
   const router = useRouter();

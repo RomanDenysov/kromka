@@ -14,11 +14,11 @@ import {
 import { Kbd } from "@/components/ui/kbd";
 import { INITIAL_LIVES } from "@/lib/game/constants";
 
-type GameHUDProps = {
-  score: number;
+interface GameHUDProps {
   lives: number;
   onPause: () => void;
-};
+  score: number;
+}
 
 export function GameHUD({ score, lives, onPause }: GameHUDProps) {
   const [showHelp, setShowHelp] = useState(false);

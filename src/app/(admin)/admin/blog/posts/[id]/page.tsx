@@ -5,9 +5,9 @@ import { getAdminTags, getPostById } from "@/features/posts/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { PostFormContainer } from "./_components/post-form-container";
 
-type Props = {
+interface Props {
   params: Promise<{ id: string }>;
-};
+}
 
 async function PostFormLoader({ params }: Props) {
   const { id } = await params;

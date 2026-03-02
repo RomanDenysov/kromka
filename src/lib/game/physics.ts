@@ -1,10 +1,10 @@
 import type { Baker, FallingItem } from "./types";
 
 interface AABB {
+  height: number;
+  width: number;
   x: number;
   y: number;
-  width: number;
-  height: number;
 }
 
 export function checkCollision(a: AABB, b: AABB): boolean {

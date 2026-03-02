@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/input-group";
 import { cn } from "@/lib/utils";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  placeholder?: string;
+interface Props<T extends FieldValues> {
   className?: string;
-};
+  label?: string;
+  name: FieldPath<T>;
+  placeholder?: string;
+}
 
 export function SlugField<T extends FieldValues>({
   name,

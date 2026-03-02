@@ -4,10 +4,10 @@ import { cn } from "@/lib/utils";
 import { BlogCard } from "./blog-card";
 import { BlogCardSkeleton } from "./blog-card-skeleton";
 
-type Props = {
-  posts: Post[];
+interface Props {
   className?: string;
-};
+  posts: Post[];
+}
 
 export function BlogGrid({ posts, className }: Props) {
   if (posts.length === 0) {

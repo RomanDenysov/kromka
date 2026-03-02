@@ -15,9 +15,9 @@ export const metadata: Metadata = {
     "Admin panel Pekárne Kromka. Zobrazí sa iba pre administrátorov.",
 };
 
-type Props = {
+interface Props {
   readonly children: ReactNode;
-};
+}
 
 async function AdminSidebarLoader() {
   const newOrdersCount = await getNewOrdersCount();

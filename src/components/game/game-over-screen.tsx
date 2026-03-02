@@ -8,9 +8,9 @@ import { GAME_HEIGHT, GAME_WIDTH } from "@/lib/game/constants";
 import type { GameSprites } from "@/lib/game/types";
 
 interface GameOverScreenProps {
-  score: number;
   highScore: number;
   onRestart: () => void;
+  score: number;
   sprites: GameSprites;
 }
 
@@ -25,10 +25,14 @@ export function GameOverScreen({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      return;
+    }
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      return;
+    }
 
     ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 

@@ -9,14 +9,14 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-export type AdminBreadcrumbItem = {
-  label: string;
+export interface AdminBreadcrumbItem {
   href?: Route;
-};
+  label: string;
+}
 
-type Props = {
+interface Props {
   breadcrumbs: AdminBreadcrumbItem[];
-};
+}
 
 export const AdminBreadcrumbs = ({ breadcrumbs }: Props) => (
   <Breadcrumb>

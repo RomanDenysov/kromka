@@ -24,12 +24,12 @@ import {
 } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  description?: string;
+interface Props<T extends FieldValues> {
   className?: string;
-};
+  description?: string;
+  label?: string;
+  name: FieldPath<T>;
+}
 
 export function PickupDatesField<T extends FieldValues>({
   name,

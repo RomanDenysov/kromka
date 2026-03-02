@@ -16,18 +16,18 @@ import { formatPrice } from "@/lib/utils";
 const CENTS_PER_EURO = 100;
 const RADIUS = 4;
 
-type DataPoint = {
+interface DataPoint {
   date: string;
-  revenue: number;
   expectedRevenue?: number;
   orderCount?: number;
-};
+  revenue: number;
+}
 
-type Props = {
+interface Props {
   data: DataPoint[];
   showExpectedRevenue?: boolean;
   showOrderCorrelation?: boolean;
-};
+}
 
 export function RevenueChart({
   data,

@@ -26,13 +26,13 @@ const ICON_MAP: Record<string, LucideIcon> = {
   UsersIcon,
 };
 
-type SettingsRowProps = {
+interface SettingsRowProps {
+  className?: string;
+  control: React.ReactNode;
+  description?: string;
   icon?: LucideIcon | string;
   title: string;
-  description?: string;
-  control: React.ReactNode;
-  className?: string;
-};
+}
 
 export function SettingsRow({
   icon,

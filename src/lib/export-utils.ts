@@ -9,17 +9,17 @@ import { format } from "date-fns";
  * - `key` can be a direct key of the row or a dot-path into nested objects.
  * - `format` can be used to convert raw values to display strings (e.g. cents → currency).
  */
-export type ExportColumnConfig<T> = {
-  key: keyof T | string;
-  header: string;
+export interface ExportColumnConfig<T> {
   format?: (value: any, row: T) => string | number | boolean | null | undefined;
-};
+  header: string;
+  key: keyof T | string;
+}
 
-export type ExportSheetConfig<T> = {
+export interface ExportSheetConfig<T> {
+  columns: ExportColumnConfig<T>[];
   name: string;
   rows: T[];
-  columns: ExportColumnConfig<T>[];
-};
+}
 
 const MAX_EXPORT_ROWS = 10_000;
 const SHEET_NAME_MAX_LENGTH = 31;

@@ -14,11 +14,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
+interface Props<T extends FieldValues> {
   className?: string;
-};
+  label?: string;
+  name: FieldPath<T>;
+}
 
 export function DateRangeField<T extends FieldValues>({
   name,

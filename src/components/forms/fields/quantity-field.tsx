@@ -6,11 +6,11 @@ import { QuantityInput } from "@/components/shared/quantity-input";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
+interface Props<T extends FieldValues> {
   className?: string;
-};
+  label?: string;
+  name: FieldPath<T>;
+}
 
 export function QuantityField<T extends FieldValues>({
   name,

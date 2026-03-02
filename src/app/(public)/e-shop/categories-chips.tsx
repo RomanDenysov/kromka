@@ -11,9 +11,9 @@ import type { Category } from "@/features/categories/api/queries";
 import { analytics } from "@/lib/analytics";
 import { getCategoriesLink, useEshopParams } from "./eshop-params";
 
-type Props = {
+interface Props {
   categories: Promise<Category[]>;
-};
+}
 
 export function CategoriesChips({ categories }: Props) {
   const items = use(categories);

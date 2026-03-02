@@ -11,10 +11,10 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { Icons } from "../icons";
 
-type FooterLinkItem = {
-  name: string;
+interface FooterLinkItem {
   href: Route;
-};
+  name: string;
+}
 
 const footerLinks: Record<"company" | "legal", FooterLinkItem[]> = {
   company: [

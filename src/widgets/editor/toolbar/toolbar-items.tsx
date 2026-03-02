@@ -13,10 +13,10 @@ import {
 import type { ComponentType } from "react";
 import { Toggle } from "@/components/ui/toggle";
 
-type ToolbarButtonProps = {
-  editor: Editor;
+interface ToolbarButtonProps {
   className?: string;
-};
+  editor: Editor;
+}
 
 export function BoldButton({ editor, className }: ToolbarButtonProps) {
   const isActive = useEditorState({

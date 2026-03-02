@@ -21,18 +21,24 @@ export const metadata: Metadata = createMetadata({
   canonicalUrl: getSiteUrl("/blog"),
 });
 
-type Props = {
+interface Props {
   searchParams: Promise<{
     page?: string;
     tag?: string;
     search?: string;
   }>;
-};
+}
 
 function getArticleCountText(total: number): string {
-  if (total === 0) return "Žiadne články";
-  if (total === 1) return "1 článok";
-  if (total >= 2 && total <= 4) return `${total} články`;
+  if (total === 0) {
+    return "Žiadne články";
+  }
+  if (total === 1) {
+    return "1 článok";
+  }
+  if (total >= 2 && total <= 4) {
+    return `${total} články`;
+  }
   return `${total} článkov`;
 }
 

@@ -11,18 +11,18 @@ import { useDashboardParams } from "@/hooks/use-dashboard-params";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 
-type ProductAggregate = {
+interface ProductAggregate {
+  orderCount: number;
   productId: string;
   productName: string;
   totalQuantity: number;
   totalRevenue: number;
-  orderCount: number;
-};
+}
 
-type Props = {
+interface Props {
   orders: RecentOrder[];
   products: ProductAggregate[];
-};
+}
 
 export function DashboardRecentTabs({ orders, products }: Props) {
   const [{ date, tab }, setSearchParams] = useDashboardParams();

@@ -39,10 +39,11 @@ import type { AdminProduct } from "@/features/products/api/queries";
 import { formatPrice } from "@/lib/utils";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
+// biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
 export type ProductTableMeta = {
-  onOpen: (id: string) => void;
-  onDelete: (id: string) => void;
   onCopy: (id: string) => void;
+  onDelete: (id: string) => void;
+  onOpen: (id: string) => void;
   onToggleActive: (id: string) => void;
 };
 

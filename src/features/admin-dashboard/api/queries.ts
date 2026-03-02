@@ -128,13 +128,13 @@ export type MonthlyOrderStats = Awaited<
   ReturnType<typeof getMonthlyOrderStats>
 >;
 
-export type DashboardMetrics = {
-  newOrdersCount: number;
+export interface DashboardMetrics {
+  activeCompaniesCount: number;
   activeProductsCount: number;
   activeStoresCount: number;
-  activeCompaniesCount: number;
+  newOrdersCount: number;
   todaysRevenue: number;
-};
+}
 
 export async function getOrdersCount(): Promise<number> {
   "use cache";

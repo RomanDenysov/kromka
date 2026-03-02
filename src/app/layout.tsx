@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 
 import "./globals.css";
 
-type Props = {
+interface Props {
   readonly children: ReactNode;
-};
+}
 
 export default function RootLayout({ children }: Props) {
   return (

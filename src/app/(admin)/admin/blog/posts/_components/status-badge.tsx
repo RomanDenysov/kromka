@@ -21,10 +21,10 @@ const STATUS_CONFIG: Record<
   archived: { label: "Archivovaný", variant: "outline", icon: CircleIcon },
 };
 
-type Props = {
-  status: PostStatus;
+interface Props {
   size?: "default" | "sm" | "xs";
-};
+  status: PostStatus;
+}
 
 export function StatusBadge({ status, size = "xs" }: Props) {
   const config = STATUS_CONFIG[status];

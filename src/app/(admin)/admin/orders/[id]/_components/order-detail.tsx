@@ -291,13 +291,13 @@ function StatusStepperCard({
   );
 }
 
-type OrderItemData = {
-  productId: string;
+interface OrderItemData {
   price: number;
-  quantity: number;
-  productSnapshot: { name: string } | null;
   product: { id: string; name: string } | null;
-};
+  productId: string;
+  productSnapshot: { name: string } | null;
+  quantity: number;
+}
 
 function ProductsCard({ items }: { items: OrderItemData[] }) {
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
@@ -580,13 +580,13 @@ function PaymentCard({
   );
 }
 
-type StatusEventData = {
-  id: string;
-  status: OrderStatus;
+interface StatusEventData {
   createdAt: Date;
-  note: string | null;
   createdBy: { id: string; name: string | null; email: string } | null;
-};
+  id: string;
+  note: string | null;
+  status: OrderStatus;
+}
 
 function StatusHistoryCard({ events }: { events: StatusEventData[] }) {
   if (events.length === 0) {

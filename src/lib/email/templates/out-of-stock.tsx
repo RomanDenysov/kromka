@@ -25,11 +25,11 @@ import {
   EMAIL_PARAGRAPH_CLASS,
 } from "./shared";
 
-export type OutOfStockEmailData = {
-  productName: string;
+export interface OutOfStockEmailData {
   logoUrl?: string;
+  productName: string;
   signatureLogoUrl?: string;
-};
+}
 
 /**
  * Notifies customers about unavailable products.

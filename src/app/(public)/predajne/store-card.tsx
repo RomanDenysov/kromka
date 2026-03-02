@@ -14,14 +14,14 @@ import {
 import type { Store } from "@/features/stores/api/queries";
 import { cn } from "@/lib/utils";
 
-type StoreCardProps = {
-  store: Store;
+interface StoreCardProps {
   className?: string;
-  isSelected?: boolean;
-  href?: Route;
-  variant?: "default" | "featured";
   distance?: number | null;
-};
+  href?: Route;
+  isSelected?: boolean;
+  store: Store;
+  variant?: "default" | "featured";
+}
 
 const getTodayOpeningHours = (openingHours: Store["openingHours"]) => {
   if (!openingHours) {

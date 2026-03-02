@@ -15,9 +15,9 @@ export const metadata: Metadata = {
     "Profil používateľa Pekárne Kromka. Zobrazí sa iba po prihlásení.",
 };
 
-type Props = {
+interface Props {
   readonly children: ReactNode;
-};
+}
 
 async function ProfileLayoutContent({ children }: Props) {
   const user = await getUser();

@@ -8,9 +8,9 @@ import { Spinner } from "@/components/ui/spinner";
 import { addToCart } from "@/features/cart/api/actions";
 import { analytics } from "@/lib/analytics";
 
-type Props = {
+interface Props {
   productIds: string[];
-};
+}
 
 const MAX_PRODUCTS_TO_ADD_TO_CART = 5;
 

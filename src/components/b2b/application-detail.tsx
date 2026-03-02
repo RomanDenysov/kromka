@@ -33,10 +33,10 @@ import {
   rejectB2bApplicationSchema,
 } from "@/validation/b2b";
 
-type Props = {
+interface Props {
   application: B2bApplication;
   priceTiers: PriceTier[];
-};
+}
 
 const STATUS_LABELS: Record<
   string,

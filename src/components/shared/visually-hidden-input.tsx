@@ -17,10 +17,10 @@ interface VisuallyHiddenInputProps<T = InputValue>
     InputHTMLAttributes<HTMLInputElement>,
     "value" | "checked" | "onReset"
   > {
-  value?: T;
+  bubbles?: boolean;
   checked?: boolean;
   control: HTMLElement | null;
-  bubbles?: boolean;
+  value?: T;
 }
 
 function VisuallyHiddenInput<T = InputValue>(
@@ -113,7 +113,6 @@ function VisuallyHiddenInput<T = InputValue>(
     };
   }, [control]);
 
-  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: Ignore this for now
   useEffect(() => {
     const input = inputRef.current;
     if (!input) {

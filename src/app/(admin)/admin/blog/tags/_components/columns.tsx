@@ -25,9 +25,10 @@ import {
 import type { AdminTag } from "@/features/posts/api/queries";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
+// biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
 export type TagTableMeta = {
-  onEdit: (tag: AdminTag) => void;
   onDelete: (id: string) => void;
+  onEdit: (tag: AdminTag) => void;
 };
 
 export const columns: ColumnDef<AdminTag, TagTableMeta>[] = [

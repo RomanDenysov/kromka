@@ -13,16 +13,16 @@ import {
 } from "react";
 import { cn } from "@/lib/utils";
 
-type NumberFieldContextValue = {
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  disabled: boolean;
-  onChange: (value: number) => void;
-  increment: () => void;
+interface NumberFieldContextValue {
   decrement: () => void;
-};
+  disabled: boolean;
+  increment: () => void;
+  max: number;
+  min: number;
+  onChange: (value: number) => void;
+  step: number;
+  value: number;
+}
 
 const NumberFieldContext = createContext<NumberFieldContextValue | null>(null);
 
