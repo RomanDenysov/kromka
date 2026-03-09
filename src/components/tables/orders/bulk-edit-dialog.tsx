@@ -28,12 +28,12 @@ import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/constants";
 
 const NO_CHANGE_VALUE = "__no_change__";
 
-type BulkEditDialogProps = {
-  open: boolean;
+interface BulkEditDialogProps {
   onOpenChange: (open: boolean) => void;
-  selectedOrderIds: string[];
   onSuccess?: () => void;
-};
+  open: boolean;
+  selectedOrderIds: string[];
+}
 
 export function BulkEditDialog({
   open,

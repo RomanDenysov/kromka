@@ -6,11 +6,11 @@ import { getAdminProductById } from "@/features/products/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { FormContainer } from "./form-container";
 
-type Props = {
+interface Props {
   params: Promise<{
     id: string;
   }>;
-};
+}
 
 async function ProductFormLoader({ params }: Props) {
   const { id } = await params;

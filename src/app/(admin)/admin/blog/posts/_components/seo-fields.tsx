@@ -5,10 +5,10 @@ import { TextField } from "@/components/forms/fields/text-field";
 import { TextareaField } from "@/components/forms/fields/textarea-field";
 import { FieldDescription, FieldLabel, FieldSet } from "@/components/ui/field";
 
-type Props<T extends FieldValues> = {
-  titleName: Path<T>;
+interface Props<T extends FieldValues> {
   descriptionName: Path<T>;
-};
+  titleName: Path<T>;
+}
 
 export function SeoFields<T extends FieldValues>({
   titleName,

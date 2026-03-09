@@ -3,10 +3,10 @@ import type { FieldErrors } from "react-hook-form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { CheckoutFormData } from "@/features/checkout/schema";
 
-type CheckoutAlertsProps = {
-  ordersEnabled: boolean;
+interface CheckoutAlertsProps {
   formErrors: FieldErrors<CheckoutFormData>;
-};
+  ordersEnabled: boolean;
+}
 
 /**
  * Consolidates checkout-related alerts for orders disabled, user info, and form errors.
@@ -65,10 +65,10 @@ export function CheckoutAlerts({
   );
 }
 
-type PickupDateAlertsProps = {
+interface PickupDateAlertsProps {
   hasNoAvailableDates: boolean;
   restrictedPickupDates: Set<string> | null;
-};
+}
 
 /**
  * Alerts specific to pickup date restrictions (shown in pickup details card).

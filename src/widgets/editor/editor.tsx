@@ -6,15 +6,15 @@ import { registerExtensions } from "./extentions/register";
 import { Toolbar } from "./toolbar/toolbar";
 import type { ToolbarVariant } from "./toolbar/toolbar-config";
 
-type EditorProps = {
+interface EditorProps {
+  className?: string;
   content?: JSONContent | string | null;
+  editable?: boolean;
+  onBlur?: () => void;
+  onChange?: (content: JSONContent) => void;
   placeholder?: string;
   variant?: ToolbarVariant;
-  onChange?: (content: JSONContent) => void;
-  onBlur?: () => void;
-  className?: string;
-  editable?: boolean;
-};
+}
 
 export function Editor({
   content,

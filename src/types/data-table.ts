@@ -4,21 +4,19 @@ import type { LucideIcon } from "lucide-react";
 import type { DataTableConfig } from "@/widgets/data-table/config/data-table";
 
 declare module "@tanstack/react-table" {
-  // biome-ignore lint/correctness/noUnusedVariables: false positive
   interface TableMeta<TData extends RowData> {
     queryKeys?: QueryKeys;
     [key: string]: unknown;
   }
 
-  // biome-ignore lint/correctness/noUnusedVariables: false positive
   interface ColumnMeta<TData extends RowData, TValue> {
+    icon?: LucideIcon;
     label?: string;
-    placeholder?: string;
-    variant?: FilterVariant;
     options?: Option[];
+    placeholder?: string;
     range?: [number, number];
     unit?: string;
-    icon?: LucideIcon;
+    variant?: FilterVariant;
   }
 }
 

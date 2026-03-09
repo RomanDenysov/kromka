@@ -11,12 +11,12 @@ import { useSession } from "@/lib/auth/client";
 import { cn } from "@/lib/utils";
 import { useLoginModalOpen } from "@/store/login-modal-store";
 
-type Props = {
-  postId: string;
-  parentId?: string;
+interface Props {
   className?: string;
   onSuccess?: () => void;
-};
+  parentId?: string;
+  postId: string;
+}
 
 export function CommentForm({ postId, parentId, className, onSuccess }: Props) {
   const router = useRouter();

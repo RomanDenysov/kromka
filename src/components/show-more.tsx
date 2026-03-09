@@ -4,13 +4,13 @@ import { Children, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type Props = {
+interface Props {
   children: React.ReactNode;
   className?: string;
   initial?: number;
   showLessLabel?: string;
   showMoreLabel?: (remaining: number) => string;
-};
+}
 
 export function ShowMore({
   children,

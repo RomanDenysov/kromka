@@ -51,8 +51,7 @@ async function generateInvoiceNumber(): Promise<string> {
 
     // Check for collision
     const existing = await db.query.invoices.findFirst({
-      where: (invoice, { eq: eqOp }) =>
-        eqOp(invoice.invoiceNumber, candidate),
+      where: (invoice, { eq: eqOp }) => eqOp(invoice.invoiceNumber, candidate),
       columns: { id: true },
     });
 
@@ -92,7 +91,10 @@ export async function generateInvoiceForCompany(
     });
 
     if (unpaidOrders.length === 0) {
-      return { success: false, error: "No unpaid orders found for this period" };
+      return {
+        success: false,
+        error: "No unpaid orders found for this period",
+      };
     }
 
     // Calculate total
@@ -133,17 +135,16 @@ export async function generateInvoiceForCompany(
     const updatedOrders = await db
       .update(orders)
       .set({ invoiceId: invoice.id })
-      .where(
-        and(
-          inArray(orders.id, orderIds),
-          isNull(orders.invoiceId)
-        )
-      )
+      .where(and(inArray(orders.id, orderIds), isNull(orders.invoiceId)))
       .returning({ id: orders.id });
 
     if (updatedOrders.length !== orderIds.length) {
       log.invoices.warn(
-        { expected: orderIds.length, actual: updatedOrders.length, invoiceId: invoice.id },
+        {
+          expected: orderIds.length,
+          actual: updatedOrders.length,
+          invoiceId: invoice.id,
+        },
         "Some orders were already claimed by another invoice"
       );
     }
@@ -153,8 +154,13 @@ export async function generateInvoiceForCompany(
 
     return { success: true, invoiceId: invoice.id };
   } catch (error) {
-    if (isRedirectError(error)) throw error;
-    log.invoices.error({ err: error, companyId }, "Generate invoice for company failed");
+    if (isRedirectError(error)) {
+      throw error;
+    }
+    log.invoices.error(
+      { err: error, companyId },
+      "Generate invoice for company failed"
+    );
     return { success: false, error: "Nepodarilo sa vygenerovať faktúru" };
   }
 }
@@ -188,7 +194,9 @@ export async function issueInvoice(
     updateTag("invoices");
     return { success: true };
   } catch (error) {
-    if (isRedirectError(error)) throw error;
+    if (isRedirectError(error)) {
+      throw error;
+    }
     log.invoices.error({ err: error, invoiceId }, "Issue invoice failed");
     return { success: false, error: "Nepodarilo sa vydať faktúru" };
   }
@@ -229,8 +237,16 @@ export async function markInvoiceAsPaid(
     updateTag("orders");
     return { success: true };
   } catch (error) {
-    if (isRedirectError(error)) throw error;
-    log.invoices.error({ err: error, invoiceId }, "Mark invoice as paid failed");
-    return { success: false, error: "Nepodarilo sa označiť faktúru ako zaplatenú" };
+    if (isRedirectError(error)) {
+      throw error;
+    }
+    log.invoices.error(
+      { err: error, invoiceId },
+      "Mark invoice as paid failed"
+    );
+    return {
+      success: false,
+      error: "Nepodarilo sa označiť faktúru ako zaplatenú",
+    };
   }
 }

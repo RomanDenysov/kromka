@@ -9,9 +9,9 @@ import { ProductCard, ProductCardSkeleton } from "./product-card";
 
 const PRELOAD_LIMIT = 15;
 
-type Props = {
+interface Props {
   searchParams: Promise<EshopParams>;
-};
+}
 
 export async function ProductsGrid({ searchParams }: Props) {
   const eshopParams = await searchParams;
@@ -29,7 +29,10 @@ export async function ProductsGrid({ searchParams }: Props) {
           {products.map((product, index) => (
             <div
               key={product.id}
-              style={{ contentVisibility: "auto", containIntrinsicSize: "0 350px" }}
+              style={{
+                contentVisibility: "auto",
+                containIntrinsicSize: "0 350px",
+              }}
             >
               <ProductCard
                 isFavorite={favoriteSet.has(product.id)}

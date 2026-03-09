@@ -19,17 +19,17 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-type Option = {
+interface Option {
   label: string;
   value: string;
-};
+}
 
-type DataTableMultiSelectFilterProps<TData> = {
-  table: Table<TData>;
+interface DataTableMultiSelectFilterProps<TData> {
   columnId: string;
-  title: string;
   options: Option[];
-};
+  table: Table<TData>;
+  title: string;
+}
 
 export function DataTableMultiSelectFilter<TData>({
   table,

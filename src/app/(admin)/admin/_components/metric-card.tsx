@@ -1,13 +1,13 @@
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  title: string;
-  value: string | number;
+interface Props {
+  className?: string;
   description?: string;
   icon: LucideIcon;
-  className?: string;
-};
+  title: string;
+  value: string | number;
+}
 
 export function MetricCard({
   title,

@@ -35,12 +35,12 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 
-type NavItem<T extends string = string> = {
-  href: Route<T>;
-  label: string;
-  icon: LucideIcon;
+interface NavItem<T extends string = string> {
   exact?: boolean;
-};
+  href: Route<T>;
+  icon: LucideIcon;
+  label: string;
+}
 
 const NAV_MAIN: NavItem[] = [
   { href: "/admin", label: "Prehľad", icon: LayoutDashboardIcon, exact: true },

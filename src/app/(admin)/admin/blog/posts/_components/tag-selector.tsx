@@ -28,13 +28,13 @@ import {
 import type { AdminTag } from "@/features/posts/api/queries";
 import { cn } from "@/lib/utils";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  description?: string;
-  tags: AdminTag[];
+interface Props<T extends FieldValues> {
   className?: string;
-};
+  description?: string;
+  label?: string;
+  name: FieldPath<T>;
+  tags: AdminTag[];
+}
 
 export function TagSelector<T extends FieldValues>({
   name,

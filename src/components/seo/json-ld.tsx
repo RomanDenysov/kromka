@@ -1,8 +1,8 @@
 import type { Thing, WithContext } from "schema-dts";
 
-type JsonLdProps = {
+interface JsonLdProps {
   data: WithContext<Thing> | WithContext<Thing>[];
-};
+}
 
 /**
  * Server component for rendering JSON-LD structured data.

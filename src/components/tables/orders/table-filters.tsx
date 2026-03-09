@@ -10,11 +10,11 @@ import {
 import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
 import { DataTableSearch } from "@/widgets/data-table/data-table-search";
 
-type OrdersTableFiltersProps = {
-  table: Table<Order>;
+interface OrdersTableFiltersProps {
   globalFilter: string;
   onGlobalFilterChange: (value: string) => void;
-};
+  table: Table<Order>;
+}
 
 export function OrdersTableFilters({
   table,

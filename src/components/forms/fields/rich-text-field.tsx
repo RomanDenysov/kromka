@@ -15,13 +15,13 @@ const Editor = dynamic(
   }
 );
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  placeholder?: string;
+interface Props<T extends FieldValues> {
   className?: string;
+  label?: string;
+  name: FieldPath<T>;
+  placeholder?: string;
   variant?: "simple" | "full";
-};
+}
 
 export function RichTextField<T extends FieldValues>({
   name,

@@ -58,10 +58,10 @@ const WEEKDAYS = [
 
 type WeekdayKey = (typeof WEEKDAYS)[number]["key"];
 
-type Props = {
-  value: StoreSchedule;
+interface Props {
   onChange: (value: StoreSchedule) => void;
-};
+  value: StoreSchedule;
+}
 
 export function TestHoursField({ value, onChange }: Props) {
   const [selectedDay, setSelectedDay] = useState<WeekdayKey | null>(null);
@@ -245,15 +245,15 @@ export function TestHoursField({ value, onChange }: Props) {
   );
 }
 
-type DayScheduleRowProps = {
+interface DayScheduleRowProps {
   day: (typeof WEEKDAYS)[number];
-  schedule: DaySchedule;
-  onUpdate: (schedule: DaySchedule) => void;
-  onCopy: () => void;
-  onPaste: () => void;
   isCopying: boolean;
   isSelected: boolean;
-};
+  onCopy: () => void;
+  onPaste: () => void;
+  onUpdate: (schedule: DaySchedule) => void;
+  schedule: DaySchedule;
+}
 
 function DayScheduleRow({
   day,
@@ -370,10 +370,10 @@ function TimeSelector({
   );
 }
 
-type ExceptionsEditorProps = {
+interface ExceptionsEditorProps {
   exceptions: { [date: string]: DaySchedule };
   onChange: (exceptions: { [date: string]: DaySchedule }) => void;
-};
+}
 
 function ExceptionsEditor({ exceptions, onChange }: ExceptionsEditorProps) {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);

@@ -6,9 +6,9 @@ import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import type { AdminCategory } from "@/features/categories/api/queries";
 
-type Props = {
+interface Props {
   category: AdminCategory;
-};
+}
 
 export function CategoryFormContainer({ category }: Props) {
   return (

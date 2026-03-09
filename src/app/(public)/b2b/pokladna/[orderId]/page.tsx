@@ -17,11 +17,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-async function B2bOrderConfirmationContent({
-  orderId,
-}: {
-  orderId: string;
-}) {
+async function B2bOrderConfirmationContent({ orderId }: { orderId: string }) {
   const b2bContext = await requireB2bMember();
   const order = await getOrderById(orderId);
 
@@ -90,7 +86,10 @@ async function B2bOrderConfirmationContent({
         </div>
 
         <Link
-          className={buttonVariants({ variant: "default", className: "w-full" })}
+          className={buttonVariants({
+            variant: "default",
+            className: "w-full",
+          })}
           href="/b2b/shop"
         >
           Pokračovať v nákupe

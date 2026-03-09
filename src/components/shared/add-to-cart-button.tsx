@@ -7,17 +7,17 @@ import { type AddToCartSource, analytics } from "@/lib/analytics";
 import { Button } from "../ui/button";
 import { Spinner } from "../ui/spinner";
 
-type ProductInfo = {
+interface ProductInfo {
   name: string;
   price: number;
-};
+}
 
-type Props = {
-  id: string;
+interface Props {
   disabled?: boolean;
+  id: string;
   product?: ProductInfo;
   source?: AddToCartSource;
-};
+}
 
 function useAddToCart(
   id: string,

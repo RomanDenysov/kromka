@@ -17,16 +17,19 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
-type Option = { value: string; label: string };
+interface Option {
+  label: string;
+  value: string;
+}
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
+interface Props<T extends FieldValues> {
+  className?: string;
   description?: string;
+  label?: string;
+  name: FieldPath<T>;
   options: Option[];
   placeholder?: string;
-  className?: string;
-};
+}
 
 export function SelectField<T extends FieldValues>({
   name,

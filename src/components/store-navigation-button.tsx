@@ -4,12 +4,12 @@ import { ExternalLink, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getMapUrl } from "@/lib/geo-utils";
 
-type StoreNavigationButtonProps = {
+interface StoreNavigationButtonProps {
   address: string;
   latitude?: string | null;
   longitude?: string | null;
   variant?: "link" | "button";
-};
+}
 
 export function StoreNavigationButton({
   address,

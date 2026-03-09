@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  threshold?: number;
+interface Props {
   className?: string;
-};
+  threshold?: number;
+}
 
 export function ScrollToTop({ threshold = 400, className }: Props) {
   const pathname = usePathname();

@@ -10,10 +10,10 @@ import { getLastOrderId } from "../cookies";
  * Last order prefill data for checkout form
  * Contains customer info and store ID from the most recent order
  */
-export type LastOrderPrefill = {
+export interface LastOrderPrefill {
   customerInfo: GuestCustomerInfo | null;
   storeId: string | null;
-};
+}
 
 /** Query columns for order prefill data */
 const prefillColumns = {
@@ -21,14 +21,14 @@ const prefillColumns = {
   storeId: true,
 } as const;
 
-type OrderPrefillRow = {
+interface OrderPrefillRow {
   customerInfo: {
     name?: string | null;
     email: string;
     phone: string;
   } | null;
   storeId: string | null;
-};
+}
 
 function parseCustomerInfo(
   customerInfo: OrderPrefillRow["customerInfo"]
@@ -124,8 +124,7 @@ function isProductAvailable(product: OrderItemProduct): boolean {
 }
 
 /** Return type for getLastOrderWithItems */
-export type LastOrderWithItems = {
-  orderId: string;
+export interface LastOrderWithItems {
   items: Array<{
     productId: string;
     name: string;
@@ -134,7 +133,8 @@ export type LastOrderWithItems = {
     imageUrl: string | null;
     quantity: number;
   }>;
-};
+  orderId: string;
+}
 
 /**
  * Get the most recent order with all item details for "repeat order" feature

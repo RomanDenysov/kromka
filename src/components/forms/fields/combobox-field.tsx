@@ -12,18 +12,18 @@ import {
 } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
-type Option = {
-  value: string;
+interface Option {
   label: string;
-};
+  value: string;
+}
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  description?: string;
+interface Props<T extends FieldValues> {
   className?: string;
+  description?: string;
+  label?: string;
+  name: FieldPath<T>;
   options: Option[];
-};
+}
 
 export function ComboboxField<T extends FieldValues>({
   name,

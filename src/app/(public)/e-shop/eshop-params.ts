@@ -33,8 +33,8 @@ export const useEshopParams = (options: Options = {}) =>
 
 export const getCategoriesLink = createTypedLink("/e-shop", eshopParams);
 
-export type EshopParams = {
-  q: string;
+export interface EshopParams {
   category: string;
+  q: string;
   sort: SortOption | null;
-};
+}

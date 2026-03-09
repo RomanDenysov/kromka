@@ -8,9 +8,9 @@ import { b2bApplications, invitations, organizations } from "@/db/schema";
 import { DEFAULT_PAYMENT_TERM_DAYS } from "@/db/types";
 import { requireAdmin } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
-import { log } from "@/lib/logger";
 import { getSlug } from "@/lib/get-slug";
 import { createId } from "@/lib/ids";
+import { log } from "@/lib/logger";
 import {
   approveB2bApplicationSchema,
   b2bApplicationSchema,

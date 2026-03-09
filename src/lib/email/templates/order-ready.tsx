@@ -25,14 +25,14 @@ import {
   formatOrderCode,
 } from "./shared";
 
-export type OrderReadyEmailData = {
-  pickupPlace: string;
-  pickupPlaceUrl: string;
-  pickupDate: string;
-  pickupTime: string;
+export interface OrderReadyEmailData {
   logoUrl?: string;
   orderId: string | number;
-};
+  pickupDate: string;
+  pickupPlace: string;
+  pickupPlaceUrl: string;
+  pickupTime: string;
+}
 
 /**
  * Notifies the customer that their order is ready for pickup.

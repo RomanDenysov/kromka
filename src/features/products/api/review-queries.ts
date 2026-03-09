@@ -6,10 +6,10 @@ import { cache } from "react";
 import { db } from "@/db";
 import { reviews } from "@/db/schema";
 
-type ReviewAggregate = {
+interface ReviewAggregate {
   averageRating: number;
   reviewCount: number;
-};
+}
 
 export const getReviewAggregate = cache(
   async (productId: string): Promise<ReviewAggregate | null> => {

@@ -6,10 +6,10 @@ import { formatPrice } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { QuantitySetter } from "./quantity-setter";
 
-type Props = {
+interface Props {
   product: DetailedCartItem;
   quantity: number;
-};
+}
 
 export function ProductCartListItem({ product, quantity }: Props) {
   return (

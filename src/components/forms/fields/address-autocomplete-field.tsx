@@ -23,13 +23,13 @@ const AUTOCOMPLETE_OPTIONS = {
   types: ["address"],
 };
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  description?: string;
-  className?: string;
+interface Props<T extends FieldValues> {
   baseFieldName?: string; // Base field name for nested address object (default: "address")
-};
+  className?: string;
+  description?: string;
+  label?: string;
+  name: FieldPath<T>;
+}
 
 function getAddressComponent(
   components: google.maps.GeocoderAddressComponent[] | undefined,

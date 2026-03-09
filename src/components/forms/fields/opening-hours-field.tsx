@@ -7,11 +7,11 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import type { StoreSchedule } from "@/db/types";
 import { cn } from "@/lib/utils";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
+interface Props<T extends FieldValues> {
   className?: string;
-};
+  label?: string;
+  name: FieldPath<T>;
+}
 
 export function OpeningHoursField<T extends FieldValues>({
   name,

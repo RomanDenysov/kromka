@@ -5,7 +5,11 @@ import { refresh } from "next/cache";
 import { z } from "zod";
 import { db } from "@/db";
 import { orderStatusEvents, orders } from "@/db/schema";
-import { ORDER_STATUSES, type OrderStatus, type PaymentStatus } from "@/db/types";
+import {
+  ORDER_STATUSES,
+  type OrderStatus,
+  type PaymentStatus,
+} from "@/db/types";
 import { requireAdmin } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
 import { log } from "@/lib/logger";
@@ -151,7 +155,10 @@ async function handleBulkStatusNotifications(
     );
     for (const result of results) {
       if (result.status === "rejected") {
-        log.email.error({ err: result.reason }, "Failed to send order status email");
+        log.email.error(
+          { err: result.reason },
+          "Failed to send order status email"
+        );
       }
     }
 

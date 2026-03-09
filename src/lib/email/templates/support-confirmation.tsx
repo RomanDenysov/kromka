@@ -23,9 +23,9 @@ import {
   EMAIL_PARAGRAPH_CLASS,
 } from "./shared";
 
-type SupportConfirmationEmailData = {
+interface SupportConfirmationEmailData {
   logoUrl?: string;
-};
+}
 
 /**
  * Confirmation email sent to user after they submit a support request.

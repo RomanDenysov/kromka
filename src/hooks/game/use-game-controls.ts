@@ -4,9 +4,9 @@ import { useCallback, useEffect, useRef } from "react";
 import { BAKER_WIDTH, GAME_WIDTH } from "@/lib/game/constants";
 
 interface UseGameControlsOptions {
-  onMove: (updater: (prev: number) => number) => void;
-  enabled: boolean;
   containerRef: React.RefObject<HTMLElement | null>;
+  enabled: boolean;
+  onMove: (updater: (prev: number) => number) => void;
 }
 
 export function useGameControls({
@@ -25,7 +25,9 @@ export function useGameControls({
   const getRelativeX = useCallback(
     (clientX: number): number => {
       const container = containerRef.current;
-      if (!container) return GAME_WIDTH / 2;
+      if (!container) {
+        return GAME_WIDTH / 2;
+      }
 
       const rect = container.getBoundingClientRect();
       const relativeX = clientX - rect.left;
@@ -76,10 +78,14 @@ export function useGameControls({
 
   // Mouse and touch: position-based (unchanged)
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      return;
+    }
 
     const container = containerRef.current;
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     const handleMouseDown = (e: MouseEvent) => {
       isDraggingRef.current = true;
@@ -88,7 +94,9 @@ export function useGameControls({
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
+      if (!isDraggingRef.current) {
+        return;
+      }
       const x = getRelativeX(e.clientX);
       onMove(() => getClampedX(x));
     };
@@ -107,7 +115,9 @@ export function useGameControls({
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (!isDraggingRef.current) return;
+      if (!isDraggingRef.current) {
+        return;
+      }
       const touch = e.touches[0];
       if (touch) {
         const x = getRelativeX(touch.clientX);

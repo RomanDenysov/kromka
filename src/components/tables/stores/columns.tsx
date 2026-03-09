@@ -33,10 +33,11 @@ import type { AdminStore } from "@/features/stores/api/queries";
 import { getAdminStoresLink } from "@/hooks/use-store-params";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
+// biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
 type StoreTableMeta = {
-  toggleActive: (id: string) => void;
-  onDelete: (id: string) => void;
   onCopy: (id: string) => void;
+  onDelete: (id: string) => void;
+  toggleActive: (id: string) => void;
 };
 
 export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [

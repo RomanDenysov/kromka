@@ -36,10 +36,11 @@ import type { AdminCategory } from "@/features/categories/api/queries";
 import { getAdminCategoriesLink } from "@/hooks/use-category-params";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
+// biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
 type CategoryTableMeta = {
-  toggleActive: (id: string) => void;
-  onDelete: (id: string) => void;
   onCopy: (id: string) => void;
+  onDelete: (id: string) => void;
+  toggleActive: (id: string) => void;
   toggleFeatured: (id: string) => void;
 };
 

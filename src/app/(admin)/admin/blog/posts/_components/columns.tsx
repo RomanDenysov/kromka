@@ -38,6 +38,7 @@ import { StatusBadge } from "./status-badge";
 
 type AdminPost = AdminPostList["posts"][number];
 
+// biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
 export type PostTableMeta = {
   onDelete: (id: string) => void;
   onPublish: (id: string) => void;

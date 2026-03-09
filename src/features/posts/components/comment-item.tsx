@@ -7,11 +7,11 @@ import type { PostComment } from "@/features/posts/api/queries";
 import { cn, getInitials } from "@/lib/utils";
 import { CommentForm } from "./comment-form";
 
-type Props = {
+interface Props {
+  className?: string;
   comment: PostComment;
   postId: string;
-  className?: string;
-};
+}
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("sk-SK", {

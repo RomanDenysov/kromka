@@ -13,9 +13,9 @@ import {
 } from "@/db/schema";
 import {
   commentSchema,
-  updatePostSchema,
   type TagSchema,
   type UpdatePostSchema,
+  updatePostSchema,
 } from "@/features/posts/schema";
 import { requireAdmin, requireAuth } from "@/lib/auth/guards";
 
@@ -296,9 +296,7 @@ export async function approveCommentAction(id: string) {
   const [updated] = await db
     .update(postComments)
     .set({ isPublished: true })
-    .where(
-      and(eq(postComments.id, id), eq(postComments.isPublished, false))
-    )
+    .where(and(eq(postComments.id, id), eq(postComments.isPublished, false)))
     .returning({ postId: postComments.postId });
 
   if (!updated) {

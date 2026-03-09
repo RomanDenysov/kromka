@@ -23,22 +23,22 @@ import type { User } from "@/lib/auth/session";
 import { buildFullAddress } from "@/lib/geo-utils";
 import type { LastOrderPrefill } from "../api/queries";
 
-export type StoreOption = {
+export interface StoreOption {
+  address: string | null;
+  distance: number | null;
   id: string;
   name: string;
   openingHours: StoreSchedule | null;
-  address: string | null;
-  distance: number | null;
-};
+}
 
 type StoreWithDistance = Store & { distance?: number | null };
 
-type UseCheckoutFormProps = {
-  user?: User;
-  stores: Store[];
+interface UseCheckoutFormProps {
   lastOrderPrefill?: LastOrderPrefill | null;
   restrictedPickupDates: Set<string> | null;
-};
+  stores: Store[];
+  user?: User;
+}
 
 /**
  * Hook to manage checkout form state, effects, and submission.

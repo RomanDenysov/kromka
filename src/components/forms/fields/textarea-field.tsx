@@ -11,14 +11,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  placeholder?: string;
-  description?: string;
+interface Props<T extends FieldValues> {
   className?: string;
+  description?: string;
+  label?: string;
+  name: FieldPath<T>;
+  placeholder?: string;
   rows?: number;
-};
+}
 
 export function TextareaField<T extends FieldValues>({
   name,

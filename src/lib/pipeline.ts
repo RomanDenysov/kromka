@@ -54,7 +54,6 @@ export async function runPipeline<T>(
   }
 }
 
-
 export function fail(error: string, code: ErrorCode): StepResult<never> {
   return { ok: false, error, code };
 }

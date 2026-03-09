@@ -1,9 +1,9 @@
 import type { Route } from "next";
 
-type PolicyLink = {
-  label: string;
+interface PolicyLink {
   href: Route;
-};
+  label: string;
+}
 
 export const POLICY_LINKS: Record<string, PolicyLink> = {
   obchodnePodmienky: {

@@ -13,10 +13,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { analytics } from "@/lib/analytics";
 
-type Props = {
-  indicator: ReactNode;
+interface Props {
   children: ReactNode;
-};
+  indicator: ReactNode;
+}
 
 export function CartDrawer({ indicator, children }: Props) {
   const [open, setOpen] = useState(false);

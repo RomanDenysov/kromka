@@ -5,11 +5,11 @@ import { getUserById } from "@/features/user-management/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { UserDetailContent } from "./_components/user-detail-content";
 
-type Props = {
+interface Props {
   params: Promise<{
     id: string;
   }>;
-};
+}
 
 async function UserLoader({ params }: Props) {
   const { id } = await params;

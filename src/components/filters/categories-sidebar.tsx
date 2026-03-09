@@ -12,9 +12,9 @@ import { analytics } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { LinkStatus } from "../shared/link-status";
 
-type Props = {
+interface Props {
   categories: Promise<Category[]>;
-};
+}
 
 export function CategoriesSidebar({ categories }: Props) {
   const items = use(categories);

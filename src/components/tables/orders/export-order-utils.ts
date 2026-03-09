@@ -5,43 +5,43 @@ import type { Order } from "@/features/orders/api/queries";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import type { ExportColumnConfig } from "@/lib/export-utils";
 
-type OrderItemExportRow = {
-  orderNumber: string | null;
-  orderId: string;
-  orderStatus: Order["orderStatus"];
-  customerName: string | null;
+interface OrderItemExportRow {
   customerEmail: string | null;
+  customerName: string | null;
   customerPhone: string | null;
-  storeName: string | null;
+  lineTotalCents: number;
+  orderId: string;
+  orderNumber: string | null;
+  orderStatus: Order["orderStatus"];
   pickupDate: string | null;
   pickupTime: string | null;
   productId: string;
   productName: string;
   quantity: number;
+  storeName: string | null;
   unitPriceCents: number;
-  lineTotalCents: number;
-};
+}
 
-type BakingSheetRow = {
+interface BakingSheetRow {
   pickupDate: string;
   productName: string;
   totalQuantity: number;
-};
+}
 
-type FulfillmentRow = {
-  rowType: "order" | "item";
-  orderNumber: string;
+interface FulfillmentRow {
+  customerEmail: string;
   customerName: string;
   customerPhone: string;
-  customerEmail: string;
+  lineTotal: string;
+  orderNumber: string;
   pickupDate: string;
   pickupTime: string;
-  storeName: string;
   productName: string;
   quantity: string; // "3 ks" for order, "3" for item
+  rowType: "order" | "item";
+  storeName: string;
   unitPrice: string; // empty for order
-  lineTotal: string;
-};
+}
 
 function formatPrice(cents: number): string {
   return `${(cents / 100).toFixed(2)} EUR`;

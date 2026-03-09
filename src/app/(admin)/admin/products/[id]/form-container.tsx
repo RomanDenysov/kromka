@@ -8,10 +8,10 @@ import type { Category } from "@/features/categories/api/queries";
 import type { AdminProduct } from "@/features/products/api/queries";
 import { ProductForm } from "./_components/product-form";
 
-type Props = {
+interface Props {
   categories: Category[];
   product: AdminProduct;
-};
+}
 
 export function FormContainer({ categories, product }: Props) {
   const formId = useId();

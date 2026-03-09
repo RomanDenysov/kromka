@@ -1,9 +1,9 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
-type Props = {
+interface Props {
   className?: string;
-};
+}
 
 export function MetricCardSkeleton({ className }: Props) {
   return (

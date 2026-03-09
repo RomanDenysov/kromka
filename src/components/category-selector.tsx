@@ -17,11 +17,11 @@ import {
 import type { Category } from "@/features/categories/api/queries";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  value: string[];
-  onChange: (value: string[]) => void;
+interface Props {
   categories: Category[];
-};
+  onChange: (value: string[]) => void;
+  value: string[];
+}
 
 export function CategorySelector({ value, onChange, categories }: Props) {
   return (

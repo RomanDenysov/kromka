@@ -2,10 +2,10 @@ import type { Post } from "@/features/posts/api/queries";
 import { cn } from "@/lib/utils";
 import { BlogCard } from "./blog-card";
 
-type Props = {
-  posts: Post[];
+interface Props {
   className?: string;
-};
+  posts: Post[];
+}
 
 export function RelatedPosts({ posts, className }: Props) {
   if (posts.length === 0) {

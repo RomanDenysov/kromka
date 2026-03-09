@@ -41,9 +41,9 @@ export const metadata: Metadata = {
   ...defaultMetadata,
 };
 
-type Props = {
+interface Props {
   readonly children: ReactNode;
-};
+}
 
 export default function PublicLayout({ children }: Props) {
   preloadProducts();

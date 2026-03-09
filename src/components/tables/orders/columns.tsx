@@ -31,9 +31,10 @@ import {
 import { formatPrice } from "@/lib/utils";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
+// biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
 type OrdersTableMeta = {
-  onStatusChange: (id: string, status: OrderStatus) => Promise<void>;
   onPaymentStatusChange: (id: string, status: PaymentStatus) => Promise<void>;
+  onStatusChange: (id: string, status: OrderStatus) => Promise<void>;
 };
 
 export const columns: ColumnDef<Order>[] = [

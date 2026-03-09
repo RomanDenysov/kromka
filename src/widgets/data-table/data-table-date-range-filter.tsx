@@ -16,16 +16,16 @@ import {
 } from "@/components/ui/popover";
 import { useMounted } from "@/hooks/use-mounted";
 
-export type DateRangeFilterValue = {
+export interface DateRangeFilterValue {
   from: string;
   to: string;
-};
+}
 
-type DataTableDateRangeFilterProps = {
-  value: DateRangeFilterValue | undefined;
+interface DataTableDateRangeFilterProps {
   onChange: (value: DateRangeFilterValue | undefined) => void;
   title: string;
-};
+  value: DateRangeFilterValue | undefined;
+}
 
 export function DataTableDateRangeFilter({
   value,

@@ -15,13 +15,13 @@ import { formatCentsToPrice } from "@/lib/utils";
 const CURRENCY_SYMBOL = "€";
 const DECIMAL_SEPARATOR = ",";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
+interface Props<T extends FieldValues> {
   className?: string;
   description?: string;
+  label?: string;
+  name: FieldPath<T>;
   placeholder?: string;
-};
+}
 
 /** Formats cents to display string (e.g., 1250 → "12,50 €") */
 function formatDisplayValue(cents: number | undefined): string {
@@ -46,7 +46,9 @@ function parseInputToCents(input: string): number {
   return Math.round(price * 100);
 }
 
-type PriceInputInnerProps = {
+interface PriceInputInnerProps {
+  className?: string;
+  description?: string;
   field: {
     value: unknown;
     onChange: (value: number) => void;
@@ -55,10 +57,8 @@ type PriceInputInnerProps = {
   };
   isInvalid: boolean;
   label?: string;
-  className?: string;
-  description?: string;
   placeholder?: string;
-};
+}
 
 function PriceInputInner({
   field,

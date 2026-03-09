@@ -7,10 +7,10 @@ import StarterKit from "@tiptap/starter-kit";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  content: JSONContent | null;
+interface Props {
   className?: string;
-};
+  content: JSONContent | null;
+}
 
 // TipTap extensions for rendering (matches editor configuration)
 const extensions = [
@@ -22,7 +22,9 @@ const extensions = [
 
 export function PostContent({ content, className }: Props) {
   const html = useMemo(() => {
-    if (!content) return "";
+    if (!content) {
+      return "";
+    }
     try {
       // TipTap's generateHTML produces sanitized output from the trusted JSON schema
       // The content is stored as structured JSON and is admin-controlled

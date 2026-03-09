@@ -32,16 +32,16 @@ const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
 type MediaFolder = "products" | "categories" | "stores" | "posts";
 
-type Props = {
-  /** Current image URL to display */
-  imageUrl?: string | null;
+interface Props {
+  className?: string;
+  disabled?: boolean;
   /** Folder for organizing uploads */
   folder: MediaFolder;
+  /** Current image URL to display */
+  imageUrl?: string | null;
   /** Callback when image changes - receives media ID or null */
   onChange: (mediaId: string | null) => void;
-  disabled?: boolean;
-  className?: string;
-};
+}
 
 /**
  * Unified media input component for uploading and displaying images.

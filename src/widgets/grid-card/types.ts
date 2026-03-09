@@ -1,26 +1,26 @@
-import type { Route } from 'next'
+import type { Route } from "next";
 
-export type GridCardSize = 'small' | 'medium' | 'large' | 'hero' | 'banner'
+export type GridCardSize = "small" | "medium" | "large" | "hero" | "banner";
 
-export type GridCardProps = {
-  preload: boolean
-  title: string
-  subtitle?: string
-  href?: Route | null
-  image?: string
-  images?: string[]
-  video?: string
-  color?: string
-  size?: GridCardSize
-  className?: string
-  textColor?: string
-  autoplay?: boolean
-  autoplayDelay?: number
-  extraSpan?: number
-  externalLink?: boolean
+export interface GridCardProps {
+  autoplay?: boolean;
+  autoplayDelay?: number;
+  className?: string;
+  color?: string;
+  externalLink?: boolean;
+  extraSpan?: number;
+  href?: Route | null;
+  image?: string;
+  images?: string[];
+  preload: boolean;
+  size?: GridCardSize;
+  subtitle?: string;
+  textColor?: string;
+  title: string;
+  video?: string;
 }
 
-export type GridItemConfig = Omit<GridCardProps, 'preload'> & {
-  id: string
-  requiresFlag?: string
-}
+export type GridItemConfig = Omit<GridCardProps, "preload"> & {
+  id: string;
+  requiresFlag?: string;
+};

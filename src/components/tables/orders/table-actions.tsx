@@ -67,11 +67,11 @@ const SHEET_OPTIONS = [
 
 type SheetId = (typeof SHEET_OPTIONS)[number]["id"];
 
-type OrdersTableActionsProps = {
+interface OrdersTableActionsProps {
   filteredOrders: Order[];
-  selectedOrders: Order[];
   resetSelection: () => void;
-};
+  selectedOrders: Order[];
+}
 
 export function OrdersTableActions({
   filteredOrders,

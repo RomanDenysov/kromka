@@ -6,11 +6,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  url: string;
-  title: string;
+interface Props {
   className?: string;
-};
+  title: string;
+  url: string;
+}
 
 export function ShareButtons({ url, title, className }: Props) {
   const [copied, setCopied] = useState(false);

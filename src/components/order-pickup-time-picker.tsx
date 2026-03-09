@@ -10,13 +10,13 @@ import {
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
-type OrderPickupTimePickerProps = {
-  selectedTime: string;
+interface OrderPickupTimePickerProps {
+  disabled?: boolean;
   onTimeSelect: (time: string) => void;
+  selectedTime: string;
   /** Time range from store opening hours. Required to show time options. */
   timeRange: TimeRange | null;
-  disabled?: boolean;
-};
+}
 
 export function OrderPickupTimePicker({
   selectedTime,

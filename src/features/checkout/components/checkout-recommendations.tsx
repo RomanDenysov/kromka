@@ -6,10 +6,10 @@ import { ProductCard } from "@/features/products/components/product-card";
 const CHECKOUT_UPSELL_CATEGORY = "trvanlive-potraviny";
 const CHECKOUT_UPSELL_LIMIT = 4;
 
-type CheckoutRecommendationsProps = {
-  items: DetailedCartItem[];
+interface CheckoutRecommendationsProps {
   className?: string;
-};
+  items: DetailedCartItem[];
+}
 
 /**
  * Displays product recommendations at checkout.

@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-type Props = {
-  value: string;
+interface Props {
+  className?: string;
   onSearch: (value: string) => void;
   placeholder?: string;
-  className?: string;
-};
+  value: string;
+}
 
 export function DataTableSearch({
   value,

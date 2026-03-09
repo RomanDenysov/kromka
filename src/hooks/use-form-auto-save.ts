@@ -1,17 +1,17 @@
 import { type FocusEvent, useRef } from "react";
 
-type AutoSaveFormApi = {
+interface AutoSaveFormApi {
   handleSubmit: () => void;
   state: {
     isValid: boolean;
     isDirty: boolean;
     isSubmitting: boolean;
   };
-};
+}
 
-type UseFormAutoSaveOptions = {
+interface UseFormAutoSaveOptions {
   blurDelay?: number;
-};
+}
 
 export function useFormAutoSave(
   form: AutoSaveFormApi,

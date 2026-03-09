@@ -23,9 +23,9 @@ import { createMetadata } from "@/lib/metadata";
 import { getBlogPostingSchema, getBreadcrumbSchema } from "@/lib/seo/json-ld";
 import { getSiteUrl } from "@/lib/utils";
 
-type Props = {
+interface Props {
   params: Promise<{ slug: string }>;
-};
+}
 
 /**
  * Generate static params for all published blog posts.

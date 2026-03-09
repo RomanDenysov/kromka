@@ -38,13 +38,13 @@ export const postFormSchema = z.object({
 
 export type PostFormSchema = z.infer<typeof postFormSchema>;
 
-type Props = {
-  post: AdminPost;
-  tags: AdminTag[];
-  formId: string;
-  renderFooter: (props: { isPending: boolean }) => ReactNode;
+interface Props {
   className?: string;
-};
+  formId: string;
+  post: AdminPost;
+  renderFooter: (props: { isPending: boolean }) => ReactNode;
+  tags: AdminTag[];
+}
 
 export function PostForm({
   post,

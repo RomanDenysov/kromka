@@ -21,19 +21,19 @@ import {
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
 import { formatPrice } from "@/lib/utils";
 
-type Order = {
+interface Order {
+  createdAt: Date;
   id: string;
   orderNumber: string;
-  createdAt: Date;
   orderStatus: string;
   totalCents: number | null;
-};
+}
 
-type Props = {
+interface Props {
   recentOrders: Order[];
   totalOrders: number;
   userId: string;
-};
+}
 
 export function RecentOrdersCard({ recentOrders, totalOrders, userId }: Props) {
   return (

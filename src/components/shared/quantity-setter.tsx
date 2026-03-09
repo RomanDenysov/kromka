@@ -9,14 +9,14 @@ import { cn } from "@/lib/utils";
 
 const DEBOUNCE_DELAY = 400;
 
-type Props = {
+interface Props {
   id: string;
+  max?: number;
+  onUpdate?: (productId: string, qty: number) => Promise<void>;
   quantity: number;
   size?: "icon-xs" | "icon" | "icon-sm" | "icon-lg";
   textSize?: string;
-  max?: number;
-  onUpdate?: (productId: string, qty: number) => Promise<void>;
-};
+}
 
 /**
  * Quantity setter with debounced server sync.

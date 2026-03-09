@@ -9,12 +9,12 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-type Props = {
+interface Props {
   children: ReactNode;
+  description?: string;
   icon: LucideIcon;
   title?: string;
-  description?: string;
-};
+}
 
 export function TableEmptyState({
   children,

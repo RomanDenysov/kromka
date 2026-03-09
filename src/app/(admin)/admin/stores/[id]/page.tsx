@@ -5,11 +5,11 @@ import { getAdminStoreById } from "@/features/stores/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { StoreFormContainer } from "./_components/store-form-container";
 
-type Props = {
+interface Props {
   params: Promise<{
     id: string;
   }>;
-};
+}
 
 async function StoreLoader({ params }: Props) {
   const { id } = await params;

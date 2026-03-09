@@ -11,10 +11,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { getItemCountString } from "@/lib/item-count-string";
 import { cn, formatPrice } from "@/lib/utils";
 
-type Props = {
-  totals: { totalCents: number; totalQuantity: number };
+interface Props {
   children: ReactNode;
-};
+  totals: { totalCents: number; totalQuantity: number };
+}
 
 export function CheckoutList({ totals, children }: Props) {
   const isMobile = useIsMobile();

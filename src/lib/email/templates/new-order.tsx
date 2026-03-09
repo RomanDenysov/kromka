@@ -26,32 +26,32 @@ import {
   formatOrderCode,
 } from "./shared";
 
-type OrderSummaryProduct = {
-  title: string;
-  quantity: number;
+interface OrderSummaryProduct {
   priceCents: number;
-};
+  quantity: number;
+  title: string;
+}
 
-type CustomerDetails = {
-  name: string;
+interface CustomerDetails {
   email: string;
+  name: string;
   phone?: string | null;
-};
+}
 
-export type NewOrderEmailData = {
+export interface NewOrderEmailData {
+  customer: CustomerDetails;
+  logoUrl?: string;
   orderId: string;
   orderNumber: string | number;
   orderUrl: string;
+  paymentMethod: "in_store" | "card" | "invoice" | "other";
+  pickupDate: string;
   pickupPlace: string;
   pickupPlaceUrl?: string;
   pickupTime: string;
-  pickupDate: string;
-  paymentMethod: "in_store" | "card" | "invoice" | "other";
   products: OrderSummaryProduct[];
-  customer: CustomerDetails;
   supportEmail?: string;
-  logoUrl?: string;
-};
+}
 
 const labels: Record<string, string> = {
   in_store: "Na predajni",

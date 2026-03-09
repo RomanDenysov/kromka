@@ -4,11 +4,11 @@ import { getOrderById } from "@/features/orders/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { OrderDetail } from "./_components/order-detail";
 
-type Props = {
+interface Props {
   params: Promise<{
     id: string;
   }>;
-};
+}
 
 async function OrderLoader({ params }: Props) {
   const { id } = await params;

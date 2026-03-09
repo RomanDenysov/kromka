@@ -25,31 +25,31 @@ import {
   formatOrderCode,
 } from "./shared";
 
-type ReceiptProductLine = {
-  title: string;
-  quantity: number;
+interface ReceiptProductLine {
   priceCents: number;
-};
+  quantity: number;
+  title: string;
+}
 
-type FooterLink = {
+interface FooterLink {
   label: string;
   url: string;
-};
+}
 
-export type ReceiptEmailData = {
+export interface ReceiptEmailData {
   date: string;
-  orderId: string | number;
-  status: string;
-  method: "card" | "cash" | "store" | string;
-  products: ReceiptProductLine[];
-  pickupPlaceUrl?: string;
-  pickupPlace: string;
-  pickupDate: string;
-  pickupTime: string;
-  totalCents: number;
-  logoUrl?: string;
   footerLinks?: FooterLink[];
-};
+  logoUrl?: string;
+  method: "card" | "cash" | "store" | string;
+  orderId: string | number;
+  pickupDate: string;
+  pickupPlace: string;
+  pickupPlaceUrl?: string;
+  pickupTime: string;
+  products: ReceiptProductLine[];
+  status: string;
+  totalCents: number;
+}
 
 const paymentLabels: Record<string, string> = {
   card: "Platba kartou",

@@ -1,35 +1,39 @@
-'use client'
+"use client";
 
-import Autoplay from 'embla-carousel-autoplay'
-import useEmblaCarousel from 'embla-carousel-react'
-import Image from 'next/image'
-import { type MouseEvent, useCallback, useEffect, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { CardContent } from './card-content'
-import { CardWrapper } from './card-wrapper'
-import type { GridCardProps } from './types'
-import { getCardSizeClasses, getExtraSpanClass, getImageSizes } from './utils'
+import Autoplay from "embla-carousel-autoplay";
+import useEmblaCarousel from "embla-carousel-react";
+import Image from "next/image";
+import { type MouseEvent, useCallback, useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { CardContent } from "./card-content";
+import { CardWrapper } from "./card-wrapper";
+import type { GridCardProps } from "./types";
+import { getCardSizeClasses, getExtraSpanClass, getImageSizes } from "./utils";
 
-type CarouselControlsProps = {
-  images: string[]
-  currentIndex: number
-  onScrollTo: (index: number) => void
+interface CarouselControlsProps {
+  currentIndex: number;
+  images: string[];
+  onScrollTo: (index: number) => void;
 }
 
-function CarouselControls({ images, currentIndex, onScrollTo }: CarouselControlsProps) {
+function CarouselControls({
+  images,
+  currentIndex,
+  onScrollTo,
+}: CarouselControlsProps) {
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: needed to capture click
     // biome-ignore lint/a11y/noNoninteractiveElementInteractions: needed to capture click
     <div
       className="absolute top-4 right-4 z-20 flex gap-1.5"
       onClick={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
+        e.preventDefault();
+        e.stopPropagation();
       }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          e.stopPropagation()
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
         }
       }}
     >
@@ -37,34 +41,36 @@ function CarouselControls({ images, currentIndex, onScrollTo }: CarouselControls
         <button
           aria-label={`Go to slide ${index + 1}`}
           className={cn(
-            'h-2 rounded-full transition-all',
-            index === currentIndex ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/75',
+            "h-2 rounded-full transition-all",
+            index === currentIndex
+              ? "w-6 bg-white"
+              : "w-2 bg-white/50 hover:bg-white/75"
           )}
           key={imgSrc}
           onClick={(e: MouseEvent<HTMLButtonElement>) => {
-            e.preventDefault()
-            e.stopPropagation()
-            onScrollTo(index)
+            e.preventDefault();
+            e.stopPropagation();
+            onScrollTo(index);
           }}
           type="button"
         />
       ))}
     </div>
-  )
+  );
 }
 
-type GridCardCarouselProps = Omit<GridCardProps, 'image'> & {
-  images: string[]
-  preload: boolean
-  extraSpan?: number
-}
+type GridCardCarouselProps = Omit<GridCardProps, "image"> & {
+  images: string[];
+  preload: boolean;
+  extraSpan?: number;
+};
 
 export function GridCardCarousel({
   title,
   subtitle,
   href,
   images,
-  size = 'medium',
+  size = "medium",
   className,
   textColor,
   autoplay = true,
@@ -81,43 +87,46 @@ export function GridCardCarousel({
           stopOnMouseEnter: true,
         }),
       ]
-    : []
+    : [];
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 20 }, plugins)
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, duration: 20 },
+    plugins
+  );
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const imageSizes = getImageSizes(size)
+  const imageSizes = getImageSizes(size);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) {
-      return
+      return;
     }
-    setCurrentIndex(emblaApi.selectedScrollSnap())
-  }, [emblaApi])
+    setCurrentIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
 
   useEffect(() => {
     if (!emblaApi) {
-      return
+      return;
     }
-    onSelect()
-    emblaApi.on('select', onSelect)
-    emblaApi.on('reInit', onSelect)
-  }, [emblaApi, onSelect])
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+  }, [emblaApi, onSelect]);
 
   const scrollTo = useCallback(
     (index: number) => {
-      emblaApi?.scrollTo(index)
+      emblaApi?.scrollTo(index);
     },
-    [emblaApi],
-  )
+    [emblaApi]
+  );
 
   return (
     <CardWrapper
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-lg transition-transform',
+        "group relative flex flex-col overflow-hidden rounded-lg transition-transform",
         getCardSizeClasses(size),
         getExtraSpanClass(size, extraSpan),
-        className,
+        className
       )}
       external={externalLink}
       href={href}
@@ -132,7 +141,7 @@ export function GridCardCarousel({
                 className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                 decoding="sync"
                 fill
-                loading={index === 0 && preload ? 'eager' : 'lazy'}
+                loading={index === 0 && preload ? "eager" : "lazy"}
                 sizes={imageSizes}
                 src={img}
               />
@@ -143,7 +152,11 @@ export function GridCardCarousel({
       </div>
 
       {/* Carousel controls */}
-      <CarouselControls currentIndex={currentIndex} images={images} onScrollTo={scrollTo} />
+      <CarouselControls
+        currentIndex={currentIndex}
+        images={images}
+        onScrollTo={scrollTo}
+      />
 
       {/* Content */}
       <CardContent
@@ -155,5 +168,5 @@ export function GridCardCarousel({
         title={title}
       />
     </CardWrapper>
-  )
+  );
 }

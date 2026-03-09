@@ -20,9 +20,9 @@ import { Separator } from "@/components/ui/separator";
 import type { User } from "@/features/user-management/api/queries";
 import { getInitials } from "@/lib/utils";
 
-type Props = {
+interface Props {
   user: NonNullable<User>;
-};
+}
 
 export function UserProfileCard({ user }: Props) {
   const isBanned = user.banned ?? false;

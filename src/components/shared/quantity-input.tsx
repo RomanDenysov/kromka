@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 
-type Props = {
+interface Props {
   id: string;
-  value: number;
   max: number;
   min: number;
   onChange: (value: number) => void;
-};
+  value: number;
+}
 
 export function QuantityInput({ id, value, max, min, onChange }: Props) {
   return (

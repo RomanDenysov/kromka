@@ -80,11 +80,11 @@ export type DecorationKey =
   | "window_decor";
 
 export interface Decoration {
+  height: number;
   key: DecorationKey;
+  width: number;
   x: number;
   y: number;
-  width: number;
-  height: number;
 }
 
 export const DECORATIONS: Decoration[] = [

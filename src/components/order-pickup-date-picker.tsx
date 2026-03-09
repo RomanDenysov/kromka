@@ -26,13 +26,13 @@ import {
   isStoreClosed,
 } from "@/features/checkout/utils";
 
-type OrderPickupDatePickerProps = {
-  selectedDate: Date | undefined;
+interface OrderPickupDatePickerProps {
   onDateSelect: (date: Date) => void;
-  storeSchedule: StoreSchedule | null;
   /** Restricted dates from cart categories. Null = no restrictions */
   restrictedDates?: Set<string> | null;
-};
+  selectedDate: Date | undefined;
+  storeSchedule: StoreSchedule | null;
+}
 
 export function OrderPickupDatePicker({
   selectedDate,

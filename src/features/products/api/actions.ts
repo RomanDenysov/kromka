@@ -7,8 +7,8 @@ import { db } from "@/db";
 import { prices, products } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
 import {
-  updateProductSchema,
   type UpdateProductSchema,
+  updateProductSchema,
 } from "@/features/products/schema";
 import { requireAdmin } from "@/lib/auth/guards";
 

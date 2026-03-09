@@ -37,11 +37,11 @@ import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
 import { ProductRecommendations } from "./product-recommendations";
 
-type Props = {
+interface Props {
   params: Promise<{
     slug: string;
   }>;
-};
+}
 
 export async function generateStaticParams() {
   const allProducts = await getProducts();

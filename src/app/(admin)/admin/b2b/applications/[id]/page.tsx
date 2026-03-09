@@ -7,11 +7,11 @@ import { getB2bApplicationById } from "@/features/b2b/applications/api/queries";
 import { getPriceTiers } from "@/features/b2b/price-tiers/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
-type Props = {
+interface Props {
   params: Promise<{
     id: string;
   }>;
-};
+}
 
 async function ApplicationDetailLoader({ params }: Props) {
   const { id } = await params;

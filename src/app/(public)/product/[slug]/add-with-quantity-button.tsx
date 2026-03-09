@@ -13,9 +13,9 @@ import { addToCart } from "@/features/cart/api/actions";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { analytics } from "@/lib/analytics";
 
-type Props = {
-  id: string;
+interface Props {
   disabled: boolean;
+  id: string;
   max?: number;
   product?: {
     name: string;
@@ -23,7 +23,7 @@ type Props = {
     category: string;
     categoryId: string;
   };
-};
+}
 
 export function AddWithQuantityButton({
   id,

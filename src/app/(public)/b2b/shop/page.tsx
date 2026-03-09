@@ -27,9 +27,9 @@ import {
 import { requireB2bMember } from "@/lib/auth/guards";
 import { defaultMetadata } from "@/lib/metadata";
 
-type Props = {
+interface Props {
   searchParams: Promise<SearchParams>;
-};
+}
 
 export const metadata: Metadata = {
   ...defaultMetadata,

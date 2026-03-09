@@ -8,12 +8,12 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
+interface Props<T extends FieldValues> {
   label?: string;
   max?: number;
   min?: number;
-};
+  name: FieldPath<T>;
+}
 
 export function QuantitySetterField<T extends FieldValues>({
   name,

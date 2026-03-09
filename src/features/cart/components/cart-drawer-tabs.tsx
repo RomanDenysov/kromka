@@ -1,19 +1,14 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type Props = {
-  b2cContent: ReactNode;
-  b2cFooter: ReactNode;
+interface Props {
   b2bContent: ReactNode;
   b2bFooter: ReactNode;
-};
+  b2cContent: ReactNode;
+  b2cFooter: ReactNode;
+}
 
 export function CartDrawerTabs({
   b2cContent,

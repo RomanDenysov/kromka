@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/field";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-type Props<T extends FieldValues> = {
-  name: FieldPath<T>;
-  label?: string;
-  description?: string;
+interface Props<T extends FieldValues> {
   className?: string;
-};
+  description?: string;
+  label?: string;
+  name: FieldPath<T>;
+}
 
 export function DaysToggleField<T extends FieldValues>({
   name,

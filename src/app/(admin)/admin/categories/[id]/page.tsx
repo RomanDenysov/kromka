@@ -4,11 +4,11 @@ import { getAdminCategoryById } from "@/features/categories/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { CategoryFormContainer } from "./_components/category-form-container";
 
-type Props = {
+interface Props {
   params: Promise<{
     id: string;
   }>;
-};
+}
 
 async function CategoryLoader({ params }: Props) {
   const { id } = await params;

@@ -40,13 +40,13 @@ import { CheckoutAlerts, PickupDateAlerts } from "./checkout-alerts";
 import { CheckoutCtaLogin } from "./checkout-cta-login";
 import { CheckoutMobileFooter } from "./checkout-mobile-footer";
 
-type CheckoutFormProps = {
-  user?: User;
-  stores: Store[];
+interface CheckoutFormProps {
   items: DetailedCartItem[];
-  ordersEnabled: boolean;
   lastOrderPrefill?: LastOrderPrefill | null;
-};
+  ordersEnabled: boolean;
+  stores: Store[];
+  user?: User;
+}
 
 export function CheckoutForm({
   user,

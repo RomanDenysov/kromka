@@ -32,11 +32,11 @@ const AddressAutocompleteField = dynamic(
   }
 );
 
-type Props = {
-  store: AdminStore;
+interface Props {
   children: (props: { isPending: boolean }) => ReactNode;
   className?: string;
-};
+  store: AdminStore;
+}
 
 export function StoreForm({ store, children, className }: Props) {
   const formRef = useRef<HTMLFormElement>(null);

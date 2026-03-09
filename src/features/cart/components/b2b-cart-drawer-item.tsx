@@ -11,9 +11,9 @@ import type { DetailedCartItem } from "@/features/cart/api/queries";
 import { RemoveItemButton } from "@/features/checkout/components/remove-item-button";
 import { formatPrice } from "@/lib/utils";
 
-type Props = {
+interface Props {
   item: DetailedCartItem;
-};
+}
 
 export function B2bCartDrawerItem({ item }: Props) {
   return (

@@ -7,11 +7,11 @@ import {
 } from "@/components/ui/card";
 import { formatPrice } from "@/lib/utils";
 
-type Props = {
+interface Props {
+  promoCodeUsages: number;
   totalOrders: number;
   totalSpent: number;
-  promoCodeUsages: number;
-};
+}
 
 export function OrderStatisticsCard({
   totalOrders,

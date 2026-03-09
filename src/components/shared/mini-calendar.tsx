@@ -17,13 +17,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 // Context for sharing state between components
-type MiniCalendarContextType = {
-  selectedDate: Date | null | undefined;
-  onDateSelect: (date: Date) => void;
-  startDate: Date;
-  onNavigate: (direction: "prev" | "next") => void;
+interface MiniCalendarContextType {
   days: number;
-};
+  onDateSelect: (date: Date) => void;
+  onNavigate: (direction: "prev" | "next") => void;
+  selectedDate: Date | null | undefined;
+  startDate: Date;
+}
 
 const MiniCalendarContext = createContext<MiniCalendarContextType | null>(null);
 

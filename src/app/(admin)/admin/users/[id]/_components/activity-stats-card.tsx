@@ -10,11 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { User } from "@/features/user-management/api/queries";
 import { formatPrice } from "@/lib/utils";
 
-type Props = {
-  user: NonNullable<User>;
+interface Props {
   totalOrders: number;
   totalSpent: number;
-};
+  user: NonNullable<User>;
+}
 
 export function ActivityStatsCard({ user, totalOrders, totalSpent }: Props) {
   return (

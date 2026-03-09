@@ -3,10 +3,10 @@ import { Separator } from "@/components/ui/separator";
 import { TOOLBAR_VARIANTS, type ToolbarVariant } from "./toolbar-config";
 import { TOOLBAR_COMPONENTS } from "./toolbar-items";
 
-type Props = {
+interface Props {
   editor: Editor;
   variant: ToolbarVariant;
-};
+}
 
 export function Toolbar({ editor, variant }: Props) {
   const items = TOOLBAR_VARIANTS[variant];

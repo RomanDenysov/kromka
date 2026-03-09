@@ -34,10 +34,10 @@ import {
   updateOrganizationSchema,
 } from "@/validation/b2b";
 
-type Props = {
+interface Props {
   organization: OrganizationDetail;
   priceTiers: PriceTier[];
-};
+}
 
 function formatAddress(address: OrganizationDetail["billingAddress"]) {
   if (!address) {

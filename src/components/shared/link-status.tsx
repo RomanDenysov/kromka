@@ -3,10 +3,10 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Spinner } from "../ui/spinner";
 
-type Props = {
+interface Props {
   children: ReactNode;
   variant?: "spinner" | "dots" | "pulse" | "shimmer" | "underline" | "fade";
-};
+}
 export function LinkStatus({ children, variant }: Props) {
   const { pending } = useLinkStatus();
 
