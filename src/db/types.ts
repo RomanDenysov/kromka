@@ -108,6 +108,17 @@ export interface ProductSnapshot {
   price: number;
 }
 
+// === Order Status Subsets ===
+/** Statuses where users can still modify their orders (cancel, change pickup) */
+export const MODIFIABLE_ORDER_STATUSES: OrderStatus[] = ["new", "in_progress"];
+
+/** Terminal statuses - orders that are no longer active */
+export const TERMINAL_ORDER_STATUSES: OrderStatus[] = [
+  "completed",
+  "cancelled",
+  "refunded",
+];
+
 // === Constants ===
 export const DEFAULT_PAYMENT_TERM_DAYS = 14;
 

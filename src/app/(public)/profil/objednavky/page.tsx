@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
-import { MapPinIcon, PackageIcon } from "lucide-react";
+import { ChevronRightIcon, MapPinIcon, PackageIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -64,85 +64,92 @@ async function ObjednavkyPageContent() {
       ) : (
         <div className="flex flex-col gap-4">
           {orders.map((order) => (
-            <Card key={order.id}>
-              <CardHeader className="pb-3">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <CardTitle className="text-base">
-                      Objednávka #{order.orderNumber}
-                    </CardTitle>
-                    <CardDescription>
-                      {format(order.createdAt, "d. MMMM yyyy 'o' HH:mm", {
-                        locale: sk,
-                      })}
-                    </CardDescription>
+            <Link href={`/profil/objednavky/${order.id}`} key={order.id}>
+              <Card className="transition-colors hover:border-foreground/20">
+                <CardHeader className="pb-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <CardTitle className="text-base">
+                        Objednávka #{order.orderNumber}
+                      </CardTitle>
+                      <CardDescription>
+                        {format(order.createdAt, "d. MMMM yyyy 'o' HH:mm", {
+                          locale: sk,
+                        })}
+                      </CardDescription>
+                    </div>
+                    <Badge
+                      variant={
+                        ORDER_STATUS_VARIANTS[order.orderStatus] ?? "default"
+                      }
+                    >
+                      {ORDER_STATUS_LABELS[order.orderStatus] ??
+                        order.orderStatus}
+                    </Badge>
                   </div>
-                  <Badge
-                    variant={
-                      ORDER_STATUS_VARIANTS[order.orderStatus] ?? "default"
-                    }
-                  >
-                    {ORDER_STATUS_LABELS[order.orderStatus] ??
-                      order.orderStatus}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col gap-4">
-                  {/* Store info */}
-                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                    <MapPinIcon className="size-4" />
-                    <span>{order.store?.name ?? "Neurčená predajňa"}</span>
-                    {order.pickupDate && (
-                      <>
-                        <span>•</span>
-                        <span>
-                          Vyzdvihnutie:{" "}
-                          {format(order.pickupDate, "d. MMM", { locale: sk })}{" "}
-                          {order.pickupTime}
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Order items */}
-                  <div className="flex flex-col gap-2">
-                    {order.items
-                      .slice(0, RECENT_ORDER_ITEMS_COUNT)
-                      .map((item) => (
-                        <div
-                          className="flex items-center justify-between text-sm"
-                          key={item.productId}
-                        >
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col gap-4">
+                    {/* Store info */}
+                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                      <MapPinIcon className="size-4" />
+                      <span>{order.store?.name ?? "Neurčená predajňa"}</span>
+                      {order.pickupDate && (
+                        <>
+                          <span>-</span>
                           <span>
-                            {item.quantity}×{" "}
-                            {item.productSnapshot?.name ??
-                              item.product?.name ??
-                              "Produkt"}
+                            Vyzdvihnutie:{" "}
+                            {format(order.pickupDate, "d. MMM", {
+                              locale: sk,
+                            })}{" "}
+                            {order.pickupTime}
                           </span>
-                          <span className="text-muted-foreground">
-                            {formatPrice(item.price * item.quantity)}
-                          </span>
-                        </div>
-                      ))}
-                    {order.items.length > RECENT_ORDER_ITEMS_COUNT && (
-                      <span className="text-muted-foreground text-sm">
-                        +{order.items.length - RECENT_ORDER_ITEMS_COUNT} ďalších
-                        položiek
-                      </span>
-                    )}
-                  </div>
+                        </>
+                      )}
+                    </div>
 
-                  {/* Total and action */}
-                  <div className="flex items-center justify-between border-t pt-3">
-                    <span className="font-semibold">Celkom</span>
-                    <span className="font-bold text-lg">
-                      {formatPrice(order.totalCents)}
-                    </span>
+                    {/* Order items */}
+                    <div className="flex flex-col gap-2">
+                      {order.items
+                        .slice(0, RECENT_ORDER_ITEMS_COUNT)
+                        .map((item) => (
+                          <div
+                            className="flex items-center justify-between text-sm"
+                            key={item.productId}
+                          >
+                            <span>
+                              {item.quantity}x{" "}
+                              {item.productSnapshot?.name ??
+                                item.product?.name ??
+                                "Produkt"}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {formatPrice(item.price * item.quantity)}
+                            </span>
+                          </div>
+                        ))}
+                      {order.items.length > RECENT_ORDER_ITEMS_COUNT && (
+                        <span className="text-muted-foreground text-sm">
+                          +{order.items.length - RECENT_ORDER_ITEMS_COUNT}{" "}
+                          ďalších položiek
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Total and action */}
+                    <div className="flex items-center justify-between border-t pt-3">
+                      <span className="font-semibold">Celkom</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-lg">
+                          {formatPrice(order.totalCents)}
+                        </span>
+                        <ChevronRightIcon className="size-5 text-muted-foreground" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
