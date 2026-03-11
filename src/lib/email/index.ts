@@ -7,7 +7,9 @@ import { renderB2BApplicationEmail } from "./templates/b2b-application";
 
 import { renderMagicLink } from "./templates/magic-link";
 import { renderNewOrderEmail } from "./templates/new-order";
+import { renderOrderCancelledEmail } from "./templates/order-cancelled";
 import { renderOrderConfirmationEmail } from "./templates/order-confirmation";
+import { renderOrderPickupUpdatedEmail } from "./templates/order-pickup-updated";
 import { renderOrderReadyEmail } from "./templates/order-ready";
 import { renderOutOfStockEmail } from "./templates/out-of-stock";
 import { renderReceiptEmail } from "./templates/receipt";
@@ -386,5 +388,72 @@ export const sendEmail = {
       subject: `Nová B2B žiadosť od ${companyName}`,
       html,
     });
+  },
+
+  orderCancelled: async ({
+    order,
+    reason,
+  }: {
+    order: Order;
+    reason?: string;
+  }) => {
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    const customerEmail = getCustomerEmail(order);
+
+    const html = await renderOrderCancelledEmail({
+      orderId: order.orderNumber,
+      pickupPlace: order.store?.name ?? "Neurčené",
+      pickupDate: formatPickupDate(order.pickupDate),
+      reason,
+    });
+
+    await Promise.all([
+      emailService({
+        from: `"Kromka" <${env.EMAIL_USER}>`,
+        to: customerEmail,
+        subject: `Objednávka ${order.orderNumber} bola zrušená - Kromka`,
+        html,
+      }),
+      emailService({
+        from: `"Kromka" <${env.EMAIL_USER}>`,
+        to: STAFF_EMAIL,
+        subject: `Zákazník zrušil objednávku ${order.orderNumber}`,
+        html,
+      }),
+    ]);
+  },
+
+  orderPickupUpdated: async ({ order }: { order: Order }) => {
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    const customerEmail = getCustomerEmail(order);
+
+    const html = await renderOrderPickupUpdatedEmail({
+      orderId: order.orderNumber,
+      pickupPlace: order.store?.name ?? "Neurčené",
+      pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
+      pickupDate: formatPickupDate(order.pickupDate),
+      pickupTime: order.pickupTime ?? "Neurčený čas",
+    });
+
+    await Promise.all([
+      emailService({
+        from: `"Kromka" <${env.EMAIL_USER}>`,
+        to: customerEmail,
+        subject: `Zmena vyzdvihnutia objednávky ${order.orderNumber} - Kromka`,
+        html,
+      }),
+      emailService({
+        from: `"Kromka" <${env.EMAIL_USER}>`,
+        to: STAFF_EMAIL,
+        subject: `Zákazník zmenil vyzdvihnutie objednávky ${order.orderNumber}`,
+        html,
+      }),
+    ]);
   },
 };
