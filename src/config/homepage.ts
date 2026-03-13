@@ -21,7 +21,7 @@ type PageConfig = Record<SectionName, Config>;
 export const homepageConfig: PageConfig = {
   hero: {
     main: {
-      image: "/images/kromka-vianoce-hero-min.webp",
+      image: "/images/easter-hero.webp",
       title: "S láskou ku kvásku",
       description:
         "V Kromke to vonia čerstvým kváskovým chlebom, koláčmi a kávou, a teraz sme aj online! Vitajte na našom eshope, veríme, že si nájdete lakocinky podľa svojej chuti.",
