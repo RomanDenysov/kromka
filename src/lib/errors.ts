@@ -19,6 +19,7 @@ export const ERROR_CODES = {
   STORE_INACTIVE: "STORE_INACTIVE",
   INVALID_PRODUCTS: "INVALID_PRODUCTS",
   INVALID_PAYMENT_METHOD: "INVALID_PAYMENT_METHOD",
+  PRICE_CHANGED: "PRICE_CHANGED",
 
   // B2B
   B2B_AUTH_REQUIRED: "B2B_AUTH_REQUIRED",
@@ -51,6 +52,7 @@ export const ERROR_MESSAGES: Record<ErrorCode, string> = {
   STORE_INACTIVE: "Predajňa je zatvorená",
   INVALID_PRODUCTS: "Niektoré produkty nie sú dostupné",
   INVALID_PAYMENT_METHOD: "Neplatný spôsob platby",
+  PRICE_CHANGED: "Cena sa zmenila. Obnovte stránku a skúste znova.",
 
   B2B_AUTH_REQUIRED: "Vyžaduje sa B2B prihlásenie",
   APPLICATION_EXISTS: "Žiadosť už existuje",

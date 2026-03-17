@@ -33,11 +33,12 @@ type CreateOrderResult =
  * Rejects invoice payment method (B2C only: in_store, card).
  */
 export async function createB2COrder(data: {
-  storeId: string;
+  customerInfo: GuestCustomerInfo;
+  expectedTotalCents?: number;
+  paymentMethod: string;
   pickupDate: string;
   pickupTime: string;
-  paymentMethod: string;
-  customerInfo: GuestCustomerInfo;
+  storeId: string;
 }): Promise<CreateOrderResult> {
   try {
     const result = await runPipeline(async () => {
@@ -71,6 +72,17 @@ export async function createB2COrder(data: {
         0
       );
 
+      if (
+        data.expectedTotalCents !== undefined &&
+        data.expectedTotalCents !== totalCents
+      ) {
+        guard(
+          false,
+          "Cena sa zmenila. Obnovte stránku a skúste znova.",
+          "PRICE_CHANGED"
+        );
+      }
+
       const user = await getUser();
 
       const { orderId, orderNumber } = await persistOrder({
@@ -95,6 +107,11 @@ export async function createB2COrder(data: {
     });
 
     if (!result.ok) {
+      captureServerEvent(data.customerInfo.email, "order_creation_failed", {
+        reason: result.code,
+        error: result.error,
+        is_b2b: false,
+      }).catch(() => undefined);
       return { success: false, error: result.error };
     }
 

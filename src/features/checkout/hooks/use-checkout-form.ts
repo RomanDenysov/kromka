@@ -34,6 +34,7 @@ export interface StoreOption {
 type StoreWithDistance = Store & { distance?: number | null };
 
 interface UseCheckoutFormProps {
+  expectedTotalCents: number;
   lastOrderPrefill?: LastOrderPrefill | null;
   restrictedPickupDates: Set<string> | null;
   stores: Store[];
@@ -49,6 +50,7 @@ export function useCheckoutForm({
   stores,
   lastOrderPrefill,
   restrictedPickupDates,
+  expectedTotalCents,
 }: UseCheckoutFormProps) {
   const router = useRouter();
 
@@ -192,6 +194,7 @@ export function useCheckoutForm({
           "invoice"
         >,
         customerInfo,
+        expectedTotalCents,
       });
 
       if (result.success) {

@@ -71,6 +71,12 @@ export function CheckoutForm({
   // Get pickup date restrictions from cart items
   const { restrictedPickupDates } = usePickupRestrictions(items);
 
+  // Calculate total price (before hook so it can be passed as expectedTotalCents)
+  const totalCents = items.reduce(
+    (acc, item) => acc + item.priceCents * item.quantity,
+    0
+  );
+
   // Initialize checkout form with all dependencies
   const {
     form,
@@ -85,13 +91,8 @@ export function CheckoutForm({
     stores: storesWithDistance,
     lastOrderPrefill,
     restrictedPickupDates,
+    expectedTotalCents: totalCents,
   });
-
-  // Calculate total price
-  const totalCents = items.reduce(
-    (acc, item) => acc + item.priceCents * item.quantity,
-    0
-  );
 
   // Track checkout started on mount
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally fire once on mount

@@ -1,5 +1,5 @@
 import { isBefore, isSameDay, startOfToday } from "date-fns";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   orderItems,
@@ -8,7 +8,7 @@ import {
   products,
   stores,
 } from "@/db/schema";
-import type { Address, PaymentMethod } from "@/db/types";
+import type { Address, PaymentMethod, ProductSnapshot } from "@/db/types";
 import {
   clearB2bCart,
   clearCart,
@@ -16,7 +16,7 @@ import {
   getCart,
 } from "@/features/cart/cookies";
 import { sendEmail } from "@/lib/email";
-import { createPrefixedNumericId } from "@/lib/ids";
+import { createOrderNumber, createPrefixedId } from "@/lib/ids";
 import { log } from "@/lib/logger";
 import { fail, guard, type StepResult, succeed } from "@/lib/pipeline";
 import { getEffectivePrices } from "@/lib/pricing";
@@ -25,7 +25,7 @@ import { getOrderById } from "../api/queries";
 export interface OrderItemData {
   price: number;
   productId: string;
-  productSnapshot: { name: string; price: number };
+  productSnapshot: ProductSnapshot;
   quantity: number;
 }
 
@@ -78,7 +78,7 @@ export async function buildOrderItems(
       eq(products.status, "active")
     ),
     with: {
-      category: { columns: { isActive: true } },
+      category: { columns: { isActive: true, name: true } },
     },
   });
 
@@ -118,7 +118,13 @@ export async function buildOrderItems(
     return [
       {
         productId: item.productId,
-        productSnapshot: { name: product.name, price: effectivePrice },
+        productSnapshot: {
+          name: product.name,
+          price: effectivePrice,
+          categoryName: product.category?.name ?? null,
+          basePriceCents: product.priceCents,
+          effectivePriceCents: effectivePrice,
+        },
         price: effectivePrice,
         quantity: item.qty,
       },
@@ -171,8 +177,12 @@ interface PersistOrderParams {
   userId: string | null;
 }
 
+const MAX_PERSIST_ATTEMPTS = 2;
+
 /**
- * Persist order to database: create order, items, and status event.
+ * Persist order to database atomically via CTE.
+ * Creates order, items, and initial status event in a single SQL statement.
+ * Retries once on order number collision (unique constraint violation).
  */
 export async function persistOrder(params: PersistOrderParams): Promise<{
   orderId: string;
@@ -184,39 +194,74 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
     "INVALID_PRODUCTS"
   );
 
-  const orderNumber = createPrefixedNumericId("OBJ");
+  for (let attempt = 0; attempt < MAX_PERSIST_ATTEMPTS; attempt++) {
+    const orderId = createPrefixedId("ord");
+    const orderNumber = createOrderNumber("OBJ");
+    const eventId = createPrefixedId("ose");
 
-  const [order] = await db
-    .insert(orders)
-    .values({
-      orderNumber,
-      createdBy: params.userId,
-      customerInfo: params.customerInfo,
-      storeId: params.storeId,
-      companyId: params.companyId,
-      deliveryAddress: params.deliveryAddress ?? null,
-      orderStatus: "new",
-      paymentStatus: "pending",
-      paymentMethod: params.paymentMethod,
-      pickupDate: params.pickupDate,
-      pickupTime: params.pickupTime,
-      totalCents: params.totalCents,
-    })
-    .returning();
-
-  await db
-    .insert(orderItems)
-    .values(
-      params.orderItemsData.map((item) => ({ ...item, orderId: order.id }))
+    const itemValues = params.orderItemsData.map(
+      (item) =>
+        sql`(${item.productId}::text, ${JSON.stringify(item.productSnapshot)}::jsonb, ${item.quantity}::integer, ${item.price}::integer)`
     );
 
-  await db.insert(orderStatusEvents).values({
-    orderId: order.id,
-    status: "new",
-    createdBy: params.userId,
-  });
+    const query = sql`
+      WITH new_order AS (
+        INSERT INTO ${orders} (
+          ${orders.id}, ${orders.orderNumber}, ${orders.createdBy},
+          ${orders.customerInfo}, ${orders.storeId}, ${orders.companyId},
+          ${orders.deliveryAddress}, ${orders.orderStatus}, ${orders.paymentStatus},
+          ${orders.paymentMethod}, ${orders.totalCents}, ${orders.pickupDate},
+          ${orders.pickupTime}
+        )
+        VALUES (
+          ${orderId}, ${orderNumber}, ${params.userId},
+          ${JSON.stringify(params.customerInfo)}::jsonb, ${params.storeId}, ${params.companyId},
+          ${params.deliveryAddress ? JSON.stringify(params.deliveryAddress) : null}::jsonb,
+          'new', 'pending', ${params.paymentMethod}, ${params.totalCents},
+          ${params.pickupDate}::date, ${params.pickupTime}
+        )
+        RETURNING ${orders.id}, ${orders.orderNumber}
+      ),
+      new_items AS (
+        INSERT INTO ${orderItems} (
+          ${orderItems.orderId}, ${orderItems.productId},
+          ${orderItems.productSnapshot}, ${orderItems.quantity}, ${orderItems.price}
+        )
+        SELECT new_order.id, v.product_id, v.snapshot, v.qty, v.price
+        FROM new_order, (VALUES ${sql.join(itemValues, sql`, `)}) AS v(product_id, snapshot, qty, price)
+        RETURNING 1
+      ),
+      new_event AS (
+        INSERT INTO ${orderStatusEvents} (
+          ${orderStatusEvents.id}, ${orderStatusEvents.orderId},
+          ${orderStatusEvents.status}, ${orderStatusEvents.createdBy}
+        )
+        SELECT ${eventId}, new_order.id, 'new', ${params.userId}
+        FROM new_order
+        RETURNING 1
+      )
+      SELECT id, order_number FROM new_order
+    `;
 
-  return { orderId: order.id, orderNumber };
+    try {
+      await db.execute(query);
+      return { orderId, orderNumber };
+    } catch (error) {
+      const isCollision =
+        (error as { code?: string })?.code === "23505" &&
+        attempt < MAX_PERSIST_ATTEMPTS - 1;
+      if (isCollision) {
+        log.orders.warn(
+          { orderNumber },
+          "Order number collision, retrying with new ID"
+        );
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  throw new Error("Failed to persist order after retries");
 }
 
 /**
@@ -232,7 +277,7 @@ export async function notifyOrderCreated(orderId: string): Promise<void> {
     return;
   }
 
-  // Send emails independently — one failure shouldn't block the other
+  // Send emails independently - one failure shouldn't block the other
   const results = await Promise.allSettled([
     sendEmail.newOrder({ order: fullOrder }),
     sendEmail.receipt({ order: fullOrder }),

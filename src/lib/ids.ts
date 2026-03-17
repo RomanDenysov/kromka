@@ -6,6 +6,7 @@ const PREFIX_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
 const RANDOM_NUMBER_LENGTH = 5;
 const RANDOM_NUMBER_MAX = 100_000;
+const orderSuffixId = init({ length: 8 });
 export const createId = _createId;
 export const createShortId = shortId;
 
@@ -81,6 +82,23 @@ export function createPrefixedNumericId(
     );
   }
   return `${prefix.toUpperCase()}-${createNumericId(timezone)}`;
+}
+
+/**
+ * Creates a prefixed order number with CUID2 suffix for collision resistance.
+ * Format: {prefix}-YYYYMMDD-{cuid2} (e.g., OBJ-20250605-a1b2c3d4)
+ * ~2.8 trillion combinations per day vs 100k with numeric suffix.
+ */
+export function createOrderNumber(
+  prefix: string,
+  timezone = "Europe/Bratislava"
+): string {
+  const now = new Date();
+  const dateStr = now
+    .toLocaleDateString("sv-SE", { timeZone: timezone })
+    .replace(/-/g, "");
+
+  return `${prefix.toUpperCase()}-${dateStr}-${orderSuffixId()}`;
 }
 
 /**
