@@ -55,7 +55,7 @@ export function CheckoutAlerts({
             {Object.keys(formErrors).length > 1 && (
               <span className="text-xs">
                 {" "}
-                a {Object.keys(formErrors).length - 1} ďalších chybách
+                a {Object.keys(formErrors).length - 1} ďalších chýb
               </span>
             )}
           </AlertDescription>

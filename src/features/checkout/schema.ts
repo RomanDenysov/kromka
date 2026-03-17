@@ -35,8 +35,11 @@ const phoneSchema = z
 
 /** Schema for user/guest contact info */
 export const userInfoSchema = z.object({
-  name: z.string().min(1, "Meno je povinné").max(MAX_NAME_LENGTH),
-  email: z.string().email("Neplatná emailová adresa").max(MAX_EMAIL_LENGTH),
+  name: z.string().trim().min(1, "Meno je povinné").max(MAX_NAME_LENGTH),
+  email: z
+    .email({ message: "Neplatná emailová adresa" })
+    .trim()
+    .max(MAX_EMAIL_LENGTH),
   phone: phoneSchema,
 });
 
@@ -45,8 +48,11 @@ export type UserInfoData = z.infer<typeof userInfoSchema>;
 /** Unified schema for checkout form including customer info */
 export const checkoutFormSchema = z.object({
   // Customer info fields
-  name: z.string().min(1, "Meno je povinné").max(MAX_NAME_LENGTH),
-  email: z.string().email("Neplatná emailová adresa").max(MAX_EMAIL_LENGTH),
+  name: z.string().trim().min(1, "Meno je povinné").max(MAX_NAME_LENGTH),
+  email: z
+    .email({ message: "Neplatná emailová adresa" })
+    .trim()
+    .max(MAX_EMAIL_LENGTH),
   phone: phoneSchema,
   // Checkout-specific fields
   paymentMethod: z.enum(PAYMENT_METHODS, "Spôsob platby je povinný"),

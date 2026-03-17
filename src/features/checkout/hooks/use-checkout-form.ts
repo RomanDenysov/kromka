@@ -2,10 +2,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays, format, startOfToday } from "date-fns";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { PaymentMethod, StoreSchedule } from "@/db/types";
+import type { DetailedCartItem } from "@/features/cart/api/queries";
 import {
   type CheckoutFormData,
   checkoutFormSchema,
@@ -34,6 +36,7 @@ export interface StoreOption {
 type StoreWithDistance = Store & { distance?: number | null };
 
 interface UseCheckoutFormProps {
+  items: DetailedCartItem[];
   lastOrderPrefill?: LastOrderPrefill | null;
   restrictedPickupDates: Set<string> | null;
   stores: Store[];
@@ -49,6 +52,7 @@ export function useCheckoutForm({
   stores,
   lastOrderPrefill,
   restrictedPickupDates,
+  items,
 }: UseCheckoutFormProps) {
   const router = useRouter();
 
@@ -91,11 +95,11 @@ export function useCheckoutForm({
     };
   }, [user, lastOrderPrefill]);
 
-  // Initialize form with onChange validation mode for real-time feedback
+  // Initialize form - onTouched validates after field blur, clears on fix
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: initialValues,
-    mode: "onChange",
+    mode: "onTouched",
   });
 
   // Watch form values for derived state
@@ -182,7 +186,22 @@ export function useCheckoutForm({
       phone: value.phone,
     };
 
+    // Link anonymous PostHog session to the distinctId used server-side.
+    // For logged-in users AuthIdentitySync already handles this.
+    // For guests, server uses email as distinctId (create-b2c-order.ts:160).
+    if (!user && value.email) {
+      posthog.identify(value.email, {
+        email: value.email,
+        name: value.name,
+      });
+    }
+
     try {
+      const expectedTotalCents = items.reduce(
+        (acc, item) => acc + item.priceCents * item.quantity,
+        0
+      );
+
       const result = await createB2COrder({
         storeId: value.storeId,
         pickupDate: formattedDate,
@@ -192,6 +211,7 @@ export function useCheckoutForm({
           "invoice"
         >,
         customerInfo,
+        expectedTotalCents,
       });
 
       if (result.success) {

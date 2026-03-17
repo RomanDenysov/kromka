@@ -33,11 +33,12 @@ type CreateOrderResult =
  * Rejects invoice payment method (B2C only: in_store, card).
  */
 export async function createB2COrder(data: {
-  storeId: string;
+  customerInfo: GuestCustomerInfo;
+  expectedTotalCents: number;
+  paymentMethod: string;
   pickupDate: string;
   pickupTime: string;
-  paymentMethod: string;
-  customerInfo: GuestCustomerInfo;
+  storeId: string;
 }): Promise<CreateOrderResult> {
   try {
     const result = await runPipeline(async () => {
@@ -71,6 +72,12 @@ export async function createB2COrder(data: {
         0
       );
 
+      guard(
+        data.expectedTotalCents === totalCents,
+        "Cena sa zmenila. Obnovte stránku a skúste znova.",
+        "PRICE_CHANGED"
+      );
+
       const user = await getUser();
 
       const { orderId, orderNumber } = await persistOrder({
@@ -95,6 +102,23 @@ export async function createB2COrder(data: {
     });
 
     if (!result.ok) {
+      after(async () => {
+        await captureServerEvent(
+          data.customerInfo.email,
+          "order_creation_failed",
+          {
+            reason: result.code,
+            error: result.error,
+            is_b2b: false,
+          }
+        ).catch((err) => {
+          log.orders.error(
+            { err, creationFailureCode: result.code },
+            "Failed to capture order_creation_failed event"
+          );
+        });
+      });
+
       return { success: false, error: result.error };
     }
 
@@ -103,7 +127,9 @@ export async function createB2COrder(data: {
     updateTag("orders");
 
     // Clear cart only after confirmed pipeline success
-    await clearCartAfterOrder();
+    await clearCartAfterOrder().catch((err) => {
+      log.orders.error({ err, orderId }, "Failed to clear cart after order");
+    });
 
     // Non-blocking side effects via after()
     after(async () => {
@@ -158,7 +184,15 @@ export async function createB2COrder(data: {
     if (isRedirectError(error)) {
       throw error;
     }
-    log.orders.error({ err: error }, "Create B2C order failed");
+    log.orders.error(
+      {
+        err: error,
+        email: data.customerInfo.email,
+        storeId: data.storeId,
+        paymentMethod: data.paymentMethod,
+      },
+      "Create B2C order failed"
+    );
     return { success: false, error: "Nastala chyba pri vytváraní objednávky" };
   }
 }

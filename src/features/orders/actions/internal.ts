@@ -1,5 +1,5 @@
 import { isBefore, isSameDay, startOfToday } from "date-fns";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   orderItems,
@@ -8,15 +8,16 @@ import {
   products,
   stores,
 } from "@/db/schema";
-import type { Address, PaymentMethod } from "@/db/types";
+import type { Address, PaymentMethod, ProductSnapshot } from "@/db/types";
 import {
   clearB2bCart,
   clearCart,
   getB2bCart,
   getCart,
 } from "@/features/cart/cookies";
+import { userInfoSchema } from "@/features/checkout/schema";
 import { sendEmail } from "@/lib/email";
-import { createPrefixedNumericId } from "@/lib/ids";
+import { createOrderNumber, createPrefixedId } from "@/lib/ids";
 import { log } from "@/lib/logger";
 import { fail, guard, type StepResult, succeed } from "@/lib/pipeline";
 import { getEffectivePrices } from "@/lib/pricing";
@@ -25,7 +26,7 @@ import { getOrderById } from "../api/queries";
 export interface OrderItemData {
   price: number;
   productId: string;
-  productSnapshot: { name: string; price: number };
+  productSnapshot: ProductSnapshot;
   quantity: number;
 }
 
@@ -35,17 +36,11 @@ export interface GuestCustomerInfo {
   phone: string;
 }
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export function validateGuestInfo(info: GuestCustomerInfo): StepResult<void> {
-  if (!info.name.trim()) {
-    return fail("Meno je povinné", "INVALID_NAME");
-  }
-  if (!(info.email.trim() && EMAIL_REGEX.test(info.email))) {
-    return fail("Neplatný email", "INVALID_EMAIL");
-  }
-  if (!info.phone.trim()) {
-    return fail("Neplatné telefónne číslo", "INVALID_PHONE");
+  const result = userInfoSchema.safeParse(info);
+  if (!result.success) {
+    const firstError = result.error.issues[0];
+    return fail(firstError?.message ?? "Neplatné údaje", "BAD_REQUEST");
   }
   return succeed(undefined);
 }
@@ -78,7 +73,7 @@ export async function buildOrderItems(
       eq(products.status, "active")
     ),
     with: {
-      category: { columns: { isActive: true } },
+      category: { columns: { isActive: true, name: true } },
     },
   });
 
@@ -91,9 +86,12 @@ export async function buildOrderItems(
   const foundIds = new Set(activeProducts.map((p) => p.id));
   const missingIds = productIds.filter((id) => !foundIds.has(id));
 
+  if (missingIds.length > 0) {
+    log.orders.warn({ missingIds }, "Products unavailable during order build");
+  }
   guard(
     missingIds.length === 0,
-    `Niektoré produkty nie sú dostupné: ${missingIds.join(", ")}`,
+    `${missingIds.length} produkty v košíku nie sú dostupné. Obnovte stránku.`,
     "INVALID_PRODUCTS"
   );
 
@@ -118,7 +116,13 @@ export async function buildOrderItems(
     return [
       {
         productId: item.productId,
-        productSnapshot: { name: product.name, price: effectivePrice },
+        productSnapshot: {
+          name: product.name,
+          price: effectivePrice,
+          categoryName: product.category?.name ?? null,
+          basePriceCents: product.priceCents,
+          effectivePriceCents: effectivePrice,
+        },
         price: effectivePrice,
         quantity: item.qty,
       },
@@ -171,8 +175,12 @@ interface PersistOrderParams {
   userId: string | null;
 }
 
+const MAX_PERSIST_ATTEMPTS = 2;
+
 /**
- * Persist order to database: create order, items, and status event.
+ * Persist order to database atomically via CTE.
+ * Creates order, items, and initial status event in a single SQL statement.
+ * Retries once on order number collision (unique constraint violation).
  */
 export async function persistOrder(params: PersistOrderParams): Promise<{
   orderId: string;
@@ -184,39 +192,89 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
     "INVALID_PRODUCTS"
   );
 
-  const orderNumber = createPrefixedNumericId("OBJ");
+  let lastError: unknown;
 
-  const [order] = await db
-    .insert(orders)
-    .values({
-      orderNumber,
-      createdBy: params.userId,
-      customerInfo: params.customerInfo,
-      storeId: params.storeId,
-      companyId: params.companyId,
-      deliveryAddress: params.deliveryAddress ?? null,
-      orderStatus: "new",
-      paymentStatus: "pending",
-      paymentMethod: params.paymentMethod,
-      pickupDate: params.pickupDate,
-      pickupTime: params.pickupTime,
-      totalCents: params.totalCents,
-    })
-    .returning();
+  for (let attempt = 0; attempt < MAX_PERSIST_ATTEMPTS; attempt++) {
+    const orderId = createPrefixedId("ord");
+    const orderNumber = createOrderNumber("OBJ");
+    const eventId = createPrefixedId("ose");
 
-  await db
-    .insert(orderItems)
-    .values(
-      params.orderItemsData.map((item) => ({ ...item, orderId: order.id }))
+    const itemValues = params.orderItemsData.map(
+      (item) =>
+        sql`(${item.productId}::text, ${JSON.stringify(item.productSnapshot)}::jsonb, ${item.quantity}::integer, ${item.price}::integer)`
     );
 
-  await db.insert(orderStatusEvents).values({
-    orderId: order.id,
-    status: "new",
-    createdBy: params.userId,
-  });
+    const query = sql`
+      WITH new_order AS (
+        INSERT INTO ${orders} (
+          id, order_number, created_by,
+          customer_info, store_id, company_id,
+          delivery_address, order_status, payment_status,
+          payment_method, total_cents, pickup_date,
+          pickup_time
+        )
+        VALUES (
+          ${orderId}, ${orderNumber}, ${params.userId},
+          ${JSON.stringify(params.customerInfo)}::jsonb, ${params.storeId}, ${params.companyId},
+          ${params.deliveryAddress ? JSON.stringify(params.deliveryAddress) : null}::jsonb,
+          'new', 'pending', ${params.paymentMethod}, ${params.totalCents},
+          ${params.pickupDate}::date, ${params.pickupTime}
+        )
+        RETURNING id, order_number
+      ),
+      new_items AS (
+        INSERT INTO ${orderItems} (
+          order_id, product_id,
+          product_snapshot, quantity, price
+        )
+        SELECT new_order.id, v.product_id, v.snapshot, v.qty, v.price
+        FROM new_order, (VALUES ${sql.join(itemValues, sql`, `)}) AS v(product_id, snapshot, qty, price)
+        RETURNING 1
+      ),
+      new_event AS (
+        INSERT INTO ${orderStatusEvents} (
+          id, order_id,
+          status, created_by
+        )
+        SELECT ${eventId}, new_order.id, 'new', ${params.userId}
+        FROM new_order
+        RETURNING 1
+      )
+      SELECT 1 FROM new_order
+    `;
 
-  return { orderId: order.id, orderNumber };
+    try {
+      await db.execute(query);
+      return { orderId, orderNumber };
+    } catch (error) {
+      lastError = error;
+      const errorCode =
+        error instanceof Error && "code" in error
+          ? (error as { code: string }).code
+          : undefined;
+      const isCollision =
+        errorCode === "23505" && attempt < MAX_PERSIST_ATTEMPTS - 1;
+
+      if (!isCollision) {
+        log.orders.error(
+          { err: error, code: errorCode, orderId, orderNumber },
+          "Database error persisting order"
+        );
+        throw error;
+      }
+
+      log.orders.warn(
+        {
+          orderNumber,
+          attempt: attempt + 1,
+          maxAttempts: MAX_PERSIST_ATTEMPTS,
+        },
+        "Order number collision, retrying with new ID"
+      );
+    }
+  }
+
+  throw lastError ?? new Error("Failed to persist order after retries");
 }
 
 /**
@@ -225,18 +283,16 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
 export async function notifyOrderCreated(orderId: string): Promise<void> {
   const fullOrder = await getOrderById(orderId);
   if (!fullOrder) {
-    log.orders.error(
-      { orderId },
-      "Order not found for notification after creation"
+    throw new Error(
+      `Order ${orderId} not found after creation - data consistency issue`
     );
-    return;
   }
 
-  // Send emails independently — one failure shouldn't block the other
   const results = await Promise.allSettled([
     sendEmail.newOrder({ order: fullOrder }),
     sendEmail.receipt({ order: fullOrder }),
   ]);
+
   for (const result of results) {
     if (result.status === "rejected") {
       log.email.error(

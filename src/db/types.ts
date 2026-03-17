@@ -104,6 +104,9 @@ export interface StoreSchedule {
 }
 
 export interface ProductSnapshot {
+  basePriceCents: number;
+  categoryName: string | null;
+  effectivePriceCents: number;
   name: string;
   price: number;
 }

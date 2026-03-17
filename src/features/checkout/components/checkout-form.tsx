@@ -71,6 +71,12 @@ export function CheckoutForm({
   // Get pickup date restrictions from cart items
   const { restrictedPickupDates } = usePickupRestrictions(items);
 
+  // Calculate total price for display
+  const totalCents = items.reduce(
+    (acc, item) => acc + item.priceCents * item.quantity,
+    0
+  );
+
   // Initialize checkout form with all dependencies
   const {
     form,
@@ -85,13 +91,8 @@ export function CheckoutForm({
     stores: storesWithDistance,
     lastOrderPrefill,
     restrictedPickupDates,
+    items,
   });
-
-  // Calculate total price
-  const totalCents = items.reduce(
-    (acc, item) => acc + item.priceCents * item.quantity,
-    0
-  );
 
   // Track checkout started on mount
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally fire once on mount
@@ -133,11 +134,13 @@ export function CheckoutForm({
                 placeholder="Janko Hraško"
               />
               <TextField
+                autoComplete="email"
                 inputClassName="w-full max-w-none"
                 label="Email"
                 maxLength={150}
                 name="email"
                 placeholder="janko@priklad.sk"
+                type="email"
               />
               <PhoneField
                 inputClassName="w-full max-w-none"
