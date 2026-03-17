@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays, format, startOfToday } from "date-fns";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
+import posthog from "posthog-js";
 import { useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -183,6 +184,16 @@ export function useCheckoutForm({
       email: value.email,
       phone: value.phone,
     };
+
+    // Link anonymous PostHog session to the distinctId used server-side.
+    // For logged-in users AuthIdentitySync already handles this.
+    // For guests, server uses email as distinctId (create-b2c-order.ts:160).
+    if (!user && value.email) {
+      posthog.identify(value.email, {
+        email: value.email,
+        name: value.name,
+      });
+    }
 
     try {
       const result = await createB2COrder({

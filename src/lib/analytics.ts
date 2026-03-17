@@ -67,4 +67,14 @@ export const analytics = {
   categorySelected(p: { category_slug: string; category_name: string }) {
     posthog.capture("category selected", p);
   },
+  // NOTE: Use "order confirmed" (client-side) in PostHog funnels, not "order completed" (server-side).
+  // Client event has session context for Session Replay. Server event is the source-of-truth fallback.
+  orderConfirmed(p: {
+    order_id: string;
+    order_number: string;
+    total: number;
+    item_count: number;
+  }) {
+    posthog.capture("order confirmed", p);
+  },
 } as const;

@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ContinueShoppingLink } from "@/components/continue-shopping-link";
+import { OrderConfirmationEvent } from "@/features/checkout/components/order-confirmation-event";
 import { getLastOrderId } from "@/features/checkout/cookies";
 import { getOrderById } from "@/features/orders/api/queries";
 import { getSession } from "@/lib/auth/session";
@@ -42,6 +43,12 @@ async function OrderConfirmationContent({ orderId }: { orderId: string }) {
 
   return (
     <div className="container mx-auto flex flex-col items-center gap-6 py-12">
+      <OrderConfirmationEvent
+        itemCount={order.items.length}
+        orderId={order.id}
+        orderNumber={order.orderNumber}
+        totalCents={order.totalCents}
+      />
       <div className="flex flex-col items-center gap-2">
         <CheckCircleIcon className="size-16 text-green-500" />
         <h1 className="font-bold text-2xl">Ďakujeme za objednávku!</h1>
