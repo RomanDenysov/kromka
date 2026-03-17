@@ -197,6 +197,8 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
     "INVALID_PRODUCTS"
   );
 
+  let lastError: unknown;
+
   for (let attempt = 0; attempt < MAX_PERSIST_ATTEMPTS; attempt++) {
     const orderId = createPrefixedId("ord");
     const orderNumber = createOrderNumber("OBJ");
@@ -250,13 +252,17 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
       await db.execute(query);
       return { orderId, orderNumber };
     } catch (error) {
-      const dbError = error as { code?: string };
+      lastError = error;
+      const errorCode =
+        error instanceof Error && "code" in error
+          ? (error as { code: string }).code
+          : undefined;
       const isCollision =
-        dbError.code === "23505" && attempt < MAX_PERSIST_ATTEMPTS - 1;
+        errorCode === "23505" && attempt < MAX_PERSIST_ATTEMPTS - 1;
 
       if (!isCollision) {
         log.orders.error(
-          { err: error, code: dbError.code, orderId, orderNumber },
+          { err: error, code: errorCode, orderId, orderNumber },
           "Database error persisting order"
         );
         throw error;
@@ -273,7 +279,7 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
     }
   }
 
-  throw new Error("Failed to persist order after retries");
+  throw lastError ?? new Error("Failed to persist order after retries");
 }
 
 /**
@@ -282,11 +288,9 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
 export async function notifyOrderCreated(orderId: string): Promise<void> {
   const fullOrder = await getOrderById(orderId);
   if (!fullOrder) {
-    log.orders.error(
-      { orderId },
-      "Order not found for notification after creation"
+    throw new Error(
+      `Order ${orderId} not found after creation - data consistency issue`
     );
-    return;
   }
 
   const results = await Promise.allSettled([

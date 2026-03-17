@@ -34,7 +34,7 @@ type CreateOrderResult =
  */
 export async function createB2COrder(data: {
   customerInfo: GuestCustomerInfo;
-  expectedTotalCents?: number;
+  expectedTotalCents: number;
   paymentMethod: string;
   pickupDate: string;
   pickupTime: string;
@@ -72,16 +72,11 @@ export async function createB2COrder(data: {
         0
       );
 
-      if (
-        data.expectedTotalCents !== undefined &&
-        data.expectedTotalCents !== totalCents
-      ) {
-        guard(
-          false,
-          "Cena sa zmenila. Obnovte stránku a skúste znova.",
-          "PRICE_CHANGED"
-        );
-      }
+      guard(
+        data.expectedTotalCents === totalCents,
+        "Cena sa zmenila. Obnovte stránku a skúste znova.",
+        "PRICE_CHANGED"
+      );
 
       const user = await getUser();
 
@@ -107,11 +102,23 @@ export async function createB2COrder(data: {
     });
 
     if (!result.ok) {
-      captureServerEvent(data.customerInfo.email, "order_creation_failed", {
-        reason: result.code,
-        error: result.error,
-        is_b2b: false,
-      }).catch(() => undefined);
+      after(async () => {
+        await captureServerEvent(
+          data.customerInfo.email,
+          "order_creation_failed",
+          {
+            reason: result.code,
+            error: result.error,
+            is_b2b: false,
+          }
+        ).catch((err) => {
+          log.orders.error(
+            { err, creationFailureCode: result.code },
+            "Failed to capture order_creation_failed event"
+          );
+        });
+      });
+
       return { success: false, error: result.error };
     }
 
@@ -120,7 +127,9 @@ export async function createB2COrder(data: {
     updateTag("orders");
 
     // Clear cart only after confirmed pipeline success
-    await clearCartAfterOrder();
+    await clearCartAfterOrder().catch((err) => {
+      log.orders.error({ err, orderId }, "Failed to clear cart after order");
+    });
 
     // Non-blocking side effects via after()
     after(async () => {
@@ -175,7 +184,15 @@ export async function createB2COrder(data: {
     if (isRedirectError(error)) {
       throw error;
     }
-    log.orders.error({ err: error }, "Create B2C order failed");
+    log.orders.error(
+      {
+        err: error,
+        email: data.customerInfo.email,
+        storeId: data.storeId,
+        paymentMethod: data.paymentMethod,
+      },
+      "Create B2C order failed"
+    );
     return { success: false, error: "Nastala chyba pri vytváraní objednávky" };
   }
 }

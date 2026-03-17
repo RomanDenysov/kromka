@@ -322,9 +322,7 @@ async function cleanup() {
 
   let deleteCount = 0;
   if (testIds.length > 0) {
-    const deleted = await db
-      .delete(orders)
-      .where(inArray(orders.id, testIds));
+    const deleted = await db.delete(orders).where(inArray(orders.id, testIds));
     deleteCount = deleted.rowCount ?? testIds.length;
   }
 

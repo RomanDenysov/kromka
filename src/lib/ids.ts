@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import { createId as _createId, init } from "@paralleldrive/cuid2";
 
 const shortId = init({ length: 8 });
@@ -6,7 +7,8 @@ const PREFIX_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
 const RANDOM_NUMBER_LENGTH = 5;
 const RANDOM_NUMBER_MAX = 100_000;
-const orderSuffixId = init({ length: 8 });
+const ORDER_SUFFIX_LENGTH = 10;
+const ORDER_SUFFIX_MAX = 10 ** ORDER_SUFFIX_LENGTH;
 export const createId = _createId;
 export const createShortId = shortId;
 
@@ -85,9 +87,9 @@ export function createPrefixedNumericId(
 }
 
 /**
- * Creates a prefixed order number with CUID2 suffix for collision resistance.
- * Format: {prefix}-YYYYMMDD-{cuid2} (e.g., OBJ-20250605-a1b2c3d4)
- * ~2.8 trillion combinations per day vs 100k with numeric suffix.
+ * Creates a prefixed order number with cryptographic numeric suffix.
+ * Format: {prefix}-YYYYMMDD-XXXXXXXXXX (e.g., OBJ-20250605-4829105732)
+ * 10B combinations per day with crypto.randomInt + retry on collision.
  */
 export function createOrderNumber(
   prefix: string,
@@ -98,7 +100,11 @@ export function createOrderNumber(
     .toLocaleDateString("sv-SE", { timeZone: timezone })
     .replace(/-/g, "");
 
-  return `${prefix.toUpperCase()}-${dateStr}-${orderSuffixId()}`;
+  const suffix = randomInt(0, ORDER_SUFFIX_MAX)
+    .toString()
+    .padStart(ORDER_SUFFIX_LENGTH, "0");
+
+  return `${prefix.toUpperCase()}-${dateStr}-${suffix}`;
 }
 
 /**
