@@ -19,7 +19,8 @@
     "generate:icons": "pnpm dlx tsx scripts/generate-metadata-icons.ts",
     "migrate:images": "pnpm dlx tsx scripts/migrate-product-images.ts",
     "migrate:images:prod": "pnpm dlx tsx scripts/migrate-product-images.ts prod",
-    "typecheck": "pnpm tsc --noEmit && echo '✓ Types OK'"
+    "typecheck": "pnpm tsc --noEmit && echo '✓ Types OK'",
+    "test:stress": "pnpm dlx tsx scripts/stress-test-orders.ts"
   },
   "dependencies": {
     "@consentify/core": "^2.0.0",

@@ -91,9 +91,12 @@ export async function buildOrderItems(
   const foundIds = new Set(activeProducts.map((p) => p.id));
   const missingIds = productIds.filter((id) => !foundIds.has(id));
 
+  if (missingIds.length > 0) {
+    log.orders.warn({ missingIds }, "Products unavailable during order build");
+  }
   guard(
     missingIds.length === 0,
-    `Niektoré produkty nie sú dostupné: ${missingIds.join(", ")}`,
+    `${missingIds.length} produkty v košíku nie sú dostupné. Obnovte stránku.`,
     "INVALID_PRODUCTS"
   );
 
@@ -207,11 +210,11 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
     const query = sql`
       WITH new_order AS (
         INSERT INTO ${orders} (
-          ${orders.id}, ${orders.orderNumber}, ${orders.createdBy},
-          ${orders.customerInfo}, ${orders.storeId}, ${orders.companyId},
-          ${orders.deliveryAddress}, ${orders.orderStatus}, ${orders.paymentStatus},
-          ${orders.paymentMethod}, ${orders.totalCents}, ${orders.pickupDate},
-          ${orders.pickupTime}
+          id, order_number, created_by,
+          customer_info, store_id, company_id,
+          delivery_address, order_status, payment_status,
+          payment_method, total_cents, pickup_date,
+          pickup_time
         )
         VALUES (
           ${orderId}, ${orderNumber}, ${params.userId},
@@ -220,12 +223,12 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
           'new', 'pending', ${params.paymentMethod}, ${params.totalCents},
           ${params.pickupDate}::date, ${params.pickupTime}
         )
-        RETURNING ${orders.id}, ${orders.orderNumber}
+        RETURNING id, order_number
       ),
       new_items AS (
         INSERT INTO ${orderItems} (
-          ${orderItems.orderId}, ${orderItems.productId},
-          ${orderItems.productSnapshot}, ${orderItems.quantity}, ${orderItems.price}
+          order_id, product_id,
+          product_snapshot, quantity, price
         )
         SELECT new_order.id, v.product_id, v.snapshot, v.qty, v.price
         FROM new_order, (VALUES ${sql.join(itemValues, sql`, `)}) AS v(product_id, snapshot, qty, price)
@@ -233,31 +236,40 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
       ),
       new_event AS (
         INSERT INTO ${orderStatusEvents} (
-          ${orderStatusEvents.id}, ${orderStatusEvents.orderId},
-          ${orderStatusEvents.status}, ${orderStatusEvents.createdBy}
+          id, order_id,
+          status, created_by
         )
         SELECT ${eventId}, new_order.id, 'new', ${params.userId}
         FROM new_order
         RETURNING 1
       )
-      SELECT id, order_number FROM new_order
+      SELECT 1 FROM new_order
     `;
 
     try {
       await db.execute(query);
       return { orderId, orderNumber };
     } catch (error) {
+      const dbError = error as { code?: string };
       const isCollision =
-        (error as { code?: string })?.code === "23505" &&
-        attempt < MAX_PERSIST_ATTEMPTS - 1;
-      if (isCollision) {
-        log.orders.warn(
-          { orderNumber },
-          "Order number collision, retrying with new ID"
+        dbError.code === "23505" && attempt < MAX_PERSIST_ATTEMPTS - 1;
+
+      if (!isCollision) {
+        log.orders.error(
+          { err: error, code: dbError.code, orderId, orderNumber },
+          "Database error persisting order"
         );
-        continue;
+        throw error;
       }
-      throw error;
+
+      log.orders.warn(
+        {
+          orderNumber,
+          attempt: attempt + 1,
+          maxAttempts: MAX_PERSIST_ATTEMPTS,
+        },
+        "Order number collision, retrying with new ID"
+      );
     }
   }
 
@@ -277,11 +289,11 @@ export async function notifyOrderCreated(orderId: string): Promise<void> {
     return;
   }
 
-  // Send emails independently - one failure shouldn't block the other
   const results = await Promise.allSettled([
     sendEmail.newOrder({ order: fullOrder }),
     sendEmail.receipt({ order: fullOrder }),
   ]);
+
   for (const result of results) {
     if (result.status === "rejected") {
       log.email.error(
