@@ -131,6 +131,14 @@ export async function createB2COrder(data: {
       log.orders.error({ err, orderId }, "Failed to clear cart after order");
     });
 
+    // Guest cookie must be set BEFORE the response is sent (not in after())
+    // so the Set-Cookie header is included in the response.
+    if (!userId) {
+      await setLastOrderIdAction(orderId).catch((err) => {
+        log.orders.error({ err }, "Failed to set last order ID for guest");
+      });
+    }
+
     // Non-blocking side effects via after()
     after(async () => {
       if (userId) {
@@ -143,10 +151,6 @@ export async function createB2COrder(data: {
             { err },
             "Failed to update user profile after order"
           );
-        });
-      } else {
-        await setLastOrderIdAction(orderId).catch((err) => {
-          log.orders.error({ err }, "Failed to set last order ID for guest");
         });
       }
     });
