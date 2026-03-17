@@ -71,7 +71,7 @@ export function CheckoutForm({
   // Get pickup date restrictions from cart items
   const { restrictedPickupDates } = usePickupRestrictions(items);
 
-  // Calculate total price (before hook so it can be passed as expectedTotalCents)
+  // Calculate total price for display
   const totalCents = items.reduce(
     (acc, item) => acc + item.priceCents * item.quantity,
     0
@@ -91,7 +91,7 @@ export function CheckoutForm({
     stores: storesWithDistance,
     lastOrderPrefill,
     restrictedPickupDates,
-    expectedTotalCents: totalCents,
+    items,
   });
 
   // Track checkout started on mount
@@ -134,11 +134,13 @@ export function CheckoutForm({
                 placeholder="Janko Hraško"
               />
               <TextField
+                autoComplete="email"
                 inputClassName="w-full max-w-none"
                 label="Email"
                 maxLength={150}
                 name="email"
                 placeholder="janko@priklad.sk"
+                type="email"
               />
               <PhoneField
                 inputClassName="w-full max-w-none"

@@ -30,7 +30,7 @@ export function useB2bCheckoutForm({ orgId }: UseB2bCheckoutFormProps) {
       pickupTime: "",
       paymentMethod: "in_store",
     },
-    mode: "onChange",
+    mode: "onTouched",
   });
 
   const onSubmit = async (value: B2bCheckoutFormData) => {

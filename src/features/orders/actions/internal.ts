@@ -15,6 +15,7 @@ import {
   getB2bCart,
   getCart,
 } from "@/features/cart/cookies";
+import { userInfoSchema } from "@/features/checkout/schema";
 import { sendEmail } from "@/lib/email";
 import { createOrderNumber, createPrefixedId } from "@/lib/ids";
 import { log } from "@/lib/logger";
@@ -35,17 +36,11 @@ export interface GuestCustomerInfo {
   phone: string;
 }
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export function validateGuestInfo(info: GuestCustomerInfo): StepResult<void> {
-  if (!info.name.trim()) {
-    return fail("Meno je povinné", "INVALID_NAME");
-  }
-  if (!(info.email.trim() && EMAIL_REGEX.test(info.email))) {
-    return fail("Neplatný email", "INVALID_EMAIL");
-  }
-  if (!info.phone.trim()) {
-    return fail("Neplatné telefónne číslo", "INVALID_PHONE");
+  const result = userInfoSchema.safeParse(info);
+  if (!result.success) {
+    const firstError = result.error.issues[0];
+    return fail(firstError?.message ?? "Neplatné údaje", "BAD_REQUEST");
   }
   return succeed(undefined);
 }

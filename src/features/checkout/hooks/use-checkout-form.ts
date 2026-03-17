@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { PaymentMethod, StoreSchedule } from "@/db/types";
+import type { DetailedCartItem } from "@/features/cart/api/queries";
 import {
   type CheckoutFormData,
   checkoutFormSchema,
@@ -35,7 +36,7 @@ export interface StoreOption {
 type StoreWithDistance = Store & { distance?: number | null };
 
 interface UseCheckoutFormProps {
-  expectedTotalCents: number;
+  items: DetailedCartItem[];
   lastOrderPrefill?: LastOrderPrefill | null;
   restrictedPickupDates: Set<string> | null;
   stores: Store[];
@@ -51,7 +52,7 @@ export function useCheckoutForm({
   stores,
   lastOrderPrefill,
   restrictedPickupDates,
-  expectedTotalCents,
+  items,
 }: UseCheckoutFormProps) {
   const router = useRouter();
 
@@ -94,11 +95,11 @@ export function useCheckoutForm({
     };
   }, [user, lastOrderPrefill]);
 
-  // Initialize form with onChange validation mode for real-time feedback
+  // Initialize form - onTouched validates after field blur, clears on fix
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: initialValues,
-    mode: "onChange",
+    mode: "onTouched",
   });
 
   // Watch form values for derived state
@@ -196,6 +197,11 @@ export function useCheckoutForm({
     }
 
     try {
+      const expectedTotalCents = items.reduce(
+        (acc, item) => acc + item.priceCents * item.quantity,
+        0
+      );
+
       const result = await createB2COrder({
         storeId: value.storeId,
         pickupDate: formattedDate,
