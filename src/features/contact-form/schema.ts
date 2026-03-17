@@ -8,7 +8,7 @@ const MAX_POSTHOG_ID_LENGTH = 200;
 
 export const supportRequestSchema = z.object({
   name: z.string().trim().min(1, "Meno je povinné"),
-  email: z.string().trim().email("Neplatná emailová adresa"),
+  email: z.email({ message: "Neplatná emailová adresa" }).trim(),
   rootCause: z.string().trim().min(1, "Príčina problému je povinná"),
   message: z.string().trim().min(1, "Správa je povinná"),
   // Optional context fields
