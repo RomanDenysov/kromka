@@ -292,6 +292,7 @@ export function BakerGame({ sprites, onGameOver }: BakerGameProps) {
   );
 
   const onUpdate = useCallback(
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: game loop with interleaved physics/collision/scoring logic
     (deltaTime: number) => {
       const baker = bakerRef.current;
       const items = itemsRef.current;

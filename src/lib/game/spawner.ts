@@ -86,9 +86,9 @@ export function spawnItem(
   ovenIndex?: number
 ): FallingItem {
   const oven =
-    ovenIndex !== undefined
-      ? ovens[ovenIndex]
-      : ovens[Math.floor(Math.random() * ovens.length)];
+    ovenIndex === undefined
+      ? ovens[Math.floor(Math.random() * ovens.length)]
+      : ovens[ovenIndex];
   const itemType = getRandomItemType();
 
   itemIdCounter += 1;

@@ -16,6 +16,7 @@ import type { OrderStatus, PaymentStatus } from "@/db/types";
 
 const TOP_PRODUCTS_LIMIT = 5;
 
+// biome-ignore lint/suspicious/useAwait: async required by "use cache"
 export async function getOrdersByPickupDate(
   date: string,
   filters?: {
@@ -65,6 +66,7 @@ export async function getOrdersByPickupDate(
   });
 }
 
+// biome-ignore lint/suspicious/useAwait: async required by "use cache"
 export async function getProductsAggregateByPickupDate(
   date: string,
   storeId?: string
@@ -99,6 +101,7 @@ export async function getProductsAggregateByPickupDate(
     .orderBy(desc(sql`sum(${orderItems.quantity})`));
 }
 
+// biome-ignore lint/suspicious/useAwait: async required by "use cache"
 export async function getMonthlyOrderStats(year: number, month: number) {
   "use cache";
   cacheLife("hours");
@@ -404,6 +407,7 @@ export async function getTopProducts(): Promise<TopProductsResult> {
 
 export type RecentOrder = Awaited<ReturnType<typeof getRecentOrders>>[number];
 
+// biome-ignore lint/suspicious/useAwait: async required by "use cache"
 export async function getRecentOrders() {
   "use cache";
   cacheLife("minutes");
@@ -441,6 +445,7 @@ export async function getRecentOrders() {
   });
 }
 
+// biome-ignore lint/suspicious/useAwait: async required by "use cache"
 export async function getActiveCarts() {
   "use cache";
   cacheLife("minutes");

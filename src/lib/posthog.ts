@@ -26,6 +26,7 @@ function getPostHogClient(): PostHog | null {
 
 export default getPostHogClient;
 
+// biome-ignore lint/suspicious/useAwait: callers rely on Promise return for .catch()
 export async function captureServerEvent(
   distinctId: string | null | undefined,
   event: string,

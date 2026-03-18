@@ -3,6 +3,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 
+// biome-ignore lint/suspicious/useAwait: async required by "use cache"
 export async function getPriceTiers() {
   cacheLife("hours");
   cacheTag("price-tiers");
@@ -12,6 +13,7 @@ export async function getPriceTiers() {
   });
 }
 
+// biome-ignore lint/suspicious/useAwait: async required by "use cache"
 export async function getPriceTierById(id: string) {
   cacheLife("hours");
   cacheTag("price-tiers");

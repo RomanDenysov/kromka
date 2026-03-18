@@ -56,12 +56,12 @@ export function GameHUD({ score, lives, onPause }: GameHUDProps) {
         </div>
 
         <div className="pointer-events-none flex items-center gap-1.5 rounded-lg bg-black/60 px-4 py-2.5">
-          {Array.from({ length: INITIAL_LIVES }).map((_, i) => (
+          {Array.from({ length: INITIAL_LIVES }, (_, i) => i + 1).map((n) => (
             <Heart
               className={`size-6 ${
-                i < lives ? "fill-red-500 text-red-500" : "text-gray-500"
+                n <= lives ? "fill-red-500 text-red-500" : "text-gray-500"
               }`}
-              key={`heart-${i}`}
+              key={`life-${n}`}
             />
           ))}
         </div>

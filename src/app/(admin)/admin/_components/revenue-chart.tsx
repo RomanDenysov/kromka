@@ -85,7 +85,7 @@ export function RevenueChart({
           )}
           <Tooltip
             content={({ active, payload }) => {
-              if (active && payload && payload.length) {
+              if (active && payload?.length) {
                 const tooltipData = payload[0].payload as DataPoint & {
                   avgOrderValue?: number;
                 };
@@ -226,7 +226,7 @@ export function RevenueChart({
           />
           <Tooltip
             content={({ active, payload }) => {
-              if (active && payload && payload.length) {
+              if (active && payload?.length) {
                 const tooltipData = payload[0].payload as DataPoint & {
                   avgOrderValue?: number;
                 };

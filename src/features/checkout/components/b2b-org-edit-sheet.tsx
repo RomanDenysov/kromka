@@ -70,7 +70,9 @@ export function B2bOrgEditSheet({
           name: data.name,
           email: userEmail,
           phone: data.phone,
-        }).catch(() => {});
+        }).catch(() => {
+          /* fire-and-forget */
+        });
       } catch {
         toast.error("Nastala chyba");
       }
