@@ -76,7 +76,19 @@ export default async function OgImage({
         {/* biome-ignore lint/performance/noImgElement: Satori requires native img */}
         <img height={28} src={logoSrc} width={140} />
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {product.category?.name && (
+            <span
+              style={{
+                fontSize: 18,
+                color: "#78716c",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+              }}
+            >
+              {product.category.name}
+            </span>
+          )}
           <span
             style={{
               fontSize: 64,
@@ -89,6 +101,8 @@ export default async function OgImage({
           </span>
           <span style={{ fontSize: 40, fontWeight: 700 }}>{price}</span>
         </div>
+
+        <span style={{ fontSize: 18, color: "#a8a29e" }}>pekarenkromka.sk</span>
       </div>
 
       {/* Right - product image, full bleed */}
