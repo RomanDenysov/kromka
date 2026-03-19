@@ -65,12 +65,14 @@ export function B2bOrgEditSheet({
           toast.error(result.error ?? "Nepodarilo sa aktualizovať údaje");
         }
 
-        // Update user phone (fire-and-forget)
+        // Non-critical: sync user profile with org edit data
         updateCurrentUserProfile({
           name: data.name,
           email: userEmail,
           phone: data.phone,
-        }).catch(() => {});
+        }).catch((err) => {
+          console.warn("Failed to update user profile after org edit", err);
+        });
       } catch {
         toast.error("Nastala chyba");
       }

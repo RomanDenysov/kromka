@@ -7,7 +7,8 @@ const MOBILE_BREAKPOINT = 768;
 let mql: MediaQueryList | null = null;
 
 function getMediaQuery() {
-  return (mql ??= window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`));
+  mql ??= window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+  return mql;
 }
 
 function subscribe(callback: () => void) {

@@ -47,13 +47,13 @@ export function BulkEditDialog({
 
   const handleSubmit = () => {
     const newOrderStatus =
-      orderStatus !== NO_CHANGE_VALUE
-        ? (orderStatus as OrderStatus)
-        : undefined;
+      orderStatus === NO_CHANGE_VALUE
+        ? undefined
+        : (orderStatus as OrderStatus);
     const newPaymentStatus =
-      paymentStatus !== NO_CHANGE_VALUE
-        ? (paymentStatus as PaymentStatus)
-        : undefined;
+      paymentStatus === NO_CHANGE_VALUE
+        ? undefined
+        : (paymentStatus as PaymentStatus);
 
     if (!(newOrderStatus || newPaymentStatus)) {
       toast.error("Vyberte aspoň jeden stav na zmenu");

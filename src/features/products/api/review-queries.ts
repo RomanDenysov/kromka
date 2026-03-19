@@ -40,6 +40,7 @@ export const getReviewAggregate = cache(
 );
 
 export const getPublishedReviews = cache(
+  // biome-ignore lint/suspicious/useAwait: "use cache" directive requires async
   async (productId: string, limit = 10) => {
     "use cache";
     cacheLife("hours");

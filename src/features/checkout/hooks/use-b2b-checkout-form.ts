@@ -15,7 +15,8 @@ interface UseB2bCheckoutFormProps {
   orgId: string;
 }
 
-export function useB2bCheckoutForm({ orgId }: UseB2bCheckoutFormProps) {
+// TODO: orgId will be needed for B2B org-specific pricing/store restrictions
+export function useB2bCheckoutForm({ orgId: _orgId }: UseB2bCheckoutFormProps) {
   const router = useRouter();
 
   const canOrderForTomorrow = isBeforeDailyCutoff();
