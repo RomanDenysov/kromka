@@ -80,13 +80,13 @@ export function createMetadata(props: MetadataGenerator): Metadata {
       ...defaultMetadata.openGraph,
       title: props.title,
       description: props.description,
-      images: props.image ? [{ url: props.image }] : [],
+      ...(props.image ? { images: [{ url: props.image }] } : {}),
     },
     twitter: {
       ...defaultMetadata.twitter,
       title: props.title,
       description: props.description,
-      images: props.image ? [props.image] : undefined,
+      ...(props.image ? { images: [props.image] } : {}),
     },
     alternates: {
       ...defaultMetadata.alternates,

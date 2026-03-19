@@ -63,7 +63,6 @@ export async function generateMetadata({ params }: Props) {
   return createMetadata({
     title: result.name,
     description: descriptionText,
-    image: result.imageUrl ?? undefined,
     canonicalUrl: getSiteUrl(`/product/${result.slug}`),
   });
 }
