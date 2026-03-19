@@ -73,11 +73,14 @@ type MetadataGenerator = Omit<Metadata, "description" | "title"> & {
 };
 
 export function createMetadata(props: MetadataGenerator): Metadata {
+  const { images: _defaultOgImages, ...openGraphBase } =
+    defaultMetadata.openGraph ?? {};
+
   return {
     ...defaultMetadata,
     ...props,
     openGraph: {
-      ...defaultMetadata.openGraph,
+      ...openGraphBase,
       title: props.title,
       description: props.description,
       ...(props.image ? { images: [{ url: props.image }] } : {}),
