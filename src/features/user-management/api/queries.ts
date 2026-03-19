@@ -1,7 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 
-// biome-ignore lint/suspicious/useAwait: async required by "use cache"
+// biome-ignore lint/suspicious/useAwait: "use cache" directive requires async
 export async function getUsers({
   limit = 50,
   offset = 0,
@@ -37,7 +37,7 @@ export async function getUsers({
   });
 }
 
-// biome-ignore lint/suspicious/useAwait: async required by "use cache"
+// biome-ignore lint/suspicious/useAwait: "use cache" directive requires async
 export async function getUserById(id: string) {
   "use cache";
   cacheLife("minutes");

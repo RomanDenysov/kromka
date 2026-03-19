@@ -26,7 +26,7 @@ function getPostHogClient(): PostHog | null {
 
 export default getPostHogClient;
 
-// biome-ignore lint/suspicious/useAwait: callers rely on Promise return for .catch()
+// biome-ignore lint/suspicious/useAwait: async needed so callers can .catch() - client.capture is sync fire-and-forget
 export async function captureServerEvent(
   distinctId: string | null | undefined,
   event: string,
@@ -42,5 +42,9 @@ export async function captureServerEvent(
     return;
   }
 
-  client.capture({ distinctId, event, properties });
+  try {
+    client.capture({ distinctId, event, properties });
+  } catch (err) {
+    logger.warn({ err, event, distinctId }, "Failed to capture PostHog event");
+  }
 }
