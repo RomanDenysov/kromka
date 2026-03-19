@@ -57,80 +57,50 @@ export default async function OgImage({
         display: "flex",
         width: "100%",
         height: "100%",
-        backgroundColor: "#f5f5f4",
+        backgroundColor: "#fff",
         color: "#1c1917",
       }}
     >
-      {/* Left content */}
+      {/* Left - content */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: "56px",
-          width: product.imageUrl ? "55%" : "100%",
+          padding: "48px",
+          width: product.imageUrl ? "50%" : "100%",
           height: "100%",
         }}
       >
         {/* biome-ignore lint/a11y/useAltText: OG image */}
         {/* biome-ignore lint/performance/noImgElement: Satori requires native img */}
-        <img height={32} src={logoSrc} width={160} />
+        <img height={28} src={logoSrc} width={140} />
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          {product.category?.name && (
-            <span
-              style={{
-                fontSize: 18,
-                color: "#78716c",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-              }}
-            >
-              {product.category.name}
-            </span>
-          )}
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           <span
             style={{
-              fontSize: product.imageUrl ? 48 : 56,
-              fontWeight: 700,
-              lineHeight: 1.1,
-              letterSpacing: "-0.02em",
+              fontSize: 64,
+              fontWeight: 900,
+              lineHeight: 1.05,
+              letterSpacing: "-0.03em",
             }}
           >
             {product.name}
           </span>
-          <span style={{ fontSize: 36, fontWeight: 700, color: "#44403c" }}>
-            {price}
-          </span>
+          <span style={{ fontSize: 40, fontWeight: 700 }}>{price}</span>
         </div>
-
-        <span style={{ fontSize: 18, color: "#a8a29e" }}>pekarenkromka.sk</span>
       </div>
 
-      {/* Right - product image */}
+      {/* Right - product image, full bleed */}
       {product.imageUrl && (
-        <div
-          style={{
-            display: "flex",
-            width: "45%",
-            height: "100%",
-            padding: "40px 40px 40px 0",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <div style={{ display: "flex", width: "50%", height: "100%" }}>
           {/* biome-ignore lint/a11y/useAltText: OG image */}
           {/* biome-ignore lint/performance/noImgElement: Satori requires native img */}
           <img
-            height={480}
+            height={630}
             src={product.imageUrl}
-            style={{
-              borderRadius: "16px",
-              objectFit: "cover",
-              width: "100%",
-              height: "100%",
-            }}
-            width={480}
+            style={{ objectFit: "cover", width: "100%", height: "100%" }}
+            width={600}
           />
         </div>
       )}
