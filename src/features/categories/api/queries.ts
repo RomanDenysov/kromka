@@ -1,5 +1,4 @@
 import "server-only";
-
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
@@ -15,11 +14,8 @@ export const getCategories = cache(async () => {
 
   const data = await db.query.categories.findMany({
     where: (cat, { eq, and }) =>
-      and(
-        eq(cat.isActive, true),
-        eq(cat.showInMenu, true),
-        eq(cat.isFeatured, false)
-      ),
+      and(eq(cat.isActive, true), eq(cat.showInMenu, true)),
+    orderBy: (cat, { desc }) => [desc(cat.isFeatured), desc(cat.sortOrder)],
   });
 
   const categoryIdsWithProducts = new Set(
