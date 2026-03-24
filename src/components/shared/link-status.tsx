@@ -5,14 +5,15 @@ import { Spinner } from "../ui/spinner";
 
 interface Props {
   children: ReactNode;
+  className?: string;
   variant?: "spinner" | "dots" | "pulse" | "shimmer" | "underline" | "fade";
 }
-export function LinkStatus({ children, variant }: Props) {
+export function LinkStatus({ children, variant, className }: Props) {
   const { pending } = useLinkStatus();
 
   if (variant === "spinner") {
     return (
-      <span className="inline-flex items-center gap-2">
+      <span className={cn("inline-flex items-center gap-2", className)}>
         {children}
         {pending && <Spinner className="size-4" />}
       </span>
@@ -21,7 +22,7 @@ export function LinkStatus({ children, variant }: Props) {
 
   if (variant === "dots") {
     return (
-      <span className="inline-flex items-center gap-1">
+      <span className={cn("inline-flex items-center gap-1", className)}>
         {children}
         {pending && (
           <span className="inline-flex gap-0.5">
@@ -35,16 +36,23 @@ export function LinkStatus({ children, variant }: Props) {
   }
 
   if (variant === "pulse") {
-    return <span className={cn(pending && "animate-pulse")}>{children}</span>;
+    return (
+      <span className={cn(pending && "animate-pulse", className)}>
+        {children}
+      </span>
+    );
   }
 
   if (variant === "shimmer") {
     return (
-      <span className="relative inline-block">
+      <span className={cn("relative inline-block", className)}>
         <span className={cn(pending && "opacity-50")}>{children}</span>
         {pending && (
           <span
-            className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent"
+            className={cn(
+              "absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent",
+              className
+            )}
             style={{ backgroundSize: "200% 100%" }}
           />
         )}
@@ -54,7 +62,7 @@ export function LinkStatus({ children, variant }: Props) {
 
   if (variant === "underline") {
     return (
-      <span className="relative inline-block">
+      <span className={cn("relative inline-block", className)}>
         {children}
         {pending && (
           <span className="absolute bottom-0 left-0 h-0.5 w-full origin-left animate-progress bg-current" />
@@ -66,7 +74,10 @@ export function LinkStatus({ children, variant }: Props) {
   // Default: fade
   return (
     <span
-      className={cn("transition-opacity duration-150", pending && "opacity-50")}
+      className={cn(
+        "inline-flex items-center gap-1 transition-opacity duration-150",
+        pending && "opacity-50"
+      )}
     >
       {children}
     </span>

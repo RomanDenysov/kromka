@@ -1,5 +1,6 @@
 "use client";
 
+import { SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
 import {
@@ -24,26 +25,34 @@ export function CategoriesSidebar({ categories }: Props) {
     <aside className="sticky top-16 hidden w-48 shrink-0 self-start md:top-20 md:block">
       <h2 className="mb-4 p-1 font-bold text-lg">Kategórie</h2>
       <nav className="flex flex-col gap-1">
-        {allCategories.map((c) => (
-          <Link
-            className={cn(
-              "cursor-pointer whitespace-nowrap rounded-lg px-3 py-2 text-left font-medium text-sm transition-colors",
-              category === c.slug
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted"
-            )}
-            href={getCategoriesLink({ category: c.slug })}
-            key={c.slug}
-            onClick={() =>
-              analytics.categorySelected({
-                category_slug: c.slug || "all",
-                category_name: c.name,
-              })
-            }
-          >
-            <LinkStatus>{c.name}</LinkStatus>
-          </Link>
-        ))}
+        {allCategories.map((c) => {
+          const isActive = category === c.slug;
+          const isFeatured = "isFeatured" in c && c.isFeatured;
+          return (
+            <Link
+              className={cn(
+                "cursor-pointer whitespace-nowrap rounded-lg px-3 py-2 text-left font-medium text-sm transition-colors",
+                isFeatured && !isActive && "text-featured",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-muted"
+              )}
+              href={getCategoriesLink({ category: c.slug })}
+              key={c.slug}
+              onClick={() =>
+                analytics.categorySelected({
+                  category_slug: c.slug || "all",
+                  category_name: c.name,
+                })
+              }
+            >
+              <LinkStatus className="flex items-center gap-1.5">
+                {isFeatured && <SparklesIcon className="size-4 shrink-0" />}
+                {c.name}
+              </LinkStatus>
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );
