@@ -34,7 +34,7 @@ export function ProductCard({
   return (
     <article
       className={cn(
-        "relative flex flex-col gap-3 overflow-hidden rounded-md p-0.5",
+        "relative flex size-full flex-col gap-3 overflow-hidden rounded-md p-0.5",
         className
       )}
       title={isActive ? product.name : `${product.name} (neaktívny produkt)`}
