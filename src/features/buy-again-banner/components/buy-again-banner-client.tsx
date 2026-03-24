@@ -7,7 +7,7 @@ import {
   TrashIcon,
   XIcon,
 } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { ProductImage } from "@/components/shared/product-image";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,11 +20,10 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
-import { addItemsToCart } from "@/features/cart/api/actions";
 import type { LastOrderWithItems } from "@/features/checkout/api/queries";
-import { analytics } from "@/lib/analytics";
 import { getItemCountString } from "@/lib/item-count-string";
 import { formatPrice } from "@/lib/utils";
+import { useBuyAgainOrder } from "../hooks/use-buy-again-order";
 
 const DISMISS_KEY = "buy-again-dismissed";
 
@@ -33,14 +32,21 @@ interface Props {
 }
 
 export function BuyAgainBannerClient({ items }: Props) {
-  const [isPending, startTransition] = useTransition();
   const [dismissed, setDismissed] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState(items);
 
+  const { isPending, repeatOrder } = useBuyAgainOrder(() =>
+    setDialogOpen(false)
+  );
+
   useEffect(() => {
-    if (sessionStorage.getItem(DISMISS_KEY)) {
-      setDismissed(true);
+    try {
+      if (sessionStorage.getItem(DISMISS_KEY)) {
+        setDismissed(true);
+      }
+    } catch {
+      // sessionStorage unavailable (private browsing, cross-origin, etc.)
     }
   }, []);
 
@@ -59,7 +65,11 @@ export function BuyAgainBannerClient({ items }: Props) {
   );
 
   const handleDismiss = () => {
-    sessionStorage.setItem(DISMISS_KEY, "1");
+    try {
+      sessionStorage.setItem(DISMISS_KEY, "1");
+    } catch {
+      // Storage write failed - still dismiss locally
+    }
     setDismissed(true);
   };
 
@@ -77,29 +87,8 @@ export function BuyAgainBannerClient({ items }: Props) {
     setSelectedItems((prev) => prev.filter((i) => i.productId !== productId));
   };
 
-  const handleAddToCart = (itemsToAdd: LastOrderWithItems["items"]) => {
-    const total = itemsToAdd.reduce(
-      (sum, item) => sum + item.priceCents * item.quantity,
-      0
-    );
-    startTransition(async () => {
-      await addItemsToCart(
-        itemsToAdd.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-        }))
-      );
-      analytics.orderRepeated({
-        item_count: itemsToAdd.length,
-        total,
-      });
-      setDialogOpen(false);
-    });
-  };
-
   return (
     <div className="relative flex flex-col gap-3 rounded-xl border border-[#e4ddd5] bg-[#faf8f5] px-4 py-4 shadow shadow-accent sm:gap-4 sm:px-6 sm:py-5">
-      {/* X dismiss */}
       <button
         aria-label="Skryt banner"
         className="absolute top-2 right-2 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:top-2.5 sm:right-2.5"
@@ -109,7 +98,6 @@ export function BuyAgainBannerClient({ items }: Props) {
         <XIcon className="size-4 sm:size-5" />
       </button>
 
-      {/* Title + price/count */}
       <div className="flex flex-col gap-0.5 pr-8">
         <h2 className="font-semibold text-base sm:text-xl">
           Vas posledny nakup
@@ -119,7 +107,6 @@ export function BuyAgainBannerClient({ items }: Props) {
         </p>
       </div>
 
-      {/* Bottom row: thumbnails left, button right */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <Dialog
           onOpenChange={(open) => {
@@ -130,7 +117,6 @@ export function BuyAgainBannerClient({ items }: Props) {
           }}
           open={dialogOpen}
         >
-          {/* Thumbnails - clickable to open dialog */}
           <DialogTrigger asChild>
             <div className="flex items-center rounded-lg transition-opacity hover:opacity-80">
               {items.slice(0, 5).map((item) => (
@@ -178,7 +164,6 @@ export function BuyAgainBannerClient({ items }: Props) {
                       </span>
                     </div>
 
-                    {/* Quantity controls */}
                     <div className="flex items-center gap-1">
                       <Button
                         disabled={item.quantity <= 1}
@@ -228,7 +213,7 @@ export function BuyAgainBannerClient({ items }: Props) {
                 <Button
                   className="flex-1"
                   disabled={isPending || selectedItems.length === 0}
-                  onClick={() => handleAddToCart(selectedItems)}
+                  onClick={() => repeatOrder(selectedItems)}
                   size="lg"
                 >
                   {isPending ? (
@@ -243,11 +228,10 @@ export function BuyAgainBannerClient({ items }: Props) {
           </DialogContent>
         </Dialog>
 
-        {/* Button - adds all items directly */}
         <Button
           className="w-full sm:w-auto sm:min-w-48"
           disabled={isPending}
-          onClick={() => handleAddToCart(items)}
+          onClick={() => repeatOrder(items)}
           size="lg"
           variant="brand"
         >

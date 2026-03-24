@@ -6,19 +6,20 @@ import { buttonVariants } from "@/components/ui/button";
 import { DrawerClose, DrawerFooter } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  LastOrderCardContent,
+  LastOrderCardSkeleton,
+} from "@/features/buy-again-banner/components/last-order-card-content";
 import {
   getCartTotals,
   getDetailedB2bCart,
   getDetailedCart,
 } from "@/features/cart/api/queries";
-import { getLastOrderWithItemsAction } from "@/features/checkout/api/actions";
 import { getUserDetails } from "@/lib/auth/session";
 import { cn, formatPrice } from "@/lib/utils";
 import { B2bCartDrawerItem } from "./b2b-cart-drawer-item";
 import { CartDrawerItem } from "./cart-drawer-item";
 import { CartDrawerTabs } from "./cart-drawer-tabs";
-import { LastOrderCard } from "./last-order-card";
 
 function EmptyCart({ message }: { message: string }) {
   return (
@@ -90,38 +91,6 @@ function CartFooter({
         </DrawerClose>
       </DrawerFooter>
     </>
-  );
-}
-
-async function LastOrderCardContent() {
-  const lastOrder = await getLastOrderWithItemsAction();
-  if (!lastOrder) {
-    return null;
-  }
-  return (
-    <div className="px-2">
-      <LastOrderCard items={lastOrder.items} />
-    </div>
-  );
-}
-
-function LastOrderCardSkeleton() {
-  return (
-    <div className="px-2">
-      <div className="space-y-2 rounded-lg border border-dashed bg-muted/40 p-4">
-        <Skeleton className="h-5 w-32" />
-        <Skeleton className="h-3 w-24" />
-        <div className="space-y-2 py-2">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <Skeleton
-              className="h-12 w-full"
-              key={`last-order-skeleton-${i.toString()}`}
-            />
-          ))}
-        </div>
-        <Skeleton className="h-8 w-full" />
-      </div>
-    </div>
   );
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronUpIcon, ShoppingCartIcon } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { ProductImage } from "@/components/shared/product-image";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,10 +11,9 @@ import {
 } from "@/components/ui/collapsible";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import { addItemsToCart } from "@/features/cart/api/actions";
-import { analytics } from "@/lib/analytics";
 import { getItemCountString } from "@/lib/item-count-string";
 import { cn, formatPrice } from "@/lib/utils";
+import { useBuyAgainOrder } from "../hooks/use-buy-again-order";
 
 const DISPLAY_ITEM_LIMIT = 3;
 
@@ -31,16 +30,12 @@ interface Props {
   items: OrderItem[];
 }
 
-/**
- * Card showing the last 2-3 items from user's most recent order
- * Allows quick re-ordering with a single click
- */
 export function LastOrderCard({ items }: Props) {
-  const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [showCard, setShowCard] = useState(true);
+  const { isPending, repeatOrder } = useBuyAgainOrder(() => setShowCard(false));
 
-  if (items.length === 0) {
+  if (items.length === 0 || !showCard) {
     return null;
   }
 
@@ -51,30 +46,9 @@ export function LastOrderCard({ items }: Props) {
     0
   );
 
-  const handleRepeatOrder = () => {
-    startTransition(async () => {
-      await addItemsToCart(
-        items.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-        }))
-      );
-      analytics.orderRepeated({
-        item_count: items.length,
-        total: totalPrice,
-      });
-      setShowCard(false);
-    });
-  };
-
-  if (!showCard) {
-    return null;
-  }
-
   return (
     <Collapsible onOpenChange={setIsOpen} open={isOpen}>
       <div className="rounded-sm border border-muted-foreground/30 border-dashed bg-muted/40 p-3">
-        {/* Header */}
         <CollapsibleTrigger asChild>
           <div className="flex items-center justify-between gap-3">
             {!isOpen && (
@@ -84,7 +58,7 @@ export function LastOrderCard({ items }: Props) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleRepeatOrder();
+                  repeatOrder(items);
                 }}
                 size="icon"
                 type="button"
@@ -112,7 +86,6 @@ export function LastOrderCard({ items }: Props) {
           </div>
         </CollapsibleTrigger>
 
-        {/* Items preview */}
         <CollapsibleContent className="fade-in-0 animate-in duration-400">
           <div className="mt-2 space-y-1">
             {displayItems.map((item) => (
@@ -135,7 +108,6 @@ export function LastOrderCard({ items }: Props) {
               </div>
             ))}
 
-            {/* Show count of hidden items if any */}
             {hiddenItemCount > 0 && (
               <p className="py-1 text-center text-muted-foreground text-xs">
                 +{hiddenItemCount}{" "}
@@ -146,8 +118,6 @@ export function LastOrderCard({ items }: Props) {
           </div>
 
           <Separator className="my-2" />
-
-          {/* Total and button */}
 
           <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col gap-0">
@@ -163,7 +133,7 @@ export function LastOrderCard({ items }: Props) {
               className="flex-1"
               disabled={isPending}
               id="repeat-order-button"
-              onClick={handleRepeatOrder}
+              onClick={() => repeatOrder(items)}
               size="sm"
               type="button"
               variant="default"

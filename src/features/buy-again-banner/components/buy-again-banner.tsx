@@ -1,5 +1,5 @@
 import { getLastOrderWithItemsAction } from "@/features/checkout/api/actions";
-import { BuyAgainBannerClient } from "./variant-a";
+import { BuyAgainBannerClient } from "./buy-again-banner-client";
 
 export async function BuyAgainBanner() {
   const lastOrder = await getLastOrderWithItemsAction();

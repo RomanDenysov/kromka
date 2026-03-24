@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { GameCardWrapper } from "@/components/game/game-card-wrapper";
 import { CallToAction } from "@/components/landing/cta";
 import { HomeGrid } from "@/components/landing/home-grid";
@@ -20,7 +21,9 @@ export default function Home() {
   return (
     <div className="w-full pt-5 pb-6 md:pb-10">
       <Container className="space-y-6">
-        <BuyAgainBanner />
+        <Suspense>
+          <BuyAgainBanner />
+        </Suspense>
         <HomeGrid />
         {featureFlags.game && (
           <section className="container mx-auto flex justify-center px-4 py-8">
