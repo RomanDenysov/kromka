@@ -1,6 +1,7 @@
 /** biome-ignore-all lint/style/noMagicNumbers: Ignore it for now */
 "use client";
 
+import { SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import { use } from "react";
 import { LinkStatus } from "@/components/shared/link-status";
@@ -9,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Category } from "@/features/categories/api/queries";
 import { analytics } from "@/lib/analytics";
+import { cn } from "@/lib/utils";
 import { getCategoriesLink, useEshopParams } from "./eshop-params";
 
 interface Props {
@@ -25,24 +27,34 @@ export function CategoriesChips({ categories }: Props) {
         className="ml-2 text-xs underline underline-offset-2"
         initial={5}
       >
-        {allCategories.map((c) => (
-          <Badge
-            key={c.slug}
-            variant={category === c.slug ? "default" : "outline"}
-          >
-            <Link
-              href={getCategoriesLink({ category: c.slug })}
-              onClick={() =>
-                analytics.categorySelected({
-                  category_slug: c.slug || "all",
-                  category_name: c.name,
-                })
-              }
+        {allCategories.map((c) => {
+          const isActive = category === c.slug;
+          const isFeatured = "isFeatured" in c && c.isFeatured;
+          return (
+            <Badge
+              className={cn(
+                isFeatured && !isActive && "border-featured/30 text-featured"
+              )}
+              key={c.slug}
+              variant={isActive ? "default" : "outline"}
             >
-              <LinkStatus>{c.name}</LinkStatus>
-            </Link>
-          </Badge>
-        ))}
+              <Link
+                href={getCategoriesLink({ category: c.slug })}
+                onClick={() =>
+                  analytics.categorySelected({
+                    category_slug: c.slug || "all",
+                    category_name: c.name,
+                  })
+                }
+              >
+                <LinkStatus className="flex items-center gap-1">
+                  {isFeatured && <SparklesIcon className="size-3 shrink-0" />}
+                  {c.name}
+                </LinkStatus>
+              </Link>
+            </Badge>
+          );
+        })}
       </ShowMoreInline>
     </div>
   );
