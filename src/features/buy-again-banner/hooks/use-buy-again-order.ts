@@ -10,11 +10,13 @@ interface OrderItem {
   quantity: number;
 }
 
+type Source = "banner" | "banner_dialog" | "cart_drawer";
+
 export function useBuyAgainOrder(onSuccess?: () => void) {
   const [isPending, startTransition] = useTransition();
   const dismiss = useBuyAgainDismiss();
 
-  const repeatOrder = (items: OrderItem[]) => {
+  const repeatOrder = (items: OrderItem[], source: Source) => {
     const total = items.reduce(
       (sum, item) => sum + item.priceCents * item.quantity,
       0
@@ -30,6 +32,7 @@ export function useBuyAgainOrder(onSuccess?: () => void) {
         analytics.orderRepeated({
           item_count: items.length,
           total,
+          source,
         });
         dismiss();
         toast.success("Produkty boli pridane do kosika");

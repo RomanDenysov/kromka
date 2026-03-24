@@ -59,7 +59,7 @@ export function LastOrderCard({ items }: Props) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  repeatOrder(items);
+                  repeatOrder(items, "cart_drawer");
                 }}
                 size="icon"
                 type="button"
@@ -134,7 +134,7 @@ export function LastOrderCard({ items }: Props) {
               className="flex-1"
               disabled={isPending}
               id="repeat-order-button"
-              onClick={() => repeatOrder(items)}
+              onClick={() => repeatOrder(items, "cart_drawer")}
               size="sm"
               type="button"
               variant="default"

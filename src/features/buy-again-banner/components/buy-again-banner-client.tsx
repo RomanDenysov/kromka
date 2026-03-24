@@ -21,6 +21,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import type { LastOrderWithItems } from "@/features/checkout/api/queries";
+import { analytics } from "@/lib/analytics";
 import { getItemCountString } from "@/lib/item-count-string";
 import { formatPrice } from "@/lib/utils";
 import { useBuyAgainOrder } from "../hooks/use-buy-again-order";
@@ -45,6 +46,11 @@ export function BuyAgainBannerClient({ items }: Props) {
   const { isPending, repeatOrder } = useBuyAgainOrder(() =>
     setDialogOpen(false)
   );
+
+  const handleDismiss = () => {
+    analytics.buyAgainDismissed();
+    dismiss();
+  };
 
   useEffect(init, [init]);
 
@@ -81,7 +87,7 @@ export function BuyAgainBannerClient({ items }: Props) {
       <button
         aria-label="Skryt banner"
         className="absolute top-2 right-2 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:top-2.5 sm:right-2.5"
-        onClick={dismiss}
+        onClick={handleDismiss}
         type="button"
       >
         <XIcon className="size-4 sm:size-5" />
@@ -202,7 +208,7 @@ export function BuyAgainBannerClient({ items }: Props) {
                 <Button
                   className="flex-1"
                   disabled={isPending || selectedItems.length === 0}
-                  onClick={() => repeatOrder(selectedItems)}
+                  onClick={() => repeatOrder(selectedItems, "banner_dialog")}
                   size="lg"
                 >
                   {isPending ? (
@@ -220,7 +226,7 @@ export function BuyAgainBannerClient({ items }: Props) {
         <Button
           className="w-full sm:w-auto sm:min-w-48"
           disabled={isPending}
-          onClick={() => repeatOrder(items)}
+          onClick={() => repeatOrder(items, "banner")}
           size="lg"
           variant="brand"
         >
