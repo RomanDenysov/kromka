@@ -58,7 +58,14 @@ export const analytics = {
   }) {
     posthog.capture("favorite toggled", p);
   },
-  orderRepeated(p: { item_count: number; total: number }) {
+  buyAgainDismissed() {
+    posthog.capture("buy again dismissed");
+  },
+  orderRepeated(p: {
+    item_count: number;
+    total: number;
+    source: "banner" | "banner_dialog" | "cart_drawer";
+  }) {
     posthog.capture("order repeated", p);
   },
   favoritesAllAdded(p: { item_count: number }) {
