@@ -2,6 +2,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { addItemsToCart } from "@/features/cart/api/actions";
 import { analytics } from "@/lib/analytics";
+import { useBuyAgainDismiss } from "../store";
 
 interface OrderItem {
   priceCents: number;
@@ -11,6 +12,7 @@ interface OrderItem {
 
 export function useBuyAgainOrder(onSuccess?: () => void) {
   const [isPending, startTransition] = useTransition();
+  const dismiss = useBuyAgainDismiss();
 
   const repeatOrder = (items: OrderItem[]) => {
     const total = items.reduce(
@@ -29,6 +31,8 @@ export function useBuyAgainOrder(onSuccess?: () => void) {
           item_count: items.length,
           total,
         });
+        dismiss();
+        toast.success("Produkty boli pridane do kosika");
         onSuccess?.();
       } catch {
         toast.error("Nastala chyba pri pridavani produktov do kosika");

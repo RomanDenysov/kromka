@@ -24,15 +24,21 @@ import type { LastOrderWithItems } from "@/features/checkout/api/queries";
 import { getItemCountString } from "@/lib/item-count-string";
 import { formatPrice } from "@/lib/utils";
 import { useBuyAgainOrder } from "../hooks/use-buy-again-order";
-
-const DISMISS_KEY = "buy-again-dismissed";
+import {
+  useBuyAgainDismiss,
+  useBuyAgainInit,
+  useBuyAgainVisible,
+} from "../store";
 
 interface Props {
   items: LastOrderWithItems["items"];
 }
 
 export function BuyAgainBannerClient({ items }: Props) {
-  const [dismissed, setDismissed] = useState(false);
+  const visible = useBuyAgainVisible();
+  const init = useBuyAgainInit();
+  const dismiss = useBuyAgainDismiss();
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState(items);
 
@@ -40,17 +46,9 @@ export function BuyAgainBannerClient({ items }: Props) {
     setDialogOpen(false)
   );
 
-  useEffect(() => {
-    try {
-      if (sessionStorage.getItem(DISMISS_KEY)) {
-        setDismissed(true);
-      }
-    } catch {
-      // sessionStorage unavailable (private browsing, cross-origin, etc.)
-    }
-  }, []);
+  useEffect(init, [init]);
 
-  if (dismissed) {
+  if (!visible) {
     return null;
   }
 
@@ -63,15 +61,6 @@ export function BuyAgainBannerClient({ items }: Props) {
     (sum, item) => sum + item.priceCents * item.quantity,
     0
   );
-
-  const handleDismiss = () => {
-    try {
-      sessionStorage.setItem(DISMISS_KEY, "1");
-    } catch {
-      // Storage write failed - still dismiss locally
-    }
-    setDismissed(true);
-  };
 
   const handleQuantityChange = (productId: string, delta: number) => {
     setSelectedItems((prev) =>
@@ -92,7 +81,7 @@ export function BuyAgainBannerClient({ items }: Props) {
       <button
         aria-label="Skryt banner"
         className="absolute top-2 right-2 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:top-2.5 sm:right-2.5"
-        onClick={handleDismiss}
+        onClick={dismiss}
         type="button"
       >
         <XIcon className="size-4 sm:size-5" />

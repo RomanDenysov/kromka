@@ -14,6 +14,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { getItemCountString } from "@/lib/item-count-string";
 import { cn, formatPrice } from "@/lib/utils";
 import { useBuyAgainOrder } from "../hooks/use-buy-again-order";
+import { useBuyAgainVisible } from "../store";
 
 const DISPLAY_ITEM_LIMIT = 3;
 
@@ -31,11 +32,11 @@ interface Props {
 }
 
 export function LastOrderCard({ items }: Props) {
+  const visible = useBuyAgainVisible();
   const [isOpen, setIsOpen] = useState(false);
-  const [showCard, setShowCard] = useState(true);
-  const { isPending, repeatOrder } = useBuyAgainOrder(() => setShowCard(false));
+  const { isPending, repeatOrder } = useBuyAgainOrder();
 
-  if (items.length === 0 || !showCard) {
+  if (items.length === 0 || !visible) {
     return null;
   }
 
