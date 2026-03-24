@@ -1,4 +1,3 @@
-import { Container } from "@/components/shared/container";
 import { featureFlags } from "@/config/features";
 import { homepageConfig } from "@/config/homepage";
 import {
@@ -146,26 +145,22 @@ export function HomeGrid() {
   const remainder = usedInLastRow === COLS ? 0 : COLS - usedInLastRow;
 
   return (
-    <section className="w-full pt-5 pb-6 md:pb-10">
-      <Container>
-        <div className="grid grid-cols-1 gap-4 md:grid-flow-dense md:grid-cols-4 lg:grid-cols-6">
-          {visibleItems.map((item, index) => {
-            const isLast = index === visibleItems.length - 1;
-            // If the last item and there is remainder, stretch it
-            const extraSpan =
-              isLast && remainder > 0 && remainder <= 2 ? remainder : 0;
+    <section className="grid grid-cols-1 gap-4 md:grid-flow-dense md:grid-cols-4 lg:grid-cols-6">
+      {visibleItems.map((item, index) => {
+        const isLast = index === visibleItems.length - 1;
+        // If the last item and there is remainder, stretch it
+        const extraSpan =
+          isLast && remainder > 0 && remainder <= 2 ? remainder : 0;
 
-            return (
-              <GridCard
-                key={item.id}
-                {...item}
-                extraSpan={extraSpan}
-                preload={index < 6}
-              />
-            );
-          })}
-        </div>
-      </Container>
+        return (
+          <GridCard
+            key={item.id}
+            {...item}
+            extraSpan={extraSpan}
+            preload={index < 6}
+          />
+        );
+      })}
     </section>
   );
 }
