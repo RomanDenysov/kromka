@@ -7,7 +7,7 @@ import {
   ArrowUpAzIcon,
 } from "lucide-react";
 import { useTransition } from "react";
-import { useEshopParams } from "@/app/(public)/e-shop/eshop-params";
+import { useEshopParams } from "@/app/(public)/(pages)/e-shop/eshop-params";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 

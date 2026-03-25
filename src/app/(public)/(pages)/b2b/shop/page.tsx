@@ -4,12 +4,12 @@ import { type ReactNode, Suspense } from "react";
 import {
   CategoriesChips,
   CategoriesChipsSkeleton,
-} from "@/app/(public)/e-shop/categories-chips";
-import { loadEshopParams } from "@/app/(public)/e-shop/eshop-params";
+} from "@/app/(public)/(pages)/e-shop/categories-chips";
+import { loadEshopParams } from "@/app/(public)/(pages)/e-shop/eshop-params";
 import {
   ProductSearch,
   ProductSearchSkeleton,
-} from "@/app/(public)/e-shop/product-search";
+} from "@/app/(public)/(pages)/e-shop/product-search";
 import {
   CategoriesSidebar,
   CategoriesSidebarSkeleton,

@@ -11,7 +11,7 @@ export function CallToAction() {
           <h2 className="font-medium text-3xl tracking-tight sm:text-4xl">
             Pripravení začať?
           </h2>
-          <p className="max-w-[600px] text-lg text-muted-foreground">
+          <p className="max-w-[600px] text-foreground/60 text-lg">
             Zaregistrujte sa a získajte prístup k exkluzívnym ponukám,
             veľkoobjednávkam a ďalším výhodám pre stálych zákazníkov.
           </p>

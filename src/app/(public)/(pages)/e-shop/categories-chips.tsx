@@ -33,7 +33,7 @@ export function CategoriesChips({ categories }: Props) {
           return (
             <Badge
               className={cn(
-                isFeatured && !isActive && "border-featured/30 text-featured"
+                isFeatured && !isActive && "border-brand text-brand"
               )}
               key={c.slug}
               variant={isActive ? "default" : "outline"}
