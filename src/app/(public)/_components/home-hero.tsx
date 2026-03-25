@@ -7,7 +7,6 @@ import {
   useScroll,
   useTransform,
 } from "motion/react";
-import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { type ReactNode, Suspense, useEffect, useRef, useState } from "react";
@@ -15,15 +14,8 @@ import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { featureFlags } from "@/config/features";
 import { cn } from "@/lib/utils";
-
-const navigation: { name: string; href: Route }[] = [
-  { name: "E-shop", href: "/e-shop" },
-  { name: "B2B", href: "/b2b" },
-  { name: "Predajne", href: "/predajne" },
-  ...(featureFlags.blog ? [{ name: "Blog", href: "/blog" as Route }] : []),
-];
+import { navigation } from "./navigation";
 
 interface HomeHeroProps {
   actions: ReactNode;
