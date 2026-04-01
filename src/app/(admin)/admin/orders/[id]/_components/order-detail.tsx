@@ -9,11 +9,13 @@ import {
   CreditCardIcon,
   MailIcon,
   MapPinIcon,
+  PencilIcon,
   PhoneIcon,
   UserIcon,
   XCircleIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,7 +64,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
+import { ADMIN_MODIFIABLE_PICKUP_STATUSES } from "@/features/orders/api/actions";
 import type { Order } from "@/features/orders/api/queries";
+import { AdminUpdatePickupDialog } from "@/features/orders/components/admin-update-pickup-dialog";
+import type { Store } from "@/features/stores/api/queries";
 import {
   ORDER_STATUS_ICONS,
   ORDER_STATUS_LABELS,
@@ -455,11 +460,17 @@ function PickupCard({
   store,
   pickupDate,
   pickupTime,
+  orderStatus,
+  onEditClick,
 }: {
   store: StoreData;
   pickupDate: string | null;
   pickupTime: string | null;
+  orderStatus: OrderStatus;
+  onEditClick: () => void;
 }) {
+  const canEdit = ADMIN_MODIFIABLE_PICKUP_STATUSES.includes(orderStatus);
+
   return (
     <Card>
       <CardHeader>
@@ -467,6 +478,13 @@ function PickupCard({
           <MapPinIcon className="size-4" />
           Vyzdvihnutie
         </CardTitle>
+        {canEdit && (
+          <CardAction>
+            <Button onClick={onEditClick} size="icon-xs" variant="outline">
+              <PencilIcon className="size-3.5" />
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {store ? (
@@ -659,7 +677,13 @@ function StatusHistoryCard({ events }: { events: StatusEventData[] }) {
 // Main Component
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function OrderDetail({ order }: { order: Order | undefined }) {
+export function OrderDetail({
+  order,
+  stores,
+}: {
+  order: Order | undefined;
+  stores: Store[];
+}) {
   const {
     optimisticOrderStatus,
     optimisticPaymentStatus,
@@ -669,6 +693,7 @@ export function OrderDetail({ order }: { order: Order | undefined }) {
     handleStatusChange,
     handlePaymentStatusChange,
   } = useOrderStatusManagement(order);
+  const [pickupDialogOpen, setPickupDialogOpen] = useState(false);
 
   if (!order) {
     return (
@@ -777,6 +802,8 @@ export function OrderDetail({ order }: { order: Order | undefined }) {
             customerInfo={order.customerInfo}
           />
           <PickupCard
+            onEditClick={() => setPickupDialogOpen(true)}
+            orderStatus={optimisticOrderStatus}
             pickupDate={order.pickupDate}
             pickupTime={order.pickupTime}
             store={order.store}
@@ -794,6 +821,16 @@ export function OrderDetail({ order }: { order: Order | undefined }) {
       </div>
 
       {order.statusEvents && <StatusHistoryCard events={order.statusEvents} />}
+
+      <AdminUpdatePickupDialog
+        currentPickupDate={order.pickupDate}
+        currentPickupTime={order.pickupTime}
+        currentStoreId={order.store?.id ?? null}
+        onOpenChange={setPickupDialogOpen}
+        open={pickupDialogOpen}
+        orderId={order.id}
+        stores={stores}
+      />
     </div>
   );
 }
