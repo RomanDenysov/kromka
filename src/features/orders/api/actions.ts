@@ -94,7 +94,8 @@ async function applyPickupUpdate(
     storeId: string | null;
     pickupDate: string | null;
     pickupTime: string | null;
-  }
+  },
+  changedBy: { name: string; email: string; isStaff: boolean }
 ) {
   const [oldStore] = await Promise.all([
     oldPickup.storeId
@@ -132,7 +133,11 @@ async function applyPickupUpdate(
         );
         return;
       }
-      await sendEmail.orderPickupUpdated({ order: fullOrder, previousPickup });
+      await sendEmail.orderPickupUpdated({
+        order: fullOrder,
+        previousPickup,
+        changedBy,
+      });
     } catch (err) {
       log.email.error({ err, orderId }, "Failed to send pickup update email");
     }
@@ -475,7 +480,8 @@ export async function updateOrderPickupAction(
         storeId: order.storeId,
         pickupDate: order.pickupDate,
         pickupTime: order.pickupTime,
-      }
+      },
+      { name: user.name, email: user.email, isStaff: false }
     );
 
     log.orders.info(
@@ -545,7 +551,8 @@ export async function adminUpdateOrderPickupAction(
         storeId: order.storeId,
         pickupDate: order.pickupDate,
         pickupTime: order.pickupTime,
-      }
+      },
+      { name: staff.name, email: staff.email, isStaff: true }
     );
 
     log.orders.info(

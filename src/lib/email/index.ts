@@ -429,6 +429,7 @@ export const sendEmail = {
   orderPickupUpdated: async ({
     order,
     previousPickup,
+    changedBy,
   }: {
     order: Order;
     previousPickup?: {
@@ -437,6 +438,7 @@ export const sendEmail = {
       storeName: string | null;
       storeSlug: string | null;
     };
+    changedBy: { name: string; email: string; isStaff: boolean };
   }) => {
     if (!order) {
       throw new Error("Order not found");
@@ -444,35 +446,58 @@ export const sendEmail = {
 
     const customerEmail = getCustomerEmail(order);
 
-    const html = await renderOrderPickupUpdatedEmail({
+    const previous = {
+      pickupPlace: previousPickup?.storeName ?? "Neurčené",
+      pickupPlaceUrl: getPickupPlaceUrl(previousPickup?.storeSlug),
+      pickupDate: formatPickupDate(previousPickup?.pickupDate),
+      pickupTime: previousPickup?.pickupTime ?? "Neurčený čas",
+    };
+
+    const updated = {
+      pickupPlace: order.store?.name ?? "Neurčené",
+      pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
+      pickupDate: formatPickupDate(order.pickupDate),
+      pickupTime: order.pickupTime ?? "Neurčený čas",
+    };
+
+    const sharedData = {
       orderId: order.orderNumber,
       orderUrl: `${getBaseUrl()}/profil/objednavky/${order.id}`,
-      previous: {
-        pickupPlace: previousPickup?.storeName ?? "Neurčené",
-        pickupPlaceUrl: getPickupPlaceUrl(previousPickup?.storeSlug),
-        pickupDate: formatPickupDate(previousPickup?.pickupDate),
-        pickupTime: previousPickup?.pickupTime ?? "Neurčený čas",
-      },
-      updated: {
-        pickupPlace: order.store?.name ?? "Neurčené",
-        pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
-        pickupDate: formatPickupDate(order.pickupDate),
-        pickupTime: order.pickupTime ?? "Neurčený čas",
-      },
-    });
+      previous,
+      updated,
+    };
+
+    const [customerHtml, staffHtml] = await Promise.all([
+      renderOrderPickupUpdatedEmail(sharedData),
+      renderOrderPickupUpdatedEmail({
+        ...sharedData,
+        orderUrl: `${getBaseUrl()}/admin/orders/${order.id}`,
+        changedBy: { name: changedBy.name, email: changedBy.email },
+        customer: {
+          name: order.createdBy?.name ?? order.customerInfo?.name ?? "Neurčené",
+          email: customerEmail,
+          phone: order.createdBy?.phone ?? order.customerInfo?.phone ?? null,
+          isRegistered: !!order.createdBy,
+        },
+      }),
+    ]);
+
+    const staffSubject = changedBy.isStaff
+      ? `Manager ${changedBy.name} zmenil vyzdvihnutie objednávky ${order.orderNumber}`
+      : `Zákazník zmenil vyzdvihnutie objednávky ${order.orderNumber}`;
 
     await Promise.all([
       emailService({
         from: `"Kromka" <${env.EMAIL_USER}>`,
         to: customerEmail,
         subject: `Zmena vyzdvihnutia objednávky ${order.orderNumber} - Kromka`,
-        html,
+        html: customerHtml,
       }),
       emailService({
         from: `"Kromka" <${env.EMAIL_USER}>`,
         to: STAFF_EMAIL,
-        subject: `Zákazník zmenil vyzdvihnutie objednávky ${order.orderNumber}`,
-        html,
+        subject: staffSubject,
+        html: staffHtml,
       }),
     ]);
   },
