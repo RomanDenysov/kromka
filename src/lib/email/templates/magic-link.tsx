@@ -20,6 +20,7 @@ import {
   DEFAULT_LOGO_URL,
   DEFAULT_SUPPORT_EMAIL,
   EMAIL_MUTED_TEXT_CLASS,
+  getCopyrightText,
 } from "./shared";
 
 export function MagicLink(props: { url: string }) {
@@ -90,7 +91,7 @@ export function MagicLink(props: { url: string }) {
                 ))}
               </Text>
               <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-3`}>
-                © 2025 Všetky práva vyhradené pre Kromka s.r.o.
+                {getCopyrightText()}
               </Text>
             </Section>
           </Container>
