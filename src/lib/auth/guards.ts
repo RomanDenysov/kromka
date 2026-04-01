@@ -42,6 +42,26 @@ export async function requireStaff() {
 }
 
 /**
+ * Require user to be a store manager (admin or manager role).
+ * Used in store manager server actions.
+ * TODO: When store_profiles table exists, add requireStoreAccess(storeId)
+ * to verify the manager's org actually owns the store.
+ */
+export async function requireStoreManager() {
+  const user = await getUser();
+
+  if (!user) {
+    unauthorized();
+  }
+
+  if (!STAFF_ROLES.includes(user.role)) {
+    forbidden();
+  }
+
+  return user;
+}
+
+/**
  * Require user to be a member of a B2B organization.
  * Redirects to /b2b if not authenticated or not a member.
  */
