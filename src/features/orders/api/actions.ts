@@ -8,7 +8,11 @@ import { z } from "zod";
 import { db } from "@/db";
 import { orderStatusEvents, orders, stores } from "@/db/schema";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
-import { MODIFIABLE_ORDER_STATUSES, ORDER_STATUSES } from "@/db/types";
+import {
+  ADMIN_MODIFIABLE_PICKUP_STATUSES,
+  MODIFIABLE_ORDER_STATUSES,
+  ORDER_STATUSES,
+} from "@/db/types";
 import {
   filterTimeSlots,
   generateAllTimeSlots,
@@ -24,11 +28,97 @@ import { sendEmail } from "@/lib/email";
 import { log } from "@/lib/logger";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
 
-export const ADMIN_MODIFIABLE_PICKUP_STATUSES: OrderStatus[] = [
-  "new",
-  "in_progress",
-  "ready_for_pickup",
-];
+/**
+ * Shared validation for pickup store, date, and time.
+ * Returns the validated store on success, or an ActionResult error.
+ */
+async function validatePickupDetails(
+  storeId: string,
+  pickupDate: string,
+  pickupTime: string
+): Promise<
+  | { valid: true; store: { id: string; name: string } }
+  | { valid: false; result: ActionResult }
+> {
+  const store = await db.query.stores.findFirst({
+    where: and(eq(stores.id, storeId), eq(stores.isActive, true)),
+  });
+
+  if (!store) {
+    return {
+      valid: false,
+      result: { success: false, error: "Vybraná predajňa nebola nájdená" },
+    };
+  }
+
+  const parsedDate = parseISO(pickupDate);
+  if (!isValidPickupDate(parsedDate, store.openingHours, null)) {
+    return {
+      valid: false,
+      result: {
+        success: false,
+        error: "Zvolený dátum nie je dostupný pre túto predajňu",
+      },
+    };
+  }
+
+  const timeRange = getTimeRangeForDate(parsedDate, store.openingHours);
+  if (!timeRange) {
+    return {
+      valid: false,
+      result: { success: false, error: "Predajňa je v tento deň zatvorená" },
+    };
+  }
+
+  const validSlots = filterTimeSlots(generateAllTimeSlots(), timeRange);
+  if (!validSlots.includes(pickupTime)) {
+    return {
+      valid: false,
+      result: { success: false, error: "Zvolený čas nie je dostupný" },
+    };
+  }
+
+  return { valid: true, store };
+}
+
+/** Persist pickup changes, log event, and send notification email. */
+async function applyPickupUpdate(
+  orderId: string,
+  storeId: string,
+  pickupDate: string,
+  pickupTime: string,
+  orderStatus: OrderStatus,
+  userId: string,
+  note: string
+) {
+  await db
+    .update(orders)
+    .set({ storeId, pickupDate, pickupTime })
+    .where(eq(orders.id, orderId));
+
+  await db.insert(orderStatusEvents).values({
+    orderId,
+    status: orderStatus,
+    createdBy: userId,
+    note,
+  });
+
+  after(async () => {
+    try {
+      const fullOrder = await getOrderById(orderId);
+      if (!fullOrder) {
+        log.email.warn(
+          { orderId },
+          "Cannot send pickup email - order not found"
+        );
+        return;
+      }
+      await sendEmail.orderPickupUpdated({ order: fullOrder });
+    } catch (err) {
+      log.email.error({ err, orderId }, "Failed to send pickup update email");
+    }
+  });
+}
 
 async function sendEmailBasedOnOrderStatus(
   orderOrId: string | Order,
@@ -345,68 +435,29 @@ export async function updateOrderPickupAction(
       };
     }
 
-    // Validate store exists and is active
-    const store = await db.query.stores.findFirst({
-      where: and(eq(stores.id, storeId), eq(stores.isActive, true)),
-    });
-
-    if (!store) {
-      return { success: false, error: "Vybraná predajňa nebola nájdená" };
+    const validation = await validatePickupDetails(
+      storeId,
+      pickupDate,
+      pickupTime
+    );
+    if (!validation.valid) {
+      return validation.result;
     }
 
-    // Validate pickup date
-    const parsedDate = parseISO(pickupDate);
-    if (!isValidPickupDate(parsedDate, store.openingHours, null)) {
-      return {
-        success: false,
-        error: "Zvolený dátum nie je dostupný pre túto predajňu",
-      };
-    }
-
-    // Validate pickup time
-    const timeRange = getTimeRangeForDate(parsedDate, store.openingHours);
-    if (!timeRange) {
-      return {
-        success: false,
-        error: "Predajňa je v tento deň zatvorená",
-      };
-    }
-
-    const validSlots = filterTimeSlots(generateAllTimeSlots(), timeRange);
-    if (!validSlots.includes(pickupTime)) {
-      return {
-        success: false,
-        error: "Zvolený čas nie je dostupný",
-      };
-    }
-
-    await db
-      .update(orders)
-      .set({ storeId, pickupDate, pickupTime })
-      .where(eq(orders.id, orderId));
-
-    await db.insert(orderStatusEvents).values({
+    await applyPickupUpdate(
       orderId,
-      status: order.orderStatus,
-      createdBy: user.id,
-      note: `Zákazník zmenil vyzdvihnutie: ${store.name}, ${pickupDate} ${pickupTime}`,
-    });
+      storeId,
+      pickupDate,
+      pickupTime,
+      order.orderStatus,
+      user.id,
+      `Zákazník zmenil vyzdvihnutie: ${validation.store.name}, ${pickupDate} ${pickupTime}`
+    );
 
     log.orders.info(
       { orderId, userId: user.id, storeId, pickupDate, pickupTime },
       "Order pickup updated by user"
     );
-
-    after(async () => {
-      try {
-        const fullOrder = await getOrderById(orderId);
-        if (fullOrder) {
-          await sendEmail.orderPickupUpdated({ order: fullOrder });
-        }
-      } catch (err) {
-        log.email.error({ err, orderId }, "Failed to send pickup update email");
-      }
-    });
 
     refresh();
     return { success: true };
@@ -449,70 +500,29 @@ export async function adminUpdateOrderPickupAction(
       };
     }
 
-    const store = await db.query.stores.findFirst({
-      where: and(eq(stores.id, storeId), eq(stores.isActive, true)),
-    });
-
-    if (!store) {
-      return { success: false, error: "Vybraná predajňa nebola nájdená" };
+    const validation = await validatePickupDetails(
+      storeId,
+      pickupDate,
+      pickupTime
+    );
+    if (!validation.valid) {
+      return validation.result;
     }
 
-    const parsedDate = parseISO(pickupDate);
-    if (!isValidPickupDate(parsedDate, store.openingHours, null)) {
-      return {
-        success: false,
-        error: "Zvolený dátum nie je dostupný pre túto predajňu",
-      };
-    }
-
-    const timeRange = getTimeRangeForDate(parsedDate, store.openingHours);
-    if (!timeRange) {
-      return {
-        success: false,
-        error: "Predajňa je v tento deň zatvorená",
-      };
-    }
-
-    const validSlots = filterTimeSlots(generateAllTimeSlots(), timeRange);
-    if (!validSlots.includes(pickupTime)) {
-      return {
-        success: false,
-        error: "Zvolený čas nie je dostupný",
-      };
-    }
-
-    await db
-      .update(orders)
-      .set({ storeId, pickupDate, pickupTime })
-      .where(eq(orders.id, orderId));
-
-    await db.insert(orderStatusEvents).values({
+    await applyPickupUpdate(
       orderId,
-      status: order.orderStatus,
-      createdBy: staff.id,
-      note: `Zmena vyzdvihnutia (admin): ${store.name}, ${pickupDate} ${pickupTime}`,
-    });
+      storeId,
+      pickupDate,
+      pickupTime,
+      order.orderStatus,
+      staff.id,
+      `Zmena vyzdvihnutia (admin): ${validation.store.name}, ${pickupDate} ${pickupTime}`
+    );
 
     log.orders.info(
       { orderId, userId: staff.id, storeId, pickupDate, pickupTime },
       "Order pickup updated by admin"
     );
-
-    after(async () => {
-      try {
-        const fullOrder = await getOrderById(orderId);
-        if (!fullOrder) {
-          log.email.warn(
-            { orderId },
-            "Cannot send pickup email - order not found"
-          );
-          return;
-        }
-        await sendEmail.orderPickupUpdated({ order: fullOrder });
-      } catch (err) {
-        log.email.error({ err, orderId }, "Failed to send pickup update email");
-      }
-    });
 
     refresh();
     return { success: true };
