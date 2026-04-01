@@ -10,7 +10,7 @@ import { navigation } from "./navigation";
 export function Header({ children }: { children: ReactNode }) {
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b bg-background pt-[env(safe-area-inset-top)]"
+      className="w-full border-b bg-background pt-[env(safe-area-inset-top)]"
       data-layout-header
     >
       <Container>

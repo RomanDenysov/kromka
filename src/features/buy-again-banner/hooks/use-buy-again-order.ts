@@ -10,7 +10,7 @@ interface OrderItem {
   quantity: number;
 }
 
-type Source = "banner" | "banner_dialog" | "cart_drawer";
+type Source = "banner" | "banner_dialog" | "cart_drawer" | "reorder_bar";
 
 export function useBuyAgainOrder(onSuccess?: () => void) {
   const [isPending, startTransition] = useTransition();

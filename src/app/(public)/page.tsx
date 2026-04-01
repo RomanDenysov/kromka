@@ -5,11 +5,15 @@ import { CallToAction } from "@/components/landing/cta";
 import { HomeGrid } from "@/components/landing/home-grid";
 import { Container } from "@/components/shared/container";
 import { featureFlags } from "@/config/features";
-import { BuyAgainBanner } from "@/features/buy-again-banner/components/buy-again-banner";
+import { ReorderBarContent } from "@/features/buy-again-banner/components/reorder-bar-content";
 import { createMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/utils";
 import { HeaderActions } from "./_components/header-actions";
 import { HomeHero } from "./_components/home-hero";
+import {
+  HomepageProducts,
+  HomepageProductsSkeleton,
+} from "./_components/homepage-products";
 
 export const metadata: Metadata = createMetadata({
   title: "Pekáreň Kromka - Remeselná pekáreň v Prešove a Košiciach",
@@ -22,11 +26,16 @@ export const metadata: Metadata = createMetadata({
 export default function Home() {
   return (
     <>
+      <div className="fixed inset-x-0 top-0 z-[60]">
+        <Suspense>
+          <ReorderBarContent />
+        </Suspense>
+      </div>
       <HomeHero actions={<HeaderActions />} />
       <main className="w-full pt-5 pb-6 md:pb-10">
-        <Container className="space-y-6">
-          <Suspense>
-            <BuyAgainBanner />
+        <Container className="mt-6 space-y-6">
+          <Suspense fallback={<HomepageProductsSkeleton />}>
+            <HomepageProducts />
           </Suspense>
           <HomeGrid />
           {featureFlags.game && (

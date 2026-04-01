@@ -35,6 +35,7 @@ import {
 import { cn, formatPrice, getSiteUrl } from "@/lib/utils";
 import { getCategoriesLink } from "../../e-shop/eshop-params";
 import { AddWithQuantityButton } from "./add-with-quantity-button";
+import { ProductMobileFooter } from "./product-mobile-footer";
 import { ProductRecommendations } from "./product-recommendations";
 
 interface Props {
@@ -77,8 +78,8 @@ function getProductRecommendations(
   currentProduct: Product,
   allProducts: Product[]
 ): Product[] {
-  const MAX_SAME_CATEGORY = 6;
-  const MAX_TOTAL = 8;
+  const MAX_SAME_CATEGORY = 3;
+  const MAX_TOTAL = 4;
 
   // Filter active products, excluding current product
   const availableProducts = allProducts.filter(
@@ -191,7 +192,7 @@ export default async function ProductPage({ params }: Props) {
   const breadcrumbSchema = getBreadcrumbSchema(breadcrumbItems);
 
   return (
-    <PageWrapper>
+    <PageWrapper className="pb-24 md:pb-16">
       <JsonLd data={[productSchema, breadcrumbSchema, ...reviewSchemas]} />
       <AppBreadcrumbs
         items={[{ label: "E-shop", href: "/e-shop" }, { label: result.name }]}
@@ -214,7 +215,7 @@ export default async function ProductPage({ params }: Props) {
             />
           </div>
         </div>
-        <div className="col-span-1 flex flex-col gap-6 sm:col-span-2 md:col-span-3">
+        <div className="col-span-1 flex flex-col gap-4 sm:col-span-2 md:col-span-3">
           {/* Product Title and Categories*/}
           {result.category ? (
             <div className="flex flex-wrap items-center justify-start gap-1">
@@ -253,7 +254,7 @@ export default async function ProductPage({ params }: Props) {
           <p className="font-semibold text-2xl tracking-tight md:text-4xl">
             {formatPrice(result.priceCents)}
           </p>
-          <div className="flex flex-col items-start justify-start gap-2 md:flex-row md:items-center">
+          <div className="flex flex-wrap items-center gap-2">
             {isInStock ? (
               <Badge className="w-fit" variant="success">
                 <CheckCircleIcon />
@@ -278,6 +279,9 @@ export default async function ProductPage({ params }: Props) {
               </div>
             )}
           </div>
+
+          <Separator />
+
           <div className="grow">
             <div
               className="prose prose-stone dark:prose-invert prose-p:mb-4 max-w-none"
@@ -285,19 +289,29 @@ export default async function ProductPage({ params }: Props) {
               dangerouslySetInnerHTML={{ __html: descriptionHtml }}
             />
           </div>
+
           <Separator />
-          <div className="flex w-full items-center justify-between gap-2">
-            <AddWithQuantityButton
-              disabled={!isInStock}
-              id={result.id}
-              product={{
-                name: result.name,
-                price: result.priceCents,
-                category: result.category?.name ?? "",
-                categoryId: result.category?.id ?? "",
-              }}
-            />
-          </div>
+
+          <AddWithQuantityButton
+            disabled={!isInStock}
+            id={result.id}
+            product={{
+              name: result.name,
+              price: result.priceCents,
+              category: result.category?.name ?? "",
+              categoryId: result.category?.id ?? "",
+            }}
+          />
+
+          <ProductMobileFooter
+            disabled={!isInStock}
+            id={result.id}
+            priceCents={result.priceCents}
+            product={{
+              name: result.name,
+              price: result.priceCents,
+            }}
+          />
         </div>
       </section>
       {recommendations.length > 0 && (

@@ -11,7 +11,6 @@ import {
 } from "@/components/filters/sort-toggles";
 import { JsonLd } from "@/components/seo/json-ld";
 import { PageWrapper } from "@/components/shared/container";
-import { BuyAgainBanner } from "@/features/buy-again-banner/components/buy-again-banner";
 import { getCategories } from "@/features/categories/api/queries";
 import {
   ProductsGrid,
@@ -59,9 +58,6 @@ export default function EshopPage({ searchParams }: Props) {
           <CategoriesSidebar categories={categoriesPromise} />
         </Suspense>
         <div className="min-w-0 space-y-4">
-          <Suspense>
-            <BuyAgainBanner />
-          </Suspense>
           <div className="flex items-center justify-between gap-8">
             <Suspense fallback={<ProductSearchSkeleton />}>
               <ProductSearch />

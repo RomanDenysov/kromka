@@ -6,7 +6,8 @@ export type AddToCartSource =
   | "product_page"
   | "product_card"
   | "recommendation"
-  | "favorites";
+  | "favorites"
+  | "homepage";
 
 export const analytics = {
   productViewed(p: {
@@ -64,7 +65,7 @@ export const analytics = {
   orderRepeated(p: {
     item_count: number;
     total: number;
-    source: "banner" | "banner_dialog" | "cart_drawer";
+    source: "banner" | "banner_dialog" | "cart_drawer" | "reorder_bar";
   }) {
     posthog.capture("order repeated", p);
   },

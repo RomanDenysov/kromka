@@ -22,16 +22,28 @@ interface HomeHeroProps {
 }
 
 const SCROLL_RANGE: [number, number] = [0, 300];
+const DESKTOP_SCALE = 8;
+const MOBILE_SCALE = 4.5;
 
 export function HomeHero({ actions }: HomeHeroProps) {
   const heroRef = useRef<HTMLElement>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [heroScale, setHeroScale] = useState(MOBILE_SCALE);
   const prefersReduced = useReducedMotion();
 
   const { scrollY } = useScroll();
 
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = () =>
+      setHeroScale(mq.matches ? DESKTOP_SCALE : MOBILE_SCALE);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   // Logo: transforms from hero-center to header position
-  const logoScale = useTransform(scrollY, SCROLL_RANGE, [8, 1]);
+  const logoScale = useTransform(scrollY, SCROLL_RANGE, [heroScale, 1]);
   const logoY = useTransform(scrollY, SCROLL_RANGE, ["40vh", "0vh"]);
 
   // Background parallax
@@ -60,7 +72,7 @@ export function HomeHero({ actions }: HomeHeroProps) {
       {/* Fixed header - transparent -> solid on scroll */}
       <header
         className={cn(
-          "fixed top-0 z-50 w-full pt-[env(safe-area-inset-top)] transition-colors duration-300",
+          "fixed z-50 w-full transition-colors duration-300",
           scrolled
             ? "bg-background text-foreground"
             : "bg-transparent text-white"
@@ -128,7 +140,7 @@ export function HomeHero({ actions }: HomeHeroProps) {
 
       {/* Fullscreen hero section */}
       <section
-        className="relative h-svh w-full overflow-hidden bg-black"
+        className="relative h-dvh w-full overflow-hidden bg-black"
         id="home-hero"
         ref={heroRef}
       >
@@ -156,32 +168,33 @@ export function HomeHero({ actions }: HomeHeroProps) {
           style={{ opacity: prefersReduced ? 0 : overlayOpacity }}
         />
 
-        {/* Subtitle */}
-        <div className="absolute inset-x-0 bottom-28 z-10 flex flex-col items-center px-6 md:bottom-32">
+        {/* Subtitle + CTAs */}
+        <div className="absolute inset-x-0 bottom-8 z-10 flex flex-col items-center gap-6 px-6 md:bottom-10 md:gap-8">
           <p className="text-white/70 text-xs uppercase tracking-[0.25em] md:text-sm">
             Remeseln&#225; pek&#225;re&#328;
           </p>
-        </div>
-
-        {/* CTAs */}
-        <div className="absolute inset-x-0 bottom-8 z-10 flex items-center justify-center gap-4 px-6 md:bottom-10">
-          <Link
-            className={cn(buttonVariants({ variant: "glass" }), "group")}
-            href="/e-shop"
-          >
-            Objednat online
-            <ArrowRight className="size-3.5" />
-          </Link>
-          <Link
-            className={cn(
-              buttonVariants({ variant: "link", size: "sm" }),
-              "text-white/60 no-underline hover:text-white hover:no-underline"
-            )}
-            href="/predajne"
-          >
-            <MapPin className="size-3.5" />
-            Nase predajne
-          </Link>
+          <div className="flex w-full flex-col items-stretch gap-3 md:w-auto md:flex-row md:items-center md:justify-center md:gap-4">
+            <Link
+              className={cn(
+                buttonVariants({ variant: "glass" }),
+                "group w-full justify-center md:w-auto"
+              )}
+              href="/e-shop"
+            >
+              Objednat online
+              <ArrowRight className="size-3.5" />
+            </Link>
+            <Link
+              className={cn(
+                buttonVariants({ variant: "link", size: "sm" }),
+                "w-full justify-center text-white/60 no-underline hover:text-white hover:no-underline md:w-auto"
+              )}
+              href="/predajne"
+            >
+              <MapPin className="size-3.5" />
+              Nase predajne
+            </Link>
+          </div>
         </div>
       </section>
     </>
