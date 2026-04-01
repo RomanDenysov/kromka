@@ -89,30 +89,38 @@ async function applyPickupUpdate(
   pickupTime: string,
   orderStatus: OrderStatus,
   userId: string,
-  note: string
+  note: string,
+  oldPickup: {
+    storeId: string | null;
+    pickupDate: string | null;
+    pickupTime: string | null;
+  }
 ) {
-  // Capture old details before DB update for before/after email comparison
-  const oldOrder = await getOrderById(orderId);
-  const previousPickup = oldOrder
-    ? {
-        storeName: oldOrder.store?.name ?? null,
-        storeSlug: oldOrder.store?.slug ?? null,
-        pickupDate: oldOrder.pickupDate,
-        pickupTime: oldOrder.pickupTime,
-      }
-    : undefined;
+  const [oldStore] = await Promise.all([
+    oldPickup.storeId
+      ? db.query.stores.findFirst({
+          where: eq(stores.id, oldPickup.storeId),
+          columns: { name: true, slug: true },
+        })
+      : null,
+    db
+      .update(orders)
+      .set({ storeId, pickupDate, pickupTime })
+      .where(eq(orders.id, orderId)),
+    db.insert(orderStatusEvents).values({
+      orderId,
+      status: orderStatus,
+      createdBy: userId,
+      note,
+    }),
+  ]);
 
-  await db
-    .update(orders)
-    .set({ storeId, pickupDate, pickupTime })
-    .where(eq(orders.id, orderId));
-
-  await db.insert(orderStatusEvents).values({
-    orderId,
-    status: orderStatus,
-    createdBy: userId,
-    note,
-  });
+  const previousPickup = {
+    storeName: oldStore?.name ?? null,
+    storeSlug: oldStore?.slug ?? null,
+    pickupDate: oldPickup.pickupDate,
+    pickupTime: oldPickup.pickupTime,
+  };
 
   after(async () => {
     try {
@@ -462,7 +470,12 @@ export async function updateOrderPickupAction(
       pickupTime,
       order.orderStatus,
       user.id,
-      `Zákazník zmenil vyzdvihnutie: ${validation.store.name}, ${pickupDate} ${pickupTime}`
+      `Zákazník zmenil vyzdvihnutie: ${validation.store.name}, ${pickupDate} ${pickupTime}`,
+      {
+        storeId: order.storeId,
+        pickupDate: order.pickupDate,
+        pickupTime: order.pickupTime,
+      }
     );
 
     log.orders.info(
@@ -527,7 +540,12 @@ export async function adminUpdateOrderPickupAction(
       pickupTime,
       order.orderStatus,
       staff.id,
-      `Zmena vyzdvihnutia (admin): ${validation.store.name}, ${pickupDate} ${pickupTime}`
+      `Zmena vyzdvihnutia (admin): ${validation.store.name}, ${pickupDate} ${pickupTime}`,
+      {
+        storeId: order.storeId,
+        pickupDate: order.pickupDate,
+        pickupTime: order.pickupTime,
+      }
     );
 
     log.orders.info(
