@@ -24,7 +24,7 @@ import { sendEmail } from "@/lib/email";
 import { log } from "@/lib/logger";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
 
-const ADMIN_MODIFIABLE_PICKUP_STATUSES: OrderStatus[] = [
+export const ADMIN_MODIFIABLE_PICKUP_STATUSES: OrderStatus[] = [
   "new",
   "in_progress",
   "ready_for_pickup",
@@ -501,9 +501,14 @@ export async function adminUpdateOrderPickupAction(
     after(async () => {
       try {
         const fullOrder = await getOrderById(orderId);
-        if (fullOrder) {
-          await sendEmail.orderPickupUpdated({ order: fullOrder });
+        if (!fullOrder) {
+          log.email.warn(
+            { orderId },
+            "Cannot send pickup email - order not found"
+          );
+          return;
         }
+        await sendEmail.orderPickupUpdated({ order: fullOrder });
       } catch (err) {
         log.email.error({ err, orderId }, "Failed to send pickup update email");
       }
@@ -513,7 +518,14 @@ export async function adminUpdateOrderPickupAction(
     return { success: true };
   } catch (error) {
     log.orders.error(
-      { err: error, orderId },
+      {
+        err: error,
+        orderId,
+        userId: staff.id,
+        storeId,
+        pickupDate,
+        pickupTime,
+      },
       "Admin update order pickup failed"
     );
     return { success: false, error: "Nastala chyba pri úprave objednávky" };

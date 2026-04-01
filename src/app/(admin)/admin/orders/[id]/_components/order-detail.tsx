@@ -64,6 +64,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
+import { ADMIN_MODIFIABLE_PICKUP_STATUSES } from "@/features/orders/api/actions";
 import type { Order } from "@/features/orders/api/queries";
 import { AdminUpdatePickupDialog } from "@/features/orders/components/admin-update-pickup-dialog";
 import type { Store } from "@/features/stores/api/queries";
@@ -453,12 +454,6 @@ function CustomerCard({
   );
 }
 
-const ADMIN_EDITABLE_STATUSES: OrderStatus[] = [
-  "new",
-  "in_progress",
-  "ready_for_pickup",
-];
-
 type StoreData = { id: string; name: string; slug: string } | null;
 
 function PickupCard({
@@ -474,7 +469,7 @@ function PickupCard({
   orderStatus: OrderStatus;
   onEditClick: () => void;
 }) {
-  const canEdit = ADMIN_EDITABLE_STATUSES.includes(orderStatus);
+  const canEdit = ADMIN_MODIFIABLE_PICKUP_STATUSES.includes(orderStatus);
 
   return (
     <Card>
