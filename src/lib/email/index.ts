@@ -76,6 +76,15 @@ function getCustomerEmail(order: Order): string {
   return email;
 }
 
+function getCustomerInfo(order: Order) {
+  return {
+    name: order.createdBy?.name ?? order.customerInfo?.name ?? "Neurčené",
+    email: getCustomerEmail(order),
+    phone: order.createdBy?.phone ?? order.customerInfo?.phone ?? null,
+    isRegistered: !!order.createdBy,
+  };
+}
+
 /** Builds pickup place URL from store slug */
 function getPickupPlaceUrl(storeSlug?: string | null): string | undefined {
   return storeSlug ? `${getBaseUrl()}/predajne/${storeSlug}` : undefined;
@@ -115,7 +124,6 @@ export const sendEmail = {
       throw new Error("Order not found");
     }
 
-    const customerEmail = getCustomerEmail(order);
     const pickupDate = formatPickupDate(order.pickupDate);
     const pickupTime = order.pickupTime ?? "Neurčený čas";
 
@@ -133,11 +141,7 @@ export const sendEmail = {
         quantity: item.quantity,
         priceCents: item.price,
       })),
-      customer: {
-        name: order.createdBy?.name ?? order.customerInfo?.name ?? "Neurčené",
-        email: customerEmail,
-        phone: order.createdBy?.phone ?? order.customerInfo?.phone,
-      },
+      customer: getCustomerInfo(order),
       supportEmail: DEFAULT_SUPPORT_EMAIL,
     });
 
@@ -473,12 +477,7 @@ export const sendEmail = {
         ...sharedData,
         orderUrl: `${getBaseUrl()}/admin/orders/${order.id}`,
         changedBy: { name: changedBy.name, email: changedBy.email },
-        customer: {
-          name: order.createdBy?.name ?? order.customerInfo?.name ?? "Neurčené",
-          email: customerEmail,
-          phone: order.createdBy?.phone ?? order.customerInfo?.phone ?? null,
-          isRegistered: !!order.createdBy,
-        },
+        customer: getCustomerInfo(order),
       }),
     ]);
 
