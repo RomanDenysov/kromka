@@ -115,6 +115,13 @@ export interface ProductSnapshot {
 /** Statuses where users can still modify their orders (cancel, change pickup) */
 export const MODIFIABLE_ORDER_STATUSES: OrderStatus[] = ["new", "in_progress"];
 
+/** Statuses where admin/manager can modify pickup details */
+export const ADMIN_MODIFIABLE_PICKUP_STATUSES: OrderStatus[] = [
+  "new",
+  "in_progress",
+  "ready_for_pickup",
+];
+
 /** Terminal statuses - orders that are no longer active */
 export const TERMINAL_ORDER_STATUSES: OrderStatus[] = [
   "completed",

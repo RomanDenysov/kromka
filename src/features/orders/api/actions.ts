@@ -8,7 +8,11 @@ import { z } from "zod";
 import { db } from "@/db";
 import { orderStatusEvents, orders, stores } from "@/db/schema";
 import type { OrderStatus, PaymentStatus } from "@/db/types";
-import { MODIFIABLE_ORDER_STATUSES, ORDER_STATUSES } from "@/db/types";
+import {
+  ADMIN_MODIFIABLE_PICKUP_STATUSES,
+  MODIFIABLE_ORDER_STATUSES,
+  ORDER_STATUSES,
+} from "@/db/types";
 import {
   filterTimeSlots,
   generateAllTimeSlots,
@@ -23,12 +27,6 @@ import { requireAdmin, requireAuth, requireStaff } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
 import { log } from "@/lib/logger";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
-
-export const ADMIN_MODIFIABLE_PICKUP_STATUSES: OrderStatus[] = [
-  "new",
-  "in_progress",
-  "ready_for_pickup",
-];
 
 /**
  * Shared validation for pickup store, date, and time.
