@@ -23,6 +23,7 @@ import {
   EMAIL_MUTED_TEXT_CLASS,
   EMAIL_PARAGRAPH_CLASS,
   formatOrderCode,
+  getCopyrightText,
 } from "./shared";
 
 export interface OrderCancelledEmailData {
@@ -114,7 +115,7 @@ export function OrderCancelledEmail({
                 ))}
               </Text>
               <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-3`}>
-                © 2025 Všetky práva vyhradené pre Kromka s.r.o.
+                {getCopyrightText()}
               </Text>
             </Section>
           </Container>

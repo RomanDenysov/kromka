@@ -60,3 +60,7 @@ export function formatOrderCode(orderId: string | number) {
 export function getEmailAssetUrl(path: string) {
   return buildAssetUrl(path);
 }
+
+export function getCopyrightText() {
+  return `© ${new Date().getFullYear()} Všetky práva vyhradené pre Kromka s.r.o.`;
+}

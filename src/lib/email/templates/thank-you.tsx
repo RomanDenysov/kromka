@@ -21,6 +21,7 @@ import {
   EMAIL_CONTAINER_CLASS,
   EMAIL_HEADING_CLASS,
   EMAIL_MUTED_TEXT_CLASS,
+  getCopyrightText,
 } from "./shared";
 
 export interface ThankYouEmailData {
@@ -85,7 +86,7 @@ export function ThankYouEmail({ logoUrl }: ThankYouEmailData) {
                 ))}
               </Text>
               <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-3`}>
-                © 2025 Všetky práva vyhradené pre Kromka s.r.o.
+                {getCopyrightText()}
               </Text>
             </Section>
           </Container>

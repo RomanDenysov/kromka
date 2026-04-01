@@ -91,6 +91,17 @@ async function applyPickupUpdate(
   userId: string,
   note: string
 ) {
+  // Capture old details before DB update for before/after email comparison
+  const oldOrder = await getOrderById(orderId);
+  const previousPickup = oldOrder
+    ? {
+        storeName: oldOrder.store?.name ?? null,
+        storeSlug: oldOrder.store?.slug ?? null,
+        pickupDate: oldOrder.pickupDate,
+        pickupTime: oldOrder.pickupTime,
+      }
+    : undefined;
+
   await db
     .update(orders)
     .set({ storeId, pickupDate, pickupTime })
@@ -113,7 +124,7 @@ async function applyPickupUpdate(
         );
         return;
       }
-      await sendEmail.orderPickupUpdated({ order: fullOrder });
+      await sendEmail.orderPickupUpdated({ order: fullOrder, previousPickup });
     } catch (err) {
       log.email.error({ err, orderId }, "Failed to send pickup update email");
     }

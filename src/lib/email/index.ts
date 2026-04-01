@@ -426,7 +426,18 @@ export const sendEmail = {
     ]);
   },
 
-  orderPickupUpdated: async ({ order }: { order: Order }) => {
+  orderPickupUpdated: async ({
+    order,
+    previousPickup,
+  }: {
+    order: Order;
+    previousPickup?: {
+      pickupDate: string | null;
+      pickupTime: string | null;
+      storeName: string | null;
+      storeSlug: string | null;
+    };
+  }) => {
     if (!order) {
       throw new Error("Order not found");
     }
@@ -435,10 +446,19 @@ export const sendEmail = {
 
     const html = await renderOrderPickupUpdatedEmail({
       orderId: order.orderNumber,
-      pickupPlace: order.store?.name ?? "Neurčené",
-      pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
-      pickupDate: formatPickupDate(order.pickupDate),
-      pickupTime: order.pickupTime ?? "Neurčený čas",
+      orderUrl: `${getBaseUrl()}/profil/objednavky/${order.id}`,
+      previous: {
+        pickupPlace: previousPickup?.storeName ?? "Neurčené",
+        pickupPlaceUrl: getPickupPlaceUrl(previousPickup?.storeSlug),
+        pickupDate: formatPickupDate(previousPickup?.pickupDate),
+        pickupTime: previousPickup?.pickupTime ?? "Neurčený čas",
+      },
+      updated: {
+        pickupPlace: order.store?.name ?? "Neurčené",
+        pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
+        pickupDate: formatPickupDate(order.pickupDate),
+        pickupTime: order.pickupTime ?? "Neurčený čas",
+      },
     });
 
     await Promise.all([
