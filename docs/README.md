@@ -8,6 +8,7 @@ Project documentation for Pekáreň Kromka e-shop.
 |----------|-------------|
 | [Database Schema](database-schema.md) | Database tables, relations, and entity details |
 | [Product Management](product-management.md) | Guide for managing products in the admin |
+| [Features Catalog](features-catalog.json) | Structured feature catalog for AI agents - business logic, APIs, dependencies, routes |
 
 ## Features
 

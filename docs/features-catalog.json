@@ -1,0 +1,1417 @@
+{
+  "$schema": "docs/features-catalog.schema.md",
+  "version": "1.0.0",
+  "lastUpdated": "2026-04-01",
+  "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, dependencies, and usage locations.",
+  "features": [
+    {
+      "name": "cart",
+      "path": "src/features/cart",
+      "critical": true,
+      "description": "Cookie-based shopping cart for B2C and B2B with quantity management. No database storage - uses httpOnly cookies with 30-day TTL.",
+      "businessLogic": [
+        "Separate cookie stores: 'krmk-kosik' (B2C) and 'krmk-kosik-b2b' (B2B)",
+        "Quantity limits: min 1, max 999 per product",
+        "Data format: array of { productId, qty } tuples validated via Zod",
+        "Invalid/unavailable products filtered lazily during query, not removed from cookie",
+        "B2B cart applies tier pricing via getEffectivePrices()"
+      ],
+      "actions": [
+        {
+          "name": "addToCart",
+          "description": "Add/increment item in B2C cart, caps at 999"
+        },
+        {
+          "name": "updateQuantity",
+          "description": "Update qty or remove if <= 0"
+        },
+        {
+          "name": "removeFromCart",
+          "description": "Remove single item from B2C cart"
+        },
+        { "name": "clearCart", "description": "Clear entire B2C cart" },
+        {
+          "name": "addItemsToCart",
+          "description": "Bulk add for 'repeat order' feature"
+        },
+        {
+          "name": "addToB2bCart",
+          "description": "Add/increment item in B2B cart"
+        },
+        {
+          "name": "updateB2bQuantity",
+          "description": "Update B2B cart item qty"
+        },
+        {
+          "name": "removeFromB2bCart",
+          "description": "Remove item from B2B cart"
+        },
+        {
+          "name": "clearB2bCartAction",
+          "description": "Clear entire B2B cart"
+        },
+        { "name": "addItemsToB2bCart", "description": "Bulk add to B2B cart" }
+      ],
+      "queries": [
+        {
+          "name": "getDetailedCart",
+          "description": "Cart with product data, filters unavailable items, applies optional tier pricing"
+        },
+        {
+          "name": "getDetailedB2bCart",
+          "description": "B2B cart with mandatory tier pricing"
+        },
+        {
+          "name": "getCartTotals",
+          "description": "Computes total cents and quantity from cart items"
+        }
+      ],
+      "schemas": [
+        {
+          "name": "cartItemSchema",
+          "validates": "{ productId: string, qty: number (1-999) }"
+        },
+        { "name": "cartSchema", "validates": "Array of cart items" }
+      ],
+      "components": [
+        "CartDrawer - Slide-in drawer with analytics tracking",
+        "CartBadge - Item count indicator in header",
+        "CartDrawerContent - Tab-based content (B2C/B2B)",
+        "CartDrawerItem / B2bCartDrawerItem - Cart line items",
+        "CartDrawerFooter - Checkout CTA"
+      ],
+      "dependencies": ["products", "categories", "pricing (lib)"],
+      "routes": [
+        "/e-shop (product cards add-to-cart)",
+        "/pokladna (checkout displays cart)",
+        "/b2b/pokladna (B2B checkout)",
+        "Global header (CartBadge, CartDrawer)"
+      ],
+      "tables": {
+        "reads": ["products", "categories"],
+        "writes": []
+      },
+      "cacheTags": []
+    },
+    {
+      "name": "checkout",
+      "path": "src/features/checkout",
+      "critical": true,
+      "description": "Orchestrates order creation: collects customer info, validates pickup details (date/time/store), checks inventory, and delegates to orders feature for persistence.",
+      "businessLogic": [
+        "Daily cutoff at 12:00 - before = can order for tomorrow, after = day after tomorrow",
+        "Max 30 days ahead for pickup scheduling",
+        "Respects store regular hours + date-specific exceptions (closures/holidays)",
+        "Category restrictions can limit pickup dates (e.g., special items only certain days)",
+        "Multi-store logic with geolocation-based distance sorting",
+        "Time slots generated in 30-minute intervals within store hours",
+        "Last order prefill: guest cookie for anonymous, DB lookup for authenticated users",
+        "Phone validation: SK/CZ formats (+421/+420 or 0XXXXXXXXX)"
+      ],
+      "actions": [
+        {
+          "name": "getLastOrderPrefillAction",
+          "description": "Fetch customer info + store from most recent order"
+        },
+        {
+          "name": "getLastOrderWithItemsAction",
+          "description": "Full last order with items for repeat order"
+        },
+        {
+          "name": "setLastOrderIdAction",
+          "description": "Save order ID to guest cookie after checkout"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getLastOrderPrefill",
+          "description": "Retrieves prefill data from DB (user) or cookie (guest)"
+        },
+        {
+          "name": "getLastOrderWithItems",
+          "description": "Previous order items with current availability/prices"
+        }
+      ],
+      "schemas": [
+        {
+          "name": "phoneSchema",
+          "validates": "International or local phone format, max 16 chars"
+        },
+        {
+          "name": "userInfoSchema",
+          "validates": "{ name, email, phone } with length limits"
+        },
+        {
+          "name": "checkoutFormSchema",
+          "validates": "userInfo + { paymentMethod, pickupDate, pickupTime, storeId }"
+        },
+        {
+          "name": "b2bCheckoutFormSchema",
+          "validates": "{ pickupDate, pickupTime, paymentMethod (in_store|invoice), recurringSchedule? }"
+        }
+      ],
+      "utilities": [
+        "isBeforeDailyCutoff() - Check if before 12:00 today",
+        "isStoreClosed(date, schedule) - Check regular hours + exceptions",
+        "getFirstAvailableDate(schedule) - Find first non-closed date",
+        "generateAllTimeSlots() - 30-min intervals 00:00-23:45",
+        "getRestrictedPickupDates(cartItems) - Intersect category restrictions",
+        "isValidPickupDate(date, schedule, restrictedDates) - Combined validation"
+      ],
+      "hooks": [
+        "useCheckoutForm() - Form state, date/time/store coordination, submission",
+        "useCheckoutValidation() - Validates customer info from user or prefill",
+        "usePickupRestrictions() - Computes allowed dates from cart categories",
+        "useB2bCheckoutForm() - B2B variant of form hook"
+      ],
+      "components": [
+        "CheckoutForm - Main B2C checkout form",
+        "B2bCheckoutForm - B2B variant",
+        "CheckoutList / CheckoutListItem - Cart display with totals",
+        "CheckoutAlerts - Error/warning messages",
+        "CheckoutMobileFooter - Sticky mobile submit button",
+        "CheckoutRecommendations - Related products",
+        "RemoveItemButton - Quick remove from checkout"
+      ],
+      "dependencies": [
+        "cart",
+        "orders",
+        "stores",
+        "products",
+        "user-profile",
+        "auth (lib)",
+        "geo-utils (lib)",
+        "analytics (lib)"
+      ],
+      "routes": [
+        "/pokladna (B2C checkout page)",
+        "/b2b/pokladna (B2B checkout page)"
+      ],
+      "tables": {
+        "reads": ["stores", "products", "categories", "orders"],
+        "writes": []
+      },
+      "cacheTags": [],
+      "docs": "docs/features/checkout.md"
+    },
+    {
+      "name": "orders",
+      "path": "src/features/orders",
+      "critical": true,
+      "description": "Order lifecycle management: creation via CTE-based atomic insert, status transitions, payment tracking, pickup modifications, cancellation, and email notifications.",
+      "businessLogic": [
+        "CTE-based atomic insert (order + items + status event in single SQL) - no transactions needed",
+        "Auto-retry on order number collision (OBJ-YYYYMMDD-XXXXXXXXXX format)",
+        "Status flow: new -> in_progress -> ready_for_pickup -> completed | cancel/refund from new/in_progress",
+        "Payment auto-update: completed -> paid, refunded -> refunded",
+        "User can modify only new/in_progress orders they own",
+        "Admin/staff can modify new/in_progress/ready_for_pickup orders",
+        "Price snapshot: product details frozen in orderItems.productSnapshot (JSONB) at creation",
+        "Emails sent asynchronously via Next.js after() API",
+        "Bulk status updates with chunked email sending"
+      ],
+      "actions": [
+        {
+          "name": "updateOrderStatusAction",
+          "description": "Admin: update status + auto-correct payment status"
+        },
+        {
+          "name": "updateOrderPaymentStatusAction",
+          "description": "Admin: manual payment status change"
+        },
+        {
+          "name": "bulkUpdateOrdersAction",
+          "description": "Admin: batch status updates with chunked emails"
+        },
+        {
+          "name": "cancelOrderAction",
+          "description": "User: cancel own order (checks ownership + status)"
+        },
+        {
+          "name": "updateOrderPickupAction",
+          "description": "User: update store/date/time (validates store hours)"
+        },
+        {
+          "name": "adminUpdateOrderPickupAction",
+          "description": "Admin: update pickup (no ownership check)"
+        },
+        {
+          "name": "createB2COrder",
+          "description": "Full B2C order pipeline: validate -> build items -> persist -> clear cart -> notify"
+        }
+      ],
+      "internalHelpers": [
+        "validateGuestInfo - Zod validation wrapper",
+        "validatePickupDate - Ensures valid future date",
+        "buildOrderItems - Fetches products, applies tier pricing, returns OrderItemData[]",
+        "validateStoreExists - Checks store is active",
+        "validateCart / validateB2bCart - Ensures cart not empty",
+        "persistOrder - CTE insert with collision retry",
+        "notifyOrderCreated - Sends new order + receipt emails",
+        "clearCartAfterOrder / clearB2bCartAfterOrder - Post-order cart cleanup"
+      ],
+      "queries": [
+        {
+          "name": "getAllOrders",
+          "description": "Admin: 500 most recent with relations"
+        },
+        {
+          "name": "getOrderById",
+          "description": "Single order with full relations"
+        },
+        { "name": "getOrdersByIds", "description": "Batch query by IDs" },
+        {
+          "name": "getOrderByStatus",
+          "description": "All orders with given status"
+        },
+        { "name": "getOrderByStore", "description": "All orders for a store" },
+        {
+          "name": "getNewOrdersCount",
+          "description": "Count of 'new' status orders"
+        }
+      ],
+      "schemas": [
+        { "name": "cancelOrderSchema", "validates": "{ orderId, reason? }" },
+        {
+          "name": "updateOrderPickupSchema",
+          "validates": "{ orderId, storeId, pickupDate, pickupTime }"
+        }
+      ],
+      "components": [
+        "OrderAutoRefresh - Polls order status updates",
+        "OrderStatusTimeline - Visual timeline of status events",
+        "OrderActions - Status update dropdown (admin)",
+        "CancelOrderDialog - User cancellation modal with reason",
+        "UpdatePickupDialog - User pickup change modal",
+        "AdminUpdatePickupDialog - Admin pickup change modal"
+      ],
+      "dependencies": [
+        "cart",
+        "checkout",
+        "stores",
+        "site-config",
+        "auth (lib)",
+        "email (lib)",
+        "ids (lib)",
+        "pipeline (lib)",
+        "analytics (lib)"
+      ],
+      "routes": [
+        "/pokladna/[orderId] (order confirmation)",
+        "/profil/objednavky (user order list)",
+        "/profil/objednavky/[id] (user order detail)",
+        "/admin/orders (admin order management)"
+      ],
+      "tables": {
+        "reads": ["products", "stores", "categories"],
+        "writes": ["orders", "orderItems", "orderStatusEvents"]
+      },
+      "cacheTags": ["orders"]
+    },
+    {
+      "name": "products",
+      "path": "src/features/products",
+      "critical": true,
+      "description": "Product catalog management: CRUD, status workflow, B2C/B2B visibility filtering, tier pricing overlay, and cache invalidation.",
+      "businessLogic": [
+        "Status workflow: draft (hidden) -> active (visible) -> sold/archived (hidden)",
+        "Visibility flags: showInB2c / showInB2b for catalog filtering",
+        "B2B tier pricing overlayed via getEffectivePrices()",
+        "Slug uniqueness enforced at DB level",
+        "Sort: sortOrder asc, then createdAt desc",
+        "Public queries cached with 'max' lifetime until invalidation",
+        "Admin queries are never cached (always fresh)"
+      ],
+      "actions": [
+        {
+          "name": "updateProductAction",
+          "description": "Admin: update product fields, invalidate cache"
+        },
+        {
+          "name": "createDraftProductAction",
+          "description": "Admin: create empty draft, redirect to editor"
+        },
+        {
+          "name": "copyProductAction",
+          "description": "Admin: duplicate product + prices"
+        },
+        {
+          "name": "toggleIsActiveProductAction",
+          "description": "Admin: toggle active status"
+        },
+        {
+          "name": "deleteProductsAction",
+          "description": "Admin: soft-delete products"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getProducts",
+          "description": "Public: active non-archived products with image/category"
+        },
+        {
+          "name": "getProductBySlug",
+          "description": "Single product with prices + tiers"
+        },
+        {
+          "name": "getProductsByCategory",
+          "description": "Filter getProducts() by category slug"
+        },
+        {
+          "name": "getProductsByCatalog",
+          "description": "Filter by showInB2c/showInB2b, overlay tier prices"
+        },
+        {
+          "name": "getAdminProducts",
+          "description": "Uncached full product list for admin"
+        },
+        {
+          "name": "getAdminProductById",
+          "description": "Single product admin view"
+        }
+      ],
+      "schemas": [
+        {
+          "name": "productSchema",
+          "validates": "Core fields: id, name, slug, description, status, isActive, sortOrder, showInB2c/B2b, priceCents"
+        },
+        {
+          "name": "updateProductSchema",
+          "validates": "productSchema + categoryId, imageId"
+        }
+      ],
+      "components": [
+        "ProductCard - Product display with image, price, add-to-cart",
+        "ProductsGrid - Grid of product cards with filtering/sorting",
+        "B2bProductsGrid - B2B variant with tier prices"
+      ],
+      "dependencies": ["favorites", "categories", "pricing (lib)"],
+      "routes": [
+        "/e-shop (B2C catalog)",
+        "/b2b/shop (B2B catalog)",
+        "/produkt/[slug] (product detail)",
+        "/admin/products (admin CRUD)"
+      ],
+      "tables": {
+        "reads": ["categories", "prices", "media"],
+        "writes": ["products"]
+      },
+      "cacheTags": ["products", "product-{slug}", "categories"]
+    },
+    {
+      "name": "categories",
+      "path": "src/features/categories",
+      "critical": false,
+      "description": "Product category management: CRUD, visibility control, featured flagging, menu display, and catalog filtering with pickup date restrictions.",
+      "businessLogic": [
+        "Both isActive + showInMenu must be true for public display",
+        "Featured flag for homepage highlight section",
+        "Sorted by featured (desc) then sortOrder (asc)",
+        "Categories with zero active products excluded from public views",
+        "Slug uniqueness enforced",
+        "pickupDates (JSONB array) restricts which days products in this category can be picked up",
+        "Catalog filtering: B2B/B2C modes show only categories with visible products"
+      ],
+      "actions": [
+        {
+          "name": "updateCategoryAction",
+          "description": "Admin: update fields, invalidate cache"
+        },
+        {
+          "name": "createDraftCategoryAction",
+          "description": "Admin: create empty draft"
+        },
+        {
+          "name": "copyCategoryAction",
+          "description": "Admin: duplicate category"
+        },
+        {
+          "name": "toggleIsActiveCategoryAction",
+          "description": "Admin: toggle active"
+        },
+        {
+          "name": "toggleIsFeaturedCategoryAction",
+          "description": "Admin: toggle featured flag"
+        },
+        {
+          "name": "deleteCategoriesAction",
+          "description": "Admin: batch delete"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getCategories",
+          "description": "Public: active + showInMenu categories with products"
+        },
+        {
+          "name": "getFeaturedCategories",
+          "description": "Featured active categories with sorted products"
+        },
+        {
+          "name": "getCategoriesByCatalog",
+          "description": "Filter by B2C/B2B product visibility"
+        },
+        {
+          "name": "getAdminCategories",
+          "description": "All categories with product count"
+        },
+        {
+          "name": "getAdminCategoryById",
+          "description": "Single category admin view"
+        }
+      ],
+      "components": [
+        "CategoriesSidebar - Sidebar menu for e-shop filtering",
+        "CategoriesChips - Pill buttons for category filtering"
+      ],
+      "dependencies": ["products"],
+      "routes": ["/e-shop (sidebar filter)", "/admin/categories (admin CRUD)"],
+      "tables": {
+        "reads": ["products", "media"],
+        "writes": ["categories"]
+      },
+      "cacheTags": ["categories", "featured-categories", "category-{slug}"]
+    },
+    {
+      "name": "stores",
+      "path": "src/features/stores",
+      "critical": false,
+      "description": "Physical store location management: CRUD, opening hours with exceptions, images, and contact info. Used in checkout for pickup location selection.",
+      "businessLogic": [
+        "isActive flag controls public visibility",
+        "Opening hours stored as StoreSchedule JSON (regularHours + exceptions)",
+        "Exceptions override regular hours for specific dates (closures, holidays)",
+        "Stores used in checkout for pickup location + time validation",
+        "Geolocation-based distance sorting in checkout"
+      ],
+      "actions": [
+        {
+          "name": "createDraftStoreAction",
+          "description": "Admin: create empty draft store"
+        },
+        {
+          "name": "updateStoreAction",
+          "description": "Admin: update store fields, validate slug uniqueness"
+        },
+        { "name": "copyStoreAction", "description": "Admin: duplicate store" },
+        {
+          "name": "toggleIsActiveStoresAction",
+          "description": "Admin: toggle active on multiple stores"
+        },
+        {
+          "name": "deleteStoresAction",
+          "description": "Admin: delete multiple stores"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getStores",
+          "description": "Public: active stores with images"
+        },
+        {
+          "name": "getAdminStores",
+          "description": "All stores with order counts"
+        },
+        {
+          "name": "getAdminStoreById",
+          "description": "Single store admin view"
+        }
+      ],
+      "components": [],
+      "dependencies": [],
+      "routes": [
+        "/predajne (store listing page)",
+        "/pokladna (store selection in checkout)",
+        "/admin/stores (admin CRUD)"
+      ],
+      "tables": {
+        "reads": ["media"],
+        "writes": ["stores"]
+      },
+      "cacheTags": ["stores", "store-{slug}"]
+    },
+    {
+      "name": "posts",
+      "path": "src/features/posts",
+      "critical": false,
+      "description": "Blog system with articles (TipTap rich text), comments with moderation queue, likes with optimistic UI, and tag-based categorization.",
+      "businessLogic": [
+        "Post statuses: draft, published, archived",
+        "Comments require admin approval before being visible (moderation queue)",
+        "Likes use onConflictDoNothing() for race-condition-safe toggling",
+        "Like/comment counts denormalized on posts table for performance",
+        "Counts updated with SQL GREATEST() to prevent negative values",
+        "Related posts found by shared tags",
+        "Tags with zero published posts filtered from public view"
+      ],
+      "actions": [
+        {
+          "name": "createPostAction",
+          "description": "Admin: create draft post"
+        },
+        {
+          "name": "updatePostAction",
+          "description": "Admin: update post + tags, validate slug uniqueness"
+        },
+        {
+          "name": "publishPostAction",
+          "description": "Admin: set published status with timestamp"
+        },
+        {
+          "name": "unpublishPostAction",
+          "description": "Admin: revert to draft"
+        },
+        { "name": "deletePostAction", "description": "Admin: delete post" },
+        {
+          "name": "togglePostLikeAction",
+          "description": "Auth user: toggle like with optimistic UI"
+        },
+        {
+          "name": "submitCommentAction",
+          "description": "Auth user: create unpublished comment"
+        },
+        {
+          "name": "approveCommentAction",
+          "description": "Admin: approve comment (increment count)"
+        },
+        {
+          "name": "rejectCommentAction",
+          "description": "Admin: delete comment (decrement count if published)"
+        },
+        { "name": "createTagAction", "description": "Admin: create tag" },
+        { "name": "updateTagAction", "description": "Admin: update tag" },
+        { "name": "deleteTagAction", "description": "Admin: delete tag" }
+      ],
+      "queries": [
+        {
+          "name": "getLatestPosts",
+          "description": "Latest published posts for homepage (default 3)"
+        },
+        {
+          "name": "getPublishedPosts",
+          "description": "Paginated published posts with tag/search filter"
+        },
+        {
+          "name": "getPublishedPostSlugs",
+          "description": "All slugs for generateStaticParams()"
+        },
+        {
+          "name": "getPostBySlug",
+          "description": "Single published post with author, tags"
+        },
+        {
+          "name": "getRelatedPosts",
+          "description": "Posts sharing tags, excluding current"
+        },
+        {
+          "name": "getAllTags",
+          "description": "Tags with published post counts"
+        },
+        {
+          "name": "getPostComments",
+          "description": "Published comments with nested replies"
+        },
+        {
+          "name": "getAdminPosts",
+          "description": "All posts by status (uncached)"
+        },
+        {
+          "name": "getPendingComments",
+          "description": "Moderation queue (uncached)"
+        }
+      ],
+      "schemas": [
+        {
+          "name": "updatePostSchema",
+          "validates": "Post fields (all optional)"
+        },
+        {
+          "name": "commentSchema",
+          "validates": "{ postId, content (1-2000 chars), parentId? }"
+        },
+        { "name": "tagSchema", "validates": "{ name, slug }" }
+      ],
+      "hooks": ["useLike() - Like state with optimistic UI, auth redirect"],
+      "components": [
+        "LikeButton - Heart icon with count",
+        "BlogCard / BlogGrid - Post listings",
+        "CommentForm / CommentItem / CommentsSection - Comment system",
+        "PostContent / PostHeader - Post rendering",
+        "RelatedPosts - Tag-based recommendations",
+        "ShareButtons - Social sharing",
+        "HomeBlogSection - Homepage latest posts"
+      ],
+      "dependencies": ["auth (lib)"],
+      "routes": [
+        "/blog (listing with pagination, tag/search filters)",
+        "/blog/[slug] (single post)",
+        "/ (homepage blog section)",
+        "/admin/blog/posts (admin post management)",
+        "/admin/blog/posts/[id] (admin post editor)",
+        "/admin/blog/tags (admin tag management)",
+        "/admin/blog/comments (moderation queue)"
+      ],
+      "tables": {
+        "reads": [],
+        "writes": [
+          "posts",
+          "postTags",
+          "postToTags",
+          "postComments",
+          "postLikes"
+        ]
+      },
+      "cacheTags": [
+        "posts",
+        "tags",
+        "post-{slug}",
+        "post-comments-{postId}",
+        "comments"
+      ]
+    },
+    {
+      "name": "favorites",
+      "path": "src/features/favorites",
+      "critical": false,
+      "description": "User product favorites with toggle and count. Per-user, requires authentication.",
+      "businessLogic": [
+        "Compound primary key: userId + productId",
+        "Toggle on/off with single action",
+        "Returns empty array for unauthenticated users (no error)"
+      ],
+      "actions": [
+        {
+          "name": "toggleFavorite",
+          "description": "Auth user: toggle favorite status"
+        },
+        {
+          "name": "isFavorite",
+          "description": "Auth user: check if product is favorited"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getFavoriteIds",
+          "description": "Array of favorited product IDs for current user"
+        },
+        {
+          "name": "getFavorites",
+          "description": "Full product objects for all favorites"
+        },
+        {
+          "name": "getFavoritesCount",
+          "description": "Count of user's favorites"
+        }
+      ],
+      "components": ["FavoritesLink - Link to favorites page with count badge"],
+      "dependencies": ["products", "auth (lib)"],
+      "routes": [
+        "/profil/oblubene (favorites page)",
+        "/e-shop (favorite buttons on product cards)",
+        "Product detail pages"
+      ],
+      "tables": {
+        "reads": ["products"],
+        "writes": ["favorites"]
+      },
+      "cacheTags": []
+    },
+    {
+      "name": "user-profile",
+      "path": "src/features/user-profile",
+      "critical": false,
+      "description": "User profile updates (name, phone) and order history queries for the profile section.",
+      "actions": [
+        {
+          "name": "updateCurrentUserProfile",
+          "description": "Auth user: update name/phone from checkout"
+        },
+        {
+          "name": "updateProfileAction",
+          "description": "Auth user: update name/phone from profile page"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getUserOrders",
+          "description": "All orders for user with store and items"
+        },
+        {
+          "name": "getUserOrderById",
+          "description": "Single order detail with status events"
+        }
+      ],
+      "dependencies": ["auth (lib)"],
+      "routes": [
+        "/profil (profile page)",
+        "/profil/nastavenia (profile settings)",
+        "/profil/objednavky (user orders)",
+        "/profil/objednavky/[id] (user order detail)"
+      ],
+      "tables": {
+        "reads": ["orders", "orderItems", "stores", "orderStatusEvents"],
+        "writes": ["users"]
+      },
+      "cacheTags": ["orders", "user-{userId}"]
+    },
+    {
+      "name": "contact-form",
+      "path": "src/features/contact-form",
+      "critical": false,
+      "description": "Support request form with context capture (page, URL, user agent, PostHog ID). Sends email to staff + confirmation to user. No database storage.",
+      "actions": [
+        {
+          "name": "submitSupportRequest",
+          "description": "Anyone: validate data, send staff email (critical), send user confirmation (non-critical)"
+        }
+      ],
+      "schemas": [
+        {
+          "name": "supportRequestSchema",
+          "validates": "{ name, email, rootCause, message, sourcePath?, sourceUrl?, userAgent?, posthogId? }"
+        }
+      ],
+      "dependencies": ["email (lib)"],
+      "routes": ["/pomoc (support page)"],
+      "tables": { "reads": [], "writes": [] },
+      "cacheTags": []
+    },
+    {
+      "name": "media-library",
+      "path": "src/features/media-library",
+      "critical": false,
+      "description": "Centralized image management with upload to Vercel Blob, Sharp optimization (resize 1600px, quality 85, mozJPEG), and usage tracking across entities.",
+      "businessLogic": [
+        "Validates MIME: JPEG, PNG, WebP, GIF. Max 10MB",
+        "Converts all to JPG after optimization",
+        "Tracks usage: which products/stores/categories/posts use each image"
+      ],
+      "actions": [
+        {
+          "name": "uploadMedia",
+          "description": "Admin: upload, optimize with Sharp, store in Vercel Blob, save metadata"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getMedia",
+          "description": "All media with usage relationships"
+        },
+        {
+          "name": "getMediaById",
+          "description": "Single media with usage relationships"
+        }
+      ],
+      "dependencies": ["vercel/blob", "sharp"],
+      "routes": ["/admin/media (media library page)"],
+      "tables": {
+        "reads": ["productImages", "stores", "categories", "posts"],
+        "writes": ["media"]
+      },
+      "cacheTags": ["media", "media-{id}"]
+    },
+    {
+      "name": "buy-again-banner",
+      "path": "src/features/buy-again-banner",
+      "critical": false,
+      "description": "Dismissible banner showing user's last order for quick reordering. Appears on homepage, e-shop, and cart drawer. Uses Zustand + sessionStorage.",
+      "businessLogic": [
+        "Fetches most recent order with items via checkout queries",
+        "Dismissible via sessionStorage (survives page refresh within session)",
+        "Editable quantities in dialog before adding to cart",
+        "Shows first 5 products with overflow count badge",
+        "Analytics tracking: source (banner, dialog, drawer) and order value"
+      ],
+      "hooks": [
+        "useBuyAgainOrder(onSuccess?) - Manages repeat order action, analytics, dismissal"
+      ],
+      "store": "Zustand store with sessionStorage persistence for dismissed state",
+      "components": [
+        "BuyAgainBanner - Server component entry point",
+        "BuyAgainBannerClient - Full banner with customization dialog",
+        "LastOrderCard - Collapsible card for cart drawer"
+      ],
+      "dependencies": ["checkout", "cart", "analytics (lib)"],
+      "routes": [
+        "/ (homepage banner)",
+        "/e-shop (e-shop banner)",
+        "Cart drawer (LastOrderCard)"
+      ],
+      "tables": { "reads": [], "writes": [] },
+      "cacheTags": []
+    },
+    {
+      "name": "admin-dashboard",
+      "path": "src/features/admin-dashboard",
+      "critical": false,
+      "description": "Business intelligence metrics for admin: revenue trends, order stats, top products, operational health. All queries cached with 'minutes' or 'hours' lifetime.",
+      "businessLogic": [
+        "Revenue only counts paid orders",
+        "Excludes cancelled orders from all stats",
+        "Full date range generation via SQL generate_series (no gaps in charts)",
+        "Timezone-safe date handling for Slovakia",
+        "Parallel query execution for dashboard metrics"
+      ],
+      "queries": [
+        {
+          "name": "getDashboardMetrics",
+          "description": "All top-card metrics in one call (6 parallel queries)"
+        },
+        {
+          "name": "getOrdersByPickupDate",
+          "description": "Orders for specific date with filters"
+        },
+        {
+          "name": "getProductsAggregateByPickupDate",
+          "description": "Products sold on date, optionally per-store"
+        },
+        {
+          "name": "getMonthlyOrderStats",
+          "description": "Daily stats for entire month"
+        },
+        { "name": "getOrdersCount", "description": "Count of 'new' orders" },
+        {
+          "name": "getOrderStatusDistribution",
+          "description": "Breakdown by status"
+        },
+        {
+          "name": "getRevenueHistory",
+          "description": "Revenue per day for last N days"
+        },
+        {
+          "name": "getRevenueAndOrdersHistory",
+          "description": "Revenue (paid/expected) + order count per day"
+        },
+        {
+          "name": "getTopProducts",
+          "description": "Top 5 products by quantity sold"
+        },
+        {
+          "name": "getRecentOrders",
+          "description": "Last orders in active statuses"
+        },
+        { "name": "getActiveCarts", "description": "All active carts" }
+      ],
+      "dependencies": [],
+      "routes": [
+        "/admin (main dashboard)",
+        "/admin (dashboard calendar, recent tabs)"
+      ],
+      "tables": {
+        "reads": [
+          "orders",
+          "orderItems",
+          "products",
+          "stores",
+          "organizations",
+          "carts"
+        ],
+        "writes": []
+      },
+      "cacheTags": ["orders", "products", "stores", "carts"]
+    },
+    {
+      "name": "b2b/applications",
+      "path": "src/features/b2b/applications",
+      "critical": false,
+      "description": "B2B company registration workflow. Companies submit applications, admins review and approve (creating org + invitation) or reject with reason.",
+      "businessLogic": [
+        "Lifecycle: pending -> approved (creates organization + 7-day invitation) | rejected (with reason)",
+        "Race condition protection: WHERE status = 'pending' guard prevents double-approval",
+        "Default payment terms: 14 days",
+        "Auto-generated slug with uniqueness suffix",
+        "Staff notification email on submission"
+      ],
+      "actions": [
+        {
+          "name": "submitB2bApplication",
+          "description": "Customer: submit company registration, send staff notification"
+        },
+        {
+          "name": "approveB2bApplication",
+          "description": "Admin: approve, create org + invitation, assign price tier"
+        },
+        {
+          "name": "rejectB2bApplication",
+          "description": "Admin: reject with reason"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getB2bApplications",
+          "description": "Admin: list with optional status/date filters"
+        },
+        {
+          "name": "getB2bApplicationById",
+          "description": "Admin: single application detail"
+        }
+      ],
+      "schemas": [
+        {
+          "name": "b2bApplicationSchema",
+          "validates": "Company data: companyName, ICO (8 digits), DIČ, IČ DPH, contact info, billing address"
+        },
+        {
+          "name": "approveB2bApplicationSchema",
+          "validates": "{ applicationId, priceTierId }"
+        },
+        {
+          "name": "rejectB2bApplicationSchema",
+          "validates": "{ applicationId, rejectionReason (1-2000 chars) }"
+        }
+      ],
+      "components": [
+        "B2BApplicationDetail - Detail with approve/reject forms",
+        "B2BApplicationsTable - Admin list with search/filter"
+      ],
+      "dependencies": ["auth (lib)", "email (lib)", "ids (lib)"],
+      "routes": [
+        "/admin/b2b/applications (list)",
+        "/admin/b2b/applications/[id] (detail)"
+      ],
+      "tables": {
+        "reads": ["users"],
+        "writes": ["b2bApplications", "organizations", "invitations"]
+      },
+      "cacheTags": ["b2b-applications"]
+    },
+    {
+      "name": "b2b/clients",
+      "path": "src/features/b2b/clients",
+      "critical": false,
+      "description": "Approved B2B organization management. View/edit billing info, tax IDs, price tier assignment, and order statistics.",
+      "businessLogic": [
+        "Order stats: count + total revenue from paid, non-cancelled orders",
+        "Partial updates supported (optional fields)",
+        "ICO format validated if provided",
+        "Price tier existence verified before assignment"
+      ],
+      "actions": [
+        {
+          "name": "updateOrganization",
+          "description": "Admin: update org billing/profile, validate price tier"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getOrganizations",
+          "description": "Admin: list with search + order stats aggregation"
+        },
+        {
+          "name": "getOrganizationById",
+          "description": "Admin: detail with members, recent orders, price tier"
+        }
+      ],
+      "components": [
+        "B2BClientDetail - Edit form for org data",
+        "B2BClientsTable - Admin list with search"
+      ],
+      "dependencies": ["b2b/price-tiers", "auth (lib)"],
+      "routes": [
+        "/admin/b2b/clients (list)",
+        "/admin/b2b/clients/[id] (detail)"
+      ],
+      "tables": {
+        "reads": ["members", "orders", "priceTiers"],
+        "writes": ["organizations"]
+      },
+      "cacheTags": ["organizations"]
+    },
+    {
+      "name": "b2b/invoices",
+      "path": "src/features/b2b/invoices",
+      "critical": false,
+      "description": "B2B invoice generation and lifecycle. Collects unpaid orders with paymentMethod='invoice' into invoices. Tracks draft -> issued -> paid.",
+      "businessLogic": [
+        "Invoice number format: VS-YYYY-NNNN with auto-increment and collision retry (max 3)",
+        "Links unpaid orders with guard WHERE invoiceId IS NULL (race condition safe)",
+        "Detects partial claims via expected vs actual updated count comparison",
+        "Period-based aggregation (periodStart to periodEnd)",
+        "Due date calculated from org's paymentTermDays",
+        "Marking paid updates all linked orders to paymentStatus='paid'"
+      ],
+      "actions": [
+        {
+          "name": "generateInvoiceForCompany",
+          "description": "Admin: create invoice from unpaid orders in period"
+        },
+        {
+          "name": "issueInvoice",
+          "description": "Admin: transition draft -> issued, store PDF URL"
+        },
+        {
+          "name": "markInvoiceAsPaid",
+          "description": "Admin: transition issued -> paid, update linked orders"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getInvoices",
+          "description": "Admin: list with org/status/date filters"
+        },
+        {
+          "name": "getInvoiceById",
+          "description": "Admin: detail with full order items"
+        }
+      ],
+      "dependencies": ["auth (lib)"],
+      "routes": ["/admin/b2b/invoices (list)"],
+      "tables": {
+        "reads": ["organizations"],
+        "writes": ["invoices", "orders"]
+      },
+      "cacheTags": ["invoices", "orders"]
+    },
+    {
+      "name": "b2b/price-tiers",
+      "path": "src/features/b2b/price-tiers",
+      "critical": false,
+      "description": "B2B pricing tier management. Named collections of per-product price overrides. Organizations are assigned a tier for custom pricing.",
+      "businessLogic": [
+        "Composite PK: (productId, priceTierId) - one price per product per tier",
+        "Uses onConflictDoUpdate for upsert semantics",
+        "Bulk operations: delete all existing + insert new (not truly atomic due to Neon HTTP)",
+        "Prices >= 0 enforced via CHECK constraint",
+        "Default product price used if no override in tier"
+      ],
+      "actions": [
+        {
+          "name": "createPriceTierAction",
+          "description": "Admin: create empty tier"
+        },
+        {
+          "name": "updatePriceTierAction",
+          "description": "Admin: update tier name/description"
+        },
+        {
+          "name": "deletePriceTierAction",
+          "description": "Admin: delete tier"
+        },
+        {
+          "name": "setPriceAction",
+          "description": "Admin: set/update single product price"
+        },
+        {
+          "name": "removePriceAction",
+          "description": "Admin: remove single price override"
+        },
+        {
+          "name": "bulkSetPricesAction",
+          "description": "Admin: replace all prices in tier"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getPriceTiers",
+          "description": "All tiers sorted by name (cached hours)"
+        },
+        {
+          "name": "getPriceTierById",
+          "description": "Detail with all product prices (cached hours)"
+        }
+      ],
+      "schemas": [
+        {
+          "name": "priceTierSchema",
+          "validates": "{ name (min 1), description? }"
+        },
+        {
+          "name": "priceSchema",
+          "validates": "{ productId, priceTierId, priceCents (int >= 0) }"
+        },
+        {
+          "name": "bulkPricesSchema",
+          "validates": "{ priceTierId, prices: [{ productId, priceCents }] }"
+        }
+      ],
+      "dependencies": ["auth (lib)"],
+      "routes": [
+        "/admin/b2b/price-tiers (list)",
+        "/admin/b2b/price-tiers/[id] (detail/edit)"
+      ],
+      "tables": {
+        "reads": ["products"],
+        "writes": ["priceTiers", "prices"]
+      },
+      "cacheTags": ["price-tiers"]
+    },
+    {
+      "name": "site-config",
+      "path": "src/features/site-config",
+      "critical": false,
+      "description": "Site-wide boolean feature flags stored in siteSettings table. Controls orders_enabled, registration_enabled, promo_banner.",
+      "businessLogic": [
+        "Key-value storage: key is PK, value is boolean",
+        "Defaults: orders_enabled=true, registration_enabled=true, promo_banner=false",
+        "Only allows keys in ALLOWED_CONFIG_KEYS whitelist",
+        "Optimistic UI updates with toast feedback",
+        "Layered caching: React cache() + Next.js cacheLife('max') + cacheTag()"
+      ],
+      "actions": [
+        {
+          "name": "updateSiteConfig",
+          "description": "Admin: upsert boolean value for feature flag"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getSiteConfig",
+          "description": "Get boolean value for flag, returns default if not in DB"
+        }
+      ],
+      "components": [
+        "SettingsConfigurationsClient - Toggle switches for feature flags"
+      ],
+      "dependencies": ["auth (lib)"],
+      "routes": ["/admin/settings/configurations"],
+      "tables": {
+        "reads": [],
+        "writes": ["siteSettings"]
+      },
+      "cacheTags": ["site-setting-{key}"]
+    },
+    {
+      "name": "user-management",
+      "path": "src/features/user-management",
+      "critical": false,
+      "description": "Read-only admin user list and detail views. Shows roles, org memberships, orders, blog activity, and promo usage.",
+      "queries": [
+        {
+          "name": "getUsers",
+          "description": "All users with pagination, joins org memberships (cached minutes)"
+        },
+        {
+          "name": "getUserById",
+          "description": "Single user with all relationships (cached minutes)"
+        }
+      ],
+      "components": ["UsersTable - Admin list with TanStack React Table"],
+      "dependencies": [],
+      "routes": ["/admin/users (list)", "/admin/users/[id] (detail)"],
+      "tables": {
+        "reads": [
+          "users",
+          "members",
+          "orders",
+          "postComments",
+          "postLikes",
+          "posts",
+          "reviews",
+          "favorites",
+          "promoCodeUsages"
+        ],
+        "writes": []
+      },
+      "cacheTags": ["users", "user-{id}"]
+    }
+  ],
+  "sharedInfrastructure": [
+    {
+      "name": "auth",
+      "path": "src/lib/auth",
+      "description": "Better Auth with magic link, Google OAuth, roles (admin/manager/user), B2B organizations. Guards for server actions.",
+      "keyExports": [
+        "auth - Better Auth instance (server.ts)",
+        "getSession() / getUser() / getUserDetails() - Cached session queries (session.ts)",
+        "requireAdmin() / requireAuth() / requireStaff() / requireB2bMember() - Authorization guards (guards.ts)",
+        "signIn / signUp / useSession / signOut - Client hooks (client.ts)"
+      ],
+      "usedBy": "All features with mutations"
+    },
+    {
+      "name": "email",
+      "path": "src/lib/email",
+      "description": "Transactional emails via Nodemailer (SMTP). 11 email types covering orders, auth, B2B, support.",
+      "keyExports": [
+        "sendEmail.newOrder / orderConfirmation / orderReady / receipt / thankYou",
+        "sendEmail.magicLink / outOfStock / supportRequest / supportConfirmation",
+        "sendEmail.b2bApplication / orderCancelled / orderPickupUpdated"
+      ],
+      "usedBy": "orders, contact-form, b2b/applications, checkout"
+    },
+    {
+      "name": "database",
+      "path": "src/db",
+      "description": "Drizzle ORM with Neon HTTP driver. NO transactions supported. 31 tables with prefixed CUID2 IDs.",
+      "keyFiles": [
+        "schema.ts - All table definitions, relationships, constraints, indexes",
+        "types.ts - Status enums, type guards, business types (Address, StoreSchedule, ProductSnapshot)",
+        "index.ts - Drizzle client instance"
+      ],
+      "importantTypes": [
+        "OrderStatus: new | in_progress | ready_for_pickup | completed | cancelled | refunded",
+        "PaymentStatus: pending | paid | failed | refunded",
+        "ProductStatus: draft | active | sold | archived",
+        "MODIFIABLE_ORDER_STATUSES: [new, in_progress]",
+        "ADMIN_MODIFIABLE_PICKUP_STATUSES: [new, in_progress, ready_for_pickup]",
+        "Address, StoreSchedule, ProductSnapshot - JSONB types"
+      ]
+    },
+    {
+      "name": "pricing",
+      "path": "src/lib/pricing.ts",
+      "description": "B2B tier price calculation. Returns tier price or falls back to base price.",
+      "keyExports": [
+        "getEffectivePrice({ productId, basePriceCents, priceTierId? })",
+        "getEffectivePrices({ productPrices, priceTierId? }) - Batch lookup",
+        "hasTierPrice() - Boolean check"
+      ],
+      "usedBy": "cart, checkout, orders, b2b"
+    },
+    {
+      "name": "ids",
+      "path": "src/lib/ids.ts",
+      "description": "ID generation with multiple strategies: CUID2 (prefixed), numeric (date-based), order numbers (crypto-random).",
+      "keyExports": [
+        "createPrefixedId(prefix) - Standard DB IDs (prod_, ord_, cat_, sto_)",
+        "createOrderNumber(prefix) - OBJ-YYYYMMDD-XXXXXXXXXX format",
+        "createNumericId() - YYYYMMDD-XXXXX for human-readable"
+      ],
+      "usedBy": "DB schema defaults, orders, invoices, b2b"
+    },
+    {
+      "name": "analytics",
+      "path": "src/lib/analytics.ts",
+      "description": "Client-side PostHog event tracking. Object Action naming, snake_case properties, prices in cents.",
+      "keyExports": [
+        "analytics.productViewed/productAdded/productRemoved",
+        "analytics.checkoutStarted/orderConfirmed",
+        "analytics.searchPerformed/categorySelected/favoriteToggled",
+        "captureServerEvent() - Server-side events (posthog.ts)"
+      ],
+      "usedBy": "cart, checkout, products, favorites, search, orders"
+    },
+    {
+      "name": "logger",
+      "path": "src/lib/logger.ts",
+      "description": "Pino structured logging with module-scoped loggers. Pretty-printed in dev, JSON in prod.",
+      "keyExports": [
+        "log.orders / log.b2b / log.email / log.cart / log.auth / etc.",
+        "createRequestLogger(module, context) - Request-scoped with correlationId"
+      ],
+      "usedBy": "All features with error handling"
+    },
+    {
+      "name": "errors",
+      "path": "src/lib/errors.ts",
+      "description": "Centralized error codes with Slovak user-facing messages. Categories: generic, validation, orders, B2B, DB.",
+      "keyExports": [
+        "ERROR_CODES - Object with all error code strings",
+        "ERROR_MESSAGES - Record<ErrorCode, string> (Slovak)",
+        "getErrorMessage(code) - Translate code to user message"
+      ]
+    },
+    {
+      "name": "constants",
+      "path": "src/lib/constants.ts",
+      "description": "UI labels and configuration: order/payment status labels (Slovak), icons, badge variants.",
+      "keyExports": [
+        "ORDER_STATUS_LABELS / ORDER_STATUS_ICONS / ORDER_STATUS_VARIANTS",
+        "PAYMENT_METHOD_LABELS / PAYMENT_STATUS_LABELS",
+        "PRODUCT_STATUSES_LABELS",
+        "WORKFLOW_STATUSES"
+      ]
+    },
+    {
+      "name": "geo-utils",
+      "path": "src/lib/geo-utils.ts",
+      "description": "Store proximity via Haversine formula, distance formatting (Slovak), Apple/Google Maps URL generation.",
+      "keyExports": [
+        "calculateDistance / formatDistance / sortStoresByDistance",
+        "getMapUrl(address, lat?, lon?) - Apple Maps on iOS, Google otherwise"
+      ],
+      "usedBy": "checkout, stores page"
+    },
+    {
+      "name": "utils",
+      "path": "src/lib/utils.ts",
+      "description": "General utilities: Tailwind class merging, price formatting, Slovak pluralization.",
+      "keyExports": [
+        "cn() - clsx + twMerge",
+        "formatPrice(cents) - EUR with Intl",
+        "getSiteUrl(path?) - Absolute URL",
+        "getItemsLabel(count) - Slovak pluralization"
+      ]
+    }
+  ],
+  "routeGroups": {
+    "public": {
+      "path": "src/app/(public)",
+      "description": "Customer-facing pages: shop, checkout, profile, blog, stores, support",
+      "keyRoutes": [
+        "/e-shop - Product catalog with category filtering",
+        "/produkt/[slug] - Product detail",
+        "/pokladna - B2C checkout",
+        "/pokladna/[orderId] - Order confirmation",
+        "/b2b/shop - B2B catalog",
+        "/b2b/pokladna - B2B checkout",
+        "/blog - Blog listing",
+        "/blog/[slug] - Blog post",
+        "/profil - User dashboard",
+        "/profil/objednavky - User orders",
+        "/profil/oblubene - Favorites",
+        "/predajne - Store locations",
+        "/pomoc - Support form"
+      ]
+    },
+    "admin": {
+      "path": "src/app/(admin)/admin",
+      "description": "Admin dashboard: orders, products, categories, stores, blog, B2B, users, settings",
+      "keyRoutes": [
+        "/admin - Dashboard with metrics",
+        "/admin/orders - Order management",
+        "/admin/products - Product CRUD",
+        "/admin/categories - Category CRUD",
+        "/admin/stores - Store CRUD",
+        "/admin/blog/posts - Blog post management",
+        "/admin/blog/tags - Tag management",
+        "/admin/blog/comments - Comment moderation",
+        "/admin/media - Media library",
+        "/admin/users - User list",
+        "/admin/b2b/applications - B2B applications",
+        "/admin/b2b/clients - B2B organizations",
+        "/admin/b2b/invoices - Invoice management",
+        "/admin/b2b/price-tiers - Pricing tiers",
+        "/admin/settings - Site configuration"
+      ]
+    },
+    "api": {
+      "path": "src/app/api",
+      "description": "API routes - minimal, auth only. All mutations via server actions.",
+      "keyRoutes": ["/api/auth/[...all] - Better Auth handler"]
+    }
+  },
+  "crossFeatureDependencies": {
+    "description": "Dependency graph between features. Arrow means 'depends on'.",
+    "graph": {
+      "checkout": ["cart", "orders", "products", "stores", "user-profile"],
+      "orders": ["cart", "checkout", "site-config", "stores"],
+      "cart": ["products", "categories", "buy-again-banner"],
+      "buy-again-banner": ["checkout", "cart"],
+      "products": ["favorites", "categories"],
+      "categories": ["products"],
+      "favorites": ["products"],
+      "b2b/clients": ["b2b/price-tiers"],
+      "b2b/applications": [],
+      "b2b/invoices": [],
+      "admin-dashboard": [],
+      "user-management": [],
+      "site-config": [],
+      "stores": [],
+      "posts": [],
+      "contact-form": [],
+      "media-library": [],
+      "user-profile": []
+    },
+    "hubs": ["checkout (5 deps)", "orders (4 deps)"],
+    "isolated": [
+      "admin-dashboard",
+      "user-management",
+      "site-config",
+      "stores",
+      "posts",
+      "contact-form",
+      "media-library"
+    ]
+  }
+}

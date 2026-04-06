@@ -43,7 +43,7 @@ Domain-specific business logic organized by feature with clear server/client sep
 
 **Core features:**
 - `cart/` - Cookie-based cart with server actions
-- `checkout/` - Order creation, pickup date logic ([docs](docs/features/checkout.md))
+- `checkout/` - Order creation, pickup date logic ([docs](docs/features/checkout/README.md))
 - `products/`, `categories/`, `stores/`, `orders/`, `favorites/`
 
 **B2B features (`b2b/`):**
@@ -54,7 +54,7 @@ Domain-specific business logic organized by feature with clear server/client sep
 
 **Standalone features:**
 - `admin-dashboard/` - Admin metrics and dashboard queries
-- `b2b-request/` - B2B application form submission
+- `buy-again-banner/` - Repeat order prompt from last order
 - `contact-form/` - Support request form
 - `media-library/` - Image upload and management
 - `site-config/` - Site-wide settings (orders_enabled, etc.)
@@ -91,6 +91,8 @@ This project uses Neon's **HTTP serverless driver** (`@neondatabase/serverless` 
 - Unique constraints in the DB schema as a safety net for race conditions
 
 **DO NOT use `db.transaction()` or `db.batch()` — they are not supported by the Neon HTTP driver.**
+
+**Schema changes require human approval.** Never modify `src/db/schema.ts` (add/remove/rename columns, change types, alter constraints) without explicit user confirmation. Schema changes affect production data and are hard to reverse. Always propose the change first, explain the migration impact, and wait for approval before editing.
 
 ## Caching (cacheComponents)
 
@@ -253,5 +255,10 @@ All documentation is centralized in the `/docs` directory:
 - `docs/database-schema.md` - Database schema reference
 - `docs/product-management.md` - Product management guide
 - `docs/features/` - Feature-specific documentation
+- **[`docs/features-catalog.json`](docs/features-catalog.json)** - Structured feature catalog (for AI agent context). Contains every feature module with description, business logic, actions, queries, schemas, components, dependencies, routes, DB tables, and cache tags.
+
+### Keeping `features-catalog.json` Current
+
+After any feature change (new feature, modified actions/queries, new routes, changed business logic), update the relevant entry in `features-catalog.json` and set the top-level `lastUpdated` field to today's date. This file is the primary context source for AI agents working on this codebase.
 
 See [docs/README.md](docs/README.md) for a complete index.

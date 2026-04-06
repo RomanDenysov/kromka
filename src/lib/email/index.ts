@@ -76,6 +76,15 @@ function getCustomerEmail(order: Order): string {
   return email;
 }
 
+function getCustomerInfo(order: Order) {
+  return {
+    name: order.createdBy?.name ?? order.customerInfo?.name ?? "Neurčené",
+    email: getCustomerEmail(order),
+    phone: order.createdBy?.phone ?? order.customerInfo?.phone ?? null,
+    isRegistered: !!order.createdBy,
+  };
+}
+
 /** Builds pickup place URL from store slug */
 function getPickupPlaceUrl(storeSlug?: string | null): string | undefined {
   return storeSlug ? `${getBaseUrl()}/predajne/${storeSlug}` : undefined;
@@ -115,7 +124,6 @@ export const sendEmail = {
       throw new Error("Order not found");
     }
 
-    const customerEmail = getCustomerEmail(order);
     const pickupDate = formatPickupDate(order.pickupDate);
     const pickupTime = order.pickupTime ?? "Neurčený čas";
 
@@ -133,11 +141,7 @@ export const sendEmail = {
         quantity: item.quantity,
         priceCents: item.price,
       })),
-      customer: {
-        name: order.createdBy?.name ?? order.customerInfo?.name ?? "Neurčené",
-        email: customerEmail,
-        phone: order.createdBy?.phone ?? order.customerInfo?.phone,
-      },
+      customer: getCustomerInfo(order),
       supportEmail: DEFAULT_SUPPORT_EMAIL,
     });
 
@@ -426,33 +430,73 @@ export const sendEmail = {
     ]);
   },
 
-  orderPickupUpdated: async ({ order }: { order: Order }) => {
+  orderPickupUpdated: async ({
+    order,
+    previousPickup,
+    changedBy,
+  }: {
+    order: Order;
+    previousPickup?: {
+      pickupDate: string | null;
+      pickupTime: string | null;
+      storeName: string | null;
+      storeSlug: string | null;
+    };
+    changedBy: { name: string; email: string; isStaff: boolean };
+  }) => {
     if (!order) {
       throw new Error("Order not found");
     }
 
     const customerEmail = getCustomerEmail(order);
 
-    const html = await renderOrderPickupUpdatedEmail({
-      orderId: order.orderNumber,
+    const previous = {
+      pickupPlace: previousPickup?.storeName ?? "Neurčené",
+      pickupPlaceUrl: getPickupPlaceUrl(previousPickup?.storeSlug),
+      pickupDate: formatPickupDate(previousPickup?.pickupDate),
+      pickupTime: previousPickup?.pickupTime ?? "Neurčený čas",
+    };
+
+    const updated = {
       pickupPlace: order.store?.name ?? "Neurčené",
       pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
       pickupDate: formatPickupDate(order.pickupDate),
       pickupTime: order.pickupTime ?? "Neurčený čas",
-    });
+    };
+
+    const sharedData = {
+      orderId: order.orderNumber,
+      orderUrl: `${getBaseUrl()}/profil/objednavky/${order.id}`,
+      previous,
+      updated,
+    };
+
+    const [customerHtml, staffHtml] = await Promise.all([
+      renderOrderPickupUpdatedEmail(sharedData),
+      renderOrderPickupUpdatedEmail({
+        ...sharedData,
+        orderUrl: `${getBaseUrl()}/admin/orders/${order.id}`,
+        changedBy: { name: changedBy.name, email: changedBy.email },
+        customer: getCustomerInfo(order),
+      }),
+    ]);
+
+    const staffSubject = changedBy.isStaff
+      ? `Manager ${changedBy.name} zmenil vyzdvihnutie objednávky ${order.orderNumber}`
+      : `Zákazník zmenil vyzdvihnutie objednávky ${order.orderNumber}`;
 
     await Promise.all([
       emailService({
         from: `"Kromka" <${env.EMAIL_USER}>`,
         to: customerEmail,
         subject: `Zmena vyzdvihnutia objednávky ${order.orderNumber} - Kromka`,
-        html,
+        html: customerHtml,
       }),
       emailService({
         from: `"Kromka" <${env.EMAIL_USER}>`,
         to: STAFF_EMAIL,
-        subject: `Zákazník zmenil vyzdvihnutie objednávky ${order.orderNumber}`,
-        html,
+        subject: staffSubject,
+        html: staffHtml,
       }),
     ]);
   },
