@@ -2,7 +2,6 @@
 
 import MapLibreGL, { type PopupOptions, type MarkerOptions } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useTheme } from "next-themes";
 import {
   createContext,
   forwardRef,
@@ -21,6 +20,68 @@ import { X, Minus, Plus, Locate, Maximize, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+const defaultStyles = {
+  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+};
+
+type Theme = "light" | "dark";
+
+// Check document class for theme (works with next-themes, etc.)
+function getDocumentTheme(): Theme | null {
+  if (typeof document === "undefined") return null;
+  if (document.documentElement.classList.contains("dark")) return "dark";
+  if (document.documentElement.classList.contains("light")) return "light";
+  return null;
+}
+
+// Get system preference
+function getSystemTheme(): Theme {
+  if (typeof window === "undefined") return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function useResolvedTheme(themeProp?: "light" | "dark"): Theme {
+  const [detectedTheme, setDetectedTheme] = useState<Theme>(
+    () => getDocumentTheme() ?? getSystemTheme(),
+  );
+
+  useEffect(() => {
+    if (themeProp) return; // Skip detection if theme is provided via prop
+
+    // Watch for document class changes (e.g., next-themes toggling dark class)
+    const observer = new MutationObserver(() => {
+      const docTheme = getDocumentTheme();
+      if (docTheme) {
+        setDetectedTheme(docTheme);
+      }
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    // Also watch for system preference changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleSystemChange = (e: MediaQueryListEvent) => {
+      // Only use system preference if no document class is set
+      if (!getDocumentTheme()) {
+        setDetectedTheme(e.matches ? "dark" : "light");
+      }
+    };
+    mediaQuery.addEventListener("change", handleSystemChange);
+
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener("change", handleSystemChange);
+    };
+  }, [themeProp]);
+
+  return themeProp ?? detectedTheme;
+}
+
 type MapContextValue = {
   map: MapLibreGL.Map | null;
   isLoaded: boolean;
@@ -36,15 +97,31 @@ function useMap() {
   return context;
 }
 
-const defaultStyles = {
-  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-  light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+/** Map viewport state */
+type MapViewport = {
+  /** Center coordinates [longitude, latitude] */
+  center: [number, number];
+  /** Zoom level */
+  zoom: number;
+  /** Bearing (rotation) in degrees */
+  bearing: number;
+  /** Pitch (tilt) in degrees */
+  pitch: number;
 };
 
 type MapStyleOption = string | MapLibreGL.StyleSpecification;
 
+type MapRef = MapLibreGL.Map;
+
 type MapProps = {
   children?: ReactNode;
+  /** Additional CSS classes for the map container */
+  className?: string;
+  /**
+   * Theme for the map. If not provided, automatically detects system preference.
+   * Pass your theme value here.
+   */
+  theme?: Theme;
   /** Custom map styles for light and dark themes. Overrides the default Carto styles. */
   styles?: {
     light?: MapStyleOption;
@@ -52,40 +129,80 @@ type MapProps = {
   };
   /** Map projection type. Use `{ type: "globe" }` for 3D globe view. */
   projection?: MapLibreGL.ProjectionSpecification;
+  /**
+   * Controlled viewport. When provided with onViewportChange,
+   * the map becomes controlled and viewport is driven by this prop.
+   */
+  viewport?: Partial<MapViewport>;
+  /**
+   * Callback fired continuously as the viewport changes (pan, zoom, rotate, pitch).
+   * Can be used standalone to observe changes, or with `viewport` prop
+   * to enable controlled mode where the map viewport is driven by your state.
+   */
+  onViewportChange?: (viewport: MapViewport) => void;
+  /** Show a loading indicator on the map */
+  loading?: boolean;
 } & Omit<MapLibreGL.MapOptions, "container" | "style">;
 
-type MapRef = MapLibreGL.Map;
-
-const DefaultLoader = () => (
-  <div className="absolute inset-0 flex items-center justify-center">
-    <div className="flex gap-1">
-      <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-pulse" />
-      <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-pulse [animation-delay:150ms]" />
-      <span className="size-1.5 rounded-full bg-muted-foreground/60 animate-pulse [animation-delay:300ms]" />
+function DefaultLoader() {
+  return (
+    <div className="bg-background/50 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-xs">
+      <div className="flex gap-1">
+        <span className="bg-muted-foreground/60 size-1.5 animate-pulse rounded-full" />
+        <span className="bg-muted-foreground/60 size-1.5 animate-pulse rounded-full [animation-delay:150ms]" />
+        <span className="bg-muted-foreground/60 size-1.5 animate-pulse rounded-full [animation-delay:300ms]" />
+      </div>
     </div>
-  </div>
-);
+  );
+}
+
+function getViewport(map: MapLibreGL.Map): MapViewport {
+  const center = map.getCenter();
+  return {
+    center: [center.lng, center.lat],
+    zoom: map.getZoom(),
+    bearing: map.getBearing(),
+    pitch: map.getPitch(),
+  };
+}
 
 const Map = forwardRef<MapRef, MapProps>(function Map(
-  { children, styles, projection, ...props },
-  ref
+  {
+    children,
+    className,
+    theme: themeProp,
+    styles,
+    projection,
+    viewport,
+    onViewportChange,
+    loading = false,
+    ...props
+  },
+  ref,
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mapInstance, setMapInstance] = useState<MapLibreGL.Map | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isStyleLoaded, setIsStyleLoaded] = useState(false);
-  const { resolvedTheme } = useTheme();
   const currentStyleRef = useRef<MapStyleOption | null>(null);
   const styleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const internalUpdateRef = useRef(false);
+  const resolvedTheme = useResolvedTheme(themeProp);
+
+  const isControlled = viewport !== undefined && onViewportChange !== undefined;
+
+  const onViewportChangeRef = useRef(onViewportChange);
+  onViewportChangeRef.current = onViewportChange;
 
   const mapStyles = useMemo(
     () => ({
       dark: styles?.dark ?? defaultStyles.dark,
       light: styles?.light ?? defaultStyles.light,
     }),
-    [styles]
+    [styles],
   );
 
+  // Expose the map instance to the parent component
   useImperativeHandle(ref, () => mapInstance as MapLibreGL.Map, [mapInstance]);
 
   const clearStyleTimeout = useCallback(() => {
@@ -95,6 +212,7 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     }
   }, []);
 
+  // Initialize the map
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -110,31 +228,39 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
         compact: true,
       },
       ...props,
+      ...viewport,
     });
 
     const styleDataHandler = () => {
       clearStyleTimeout();
       // Delay to ensure style is fully processed before allowing layer operations
       // This is a workaround to avoid race conditions with the style loading
+      // else we have to force update every layer on setStyle change
       styleTimeoutRef.current = setTimeout(() => {
         setIsStyleLoaded(true);
         if (projection) {
           map.setProjection(projection);
         }
-      }, 150);
+      }, 100);
     };
-    const loadHandler = () => {
-      setIsLoaded(true);
+    const loadHandler = () => setIsLoaded(true);
+
+    // Viewport change handler - skip if triggered by internal update
+    const handleMove = () => {
+      if (internalUpdateRef.current) return;
+      onViewportChangeRef.current?.(getViewport(map));
     };
 
     map.on("load", loadHandler);
     map.on("styledata", styleDataHandler);
+    map.on("move", handleMove);
     setMapInstance(map);
 
     return () => {
       clearStyleTimeout();
       map.off("load", loadHandler);
       map.off("styledata", styleDataHandler);
+      map.off("move", handleMove);
       map.remove();
       setIsLoaded(false);
       setIsStyleLoaded(false);
@@ -143,6 +269,35 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sync controlled viewport to map
+  useEffect(() => {
+    if (!mapInstance || !isControlled || !viewport) return;
+    if (mapInstance.isMoving()) return;
+
+    const current = getViewport(mapInstance);
+    const next = {
+      center: viewport.center ?? current.center,
+      zoom: viewport.zoom ?? current.zoom,
+      bearing: viewport.bearing ?? current.bearing,
+      pitch: viewport.pitch ?? current.pitch,
+    };
+
+    if (
+      next.center[0] === current.center[0] &&
+      next.center[1] === current.center[1] &&
+      next.zoom === current.zoom &&
+      next.bearing === current.bearing &&
+      next.pitch === current.pitch
+    ) {
+      return;
+    }
+
+    internalUpdateRef.current = true;
+    mapInstance.jumpTo(next);
+    internalUpdateRef.current = false;
+  }, [mapInstance, isControlled, viewport]);
+
+  // Handle style change
   useEffect(() => {
     if (!mapInstance || !resolvedTheme) return;
 
@@ -158,20 +313,21 @@ const Map = forwardRef<MapRef, MapProps>(function Map(
     mapInstance.setStyle(newStyle, { diff: true });
   }, [mapInstance, resolvedTheme, mapStyles, clearStyleTimeout]);
 
-  const isLoading = !isLoaded || !isStyleLoaded;
-
   const contextValue = useMemo(
     () => ({
       map: mapInstance,
       isLoaded: isLoaded && isStyleLoaded,
     }),
-    [mapInstance, isLoaded, isStyleLoaded]
+    [mapInstance, isLoaded, isStyleLoaded],
   );
 
   return (
     <MapContext.Provider value={contextValue}>
-      <div ref={containerRef} className="relative size-full min-h-0">
-        {isLoading && <DefaultLoader />}
+      <div
+        ref={containerRef}
+        className={cn("relative h-full w-full", className)}
+      >
+        {(!isLoaded || loading) && <DefaultLoader />}
         {/* SSR-safe: children render only when map is loaded on client */}
         {mapInstance && children}
       </div>
@@ -230,6 +386,23 @@ function MapMarker({
 }: MapMarkerProps) {
   const { map } = useMap();
 
+  const callbacksRef = useRef({
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    onDragStart,
+    onDrag,
+    onDragEnd,
+  });
+  callbacksRef.current = {
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    onDragStart,
+    onDrag,
+    onDragEnd,
+  };
+
   const marker = useMemo(() => {
     const markerInstance = new MapLibreGL.Marker({
       ...markerOptions,
@@ -237,9 +410,11 @@ function MapMarker({
       draggable,
     }).setLngLat([longitude, latitude]);
 
-    const handleClick = (e: MouseEvent) => onClick?.(e);
-    const handleMouseEnter = (e: MouseEvent) => onMouseEnter?.(e);
-    const handleMouseLeave = (e: MouseEvent) => onMouseLeave?.(e);
+    const handleClick = (e: MouseEvent) => callbacksRef.current.onClick?.(e);
+    const handleMouseEnter = (e: MouseEvent) =>
+      callbacksRef.current.onMouseEnter?.(e);
+    const handleMouseLeave = (e: MouseEvent) =>
+      callbacksRef.current.onMouseLeave?.(e);
 
     markerInstance.getElement()?.addEventListener("click", handleClick);
     markerInstance
@@ -251,15 +426,15 @@ function MapMarker({
 
     const handleDragStart = () => {
       const lngLat = markerInstance.getLngLat();
-      onDragStart?.({ lng: lngLat.lng, lat: lngLat.lat });
+      callbacksRef.current.onDragStart?.({ lng: lngLat.lng, lat: lngLat.lat });
     };
     const handleDrag = () => {
       const lngLat = markerInstance.getLngLat();
-      onDrag?.({ lng: lngLat.lng, lat: lngLat.lat });
+      callbacksRef.current.onDrag?.({ lng: lngLat.lng, lat: lngLat.lat });
     };
     const handleDragEnd = () => {
       const lngLat = markerInstance.getLngLat();
-      onDragEnd?.({ lng: lngLat.lng, lat: lngLat.lat });
+      callbacksRef.current.onDragEnd?.({ lng: lngLat.lng, lat: lngLat.lat });
     };
 
     markerInstance.on("dragstart", handleDragStart);
@@ -333,7 +508,7 @@ function MarkerContent({ children, className }: MarkerContentProps) {
     <div className={cn("relative cursor-pointer", className)}>
       {children || <DefaultMarkerIcon />}
     </div>,
-    marker.getElement()
+    marker.getElement(),
   );
 }
 
@@ -405,15 +580,15 @@ function MarkerPopup({
   return createPortal(
     <div
       className={cn(
-        "relative rounded-md border bg-popover p-3 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
-        className
+        "bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 relative rounded-md border p-3 shadow-md",
+        className,
       )}
     >
       {closeButton && (
         <button
           type="button"
           onClick={handleClose}
-          className="absolute top-1 right-1 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="ring-offset-background focus:ring-ring absolute top-1 right-1 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
           aria-label="Close popup"
         >
           <X className="h-4 w-4" />
@@ -422,7 +597,7 @@ function MarkerPopup({
       )}
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -491,13 +666,13 @@ function MarkerTooltip({
   return createPortal(
     <div
       className={cn(
-        "rounded-md bg-foreground px-2 py-1 text-xs text-background shadow-md animate-in fade-in-0 zoom-in-95",
-        className
+        "bg-foreground text-background animate-in fade-in-0 zoom-in-95 rounded-md px-2 py-1 text-xs shadow-md",
+        className,
       )}
     >
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -524,9 +699,9 @@ function MarkerLabel({
     <div
       className={cn(
         "absolute left-1/2 -translate-x-1/2 whitespace-nowrap",
-        "text-[10px] font-medium text-foreground",
+        "text-foreground text-[10px] font-medium",
         positionClasses[position],
-        className
+        className,
       )}
     >
       {children}
@@ -560,7 +735,7 @@ const positionClasses = {
 
 function ControlGroup({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col rounded-md border border-border bg-background shadow-sm overflow-hidden [&>button:not(:last-child)]:border-b [&>button:not(:last-child)]:border-border">
+    <div className="border-border bg-background [&>button:not(:last-child)]:border-border flex flex-col overflow-hidden rounded-md border shadow-sm [&>button:not(:last-child)]:border-b">
       {children}
     </div>
   );
@@ -583,8 +758,8 @@ function ControlButton({
       aria-label={label}
       type="button"
       className={cn(
-        "flex items-center justify-center size-8 hover:bg-accent dark:hover:bg-accent/40 transition-colors",
-        disabled && "opacity-50 pointer-events-none cursor-not-allowed"
+        "hover:bg-accent dark:hover:bg-accent/40 flex size-8 items-center justify-center transition-colors",
+        disabled && "pointer-events-none cursor-not-allowed opacity-50",
       )}
       disabled={disabled}
     >
@@ -602,7 +777,7 @@ function MapControls({
   className,
   onLocate,
 }: MapControlsProps) {
-  const { map, isLoaded } = useMap();
+  const { map } = useMap();
   const [waitingForLocation, setWaitingForLocation] = useState(false);
 
   const handleZoomIn = useCallback(() => {
@@ -634,9 +809,10 @@ function MapControls({
           onLocate?.(coords);
           setWaitingForLocation(false);
         },
-        () => {
+        (error) => {
+          console.error("Error getting location:", error);
           setWaitingForLocation(false);
-        }
+        },
       );
     }
   }, [map, onLocate]);
@@ -651,14 +827,12 @@ function MapControls({
     }
   }, [map]);
 
-  if (!isLoaded) return null;
-
   return (
     <div
       className={cn(
         "absolute z-10 flex flex-col gap-1.5",
         positionClasses[position],
-        className
+        className,
       )}
     >
       {showZoom && (
@@ -703,11 +877,11 @@ function MapControls({
 }
 
 function CompassButton({ onClick }: { onClick: () => void }) {
-  const { isLoaded, map } = useMap();
+  const { map } = useMap();
   const compassRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    if (!isLoaded || !map || !compassRef.current) return;
+    if (!map || !compassRef.current) return;
 
     const compass = compassRef.current;
 
@@ -725,7 +899,7 @@ function CompassButton({ onClick }: { onClick: () => void }) {
       map.off("rotate", updateRotation);
       map.off("pitch", updateRotation);
     };
-  }, [isLoaded, map]);
+  }, [map]);
 
   return (
     <ControlButton onClick={onClick} label="Reset bearing to north">
@@ -770,6 +944,8 @@ function MapPopup({
 }: MapPopupProps) {
   const { map } = useMap();
   const popupOptionsRef = useRef(popupOptions);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const container = useMemo(() => document.createElement("div"), []);
 
   const popup = useMemo(() => {
@@ -788,7 +964,8 @@ function MapPopup({
   useEffect(() => {
     if (!map) return;
 
-    const onCloseProp = () => onClose?.();
+    const onCloseProp = () => onCloseRef.current?.();
+
     popup.on("close", onCloseProp);
 
     popup.setDOMContent(container);
@@ -824,21 +1001,20 @@ function MapPopup({
 
   const handleClose = () => {
     popup.remove();
-    onClose?.();
   };
 
   return createPortal(
     <div
       className={cn(
-        "relative rounded-md border bg-popover p-3 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95",
-        className
+        "bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 relative rounded-md border p-3 shadow-md",
+        className,
       )}
     >
       {closeButton && (
         <button
           type="button"
           onClick={handleClose}
-          className="absolute top-1 right-1 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          className="ring-offset-background focus:ring-ring absolute top-1 right-1 z-10 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none"
           aria-label="Close popup"
         >
           <X className="h-4 w-4" />
@@ -847,7 +1023,7 @@ function MapPopup({
       )}
       {children}
     </div>,
-    container
+    container,
   );
 }
 
@@ -993,7 +1169,7 @@ function MapRoute({
 }
 
 type MapClusterLayerProps<
-  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties
+  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties,
 > = {
   /** GeoJSON FeatureCollection data or URL to fetch GeoJSON from */
   data: string | GeoJSON.FeatureCollection<GeoJSON.Point, P>;
@@ -1001,7 +1177,7 @@ type MapClusterLayerProps<
   clusterMaxZoom?: number;
   /** Radius of each cluster when clustering points in pixels (default: 50) */
   clusterRadius?: number;
-  /** Colors for cluster circles: [small, medium, large] based on point count (default: ["#51bbd6", "#f1f075", "#f28cb1"]) */
+  /** Colors for cluster circles: [small, medium, large] based on point count (default: ["#22c55e", "#eab308", "#ef4444"]) */
   clusterColors?: [string, string, string];
   /** Point count thresholds for color/size steps: [medium, large] (default: [100, 750]) */
   clusterThresholds?: [number, number];
@@ -1010,23 +1186,23 @@ type MapClusterLayerProps<
   /** Callback when an unclustered point is clicked */
   onPointClick?: (
     feature: GeoJSON.Feature<GeoJSON.Point, P>,
-    coordinates: [number, number]
+    coordinates: [number, number],
   ) => void;
   /** Callback when a cluster is clicked. If not provided, zooms into the cluster */
   onClusterClick?: (
     clusterId: number,
     coordinates: [number, number],
-    pointCount: number
+    pointCount: number,
   ) => void;
 };
 
 function MapClusterLayer<
-  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties
+  P extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties,
 >({
   data,
   clusterMaxZoom = 14,
   clusterRadius = 50,
-  clusterColors = ["#51bbd6", "#f1f075", "#f28cb1"],
+  clusterColors = ["#22c55e", "#eab308", "#ef4444"],
   clusterThresholds = [100, 750],
   pointColor = "#3b82f6",
   onPointClick,
@@ -1083,6 +1259,9 @@ function MapClusterLayer<
           clusterThresholds[1],
           40,
         ],
+        "circle-stroke-width": 1,
+        "circle-stroke-color": "#fff",
+        "circle-opacity": 0.85,
       },
     });
 
@@ -1094,6 +1273,7 @@ function MapClusterLayer<
       filter: ["has", "point_count"],
       layout: {
         "text-field": "{point_count_abbreviated}",
+        "text-font": ["Open Sans"],
         "text-size": 12,
       },
       paint: {
@@ -1109,7 +1289,9 @@ function MapClusterLayer<
       filter: ["!", ["has", "point_count"]],
       paint: {
         "circle-color": pointColor,
-        "circle-radius": 6,
+        "circle-radius": 5,
+        "circle-stroke-width": 2,
+        "circle-stroke-color": "#fff",
       },
     });
 
@@ -1193,7 +1375,7 @@ function MapClusterLayer<
     const handleClusterClick = async (
       e: MapLibreGL.MapMouseEvent & {
         features?: MapLibreGL.MapGeoJSONFeature[];
-      }
+      },
     ) => {
       const features = map.queryRenderedFeatures(e.point, {
         layers: [clusterLayerId],
@@ -1205,7 +1387,7 @@ function MapClusterLayer<
       const pointCount = feature.properties?.point_count as number;
       const coordinates = (feature.geometry as GeoJSON.Point).coordinates as [
         number,
-        number
+        number,
       ];
 
       if (onClusterClick) {
@@ -1225,7 +1407,7 @@ function MapClusterLayer<
     const handlePointClick = (
       e: MapLibreGL.MapMouseEvent & {
         features?: MapLibreGL.MapGeoJSONFeature[];
-      }
+      },
     ) => {
       if (!onPointClick || !e.features?.length) return;
 
@@ -1241,7 +1423,7 @@ function MapClusterLayer<
 
       onPointClick(
         feature as unknown as GeoJSON.Feature<GeoJSON.Point, P>,
-        coordinates
+        coordinates,
       );
     };
 
@@ -1303,4 +1485,4 @@ export {
   MapClusterLayer,
 };
 
-export type { MapRef };
+export type { MapRef, MapViewport };

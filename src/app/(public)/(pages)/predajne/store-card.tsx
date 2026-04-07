@@ -58,6 +58,7 @@ export function StoreCard({
   href,
   variant = "default",
   distance,
+  isSelected,
 }: StoreCardProps) {
   const todaySchedule = getTodayOpeningHours(store.openingHours);
   const storeIsOpen = isCurrentlyOpen(todaySchedule);
@@ -67,6 +68,8 @@ export function StoreCard({
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-md bg-neutral-900",
         variant === "featured" ? "min-h-[420px]" : "min-h-[320px]",
+        isSelected &&
+          "ring-2 ring-primary ring-offset-2 ring-offset-background",
         className
       )}
     >
