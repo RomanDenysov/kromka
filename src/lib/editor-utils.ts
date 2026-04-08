@@ -14,10 +14,23 @@ const SIMPLE_HEADING_LEVELS = [
   HEADING_LEVEL_4,
 ];
 
-/**
- * Convert Tiptap JSONContent to HTML string
- * Useful for SEO, JSON-LD, and meta descriptions
- */
+const EXTENSIONS = [
+  StarterKit.configure({
+    heading: {
+      levels: SIMPLE_HEADING_LEVELS as [
+        typeof HEADING_LEVEL_2,
+        typeof HEADING_LEVEL_3,
+        typeof HEADING_LEVEL_4,
+      ],
+    },
+  }),
+  Link.configure({
+    openOnClick: false,
+    autolink: true,
+    defaultProtocol: "https",
+  }),
+];
+
 export function jsonContentToHtml(
   content: JSONContent | null | undefined
 ): string {
@@ -25,34 +38,13 @@ export function jsonContentToHtml(
     return "";
   }
 
-  const extensions = [
-    StarterKit.configure({
-      heading: {
-        levels: SIMPLE_HEADING_LEVELS as [
-          typeof HEADING_LEVEL_2,
-          typeof HEADING_LEVEL_3,
-          typeof HEADING_LEVEL_4,
-        ],
-      },
-    }),
-    Link.configure({
-      openOnClick: false,
-      autolink: true,
-      defaultProtocol: "https",
-    }),
-  ];
-
   try {
-    return generateHTML(content, extensions);
+    return generateHTML(content, EXTENSIONS);
   } catch {
     return "";
   }
 }
 
-/**
- * Convert Tiptap JSONContent to plain text string
- * Useful for meta descriptions and text-only representations
- */
 export function jsonContentToText(
   content: JSONContent | null | undefined
 ): string {
@@ -60,25 +52,8 @@ export function jsonContentToText(
     return "";
   }
 
-  const extensions = [
-    StarterKit.configure({
-      heading: {
-        levels: SIMPLE_HEADING_LEVELS as [
-          typeof HEADING_LEVEL_2,
-          typeof HEADING_LEVEL_3,
-          typeof HEADING_LEVEL_4,
-        ],
-      },
-    }),
-    Link.configure({
-      openOnClick: false,
-      autolink: true,
-      defaultProtocol: "https",
-    }),
-  ];
-
   try {
-    return generateText(content, extensions);
+    return generateText(content, EXTENSIONS);
   } catch {
     return "";
   }
