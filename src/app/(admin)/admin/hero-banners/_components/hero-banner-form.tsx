@@ -74,7 +74,7 @@ export function HeroBannerForm({ banner, categories, className }: Props) {
   const ctaOptions = buildCtaOptions(categories);
 
   const onSubmit = async (data: HeroBannerSchema) => {
-    if (isEdit) {
+    if (banner) {
       const result = await updateHeroBannerAction({ id: banner.id, data });
       if (result.success) {
         toast.success("Banner bol ulozeny");

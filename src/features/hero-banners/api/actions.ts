@@ -61,17 +61,16 @@ export async function activateHeroBannerAction(
     return { success: false, error: "NOT_FOUND" };
   }
 
-  // Deactivate all other banners
-  await db
-    .update(heroBanners)
-    .set({ isActive: false })
-    .where(ne(heroBanners.id, id));
-
-  // Activate the selected one
-  await db
-    .update(heroBanners)
-    .set({ isActive: true })
-    .where(eq(heroBanners.id, id));
+  await Promise.all([
+    db
+      .update(heroBanners)
+      .set({ isActive: false })
+      .where(ne(heroBanners.id, id)),
+    db
+      .update(heroBanners)
+      .set({ isActive: true })
+      .where(eq(heroBanners.id, id)),
+  ]);
 
   log.db.info({ heroBannerId: id }, "Hero banner activated");
   updateTag("hero-banners");
