@@ -16,6 +16,9 @@ const useBuyAgainStore = create<BuyAgainState & BuyAgainActions>((set) => ({
 
   init: () => {
     try {
+      // sessionStorage data persists as long as the tab or browser remains open.
+      // If you close all tabs for a site or the browser, sessionStorage will be cleared.
+      // So after reopening the browser, or opening a new tab, this key will not be set anymore.
       if (sessionStorage.getItem(DISMISS_KEY)) {
         set({ visible: false });
       }

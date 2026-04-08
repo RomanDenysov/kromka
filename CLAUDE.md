@@ -15,7 +15,6 @@ pnpm lint         # Check with Ultracite (Biome-based)
 pnpm lint:fix     # Auto-fix lint issues
 pnpm format:fix   # Format code
 pnpm typecheck    # TypeScript check
-pnpm db:push      # Push schema to database
 pnpm db:generate  # Generate migrations
 pnpm db:migrate   # Run migrations
 pnpm db:studio    # Open Drizzle Studio
@@ -91,6 +90,8 @@ This project uses Neon's **HTTP serverless driver** (`@neondatabase/serverless` 
 - Unique constraints in the DB schema as a safety net for race conditions
 
 **DO NOT use `db.transaction()` or `db.batch()` — they are not supported by the Neon HTTP driver.**
+
+**DO NOT use `pnpm db:push` in any situation.** It applies schema changes directly without generating migration files, making changes untrackable and potentially destructive in production. Always use `pnpm db:generate` + `pnpm db:migrate` instead.
 
 **Schema changes require human approval.** Never modify `src/db/schema.ts` (add/remove/rename columns, change types, alter constraints) without explicit user confirmation. Schema changes affect production data and are hard to reverse. Always propose the change first, explain the migration impact, and wait for approval before editing.
 

@@ -107,7 +107,7 @@ export function HomepageStoresContent({
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-4">
-        <h2 className="font-semibold text-xl tracking-tight md:text-2xl">
+        <h2 className="text-balance font-semibold text-xl tracking-tight md:text-2xl">
           Nase predajne
         </h2>
         <Link
@@ -163,7 +163,7 @@ export function HomepageStoresContent({
               {/* Store info */}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="truncate font-semibold text-sm">
+                  <h3 className="truncate text-balance font-semibold text-sm">
                     {selectedStore.name}
                   </h3>
                   <div

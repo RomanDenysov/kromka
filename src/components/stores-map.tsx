@@ -64,7 +64,7 @@ export function StoresMap({
     <div className="size-full">
       <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
         <MapComponent center={CENTER_POSITION} zoom={9}>
-          <MapControls position="bottom-right" />
+          <MapControls position="top-right" />
           {storesWithCoordinates.map((store) => {
             const isSelected = store.id === selectedStoreId;
             return (

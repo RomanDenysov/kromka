@@ -1,5 +1,25 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'src/db/schema.ts'; then echo 'BLOCK: Schema changes require explicit user approval per CLAUDE.md. Ask the user first.'; exit 2; fi",
+            "type": "command"
+          }
+        ],
+        "matcher": "Write|Edit"
+      },
+      {
+        "hooks": [
+          {
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '\\.env'; then echo 'BLOCK: Do not edit .env files directly.'; exit 2; fi",
+            "type": "command"
+          }
+        ],
+        "matcher": "Write|Edit"
+      }
+    ],
     "PostToolUse": [
       {
         "hooks": [

@@ -1,202 +1,66 @@
-"use client";
-
-import { ArrowRight, MapPin, MenuIcon } from "lucide-react";
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { ArrowRight, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { type ReactNode, Suspense, useEffect, useRef, useState } from "react";
-import { Icons } from "@/components/icons";
-import { MobileNavigation } from "@/components/mobile-nav";
-import { Container } from "@/components/shared/container";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { navigation } from "./navigation";
 
-interface HomeHeroProps {
-  actions: ReactNode;
+interface HeroContent {
+  ctaHref: string;
+  ctaLabel: string;
+  heading?: string;
+  imageUrl: string;
+  subtitle?: string;
 }
 
-const SCROLL_RANGE: [number, number] = [0, 300];
-const DESKTOP_SCALE = 8;
-const MOBILE_SCALE = 4.5;
+interface HomeHeroProps {
+  content: HeroContent;
+}
 
-export function HomeHero({ actions }: HomeHeroProps) {
-  const heroRef = useRef<HTMLElement>(null);
-  const [scrolled, setScrolled] = useState(false);
-  const [heroScale, setHeroScale] = useState(MOBILE_SCALE);
-  const prefersReduced = useReducedMotion();
-
-  const { scrollY } = useScroll();
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
-    const update = () =>
-      setHeroScale(mq.matches ? DESKTOP_SCALE : MOBILE_SCALE);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, []);
-
-  // Logo: transforms from hero-center to header position
-  const logoScale = useTransform(scrollY, SCROLL_RANGE, [heroScale, 1]);
-  const logoY = useTransform(scrollY, SCROLL_RANGE, ["40vh", "0vh"]);
-
-  // Background parallax
-  const imageY = useTransform(scrollY, [0, 1000], ["0%", "-10%"]);
-
-  // Extra darkening on scroll
-  const overlayOpacity = useTransform(scrollY, [0, 1000], [0, 0.2]);
-
-  // Header bg transition via IntersectionObserver
-  useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) {
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setScrolled(!entry.isIntersecting),
-      { threshold: 0.3 }
-    );
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, []);
-
+export function HomeHero({ content }: HomeHeroProps) {
   return (
-    <>
-      {/* Fixed header - transparent -> solid on scroll */}
-      <header
-        className={cn(
-          "fixed z-50 w-full transition-colors duration-300",
-          scrolled
-            ? "bg-background text-foreground"
-            : "bg-transparent text-white"
-        )}
-      >
-        <Container>
-          <div className="grid h-12 w-full grid-cols-[1fr_auto_1fr] items-center gap-4 md:h-14 md:gap-5">
-            {/* Navigation */}
-            <Suspense
-              fallback={
-                <Button
-                  aria-label="Otvoriť menu"
-                  className="md:hidden"
-                  size="icon-sm"
-                  type="button"
-                  variant="ghost"
-                >
-                  <MenuIcon className="size-5" />
-                </Button>
-              }
-            >
-              <MobileNavigation navigation={navigation} />
-            </Suspense>
-            <nav className="hidden grow items-center justify-start gap-2 md:flex">
-              {navigation.map((item) => (
-                <Link
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" }),
-                    !scrolled && "hover:bg-white/10 hover:text-white"
-                  )}
-                  href={item.href}
-                  key={item.href}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
+    <section className="relative h-[calc(100dvh-3rem)] w-full overflow-hidden bg-black md:h-[calc(100dvh-3.5rem)]">
+      <Image
+        alt="Cerstvé pecivo z pekárne Kromka"
+        className="object-cover"
+        fill
+        priority
+        sizes="100vw"
+        src={content.imageUrl}
+      />
 
-            {/* Logo - animated from hero-center to header */}
-            <motion.div
-              className="flex items-center justify-center"
-              style={
-                prefersReduced
-                  ? undefined
-                  : { scale: logoScale, y: logoY, originX: 0.5, originY: 0.5 }
-              }
-            >
-              <Link
-                className={cn(
-                  "transition-opacity",
-                  !scrolled && "pointer-events-none"
-                )}
-                href="/"
-                tabIndex={scrolled ? 0 : -1}
-              >
-                <Icons.kromka className="h-4 lg:h-5" />
-              </Link>
-            </motion.div>
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-black/10" />
 
-            {/* Actions */}
-            {actions}
-          </div>
-        </Container>
-      </header>
-
-      {/* Fullscreen hero section */}
-      <section
-        className="relative h-dvh w-full overflow-hidden bg-black"
-        id="home-hero"
-        ref={heroRef}
-      >
-        {/* Parallax background image */}
-        <motion.div
-          className="absolute inset-x-0 -top-[10%] bottom-0 h-[120%]"
-          style={prefersReduced ? undefined : { y: imageY }}
-        >
-          <Image
-            alt="Cerstvé pecivo z pekárne Kromka"
-            className="object-cover"
-            fill
-            priority
-            sizes="100vw"
-            src="/images/easter-hero.webp"
-          />
-        </motion.div>
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-black/10" />
-
-        {/* Extra darkening on scroll */}
-        <motion.div
-          className="absolute inset-0 bg-black"
-          style={{ opacity: prefersReduced ? 0 : overlayOpacity }}
-        />
-
-        {/* Subtitle + CTAs */}
-        <div className="absolute inset-x-0 bottom-8 z-10 flex flex-col items-center gap-6 px-6 md:bottom-10 md:gap-8">
-          <p className="text-white/70 text-xs uppercase tracking-[0.25em] md:text-sm">
-            Remeseln&#225; pek&#225;re&#328;
+      {/* Subtitle + CTAs */}
+      <div className="absolute inset-x-0 bottom-8 z-10 flex flex-col items-center gap-6 px-6 md:bottom-10 md:gap-8">
+        {content.subtitle && (
+          <p className="text-white/70 text-xs uppercase tracking-widest md:text-sm">
+            {content.subtitle}
           </p>
-          <div className="flex w-full flex-col items-stretch gap-3 md:w-auto md:flex-row md:items-center md:justify-center md:gap-4">
-            <Link
-              className={cn(
-                buttonVariants({ variant: "glass" }),
-                "group w-full justify-center md:w-auto"
-              )}
-              href="/e-shop"
-            >
-              Objednat online
-              <ArrowRight className="size-3.5" />
-            </Link>
-            <Link
-              className={cn(
-                buttonVariants({ variant: "link", size: "sm" }),
-                "w-full justify-center text-white/60 no-underline hover:text-white hover:no-underline md:w-auto"
-              )}
-              href="/predajne"
-            >
-              <MapPin className="size-3.5" />
-              Nase predajne
-            </Link>
-          </div>
+        )}
+        <div className="flex w-full flex-col items-stretch gap-3 md:w-auto md:flex-row md:items-center md:justify-center md:gap-4">
+          <Link
+            className={cn(
+              buttonVariants({ variant: "glass" }),
+              "group w-full justify-center md:w-auto"
+            )}
+            href={content.ctaHref as never}
+          >
+            {content.ctaLabel}
+            <ArrowRight className="size-3.5" />
+          </Link>
+          <Link
+            className={cn(
+              buttonVariants({ variant: "link", size: "sm" }),
+              "w-full justify-center text-white/60 no-underline hover:text-white hover:no-underline md:w-auto"
+            )}
+            href="/predajne"
+          >
+            <MapPin className="size-3.5" />
+            Nase predajne
+          </Link>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }

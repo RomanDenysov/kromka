@@ -9,26 +9,10 @@ import {
   XIcon,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { type ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { ResponsiveModal } from "@/components/responsive-modal";
 import { ProductImage } from "@/components/shared/product-image";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import type { LastOrderWithItems } from "@/features/checkout/api/queries";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -40,43 +24,6 @@ import {
   useBuyAgainInit,
   useBuyAgainVisible,
 } from "../store";
-
-// ---------------------------------------------------------------------------
-// Responsive modal: Drawer on mobile, Dialog on desktop
-// ---------------------------------------------------------------------------
-
-function ResponsiveModal({
-  children,
-  content,
-  isMobile,
-  onOpenChange,
-  open,
-}: {
-  children: ReactNode;
-  content: ReactNode;
-  isMobile: boolean;
-  onOpenChange: (v: boolean) => void;
-  open: boolean;
-}) {
-  if (isMobile) {
-    return (
-      <Drawer onOpenChange={onOpenChange} open={open}>
-        <DrawerTrigger asChild>{children}</DrawerTrigger>
-        {content}
-      </Drawer>
-    );
-  }
-  return (
-    <Dialog onOpenChange={onOpenChange} open={open}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      {content}
-    </Dialog>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
 
 interface Props {
   items: LastOrderWithItems["items"];
@@ -108,82 +55,38 @@ export function ReorderBar({ items }: Props) {
     }
   };
 
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
-
-  const modalContent = isMobile ? (
-    <DrawerContent>
-      <DrawerHeader>
-        <DrawerTitle>Vas posledny nakup</DrawerTitle>
-      </DrawerHeader>
-      <ScrollArea className="max-h-[60vh] overflow-y-auto">
-        <ItemsList items={selectedItems} onChange={setSelectedItems} />
-      </ScrollArea>
-      <DrawerFooter>
-        <OrderFooter
-          disabled={selectedItems.length === 0}
-          isPending={isPending}
-          onOrder={() => repeatOrder(selectedItems, "reorder_bar")}
-          total={selectedCents}
-        />
-      </DrawerFooter>
-    </DrawerContent>
-  ) : (
-    <DialogContent className="p-4 sm:p-6">
-      <DialogHeader>
-        <DialogTitle>Vas posledny nakup</DialogTitle>
-      </DialogHeader>
-      <ScrollArea className="-mx-4 max-h-[60vh] sm:-mx-6">
-        <ItemsList items={selectedItems} onChange={setSelectedItems} />
-      </ScrollArea>
-      <DialogFooter>
-        <OrderFooter
-          disabled={selectedItems.length === 0}
-          isPending={isPending}
-          onOrder={() => repeatOrder(selectedItems, "reorder_bar")}
-          total={selectedCents}
-        />
-      </DialogFooter>
-    </DialogContent>
-  );
-
   if (!visible) {
     return null;
   }
 
   return (
-    <motion.div
-      animate={{ y: 0 }}
-      className="border-border border-b bg-background"
-      exit={{ y: "-100%" }}
-      initial={{ y: "-100%" }}
-      transition={{ type: "tween", duration: 0.3 }}
-    >
-      <div className="flex h-10 items-center gap-3 px-4 sm:px-6 lg:px-8">
-        <span className="hidden shrink-0 font-medium text-sm md:inline">
-          Vas posledny nakup
-        </span>
+    <>
+      <motion.div
+        animate={{ y: 0 }}
+        className="border-border border-b bg-primary text-primary-foreground"
+        exit={{ y: "-100%" }}
+        initial={{ y: "-100%" }}
+        transition={{ type: "tween", duration: 0.3 }}
+      >
+        <div className="flex h-10 items-center gap-3 px-4 sm:px-6 lg:px-8">
+          <span className="hidden shrink-0 font-medium text-sm md:inline">
+            Vas posledny nakup
+          </span>
 
-        <span className="flex shrink-0 items-center gap-1 font-semibold text-foreground text-sm">
-          <ShoppingCartIcon className="size-3.5" />
-          {formatPrice(totalCents)}
-        </span>
+          <span className="flex shrink-0 items-center gap-1 font-semibold text-xs">
+            <ShoppingCartIcon className="size-4" />
+            {formatPrice(totalCents)}
+          </span>
 
-        <ResponsiveModal
-          content={modalContent}
-          isMobile={isMobile}
-          onOpenChange={handleOpenChange}
-          open={open}
-        >
           <button
             className="flex items-center transition-opacity hover:opacity-80"
+            onClick={() => setOpen(true)}
             type="button"
           >
             {items.slice(0, maxThumbs).map((item) => (
               <ProductImage
                 alt={item.name}
-                className="-mr-1 size-8 rounded-md object-cover ring-1 ring-[#e4ddd5]"
+                className="-mr-1.5 size-7 rounded-md object-cover ring-1 ring-ring"
                 height={32}
                 key={item.productId}
                 src={item.imageUrl ?? "/images/cooperation.jpg"}
@@ -191,57 +94,64 @@ export function ReorderBar({ items }: Props) {
               />
             ))}
             {extra > 0 && (
-              <span className="flex size-8 items-center justify-center rounded-md bg-muted font-medium text-muted-foreground text-xs ring-1 ring-[#e4ddd5]">
+              <span className="flex size-7 items-center justify-center rounded-md bg-muted font-medium text-primary text-xs ring-1 ring-ring">
                 +{extra}
               </span>
             )}
           </button>
-        </ResponsiveModal>
 
-        <div className="ml-auto flex items-center gap-2">
-          <Button
-            className="hidden sm:inline-flex"
-            disabled={isPending}
-            onClick={() => repeatOrder(items, "reorder_bar")}
-            size="sm"
-            variant="brand"
-          >
-            {isPending ? (
-              <Spinner className="size-3.5" />
-            ) : (
-              <ShoppingBagIcon className="size-3.5" />
-            )}
-            Objednat znova
-          </Button>
-          <Button
-            aria-label="Objednat znova"
-            className="sm:hidden"
-            disabled={isPending}
-            onClick={() => repeatOrder(items, "reorder_bar")}
-            size="icon-sm"
-            variant="brand"
-          >
-            {isPending ? (
-              <Spinner className="size-4" />
-            ) : (
-              <ShoppingBagIcon className="size-5" />
-            )}
-          </Button>
+          <div className="ml-auto flex items-center gap-3">
+            <Button
+              className="hidden sm:inline-flex"
+              disabled={isPending}
+              onClick={() => repeatOrder(items, "reorder_bar")}
+              size="xs"
+              variant="brand"
+            >
+              {isPending ? <Spinner /> : <ShoppingBagIcon />}
+              Objednat znova
+            </Button>
+            <Button
+              aria-label="Objednat znova"
+              className="sm:hidden"
+              disabled={isPending}
+              onClick={() => repeatOrder(items, "reorder_bar")}
+              size="icon-xs"
+              variant="brand"
+            >
+              {isPending ? <Spinner /> : <ShoppingBagIcon />}
+            </Button>
 
-          <button
-            aria-label="Skryt panel"
-            className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            onClick={() => {
-              analytics.buyAgainDismissed();
-              dismiss();
-            }}
-            type="button"
-          >
-            <XIcon className="size-4" />
-          </button>
+            <Button
+              aria-label="Skryt panel"
+              onClick={() => {
+                analytics.buyAgainDismissed();
+                dismiss();
+              }}
+              size="icon-xs"
+              variant="ghost"
+            >
+              <XIcon className="size-4" />
+            </Button>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+      <ResponsiveModal
+        footer={
+          <OrderFooter
+            disabled={selectedItems.length === 0}
+            isPending={isPending}
+            onOrder={() => repeatOrder(selectedItems, "reorder_bar")}
+            total={selectedCents}
+          />
+        }
+        onOpenChange={handleOpenChange}
+        open={open}
+        title="Vas posledny nakup"
+      >
+        <ItemsList items={selectedItems} onChange={setSelectedItems} />
+      </ResponsiveModal>
+    </>
   );
 }
 

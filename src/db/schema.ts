@@ -345,6 +345,7 @@ export const mediaRelations = relations(media, ({ many }) => ({
   categories: many(categories),
   posts: many(posts),
   products: many(products),
+  heroBanners: many(heroBanners),
 }));
 
 // #endregion Media
@@ -1235,3 +1236,38 @@ export const siteSettings = pgTable("site_settings", {
 });
 
 // #endregion Site settings
+
+// #region Hero banners
+
+export const heroBanners = pgTable(
+  "hero_banners",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("hero")),
+    name: text("name").notNull(),
+    heading: text("heading"),
+    subtitle: text("subtitle"),
+    imageId: text("image_id").references(() => media.id, {
+      onDelete: "set null",
+    }),
+    ctaLabel: text("cta_label"),
+    ctaHref: text("cta_href"),
+    isActive: boolean("is_active").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [index("hero_banners_active_idx").on(table.isActive)]
+);
+
+export const heroBannersRelations = relations(heroBanners, ({ one }) => ({
+  image: one(media, {
+    fields: [heroBanners.imageId],
+    references: [media.id],
+  }),
+}));
+
+// #endregion Hero banners
