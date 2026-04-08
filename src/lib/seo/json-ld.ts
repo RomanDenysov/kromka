@@ -16,7 +16,7 @@ import type {
 import type { Address, StoreSchedule } from "@/db/types";
 import { getSiteUrl } from "@/lib/utils";
 
-const SITE_NAME = "Pekáreň Kromka";
+export const SITE_NAME = "Pekáreň Kromka";
 const SITE_URL = "https://www.pekarenkromka.sk";
 
 // ============================================================================
