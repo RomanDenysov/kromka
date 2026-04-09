@@ -1,7 +1,7 @@
 import type { JSONContent } from "@tiptap/react";
-import { and, eq, notInArray } from "drizzle-orm";
+import { and, eq, gt, isNull, notInArray, or } from "drizzle-orm";
 import { db } from "@/db";
-import { media, products } from "@/db/schema";
+import { categories, media, products } from "@/db/schema";
 import { jsonContentToText } from "@/lib/editor-utils";
 import { log } from "@/lib/logger";
 import { SITE_NAME } from "@/lib/seo/json-ld";
@@ -43,11 +43,14 @@ export async function GET() {
       })
       .from(products)
       .leftJoin(media, eq(products.imageId, media.id))
+      .leftJoin(categories, eq(products.categoryId, categories.id))
       .where(
         and(
           eq(products.isActive, true),
           eq(products.showInB2c, true),
-          notInArray(products.status, ["archived", "draft"])
+          notInArray(products.status, ["archived", "draft"]),
+          or(isNull(products.categoryId), eq(categories.isActive, true)),
+          gt(products.priceCents, 0)
         )
       );
 
@@ -73,6 +76,8 @@ export async function GET() {
         `<g:brand>${escapeXml(SITE_NAME)}</g:brand>`,
         "<g:condition>new</g:condition>",
         `<g:google_product_category>${GOOGLE_CATEGORY_ID}</g:google_product_category>`,
+        // TODO: replace with per-product unitMeasure from DB when column is added to products schema
+        "<g:unit_pricing_measure>1ct</g:unit_pricing_measure>",
         "<g:content_language>sk</g:content_language>",
         "<g:target_country>SK</g:target_country>",
         "</item>",
