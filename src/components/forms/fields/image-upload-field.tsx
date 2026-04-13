@@ -8,7 +8,7 @@ import {
 } from "react-hook-form";
 import { MediaInput } from "@/components/shared/media-input";
 
-type MediaFolder = "products" | "categories" | "stores" | "posts";
+type MediaFolder = "products" | "categories" | "stores" | "posts" | "hero";
 
 interface ImageUploadFieldProps<T extends FieldValues> {
   className?: string;

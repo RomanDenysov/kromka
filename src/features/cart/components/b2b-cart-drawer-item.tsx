@@ -34,7 +34,7 @@ export function B2bCartDrawerItem({ item }: Props) {
           >
             {item.name}
           </Link>
-          <span className="text-muted-foreground text-sm">
+          <span className="font-medium text-sm">
             {formatPrice(item.priceCents)}
           </span>
         </div>

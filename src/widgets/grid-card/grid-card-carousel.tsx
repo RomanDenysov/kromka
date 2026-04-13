@@ -123,7 +123,7 @@ export function GridCardCarousel({
   return (
     <CardWrapper
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg transition-transform",
+        "group relative flex flex-col overflow-hidden rounded-lg shadow-sm transition-transform",
         getCardSizeClasses(size),
         getExtraSpanClass(size, extraSpan),
         className

@@ -1,25 +1,19 @@
 "use client";
 
 import {
-  BriefcaseIcon,
   Facebook,
-  HeartIcon,
   Instagram,
   LogOutIcon,
   MailIcon,
   MenuIcon,
-  PackageIcon,
   PhoneIcon,
-  SettingsIcon,
-  ShoppingBagIcon,
-  StoreIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { COMPANY_INFO } from "@/app/(public)/(policies)/policies-config";
+import { COMPANY_INFO } from "@/app/(public)/(pages)/(policies)/policies-config";
 import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -30,7 +24,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Separator } from "@/components/ui/separator";
 import { signOut, useSession } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
 
@@ -61,6 +54,12 @@ const SOCIAL_LINKS = [
   },
 ] as const;
 
+const USER_LINKS: { name: string; href: Route }[] = [
+  { name: "Obľúbené", href: "/profil/oblubene" },
+  { name: "Objednávky", href: "/profil/objednavky" },
+  { name: "Nastavenia profilu", href: "/profil" },
+];
+
 export function MobileNavigation({ navigation }: Props) {
   const session = useSession();
   const user = session.data?.user;
@@ -69,18 +68,8 @@ export function MobileNavigation({ navigation }: Props) {
   const pathname = usePathname();
   const callbackURL = pathname === "/" ? undefined : pathname;
 
-  const getIconForRoute = (href: string) => {
-    if (href.includes("/e-shop")) {
-      return ShoppingBagIcon;
-    }
-    if (href.includes("/b2b")) {
-      return BriefcaseIcon;
-    }
-    if (href.includes("/predajne")) {
-      return StoreIcon;
-    }
-    return Icons.kromka; // Fallback
-  };
+  const isActive = (href: string) =>
+    href === "/profil" ? pathname === "/profil" : pathname.startsWith(href);
 
   return (
     <Drawer direction="left" onOpenChange={setOpen} open={open}>
@@ -99,44 +88,79 @@ export function MobileNavigation({ navigation }: Props) {
           <DrawerTitle className="sr-only">Navigácia</DrawerTitle>
 
           {user ? (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="size-12 rounded-md">
-                  <AvatarImage
-                    className="object-cover"
-                    src={user.image ?? undefined}
-                  />
-                  <AvatarFallback className="rounded-md font-medium text-lg">
-                    {getInitials(user.name || user.email)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col overflow-hidden">
-                  <span className="truncate font-semibold text-sm">
-                    {user.name}
-                  </span>
-                  <span className="truncate text-muted-foreground text-xs">
-                    {user.email}
-                  </span>
-                </div>
+            <div className="flex items-center gap-3">
+              <Avatar className="size-10 rounded-full">
+                <AvatarImage
+                  className="object-cover"
+                  src={user.image ?? undefined}
+                />
+                <AvatarFallback className="rounded-full font-medium text-sm">
+                  {getInitials(user.name || user.email)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col overflow-hidden">
+                <span className="truncate font-semibold text-sm">
+                  {user.name}
+                </span>
+                <span className="truncate text-muted-foreground text-xs">
+                  {user.email}
+                </span>
               </div>
-              <Link
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                  "w-full justify-start gap-2"
-                )}
-                href="/profil"
-                onClick={() => setOpen(false)}
-              >
-                <SettingsIcon className="size-4" />
-                Nastavenia profilu
-              </Link>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2 pb-2">
-                <Icons.logo className="h-5" />
-                <span className="font-bold text-lg">Kromka</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <Icons.logo className="h-5" />
+              <span className="font-bold text-lg">Kromka</span>
+            </div>
+          )}
+        </DrawerHeader>
+
+        <div className="border-t" />
+
+        <div className="flex grow flex-col overflow-y-auto px-6 py-6">
+          {/* Main navigation */}
+          <nav className="flex flex-col gap-1">
+            {navigation.map((item) => (
+              <Link
+                className={cn(
+                  "py-3 font-semibold text-lg transition-colors",
+                  isActive(item.href) ? "text-brand" : "text-foreground"
+                )}
+                href={item.href}
+                key={item.href}
+                onClick={() => setOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </nav>
+
+          {user && (
+            <>
+              <div className="my-5 border-t" />
+              <nav className="flex flex-col gap-1">
+                {USER_LINKS.map((item) => (
+                  <Link
+                    className={cn(
+                      "py-3 font-semibold text-lg transition-colors",
+                      isActive(item.href)
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    )}
+                    href={item.href}
+                    key={item.href}
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </nav>
+            </>
+          )}
+
+          {!user && (
+            <>
+              <div className="my-5 border-t" />
               <Link
                 className={cn(buttonVariants({ size: "sm" }), "w-full")}
                 href={{
@@ -147,63 +171,11 @@ export function MobileNavigation({ navigation }: Props) {
               >
                 Prihlásiť sa
               </Link>
-            </div>
+            </>
           )}
-        </DrawerHeader>
-
-        <Separator />
-
-        <div className="flex grow flex-col overflow-y-auto p-4">
-          <nav className="flex flex-col gap-2">
-            {navigation.map((item) => {
-              const Icon = getIconForRoute(item.href);
-              return (
-                <Link
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "lg" }),
-                    "justify-start gap-3 text-base"
-                  )}
-                  href={item.href}
-                  key={item.href}
-                  onClick={() => setOpen(false)}
-                >
-                  <Icon className="size-5" />
-                  {item.name}
-                </Link>
-              );
-            })}
-
-            {user && (
-              <>
-                <Separator className="my-2" />
-                <Link
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "lg" }),
-                    "justify-start gap-3 text-base"
-                  )}
-                  href="/profil/oblubene"
-                  onClick={() => setOpen(false)}
-                >
-                  <HeartIcon className="size-5" />
-                  Obľúbené
-                </Link>
-                <Link
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "lg" }),
-                    "justify-start gap-3 text-base"
-                  )}
-                  href="/profil/objednavky"
-                  onClick={() => setOpen(false)}
-                >
-                  <PackageIcon className="size-5" />
-                  Objednávky
-                </Link>
-              </>
-            )}
-          </nav>
         </div>
 
-        <div className="mt-auto p-4">
+        <div className="mt-auto px-6 pb-6">
           <div className="flex items-center justify-between gap-2 border-t pt-4">
             <div className="flex gap-1">
               {SOCIAL_LINKS.map(({ href, icon: Icon, label }) => (

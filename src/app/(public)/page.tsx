@@ -1,13 +1,26 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { GameCardWrapper } from "@/components/game/game-card-wrapper";
-import { CallToAction } from "@/components/landing/cta";
-import { HomeGrid } from "@/components/landing/home-grid";
+import { B2BCta } from "@/components/landing/b2b-cta";
+import { LoyaltyBanner } from "@/components/landing/loyalty-banner";
 import { Container } from "@/components/shared/container";
 import { featureFlags } from "@/config/features";
-import { BuyAgainBanner } from "@/features/buy-again-banner/components/buy-again-banner";
+import { getActiveHeroBanner } from "@/features/hero-banners/api/queries";
+import { HomeBlogSection } from "@/features/posts/components/home-blog-section";
 import { createMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/utils";
+import { BrandStorySection } from "./_components/brand-story-section";
+import { Header } from "./_components/header";
+import { HeaderActions } from "./_components/header-actions";
+import { HomeHero } from "./_components/home-hero";
+import { HomepageBlogSkeleton } from "./_components/homepage-blog-skeleton";
+import {
+  HomepageProducts,
+  HomepageProductsSkeleton,
+} from "./_components/homepage-products";
+import { HomepageStoresSection } from "./_components/homepage-stores-section";
+import { HomepageStoresSkeleton } from "./_components/homepage-stores-skeleton";
+import { RegistrationBanner } from "./_components/registration-banner";
 
 export const metadata: Metadata = createMetadata({
   title: "Pekáreň Kromka - Remeselná pekáreň v Prešove a Košiciach",
@@ -17,21 +30,41 @@ export const metadata: Metadata = createMetadata({
   image: "/images/shop.jpg",
 });
 
-export default function Home() {
+export default async function Home() {
+  const heroContent = await getActiveHeroBanner();
+
   return (
-    <div className="w-full pt-5 pb-6 md:pb-10">
-      <Container className="space-y-6">
-        <Suspense>
-          <BuyAgainBanner />
+    <>
+      <div className="sticky top-0 z-40">
+        <Header>
+          <HeaderActions />
+        </Header>
+      </div>
+      <HomeHero content={heroContent} />
+      <main className="w-full pt-5 pb-6 md:pb-10">
+        <Container className="mt-6 space-y-6">
+          <Suspense fallback={null}>
+            <RegistrationBanner />
+          </Suspense>
+          <Suspense fallback={<HomepageProductsSkeleton />}>
+            <HomepageProducts />
+          </Suspense>
+          <BrandStorySection />
+          <Suspense fallback={<HomepageStoresSkeleton />}>
+            <HomepageStoresSection />
+          </Suspense>
+          <LoyaltyBanner />
+          {featureFlags.game && (
+            <section className="container mx-auto flex justify-center px-4 py-8">
+              <GameCardWrapper />
+            </section>
+          )}
+        </Container>
+        <Suspense fallback={<HomepageBlogSkeleton />}>
+          <HomeBlogSection />
         </Suspense>
-        <HomeGrid />
-        {featureFlags.game && (
-          <section className="container mx-auto flex justify-center px-4 py-8">
-            <GameCardWrapper />
-          </section>
-        )}
-        <CallToAction />
-      </Container>
-    </div>
+        {featureFlags.b2b && <B2BCta />}
+      </main>
+    </>
   );
 }

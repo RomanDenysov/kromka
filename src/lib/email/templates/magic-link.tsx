@@ -7,7 +7,6 @@ import {
   Hr,
   Html,
   Img,
-  Link,
   Preview,
   render,
   Section,
@@ -15,13 +14,8 @@ import {
   Text,
 } from "@react-email/components";
 
-import {
-  DEFAULT_CONTACT_PHONES,
-  DEFAULT_LOGO_URL,
-  DEFAULT_SUPPORT_EMAIL,
-  EMAIL_MUTED_TEXT_CLASS,
-  getCopyrightText,
-} from "./shared";
+import { EmailFooter } from "./email-layout";
+import { DEFAULT_LOGO_URL } from "./shared";
 
 export function MagicLink(props: { url: string }) {
   const { url } = props;
@@ -67,33 +61,7 @@ export function MagicLink(props: { url: string }) {
               </Text>
             </Section>
 
-            <Section className="mt-6 border-gray-200 border-t pt-4 text-center">
-              <Text className={EMAIL_MUTED_TEXT_CLASS}>
-                Máte otázky? Napíšte nám na{" "}
-                <Link
-                  className="text-gray-700 underline"
-                  href={`mailto:${DEFAULT_SUPPORT_EMAIL}`}
-                >
-                  {DEFAULT_SUPPORT_EMAIL}
-                </Link>
-              </Text>
-              <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-1`}>
-                {DEFAULT_CONTACT_PHONES.map((contact, idx) => (
-                  <span key={contact.phone}>
-                    {idx > 0 && " · "}
-                    <Link
-                      className="text-gray-700 underline"
-                      href={`tel:${contact.phone}`}
-                    >
-                      {contact.label}
-                    </Link>
-                  </span>
-                ))}
-              </Text>
-              <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-3`}>
-                {getCopyrightText()}
-              </Text>
-            </Section>
+            <EmailFooter />
           </Container>
         </Body>
       </Tailwind>

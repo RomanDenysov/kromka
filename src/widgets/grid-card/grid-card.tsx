@@ -73,7 +73,7 @@ export function GridCard({
   return (
     <CardWrapper
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg transition-transform",
+        "group relative flex flex-col overflow-hidden rounded-lg shadow-lg transition-transform",
         getCardSizeClasses(size),
         getExtraSpanClass(size, extraSpan),
         className

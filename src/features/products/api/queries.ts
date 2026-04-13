@@ -1,11 +1,12 @@
 /** biome-ignore-all lint/complexity/noVoid: we need to preload the products with void */
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { desc, eq, gte, sum } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
-import { products } from "@/db/schema";
+import { orderItems, orders, products } from "@/db/schema";
+import { getFeaturedCategories } from "@/features/categories/api/queries";
 import { getEffectivePrices } from "@/lib/pricing";
 
 // Helper to transform product image
@@ -170,6 +171,56 @@ export async function getAdminProductById(id: string) {
       priceTier: p.priceTier,
     })),
   };
+}
+
+// HOMEPAGE
+
+async function getTopSellerIds(limit: number, daysWindow: number) {
+  const since = new Date();
+  since.setDate(since.getDate() - daysWindow);
+
+  const rows = await db
+    .select({
+      productId: orderItems.productId,
+      totalQty: sum(orderItems.quantity).mapWith(Number),
+    })
+    .from(orderItems)
+    .innerJoin(orders, eq(orderItems.orderId, orders.id))
+    .where(gte(orders.createdAt, since))
+    .groupBy(orderItems.productId)
+    .orderBy(desc(sum(orderItems.quantity)))
+    .limit(limit);
+
+  return rows.map((r) => r.productId);
+}
+
+export async function getHomepageProducts() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("homepage-products");
+
+  const [topSellerIds, allProducts, featuredCategories] = await Promise.all([
+    getTopSellerIds(8, 30),
+    getProducts(),
+    getFeaturedCategories(),
+  ]);
+
+  // Top sellers: map IDs to full Product objects, preserving sales order
+  const productMap = new Map(allProducts.map((p) => [p.id, p]));
+  const topSellers = topSellerIds
+    .map((id) => productMap.get(id))
+    .filter((p): p is Product => p !== undefined);
+
+  // Seasonal: products from first featured category
+  const seasonal = featuredCategories[0]?.products.slice(0, 6) ?? [];
+
+  const usedIds = new Set([...topSellers, ...seasonal].map((p) => p.id));
+  const newArrivals = allProducts
+    .filter((p) => !usedIds.has(p.id))
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 4);
+
+  return { topSellers, seasonal, newArrivals };
 }
 
 // Types

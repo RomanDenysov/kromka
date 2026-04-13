@@ -1,4 +1,4 @@
-import type { EshopParams } from "@/app/(public)/e-shop/eshop-params";
+import type { EshopParams } from "@/app/(public)/(pages)/e-shop/eshop-params";
 import { GridView } from "@/components/grid-view";
 import { ShowMore } from "@/components/show-more";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";

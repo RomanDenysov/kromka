@@ -1,4 +1,4 @@
-import type { EshopParams } from "@/app/(public)/e-shop/eshop-params";
+import type { EshopParams } from "@/app/(public)/(pages)/e-shop/eshop-params";
 import type { Product } from "./api/queries";
 
 export function filterProducts(products: Product[], filters: EshopParams) {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import {
   COMPANY_INFO,
   POLICY_LINKS,
-} from "@/app/(public)/(policies)/policies-config";
+} from "@/app/(public)/(pages)/(policies)/policies-config";
 import { Container } from "@/components/shared/container";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -79,7 +79,7 @@ export function Footer() {
             <Link className="inline-block" href="/">
               <Icons.kromka className="h-8" />
             </Link>
-            <p className="max-w-xs text-muted-foreground text-sm leading-relaxed">
+            <p className="max-w-xs text-foreground/60 text-sm leading-relaxed">
               Tradičná pekáreň s láskou k chlebu a pečivu. Používame iba tie
               najkvalitnejšie suroviny pre váš požitok.
             </p>
@@ -113,7 +113,7 @@ export function Footer() {
               <nav className="space-y-2">
                 {section.items.map(({ href, name }) => (
                   <Link
-                    className="block rounded-md px-3 py-2 text-muted-foreground text-sm transition-colors hover:text-foreground"
+                    className="block rounded-md px-3 py-2 text-foreground/60 text-sm transition-colors hover:text-foreground"
                     data-id={href}
                     href={href}
                     key={href}
@@ -129,7 +129,7 @@ export function Footer() {
         <Separator className="mb-6" />
 
         {/* Bottom Section */}
-        <div className="flex flex-col items-center justify-between gap-4 text-muted-foreground text-sm sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 text-foreground/50 text-sm sm:flex-row">
           <div className="flex items-center gap-0">
             <span>© 2025</span>
             <Icons.kromka className="mx-1 h-3" />
