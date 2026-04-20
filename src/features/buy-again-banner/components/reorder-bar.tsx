@@ -9,30 +9,28 @@ import {
   XIcon,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { ResponsiveModal } from "@/components/responsive-modal";
+import { Hint } from "@/components/shared/hint";
 import { ProductImage } from "@/components/shared/product-image";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import type { LastOrderWithItems } from "@/features/checkout/api/queries";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { analytics } from "@/lib/analytics";
 import { formatPrice } from "@/lib/utils";
 import { useBuyAgainOrder } from "../hooks/use-buy-again-order";
-import {
-  useBuyAgainDismiss,
-  useBuyAgainInit,
-  useBuyAgainVisible,
-} from "../store";
 
-interface Props {
-  items: LastOrderWithItems["items"];
-}
+export function ReorderBar({
+  lastOrderPromise,
+}: {
+  lastOrderPromise: Promise<LastOrderWithItems | null>;
+}) {
+  const lastOrder = use(lastOrderPromise);
 
-export function ReorderBar({ items }: Props) {
-  const visible = useBuyAgainVisible();
-  const init = useBuyAgainInit();
-  const dismiss = useBuyAgainDismiss();
+  const items = lastOrder?.items ?? [];
+  const { visible, init, dismiss } = useBuyAgainOrder();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState(items);
@@ -55,28 +53,26 @@ export function ReorderBar({ items }: Props) {
     }
   };
 
-  if (!visible) {
+  if (!(visible && lastOrder) || items.length === 0) {
     return null;
   }
 
   return (
     <>
       <motion.div
-        animate={{ y: 0 }}
-        className="border-border border-b bg-primary text-primary-foreground"
+        animate={{ y: 0, opacity: 1 }}
+        className="rounded-sm border bg-background shadow-sm"
         exit={{ y: "-100%" }}
-        initial={{ y: "-100%" }}
-        transition={{ type: "tween", duration: 0.3 }}
+        initial={{ y: "-100%", opacity: 0 }}
+        transition={{ type: "tween", duration: 0.5 }}
       >
-        <div className="flex h-10 items-center gap-3 px-4 sm:px-6 lg:px-8">
-          <span className="hidden shrink-0 font-medium text-sm md:inline">
-            Vas posledny nakup
-          </span>
-
-          <span className="flex shrink-0 items-center gap-1 font-semibold text-xs">
-            <ShoppingCartIcon className="size-4" />
-            {formatPrice(totalCents)}
-          </span>
+        <div className="flex items-center justify-between gap-2 px-3 py-2">
+          <Hint text="Vaša posledná objednávka">
+            <span className="flex shrink-0 items-center gap-1 font-mono font-semibold text-xs">
+              <ShoppingCartIcon className="size-4" />
+              {formatPrice(totalCents)}
+            </span>
+          </Hint>
 
           <button
             className="flex items-center transition-opacity hover:opacity-80"
@@ -100,26 +96,15 @@ export function ReorderBar({ items }: Props) {
             )}
           </button>
 
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto flex items-center gap-2">
             <Button
-              className="hidden sm:inline-flex"
               disabled={isPending}
               onClick={() => repeatOrder(items, "reorder_bar")}
               size="xs"
               variant="brand"
             >
               {isPending ? <Spinner /> : <ShoppingBagIcon />}
-              Objednat znova
-            </Button>
-            <Button
-              aria-label="Objednat znova"
-              className="sm:hidden"
-              disabled={isPending}
-              onClick={() => repeatOrder(items, "reorder_bar")}
-              size="icon-xs"
-              variant="brand"
-            >
-              {isPending ? <Spinner /> : <ShoppingBagIcon />}
+              Objednat
             </Button>
 
             <Button
@@ -147,7 +132,7 @@ export function ReorderBar({ items }: Props) {
         }
         onOpenChange={handleOpenChange}
         open={open}
-        title="Vas posledny nakup"
+        title="Vaš posledný nákup"
       >
         <ItemsList items={selectedItems} onChange={setSelectedItems} />
       </ResponsiveModal>
@@ -181,66 +166,69 @@ function ItemsList({
   if (items.length === 0) {
     return (
       <p className="py-4 text-center text-muted-foreground text-sm">
-        Ziadne polozky
+        Žiadne položky
       </p>
     );
   }
 
   return (
-    <div className="flex flex-col gap-1 px-2 sm:px-6">
-      {items.map((item) => (
-        <div
-          className="flex items-center gap-2 rounded-lg py-2 hover:bg-muted/50 sm:gap-3 sm:px-2"
-          key={item.productId}
-        >
-          <ProductImage
-            alt={item.name}
-            className="size-12 shrink-0 rounded-lg object-cover sm:size-14"
-            height={56}
-            src={item.imageUrl ?? "/images/cooperation.jpg"}
-            width={56}
-          />
-          <div className="min-w-0 flex-1">
-            <p className="line-clamp-2 font-medium text-sm leading-tight sm:line-clamp-1">
-              {item.name}
-            </p>
-            <span className="text-muted-foreground text-xs">
-              {formatPrice(item.priceCents * item.quantity)}
-            </span>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-1">
-            <Button
-              disabled={item.quantity <= 1}
-              onClick={() => updateQty(item.productId, -1)}
-              size="icon-xs"
-              variant="outline"
-            >
-              <MinusIcon className="size-3" />
-            </Button>
-            <span className="w-5 text-center font-medium text-sm tabular-nums">
-              {item.quantity}
-            </span>
-            <Button
-              onClick={() => updateQty(item.productId, 1)}
-              size="icon-xs"
-              variant="outline"
-            >
-              <PlusIcon className="size-3" />
-            </Button>
-          </div>
-
-          <button
-            aria-label={`Odstranit ${item.name}`}
-            className="shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive sm:p-1.5"
-            onClick={() => remove(item.productId)}
-            type="button"
+    <ScrollArea className="h-[60vh]">
+      <div className="flex flex-col gap-1 px-4 sm:px-2">
+        {items.map((item) => (
+          <div
+            className="flex w-full items-center gap-2 rounded-lg py-2 hover:bg-muted/50 sm:gap-3 sm:pr-2"
+            key={item.productId}
           >
-            <TrashIcon className="size-4" />
-          </button>
-        </div>
-      ))}
-    </div>
+            <ProductImage
+              alt={item.name}
+              className="size-12 shrink-0 rounded-lg object-cover sm:size-14"
+              height={56}
+              src={item.imageUrl ?? "/images/cooperation.jpg"}
+              width={56}
+            />
+            <div className="min-w-0 flex-1">
+              <p className="line-clamp-2 font-medium text-sm leading-tight sm:line-clamp-1">
+                {item.name}
+              </p>
+              <span className="text-muted-foreground text-xs">
+                {formatPrice(item.priceCents * item.quantity)}
+              </span>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-1">
+              <Button
+                disabled={item.quantity <= 1}
+                onClick={() => updateQty(item.productId, -1)}
+                size="icon-xs"
+                variant="outline"
+              >
+                <MinusIcon className="size-3" />
+              </Button>
+              <span className="w-5 text-center font-medium text-sm tabular-nums">
+                {item.quantity}
+              </span>
+              <Button
+                onClick={() => updateQty(item.productId, 1)}
+                size="icon-xs"
+                variant="outline"
+              >
+                <PlusIcon className="size-3" />
+              </Button>
+            </div>
+
+            <Button
+              aria-label={`Odstranit ${item.name}`}
+              className="hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => remove(item.productId)}
+              size="icon-xs"
+              variant="ghost"
+            >
+              <TrashIcon className="size-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+    </ScrollArea>
   );
 }
 
@@ -265,7 +253,6 @@ function OrderFooter({
         className="flex-1"
         disabled={isPending || disabled}
         onClick={onOrder}
-        size="lg"
       >
         {isPending ? (
           <Spinner className="size-4" />
