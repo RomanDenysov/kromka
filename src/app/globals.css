@@ -53,7 +53,7 @@
  * Kromka Design System - Color Philosophy
  *
  * Brand palette (from Kromka_Logo_2023.pdf):
- *   Orange #e5471d  - CTA, badges, logo. Used sparingly = impactful.
+ *   Red #970100  - CTA, badges, logo. Used sparingly = impactful.
  *   Black  #191613  - Headings, secondary buttons. Warm black, not pure.
  *   Olive  #7a7247  - Loader accents, subtle animations. Earthy warmth.
  *   Sage   #a3b48a  - Reserved for future use (brand accent #4).
@@ -90,12 +90,12 @@
   --background: oklch(0.98 0.004 78.2); /* #faf8f5 paper */
   --foreground: oklch(0.203 0.008 67.3); /* #191613 warm black */
 
-  /* Brand - orange, used for CTA and key moments */
-  --brand: oklch(0.619 0.201 34.9); /* #e5471d */
+  /* Brand - deep red, used for CTA and key moments */
+  --brand: oklch(0.425 0.174 29.3); /* #970100 */
   --brand-foreground: oklch(1 0 0); /* #ffffff */
 
-  /* Featured - subtle orange tint for highlights */
-  --featured: oklch(0.619 0.201 34.9 / 6%); /* orange @ 6% opacity */
+  /* Featured - subtle brand tint for highlights */
+  --featured: oklch(0.425 0.174 29.3 / 6%); /* brand @ 6% opacity */
   --featured-foreground: oklch(0.448 0.02 70.2); /* #5c5349 body */
 
   /* Loader - olive from brand palette, subtle earthy accent */
@@ -141,7 +141,7 @@
   --ring: oklch(0.738 0.016 77); /* #b0a99f */
 
   /* Charts */
-  --chart-1: oklch(0.619 0.201 34.9); /* orange */
+  --chart-1: oklch(0.425 0.174 29.3); /* brand */
   --chart-2: oklch(0.67 0.019 64.7); /* muted */
   --chart-3: oklch(0.448 0.02 70.2); /* body */
   --chart-4: oklch(0.901 0.013 71.3); /* border */
@@ -163,10 +163,10 @@
   --background: oklch(0.203 0.008 67.3); /* #191613 brand black */
   --foreground: oklch(0.98 0.004 78.2); /* #faf8f5 paper as text */
 
-  --brand: oklch(0.619 0.201 34.9); /* orange stays same */
-  --brand-foreground: oklch(0.203 0.008 67.3); /* dark bg on orange buttons */
+  --brand: oklch(0.425 0.174 29.3); /* #970100 */
+  --brand-foreground: oklch(1 0 0); /* light text on deep red */
 
-  --featured: oklch(0.619 0.201 34.9 / 10%);
+  --featured: oklch(0.425 0.174 29.3 / 10%);
   --featured-foreground: oklch(0.901 0.013 71.3);
 
   --card: oklch(0.271 0.014 57.6); /* #2c2520 dark */
@@ -196,7 +196,7 @@
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.67 0.019 64.7);
 
-  --chart-1: oklch(0.619 0.201 34.9);
+  --chart-1: oklch(0.425 0.174 29.3);
   --chart-2: oklch(0.67 0.019 64.7);
   --chart-3: oklch(0.901 0.013 71.3);
   --chart-4: oklch(0.448 0.02 70.2);
@@ -204,7 +204,7 @@
 
   --sidebar: oklch(0.271 0.014 57.6); /* dark surface */
   --sidebar-foreground: oklch(0.98 0.004 78.2);
-  --sidebar-primary: oklch(0.619 0.201 34.9); /* orange as primary accent */
+  --sidebar-primary: oklch(0.425 0.174 29.3); /* brand accent */
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.203 0.008 67.3);
   --sidebar-accent-foreground: oklch(0.98 0.004 78.2);
@@ -218,6 +218,17 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /*
+   * Touch / press feedback baseline (Emil-style: fast taps, no default gray flash).
+   * Component-level active: styles in @/components/ui/* provide real feedback.
+   */
+  button,
+  [role="button"]:not([aria-disabled="true"]),
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    -webkit-tap-highlight-color: transparent;
   }
   body::after {
     position: fixed;
@@ -351,21 +362,21 @@
 }
 
 .ProseMirror a {
-  color: oklch(0.619 0.201 34.9); /* brand orange for links */
+  color: oklch(0.425 0.174 29.3); /* brand for links */
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .ProseMirror a:hover {
-  color: oklch(0.566 0.186 34.8); /* orange-hover #cc3d17 */
+  color: oklch(0.48 0.174 29.3); /* slightly lighter on hover */
 }
 
 .dark .ProseMirror a {
-  color: oklch(0.619 0.201 34.9);
+  color: oklch(0.55 0.16 29.3); /* lift lightness for dark surfaces */
 }
 
 .dark .ProseMirror a:hover {
-  color: oklch(0.7 0.18 34.9);
+  color: oklch(0.62 0.15 29.3);
 }
 
 .scrollbar-hide::-webkit-scrollbar {
