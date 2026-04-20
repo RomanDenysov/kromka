@@ -46,7 +46,9 @@ export function ResponsiveModal({
             {subtitle && <DrawerDescription>{subtitle}</DrawerDescription>}
           </DrawerHeader>
           {children}
-          {footer && <DrawerFooter>{footer}</DrawerFooter>}
+          {footer && (
+            <DrawerFooter className="border-t p-2">{footer}</DrawerFooter>
+          )}
         </DrawerContent>
       </Drawer>
     );
