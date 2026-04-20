@@ -203,7 +203,7 @@ export default async function ProductPage({ params }: Props) {
             <ProductImage
               alt={`Product image: ${result.name}`}
               className={cn(
-                "aspect-square size-full rounded-sm object-cover object-center transition-all duration-300"
+                "aspect-square size-full rounded-sm object-cover object-center"
               )}
               decoding="sync"
               height={500}

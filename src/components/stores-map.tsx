@@ -77,7 +77,7 @@ export function StoresMap({
                 <MarkerContent>
                   <div
                     className={cn(
-                      "size-4 rounded-full border-2 border-white shadow-lg transition-all",
+                      "size-4 rounded-full border-2 border-white shadow-lg transition-[transform,box-shadow] duration-200 ease-out motion-reduce:duration-0",
                       isSelected
                         ? "scale-150 bg-primary ring-2 ring-primary/30"
                         : "bg-blue-500"

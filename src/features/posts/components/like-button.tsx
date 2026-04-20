@@ -48,7 +48,7 @@ export function LikeButton({
       ) : (
         <HeartIcon
           className={cn(
-            "size-4 transition-all",
+            "size-4 transition-[fill,color] duration-200 ease-out motion-reduce:duration-0",
             isLiked
               ? "fill-current text-destructive"
               : "fill-none text-foreground"

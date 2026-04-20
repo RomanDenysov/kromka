@@ -25,7 +25,13 @@ export function ScrollToTop({ threshold = 400, className }: Props) {
   }, [threshold]);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    window.scrollTo({
+      top: 0,
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
   };
 
   if (pathname === "/pokladna") {
@@ -36,7 +42,7 @@ export function ScrollToTop({ threshold = 400, className }: Props) {
     <Button
       aria-label="Späť nahor"
       className={cn(
-        "fixed right-6 bottom-6 z-50 rounded-full shadow-lg transition-all duration-300",
+        "fixed right-6 bottom-6 z-50 min-h-11 min-w-11 rounded-full shadow-lg transition-[transform,opacity] duration-300 ease-out motion-reduce:duration-150",
         visible
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-4 opacity-0",

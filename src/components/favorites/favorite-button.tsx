@@ -44,7 +44,7 @@ export function FavoriteButton({
       ) : (
         <HeartIcon
           className={cn(
-            "transition-all",
+            "transition-[fill,color] duration-200 ease-out motion-reduce:duration-0",
             isFavorite
               ? "fill-current text-destructive"
               : "fill-none text-foreground"

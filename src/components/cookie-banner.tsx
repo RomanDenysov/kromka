@@ -34,7 +34,7 @@ export function CookieBanner() {
   return (
     <div
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 transition-all duration-300 md:right-auto md:bottom-4 md:left-4",
+        "fixed inset-x-0 bottom-0 z-50 transition-[transform,opacity] duration-300 ease-out motion-reduce:duration-150 md:right-auto md:bottom-4 md:left-4",
         show
           ? "translate-y-0 opacity-100"
           : "pointer-events-none translate-y-full opacity-0"
