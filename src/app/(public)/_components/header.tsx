@@ -5,24 +5,31 @@ import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { ReorderBarContent } from "@/features/buy-again-banner/components/reorder-bar-content";
+import { cn } from "@/lib/utils";
 import { navigation } from "./navigation";
 
-export function Header({ children }: { children: ReactNode }) {
+export function Header({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   return (
     <header
-      className="w-full border-b bg-background pt-[env(safe-area-inset-top)]"
+      className={cn(
+        "w-full border-b bg-background pt-[env(safe-area-inset-top)]",
+        className
+      )}
       data-layout-header
     >
-      <Suspense>
-        <ReorderBarContent />
-      </Suspense>
       <Container>
         <div className="grid h-12 w-full grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-5">
           {/* Navigation */}
           <Suspense
             fallback={
               <Button
+                aria-label="Otvoriť menu"
                 className="md:hidden"
                 size="icon-sm"
                 type="button"
