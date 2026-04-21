@@ -4,10 +4,10 @@ import { GameCardWrapper } from "@/components/game/game-card-wrapper";
 import { B2BCta } from "@/components/landing/b2b-cta";
 import { LoyaltyBanner } from "@/components/landing/loyalty-banner";
 import { Container } from "@/components/shared/container";
+import { PageSection } from "@/components/shared/public-page";
 import { featureFlags } from "@/config/features";
 import { ReorderBar } from "@/features/buy-again-banner/components/reorder-bar";
 import { getLastOrderWithItemsAction } from "@/features/checkout/api/actions";
-import { getActiveHeroBanner } from "@/features/hero-banners/api/queries";
 import { HomeBlogSection } from "@/features/posts/components/home-blog-section";
 import { createMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/utils";
@@ -31,11 +31,10 @@ export const metadata: Metadata = createMetadata({
 });
 
 export default async function Home() {
-  const heroContentPromise = getActiveHeroBanner();
   const lastOrderPromise = getLastOrderWithItemsAction();
   return (
     <>
-      <HomeHero contentPromise={heroContentPromise} />
+      <HomeHero />
       <Container className="my-12 space-y-8 md:my-16 md:space-y-12 xl:my-20 xl:space-y-16">
         <Suspense>
           <ReorderBar lastOrderPromise={lastOrderPromise} />
@@ -52,9 +51,11 @@ export default async function Home() {
         </Suspense>
         <LoyaltyBanner />
         {featureFlags.game && (
-          <section className="container mx-auto flex justify-center px-4 py-8">
-            <GameCardWrapper />
-          </section>
+          <PageSection spacing="md">
+            <div className="flex justify-center">
+              <GameCardWrapper />
+            </div>
+          </PageSection>
         )}
       </Container>
       <Suspense fallback={<HomepageBlogSkeleton />}>
