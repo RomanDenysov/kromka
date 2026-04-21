@@ -11,7 +11,7 @@ const buttonVariants = cva(
         default:
           "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/95",
         brand:
-          "bg-brand text-primary-foreground hover:bg-brand/80 active:bg-brand/90",
+          "bg-brand text-white hover:bg-brand/80 active:bg-brand/90",
         "brand-outline":
           "border border-brand text-brand hover:bg-brand/10 active:bg-brand/15",
         destructive:
