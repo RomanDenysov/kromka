@@ -5,7 +5,6 @@ import {
   BriefcaseIcon,
   FileTextIcon,
   FlaskConicalIcon,
-  ImagePlayIcon,
   ImagesIcon,
   LayoutDashboardIcon,
   MessageSquareIcon,
@@ -46,11 +45,6 @@ interface NavItem<T extends string = string> {
 
 const NAV_MAIN: NavItem[] = [
   { href: "/admin", label: "Prehľad", icon: LayoutDashboardIcon, exact: true },
-  {
-    href: "/admin/hero-banners" as Route,
-    label: "Hero bannery",
-    icon: ImagePlayIcon,
-  },
 ];
 
 const NAV_ESHOP: NavItem[] = [

@@ -1209,75 +1209,6 @@
       "cacheTags": ["users", "user-{id}"]
     },
     {
-      "name": "hero-banners",
-      "path": "src/features/hero-banners",
-      "critical": false,
-      "description": "Admin-managed homepage hero banners with image, heading, subtitle, and CTA. Only one banner active at a time with default fallback.",
-      "businessLogic": [
-        "Single-active pattern: activating one banner deactivates all others",
-        "Default fallback hero when no banner is active",
-        "Images managed via media-library (Vercel Blob)",
-        "Cached with cacheLife('hours'), invalidated via 'hero-banners' tag"
-      ],
-      "actions": [
-        {
-          "name": "createHeroBannerAction",
-          "description": "Admin: create banner with validation"
-        },
-        {
-          "name": "updateHeroBannerAction",
-          "description": "Admin: update banner fields"
-        },
-        {
-          "name": "activateHeroBannerAction",
-          "description": "Admin: set active (deactivates others)"
-        },
-        {
-          "name": "deactivateHeroBannerAction",
-          "description": "Admin: deactivate banner"
-        },
-        {
-          "name": "deleteHeroBannerAction",
-          "description": "Admin: delete (only if inactive)"
-        }
-      ],
-      "queries": [
-        {
-          "name": "getActiveHeroBanner",
-          "description": "Active banner with fallback default (cached hours)"
-        },
-        {
-          "name": "getHeroBanners",
-          "description": "All banners ordered by updatedAt desc"
-        },
-        {
-          "name": "getHeroBannerById",
-          "description": "Single banner with image"
-        }
-      ],
-      "schemas": [
-        {
-          "name": "heroBannerSchema",
-          "validates": "{ name (required), heading?, subtitle?, imageId (nullable), ctaLabel?, ctaHref? }"
-        }
-      ],
-      "components": [
-        "HeroBannersList - Card grid with activate/deactivate/delete/edit, image preview, active badge"
-      ],
-      "dependencies": ["media-library"],
-      "routes": [
-        "/ (homepage via HomeHero component)",
-        "/admin/hero-banners (list)",
-        "/admin/hero-banners/new (create)",
-        "/admin/hero-banners/[id] (edit)"
-      ],
-      "tables": {
-        "reads": ["media"],
-        "writes": ["heroBanners"]
-      },
-      "cacheTags": ["hero-banners"]
-    },
-    {
       "name": "store-manager",
       "path": "src/features/store-manager",
       "critical": false,
@@ -1525,8 +1456,7 @@
         "/admin/b2b/clients - B2B organizations",
         "/admin/b2b/invoices - Invoice management",
         "/admin/b2b/price-tiers - Pricing tiers",
-        "/admin/settings - Site configuration",
-        "/admin/hero-banners - Hero banner management"
+        "/admin/settings - Site configuration"
       ]
     },
     "b2b": {
@@ -1564,7 +1494,6 @@
       "contact-form": [],
       "media-library": [],
       "user-profile": [],
-      "hero-banners": ["media-library"],
       "store-manager": []
     },
     "hubs": ["checkout (5 deps)", "orders (4 deps)"],
@@ -1839,7 +1768,7 @@
     "description": "Route-level components in src/app/(public)/_components/ used on homepage and public pages.",
     "components": [
       "header - Main site header with nav, cart, user button",
-      "home-hero - Homepage hero banner (uses hero-banners feature)",
+      "home-hero - Static homepage hero (image and copy in code)",
       "brand-story-section - Brand tagline with link to /o-nas",
       "registration-banner - Auth-gated signup promotion for logged-out users",
       "homepage-stores-content - Store locations section with map",
