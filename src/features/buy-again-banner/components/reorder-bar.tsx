@@ -67,11 +67,13 @@ export function ReorderBar({
         transition={{ type: "tween", duration: 0.5 }}
       >
         <div className="flex items-center justify-between gap-2 px-3 py-2">
-          <Hint text="Vaša posledná objednávka">
-            <span className="flex shrink-0 items-center gap-1 font-mono font-semibold text-xs">
-              <ShoppingCartIcon className="size-4" />
-              {formatPrice(totalCents)}
-            </span>
+          <Hint align="start" side="bottom" text="Vaša posledná objednávka">
+            <div className="flex shrink-0 items-center gap-1">
+              <ShoppingCartIcon className="size-3.5" />
+              <span className="font-mono font-semibold text-xs">
+                {formatPrice(totalCents)}
+              </span>
+            </div>
           </Hint>
 
           <button

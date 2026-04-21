@@ -3,6 +3,7 @@ import Image from "next/image";
 import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { PageSection } from "@/components/shared/public-page";
 import { createMetadata } from "@/lib/metadata";
 import { getFAQSchema } from "@/lib/seo/json-ld";
 import { getSiteUrl } from "@/lib/utils";
@@ -120,16 +121,15 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Values Section */}
-        <section className="text-center">
-          <p className="mx-auto max-w-3xl text-lg text-muted-foreground leading-relaxed md:text-xl">
+        <PageSection spacing="lg">
+          <p className="mx-auto max-w-3xl text-pretty text-center text-lg text-muted-foreground leading-relaxed md:text-xl">
             Stále vymýšľame niečo nové. Z našich žemlí si pripravíte ten
             najlepší burger a okrem pečiva u nás nájdete aj výber rôznych
             lákociniek z lokálnych zdrojov. Ponúkame poctivé párky, smotanové
             maslo, tvaroh, šťastné vajíčka, remeselné pivko či naturálne víno.
             Zastavte sa u nás v Kromke.
           </p>
-        </section>
+        </PageSection>
       </article>
     </PageWrapper>
   );

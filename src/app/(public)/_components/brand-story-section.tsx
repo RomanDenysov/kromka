@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 
 export function BrandStorySection() {
   return (
-    <section className="space-y-6 py-4">
+    <div className="space-y-6">
       <Separator />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-baseline sm:justify-between">
         <div className="max-w-xl space-y-2">
@@ -28,6 +28,6 @@ export function BrandStorySection() {
         </Link>
       </div>
       <Separator />
-    </section>
+    </div>
   );
 }

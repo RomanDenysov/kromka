@@ -9,7 +9,7 @@ const SIGNUP_URL =
 
 export function LoyaltyBanner() {
   return (
-    <section className="relative overflow-hidden rounded-lg bg-[#191613] text-white">
+    <section className="relative overflow-hidden rounded-md">
       {/* Background image - subtle, covers entire section */}
       <div className="absolute inset-0">
         <Image

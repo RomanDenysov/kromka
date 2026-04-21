@@ -2,6 +2,7 @@ import { ArrowRight, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/shared/container";
+import { PageSection } from "@/components/shared/public-page";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -13,11 +14,14 @@ const BENEFITS = [
 
 export function B2BCta() {
   return (
-    <section className="relative overflow-hidden">
-      {/* Subtle brand accent - a thin warm line at the top */}
+    <PageSection
+      className="relative overflow-hidden border-border border-t"
+      spacing="xl"
+      tone="muted"
+    >
       <div className="absolute inset-x-0 top-0 h-px bg-brand/20" />
 
-      <Container className="py-16 md:py-24">
+      <Container className="relative">
         <div className="grid items-start gap-10 md:grid-cols-5 md:gap-16">
           {/* Text column */}
           <div className="flex flex-col gap-6 md:col-span-3">
@@ -92,11 +96,11 @@ export function B2BCta() {
                 src="/images/cooperation.jpg"
               />
               {/* Warm overlay at bottom for depth */}
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-black/20 to-transparent" />
             </div>
           </div>
         </div>
       </Container>
-    </section>
+    </PageSection>
   );
 }

@@ -5,6 +5,7 @@ import { Icons } from "@/components/icons";
 import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { SectionHeader } from "@/components/shared/public-page";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -54,13 +55,11 @@ export default function KontaktPage() {
       <AppBreadcrumbs items={[{ label: "Kontakt" }]} />
 
       <div className="space-y-8">
-        <div className="space-y-2">
-          <h1 className="font-bold text-3xl md:text-4xl">Kontakt</h1>
-          <p className="text-lg text-muted-foreground">
-            Máte otázky? Radi vám pomôžeme. Kontaktujte nás prostredníctvom
-            emailu, telefónu alebo vyplňte formulár pre podporu.
-          </p>
-        </div>
+        <SectionHeader
+          description="Máte otázky? Radi vám pomôžeme. Kontaktujte nás prostredníctvom emailu, telefónu alebo vyplňte formulár pre podporu."
+          headingLevel={1}
+          title="Kontakt"
+        />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Contact Information */}

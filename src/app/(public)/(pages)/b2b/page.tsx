@@ -9,6 +9,7 @@ import Link from "next/link";
 import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { Container, PageWrapper } from "@/components/shared/container";
+import { PageSection, SectionHeader } from "@/components/shared/public-page";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createMetadata } from "@/lib/metadata";
@@ -92,8 +93,7 @@ export default function B2BPage() {
       <JsonLd data={getFAQSchema(B2B_FAQ)} />
       <AppBreadcrumbs items={[{ label: "B2B", href: "/b2b" }]} />
 
-      {/* Hero Section */}
-      <section className="w-full border-b bg-muted/30 py-12 md:py-20">
+      <PageSection className="border-b" spacing="xl" tone="muted">
         <Container>
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
             <h1 className="font-bold text-4xl tracking-tight md:text-5xl lg:text-6xl">
@@ -112,15 +112,16 @@ export default function B2BPage() {
             </Button>
           </div>
         </Container>
-      </section>
+      </PageSection>
 
-      {/* Benefits Section */}
-      <section className="w-full border-b py-12 md:py-16">
+      <PageSection className="border-b" spacing="lg">
         <Container>
           <div className="mx-auto max-w-5xl">
-            <h2 className="mb-8 text-center font-semibold text-2xl md:text-3xl">
-              Prečo spolupracovať s nami?
-            </h2>
+            <SectionHeader
+              align="center"
+              className="mb-8"
+              title="Prečo spolupracovať s nami?"
+            />
             <div className="grid gap-6 md:grid-cols-3">
               {BENEFITS.map((benefit) => {
                 const Icon = benefit.icon;
@@ -139,15 +140,16 @@ export default function B2BPage() {
             </div>
           </div>
         </Container>
-      </section>
+      </PageSection>
 
-      {/* How it Works Section */}
-      <section className="w-full border-b py-12 md:py-16">
+      <PageSection className="border-b" spacing="lg">
         <Container>
           <div className="mx-auto max-w-4xl">
-            <h2 className="mb-8 text-center font-semibold text-2xl md:text-3xl">
-              Ako to funguje?
-            </h2>
+            <SectionHeader
+              align="center"
+              className="mb-8"
+              title="Ako to funguje?"
+            />
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {STEPS.map((step) => (
                 <div
@@ -166,19 +168,16 @@ export default function B2BPage() {
             </div>
           </div>
         </Container>
-      </section>
+      </PageSection>
 
-      {/* CTA Section */}
-      <section className="w-full py-12 md:py-16">
+      <PageSection spacing="lg">
         <Container>
           <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
-            <h2 className="font-semibold text-2xl md:text-3xl">
-              Pripravení začať?
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Vyplňte jednoduchý formulár a my sa vám ozveme do 2 pracovných
-              dní.
-            </p>
+            <SectionHeader
+              align="center"
+              description="Vyplňte jednoduchý formulár a my sa vám ozveme do 2 pracovných dní."
+              title="Pripravení začať?"
+            />
             <Button asChild size="lg">
               <Link href={"/b2b/apply" as Route}>
                 Požiadať o spoluprácu
@@ -187,7 +186,7 @@ export default function B2BPage() {
             </Button>
           </div>
         </Container>
-      </section>
+      </PageSection>
     </PageWrapper>
   );
 }
