@@ -130,3 +130,11 @@ export function buildFullAddress(address: {
     .filter(Boolean)
     .join(", ");
 }
+
+/** Street + city for compact map or card lines (no postal / country). */
+export function formatStreetCity(address: {
+  street?: string;
+  city?: string;
+}): string {
+  return [address.street, address.city].filter(Boolean).join(", ");
+}

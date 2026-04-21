@@ -2,9 +2,10 @@
 
 import { startOfToday } from "date-fns";
 import { ArrowRight, Car, ChevronRight, Clock, MapPin } from "lucide-react";
+import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { StoresMap } from "@/components/stores-map";
 import { buttonVariants } from "@/components/ui/button";
 import { DistanceBadge } from "@/components/ui/distance-badge";
@@ -21,7 +22,7 @@ import {
   useSetPreferredStore,
 } from "@/features/stores/store/preferred-store";
 import { useGeolocation } from "@/hooks/use-geolocation";
-import { sortStoresByDistance } from "@/lib/geo-utils";
+import { formatStreetCity, sortStoresByDistance } from "@/lib/geo-utils";
 import { cn } from "@/lib/utils";
 
 const getTodaySchedule = (openingHours: Store["openingHours"]) => {
@@ -63,9 +64,6 @@ export function HomepageStoresContent({
   const setPreferredStore = useSetPreferredStore();
   const { position } = useGeolocation();
 
-  const [geoStoreId, setGeoStoreId] = useState<string | null>(null);
-  const selectedStoreId = preferredStoreId ?? geoStoreId ?? initialStoreId;
-
   const storesWithDistance = useMemo(() => {
     if (!position) {
       return stores.map((s) => ({ ...s, distance: null }));
@@ -73,15 +71,14 @@ export function HomepageStoresContent({
     return sortStoresByDistance(stores, position.latitude, position.longitude);
   }, [stores, position]);
 
-  useEffect(() => {
+  const nearestStoreId = useMemo(() => {
     if (!position || storesWithDistance.length === 0) {
-      return;
+      return null;
     }
-    const nearest = storesWithDistance[0];
-    if (nearest.distance !== null) {
-      setGeoStoreId(nearest.id);
-    }
+    return storesWithDistance[0].id;
   }, [position, storesWithDistance]);
+
+  const selectedStoreId = preferredStoreId ?? nearestStoreId ?? initialStoreId;
 
   const selectedEntry = storesWithDistance.find(
     (s) => s.id === selectedStoreId
@@ -141,14 +138,14 @@ export function HomepageStoresContent({
             {/* Selected store header with image */}
             <Link
               className="group flex gap-3 p-3"
-              href={`/predajne/${selectedStore.slug}` as never}
+              href={`/predajne/${selectedStore.slug}` as Route}
             >
               {/* Thumbnail */}
               <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-muted">
                 {selectedStore.image?.url ? (
                   <Image
                     alt={selectedStore.name}
-                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                    className="size-14 object-cover transition-transform duration-300 group-hover:scale-110"
                     fill
                     sizes="56px"
                     src={selectedStore.image.url}
@@ -182,19 +179,14 @@ export function HomepageStoresContent({
                     )}
                 </div>
 
-                {selectedStore.address && (
+                {selectedStore.address ? (
                   <div className="mt-1 flex items-center gap-1.5 text-muted-foreground text-xs">
                     <MapPin className="size-3 shrink-0" />
                     <span className="truncate">
-                      {[
-                        selectedStore.address.street,
-                        selectedStore.address.city,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
+                      {formatStreetCity(selectedStore.address)}
                     </span>
                   </div>
-                )}
+                ) : null}
 
                 <div className="mt-0.5 flex items-center gap-1.5 text-muted-foreground text-xs">
                   <Clock className="size-3 shrink-0" />

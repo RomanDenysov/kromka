@@ -12,8 +12,23 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Store } from "@/features/stores/api/queries";
 import type { GeolocationPosition } from "@/hooks/use-geolocation";
-import { buildFullAddress } from "@/lib/geo-utils";
+import { buildFullAddress, formatStreetCity } from "@/lib/geo-utils";
 import { cn } from "@/lib/utils";
+
+type StoreWithCoords = Store & { lat: number; lng: number };
+
+function toStoreWithCoords(store: Store): StoreWithCoords | null {
+  const lat = Number.parseFloat(store.latitude ?? "");
+  const lng = Number.parseFloat(store.longitude ?? "");
+  if (
+    !(Number.isFinite(lat) && Number.isFinite(lng)) ||
+    lat === 0 ||
+    lng === 0
+  ) {
+    return null;
+  }
+  return { ...store, lat, lng };
+}
 
 const MapComponent = lazy(() =>
   import("@/components/ui/map").then((m) => ({ default: m.Map }))
@@ -48,15 +63,10 @@ export function StoresMap({
   onMarkerClick,
   routeCoordinates,
 }: StoresMapProps) {
-  // Filter stores with valid coordinates
-  const storesWithCoordinates = stores.filter(
-    (store) =>
-      store.latitude &&
-      store.longitude &&
-      Number.parseFloat(store.latitude) !== 0 &&
-      Number.parseFloat(store.longitude) !== 0
-  );
-  if (storesWithCoordinates.length === 0) {
+  const plotted = stores
+    .map(toStoreWithCoords)
+    .filter((s): s is StoreWithCoords => s !== null);
+  if (plotted.length === 0) {
     return null;
   }
 
@@ -64,14 +74,14 @@ export function StoresMap({
     <div className="size-full">
       <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
         <MapComponent center={CENTER_POSITION} zoom={9}>
-          <MapControls position="top-right" />
-          {storesWithCoordinates.map((store) => {
+          <MapControls position="top-right" showLocate />
+          {plotted.map((store) => {
             const isSelected = store.id === selectedStoreId;
             return (
               <MapMarker
                 key={store.id}
-                latitude={Number.parseFloat(store.latitude ?? "0")}
-                longitude={Number.parseFloat(store.longitude ?? "0")}
+                latitude={store.lat}
+                longitude={store.lng}
                 onClick={() => onMarkerClick?.(store.id)}
               >
                 <MarkerContent>
@@ -88,22 +98,20 @@ export function StoresMap({
                   <div className="flex flex-col gap-2">
                     <div className="space-y-0.5">
                       <p className="font-medium">{store.name}</p>
-                      {store.address && (
+                      {store.address ? (
                         <p className="text-muted-foreground text-sm">
-                          {[store.address.street, store.address.city]
-                            .filter(Boolean)
-                            .join(", ")}
+                          {formatStreetCity(store.address)}
                         </p>
-                      )}
+                      ) : null}
                     </div>
-                    {store.address && (
+                    {store.address ? (
                       <StoreNavigationButton
                         address={buildFullAddress(store.address)}
                         latitude={store.latitude}
                         longitude={store.longitude}
                         variant="button"
                       />
-                    )}
+                    ) : null}
                   </div>
                 </MarkerPopup>
               </MapMarker>
