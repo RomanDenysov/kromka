@@ -33,7 +33,7 @@ export default function PublicLayout({ children }: Props) {
   return (
     <>
       <JsonLd data={[getOrganizationSchema(), getWebSiteSchema()]} />
-      <Header className="sticky top-0 z-40">
+      <Header>
         <HeaderActions />
       </Header>
       <main className="size-full min-h-svh">{children}</main>
