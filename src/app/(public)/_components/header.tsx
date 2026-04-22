@@ -16,18 +16,18 @@ import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
+import { UserButton } from "@/components/user-button";
 import { cn } from "@/lib/utils";
 import { DesktopNav } from "./desktop-nav";
 import { HOME_HERO_DOM_ID } from "./home-hero-constants";
 import { navigation } from "./navigation";
 
-export function Header({
-  children,
-  className,
-}: {
-  children: ReactNode;
+interface Props {
+  cartSlot: ReactNode;
   className?: string;
-}) {
+}
+
+export function Header({ className, cartSlot }: Props) {
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
   const [isPastHomeHero, setIsPastHomeHero] = useState(false);
@@ -105,7 +105,10 @@ export function Header({
           </Link>
 
           {/* Actions */}
-          {children}
+          <div className="flex items-center justify-end gap-2 xl:gap-3">
+            <UserButton />
+            {cartSlot}
+          </div>
         </div>
       </Container>
     </header>

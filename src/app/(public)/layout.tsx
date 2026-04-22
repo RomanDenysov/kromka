@@ -5,11 +5,20 @@ import { Footer } from "@/components/landing/footer";
 import { LoginModal } from "@/components/login-modal";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
+import {
+  CartBadge,
+  CartBadgeSkeleton,
+} from "@/features/cart/components/cart-badge";
+import { CartDrawer } from "@/features/cart/components/cart-drawer";
+import { CartDrawerContent } from "@/features/cart/components/cart-drawer-content";
+import {
+  CartDrawerFooter,
+  CartDrawerFooterLoader,
+} from "@/features/cart/components/cart-drawer-footer";
 import { preloadProducts } from "@/features/products/api/queries";
 import { defaultMetadata } from "@/lib/metadata";
 import { getOrganizationSchema, getWebSiteSchema } from "@/lib/seo/json-ld";
 import { Header } from "./_components/header";
-import { HeaderActions } from "./_components/header-actions";
 
 export const metadata: Metadata = {
   title: {
@@ -31,9 +40,26 @@ export default function PublicLayout({ children }: Props) {
   return (
     <>
       <JsonLd data={[getOrganizationSchema(), getWebSiteSchema()]} />
-      <Header>
-        <HeaderActions />
-      </Header>
+      <Suspense fallback={<div className="h-12 w-full" />}>
+        <Header
+          cartSlot={
+            <CartDrawer
+              indicator={
+                <Suspense fallback={CartBadgeSkeleton}>
+                  <CartBadge />
+                </Suspense>
+              }
+            >
+              <Suspense>
+                <CartDrawerContent />
+              </Suspense>
+              <Suspense fallback={<CartDrawerFooterLoader />}>
+                <CartDrawerFooter />
+              </Suspense>
+            </CartDrawer>
+          }
+        />
+      </Suspense>
       <main className="size-full min-h-svh">{children}</main>
       <Footer />
       <LoginModal />

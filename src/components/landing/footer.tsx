@@ -131,7 +131,7 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col items-center justify-between gap-4 text-foreground/50 text-sm sm:flex-row">
           <div className="flex items-center gap-0">
-            <span>© 2025</span>
+            <span>© 2026</span>
             <Icons.kromka className="mx-1 h-3" />
             <span>s.r.o. Všetky práva vyhradené.</span>
           </div>

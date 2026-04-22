@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [BLOB_STORE_URL],
     formats: ["image/avif", "image/webp"],
+    qualities: [75, 85],
   },
   async redirects() {
     return [

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { AlertsSection } from "./sections/alerts-section";
 import { BadgesSection } from "./sections/badges-section";
 import { ButtonsSection } from "./sections/buttons-section";
@@ -19,7 +20,9 @@ export function PlaygroundGallery() {
       <FeedbackSection />
       <OverlaysSection />
       <NavigationDataSection />
-      <MiscSection />
+      <Suspense fallback={null}>
+        <MiscSection />
+      </Suspense>
     </div>
   );
 }
