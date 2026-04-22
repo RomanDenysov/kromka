@@ -3,28 +3,19 @@
 import { startOfToday } from "date-fns";
 import { CheckIcon, Clock, Navigation, StoreIcon } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ResponsiveModal } from "@/components/responsive-modal";
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { DistanceBadge } from "@/components/ui/distance-badge";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { TimeRange } from "@/db/types";
 import {
   getTimeRangeForDate,
   parseTimeToMinutes,
 } from "@/features/checkout/utils";
 import type { Store } from "@/features/stores/api/queries";
+import { formatStreetCity } from "@/lib/geo-utils";
 import { cn } from "@/lib/utils";
 
 type StoreWithDistance = Store & { distance: number | null };
@@ -67,6 +58,27 @@ export function StorePicker({
   onSelect,
 }: StorePickerProps) {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    if (!open) {
+      setQuery("");
+    }
+  }, [open]);
+
+  const filteredStores = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) {
+      return stores;
+    }
+    return stores.filter((store) => {
+      const haystack = [store.name, store.address?.street, store.address?.city]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [stores, query]);
 
   const handleSelect = useCallback(
     (storeId: string) => {
@@ -77,118 +89,121 @@ export function StorePicker({
   );
 
   return (
-    <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          className="h-auto w-full justify-center gap-1.5 px-2 py-1 text-muted-foreground text-xs hover:text-foreground"
-          role="combobox"
-          size="sm"
-          variant="ghost"
-        >
-          <Navigation className="size-3" />
-          Zmeniť predajňu
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        align="start"
-        avoidCollisions={false}
-        className="w-80 p-0"
-        onCloseAutoFocus={(e) => e.preventDefault()}
-        side="top"
-        sideOffset={8}
+    <>
+      <Button
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        className="flex h-auto min-h-11 w-full min-w-0 shrink rounded-none rounded-b-md px-3 py-2.5 text-muted-foreground text-xs hover:text-foreground"
+        onClick={() => setOpen(true)}
+        type="button"
+        variant="ghost"
       >
-        <Command>
-          <CommandInput className="h-9" placeholder="Hľadať predajňu..." />
-          <CommandList className="max-h-72">
-            <CommandEmpty>Žiadne predajne.</CommandEmpty>
-            <CommandGroup>
-              {stores.map((store) => {
-                const todaySchedule = getTodaySchedule(store.openingHours);
-                const storeOpen = isCurrentlyOpen(todaySchedule);
-                const isActive = store.id === selectedStoreId;
+        <Navigation className="size-3.5 shrink-0" />
+        Zmeniť predajňu
+      </Button>
 
-                return (
-                  <CommandItem
-                    className="flex items-center gap-3 py-2.5"
-                    key={store.id}
-                    onSelect={() => handleSelect(store.id)}
-                    value={[
-                      store.name,
-                      store.address?.city,
-                      store.address?.street,
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    {/* Thumbnail */}
-                    <div className="relative size-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                      {store.image?.url ? (
-                        <Image
-                          alt=""
-                          className="object-cover"
-                          fill
-                          sizes="40px"
-                          src={store.image.url}
-                        />
-                      ) : (
-                        <div className="flex size-full items-center justify-center">
-                          <StoreIcon className="size-4 text-muted-foreground" />
-                        </div>
+      <ResponsiveModal
+        onOpenChange={setOpen}
+        open={open}
+        subtitle="Vyhľadajte podľa názvu alebo adresy."
+        title="Vyberte predajňu"
+      >
+        <div className="flex flex-col gap-3 px-4 pb-4 sm:px-2">
+          <Input
+            aria-label="Hľadať predajňu"
+            className="h-9 touch-manipulation"
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Hľadať predajňu…"
+            value={query}
+          />
+          <ScrollArea className="h-[min(65dvh,22rem)] sm:h-72">
+            <div className="flex flex-col gap-1 pr-3">
+              {filteredStores.length === 0 ? (
+                <p className="py-6 text-center text-muted-foreground text-sm">
+                  Žiadne predajne.
+                </p>
+              ) : (
+                filteredStores.map((store) => {
+                  const todaySchedule = getTodaySchedule(store.openingHours);
+                  const storeOpen = isCurrentlyOpen(todaySchedule);
+                  const isActive = store.id === selectedStoreId;
+
+                  return (
+                    <button
+                      className={cn(
+                        "flex min-h-11 w-full touch-manipulation items-center gap-3 rounded-md px-2 py-2.5 text-left transition-colors duration-150 ease-out motion-reduce:duration-0",
+                        "hover:bg-muted/80 active:bg-muted",
+                        isActive && "border bg-muted/60"
                       )}
-                    </div>
+                      key={store.id}
+                      onClick={() => handleSelect(store.id)}
+                      type="button"
+                    >
+                      <div className="relative size-10 shrink-0 overflow-hidden rounded-md bg-muted">
+                        {store.image?.url ? (
+                          <Image
+                            alt=""
+                            className="object-cover"
+                            fill
+                            sizes="40px"
+                            src={store.image.url}
+                          />
+                        ) : (
+                          <div className="flex size-full items-center justify-center">
+                            <StoreIcon className="size-4 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
 
-                    {/* Info */}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate font-medium text-sm">
-                          {store.name}
-                        </span>
-                        <div
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate font-medium text-sm">
+                            {store.name}
+                          </span>
+                          <div
+                            className={cn(
+                              "size-1.5 shrink-0 rounded-full",
+                              storeOpen ? "bg-green-500" : "bg-neutral-400"
+                            )}
+                          />
+                        </div>
+                        {store.address ? (
+                          <div className="mt-0.5 flex items-center gap-1.5 text-muted-foreground text-xs">
+                            <StoreIcon className="size-3 shrink-0" />
+                            <span className="truncate">
+                              {formatStreetCity(store.address)}
+                            </span>
+                          </div>
+                        ) : null}
+                        <div className="mt-0.5 flex items-center gap-1.5 text-muted-foreground text-xs">
+                          <Clock className="size-3 shrink-0" />
+                          <span>Dnes: {formatTimeRange(todaySchedule)}</span>
+                        </div>
+                      </div>
+
+                      <div className="ml-auto flex shrink-0 items-center gap-2">
+                        {store.distance !== null &&
+                          Number.isFinite(store.distance) && (
+                            <DistanceBadge
+                              distance={store.distance}
+                              variant="light"
+                            />
+                          )}
+                        <CheckIcon
                           className={cn(
-                            "size-1.5 shrink-0 rounded-full",
-                            storeOpen ? "bg-green-500" : "bg-neutral-400"
+                            "size-4 shrink-0",
+                            isActive ? "opacity-100" : "opacity-0"
                           )}
                         />
                       </div>
-                      {store.address && (
-                        <div className="mt-0.5 flex items-center gap-1.5 text-muted-foreground text-xs">
-                          <StoreIcon className="size-3 shrink-0" />
-                          <span className="truncate">
-                            {[store.address.street, store.address.city]
-                              .filter(Boolean)
-                              .join(", ")}
-                          </span>
-                        </div>
-                      )}
-                      <div className="mt-0.5 flex items-center gap-1.5 text-muted-foreground text-xs">
-                        <Clock className="size-3 shrink-0" />
-                        <span>Dnes: {formatTimeRange(todaySchedule)}</span>
-                      </div>
-                    </div>
-
-                    {/* Right side */}
-                    <div className="ml-auto flex shrink-0 items-center gap-2">
-                      {store.distance !== null &&
-                        Number.isFinite(store.distance) && (
-                          <DistanceBadge
-                            distance={store.distance}
-                            variant="light"
-                          />
-                        )}
-                      <CheckIcon
-                        className={cn(
-                          "size-4",
-                          isActive ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                    </div>
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+      </ResponsiveModal>
+    </>
   );
 }
