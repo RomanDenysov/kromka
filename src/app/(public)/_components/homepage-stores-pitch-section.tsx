@@ -1,12 +1,17 @@
 "use client";
 
+import type {
+  EmblaCarouselType,
+  EmblaEventType,
+  EngineType,
+} from "embla-carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { ArrowRight, ChevronRight, Clock, MapPin } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Carousel,
@@ -27,6 +32,35 @@ import { cn } from "@/lib/utils";
 const PITCH_AUTOPLAY_DELAY_MS = 9000;
 /** Embla scroll animation; higher = slower slide changes. */
 const PITCH_SCROLL_DURATION = 45;
+/** Parallax strength (Embla tween example pattern). */
+const PITCH_PARALLAX_TWEEN_BASE = 0.2;
+
+/** Loop-aware scroll delta for parallax (Embla parallax example). */
+function parallaxDiffForSlide(
+  engine: EngineType,
+  slideIndex: number,
+  scrollSnap: number,
+  scrollProgress: number,
+  diffToTarget: number
+): number {
+  let diff = diffToTarget;
+  if (!engine.options.loop) {
+    return diff;
+  }
+  for (const loopItem of engine.slideLooper.loopPoints) {
+    const target = loopItem.target();
+    if (slideIndex === loopItem.index && target !== 0) {
+      const sign = Math.sign(target);
+      if (sign === -1) {
+        diff = scrollSnap - (1 + scrollProgress);
+      }
+      if (sign === 1) {
+        diff = scrollSnap + (1 - scrollProgress);
+      }
+    }
+  }
+  return diff;
+}
 
 interface HomepageStoresPitchSectionProps {
   stores: Store[];
@@ -38,6 +72,8 @@ export function HomepageStoresPitchSection({
   const reduceMotion = useReducedMotion();
   const [api, setApi] = useState<CarouselApi>();
   const [activeIndex, setActiveIndex] = useState(0);
+  const parallaxTweenFactor = useRef(0);
+  const parallaxLayerNodes = useRef<HTMLElement[]>([]);
 
   const plugins = useMemo(() => {
     if (reduceMotion || stores.length <= 1) {
@@ -59,6 +95,58 @@ export function HomepageStoresPitchSection({
     setActiveIndex(carousel.selectedScrollSnap());
   }, []);
 
+  const setParallaxNodes = useCallback((emblaApi: EmblaCarouselType) => {
+    parallaxLayerNodes.current = emblaApi
+      .slideNodes()
+      .map((slideNode) =>
+        slideNode.querySelector<HTMLElement>("[data-pitch-parallax-layer]")
+      )
+      .filter((node): node is HTMLElement => node !== null);
+  }, []);
+
+  const setParallaxTweenFactor = useCallback((emblaApi: EmblaCarouselType) => {
+    parallaxTweenFactor.current =
+      PITCH_PARALLAX_TWEEN_BASE * emblaApi.scrollSnapList().length;
+  }, []);
+
+  const tweenParallax = useCallback(
+    (emblaApi: EmblaCarouselType, evt?: EmblaEventType) => {
+      const engine = emblaApi.internalEngine();
+      const scrollProgress = emblaApi.scrollProgress();
+      const slidesInView = emblaApi.slidesInView();
+      const isScrollEvent = evt === "scroll";
+      const snaps = emblaApi.scrollSnapList();
+      const factor = parallaxTweenFactor.current;
+      const nodes = parallaxLayerNodes.current;
+
+      for (let snapIndex = 0; snapIndex < snaps.length; snapIndex++) {
+        const scrollSnap = snaps[snapIndex];
+        const baseDiff = scrollSnap - scrollProgress;
+        const slidesInSnap = engine.slideRegistry[snapIndex];
+
+        for (const slideIndex of slidesInSnap) {
+          if (isScrollEvent && !slidesInView.includes(slideIndex)) {
+            continue;
+          }
+
+          const diff = parallaxDiffForSlide(
+            engine,
+            slideIndex,
+            scrollSnap,
+            scrollProgress,
+            baseDiff
+          );
+          const translate = diff * (-1 * factor) * 100;
+          const node = nodes[slideIndex];
+          if (node) {
+            node.style.transform = `translate3d(${translate}%,0,0)`;
+          }
+        }
+      }
+    },
+    []
+  );
+
   useEffect(() => {
     if (!api) {
       return;
@@ -72,6 +160,49 @@ export function HomepageStoresPitchSection({
       api.off("reInit", handleSelect);
     };
   }, [api, onSelect]);
+
+  useEffect(() => {
+    if (!api || reduceMotion) {
+      return;
+    }
+
+    const handleReinit = (emblaApi: EmblaCarouselType) => {
+      setParallaxNodes(emblaApi);
+      setParallaxTweenFactor(emblaApi);
+      tweenParallax(emblaApi);
+    };
+
+    const handleScroll = (emblaApi: EmblaCarouselType, evt: EmblaEventType) => {
+      tweenParallax(emblaApi, evt);
+    };
+
+    const handleSlideFocus = (emblaApi: EmblaCarouselType) => {
+      tweenParallax(emblaApi);
+    };
+
+    setParallaxNodes(api);
+    setParallaxTweenFactor(api);
+    tweenParallax(api);
+
+    api.on("reInit", handleReinit);
+    api.on("scroll", handleScroll);
+    api.on("slideFocus", handleSlideFocus);
+
+    return () => {
+      api.off("reInit", handleReinit);
+      api.off("scroll", handleScroll);
+      api.off("slideFocus", handleSlideFocus);
+      for (const node of parallaxLayerNodes.current) {
+        node.style.transform = "";
+      }
+    };
+  }, [
+    api,
+    reduceMotion,
+    setParallaxNodes,
+    setParallaxTweenFactor,
+    tweenParallax,
+  ]);
 
   const scrollTo = useCallback(
     (index: number) => {
@@ -120,15 +251,20 @@ export function HomepageStoresPitchSection({
             return (
               <CarouselItem className="pl-3 md:pl-4" key={store.id}>
                 <div className="group/slide relative overflow-hidden rounded-md border bg-card shadow-sm transition-shadow hover:shadow-md">
-                  <div className="relative min-h-[380px] w-full md:min-h-[460px] lg:min-h-[520px]">
-                    <Image
-                      alt={store.name}
-                      className="object-cover transition-transform duration-1000 ease-out group-hover/slide:scale-[1.02]"
-                      fill
-                      priority={slideIndex === 0}
-                      sizes="(max-width: 768px) 100vw, 1200px"
-                      src={store.image?.url ?? STORE_IMAGE_FALLBACK_SRC}
-                    />
+                  <div className="relative min-h-[380px] w-full overflow-hidden md:min-h-[460px] lg:min-h-[520px]">
+                    <div
+                      className="absolute inset-y-0 -left-[10%] h-full w-[120%] max-w-none will-change-transform"
+                      data-pitch-parallax-layer
+                    >
+                      <Image
+                        alt={store.name}
+                        className="object-cover transition-transform duration-1000 ease-out group-hover/slide:scale-[1.02] motion-reduce:transition-none"
+                        fill
+                        priority={slideIndex === 0}
+                        sizes="(max-width: 768px) 100vw, 1200px"
+                        src={store.image?.url ?? STORE_IMAGE_FALLBACK_SRC}
+                      />
+                    </div>
 
                     <div
                       aria-hidden
