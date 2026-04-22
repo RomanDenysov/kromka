@@ -87,7 +87,7 @@ export function B2BCta() {
 
           {/* Image column - hidden on mobile, warm treatment on desktop */}
           <div className="hidden md:col-span-2 md:block">
-            <div className="relative aspect-4/5 w-full overflow-hidden rounded-xl border bg-muted/30 shadow-sm">
+            <div className="relative aspect-4/5 w-full overflow-hidden rounded-md border bg-muted/30 shadow-sm">
               <Image
                 alt="B2B spolupraca s Pekarnou Kromka"
                 className="object-cover"

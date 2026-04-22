@@ -61,7 +61,7 @@ export function ReorderBar({
     <>
       <motion.div
         animate={{ y: 0, opacity: 1 }}
-        className="rounded-sm border bg-background shadow-sm"
+        className="rounded-md border bg-background shadow-sm"
         exit={{ y: "-100%" }}
         initial={{ y: "-100%", opacity: 0 }}
         transition={{ type: "tween", duration: 0.5 }}
@@ -178,12 +178,12 @@ function ItemsList({
       <div className="flex flex-col gap-1 px-4 sm:px-2">
         {items.map((item) => (
           <div
-            className="flex w-full items-center gap-2 rounded-lg py-2 hover:bg-muted/50 sm:gap-3 sm:pr-2"
+            className="flex w-full items-center gap-2 rounded-md py-2 hover:bg-muted/50 sm:gap-3 sm:pr-2"
             key={item.productId}
           >
             <ProductImage
               alt={item.name}
-              className="size-12 shrink-0 rounded-lg object-cover sm:size-14"
+              className="size-12 shrink-0 rounded-md object-cover sm:size-14"
               height={56}
               src={item.imageUrl ?? "/images/cooperation.jpg"}
               width={56}
@@ -248,8 +248,12 @@ function OrderFooter({
   return (
     <div className="flex w-full items-center justify-between gap-4">
       <div className="flex flex-col">
-        <span className="text-muted-foreground text-xs">Celkom:</span>
-        <span className="font-semibold text-sm">{formatPrice(total)}</span>
+        <span className="font-medium text-muted-foreground text-xs tracking-tight">
+          Celkom:
+        </span>
+        <span className="font-mono font-semibold text-sm tabular-nums leading-none tracking-tight">
+          {formatPrice(total)}
+        </span>
       </div>
       <Button
         className="flex-1"

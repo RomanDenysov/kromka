@@ -145,10 +145,10 @@ function CheckoutDataLoaderSkeleton() {
       <section className="col-span-full flex size-full flex-col gap-4">
         <Skeleton className="h-7 w-48" />
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Skeleton className="aspect-square w-full rounded-lg" />
-          <Skeleton className="aspect-square w-full rounded-lg" />
-          <Skeleton className="aspect-square w-full rounded-lg" />
-          <Skeleton className="aspect-square w-full rounded-lg" />
+          <Skeleton className="aspect-square w-full rounded-md" />
+          <Skeleton className="aspect-square w-full rounded-md" />
+          <Skeleton className="aspect-square w-full rounded-md" />
+          <Skeleton className="aspect-square w-full rounded-md" />
         </div>
       </section>
     </>

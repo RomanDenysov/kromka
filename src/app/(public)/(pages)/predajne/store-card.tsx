@@ -171,14 +171,14 @@ export function StoreCardCompact({
   return (
     <button
       className={cn(
-        "group flex w-full items-center gap-4 rounded-xl p-3 text-left transition-colors",
+        "group flex w-full items-center gap-4 rounded-md p-3 text-left transition-colors",
         "hover:bg-neutral-100 dark:hover:bg-neutral-800"
       )}
       onClick={onClick}
       type="button"
     >
       {/* Thumbnail */}
-      <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-neutral-200 dark:bg-neutral-700">
+      <div className="relative size-16 shrink-0 overflow-hidden rounded-md bg-neutral-200 dark:bg-neutral-700">
         {store.image?.url ? (
           <Image
             alt={store.name}

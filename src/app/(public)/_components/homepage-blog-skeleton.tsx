@@ -13,7 +13,7 @@ export function HomepageBlogSkeleton() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {["a", "b", "c"].map((key) => (
           <div
-            className="flex flex-col overflow-hidden rounded-lg border bg-card"
+            className="flex flex-col overflow-hidden rounded-md border bg-card"
             key={key}
           >
             <Skeleton className="aspect-[16/10] w-full rounded-none" />

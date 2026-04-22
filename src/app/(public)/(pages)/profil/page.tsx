@@ -139,7 +139,7 @@ async function ProfilPageContent() {
             <div className="flex flex-col gap-3">
               {recentOrders.map((order) => (
                 <Link
-                  className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-accent"
+                  className="flex items-center justify-between rounded-md border p-4 transition-colors hover:bg-accent"
                   href={`/profil/objednavky/${order.id}` as Route}
                   key={order.id}
                 >
@@ -168,7 +168,7 @@ async function ProfilPageContent() {
       {/* Quick actions */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Link
-          className="flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-accent"
+          className="flex items-center gap-4 rounded-md border p-4 transition-colors hover:bg-accent"
           href="/e-shop"
         >
           <div className="rounded-full bg-primary/10 p-3">
@@ -183,7 +183,7 @@ async function ProfilPageContent() {
         </Link>
 
         <Link
-          className="flex items-center gap-4 rounded-lg border p-4 transition-colors hover:bg-accent"
+          className="flex items-center gap-4 rounded-md border p-4 transition-colors hover:bg-accent"
           href="/predajne"
         >
           <div className="rounded-full bg-primary/10 p-3">

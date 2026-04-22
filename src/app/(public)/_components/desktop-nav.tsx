@@ -9,7 +9,7 @@ import {
 
 export function DesktopNav() {
   return (
-    <NavigationMenu>
+    <NavigationMenu className="hidden md:flex">
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink

@@ -53,10 +53,10 @@ export function PostContent({ content, className }: Props) {
         // Lists
         "prose-li:my-1 prose-ol:my-4 prose-ul:my-4",
         // Images
-        "prose-img:my-8 prose-img:rounded-lg",
+        "prose-img:my-8 prose-img:rounded-md",
         // Code
         "prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:font-normal",
-        "prose-pre:rounded-lg prose-pre:bg-muted",
+        "prose-pre:rounded-md prose-pre:bg-muted",
         // Blockquotes
         "prose-blockquote:border-l-primary prose-blockquote:not-italic",
         className

@@ -153,7 +153,7 @@ export default function B2BPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {STEPS.map((step) => (
                 <div
-                  className="flex flex-col items-start gap-3 rounded-lg border p-6"
+                  className="flex flex-col items-start gap-3 rounded-md border p-6"
                   key={step.number}
                 >
                   <div className="flex size-10 items-center justify-center rounded-full bg-primary font-bold text-lg text-primary-foreground">
