@@ -1,6 +1,5 @@
 "use client";
 
-import { startOfToday } from "date-fns";
 import { ArrowRight, Car, ChevronRight, Clock, MapPin } from "lucide-react";
 import type { Route } from "next";
 import Image from "next/image";
@@ -9,14 +8,15 @@ import { useCallback, useMemo } from "react";
 import { StoresMap } from "@/components/stores-map";
 import { buttonVariants } from "@/components/ui/button";
 import { DistanceBadge } from "@/components/ui/distance-badge";
-import type { TimeRange } from "@/db/types";
-import {
-  getTimeRangeForDate,
-  parseTimeToMinutes,
-} from "@/features/checkout/utils";
 import type { Store } from "@/features/stores/api/queries";
 import { StorePicker } from "@/features/stores/components/store-picker";
+import { STORE_IMAGE_FALLBACK_SRC } from "@/features/stores/constants";
 import { useStoreRoute } from "@/features/stores/hooks/use-store-route";
+import {
+  formatTimeRange,
+  getTodaySchedule,
+  isCurrentlyOpen,
+} from "@/features/stores/lib/store-hours-display";
 import {
   usePreferredStoreId,
   useSetPreferredStore,
@@ -24,32 +24,6 @@ import {
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { formatStreetCity, sortStoresByDistance } from "@/lib/geo-utils";
 import { cn } from "@/lib/utils";
-
-const getTodaySchedule = (openingHours: Store["openingHours"]) => {
-  if (!openingHours) {
-    return null;
-  }
-  return getTimeRangeForDate(startOfToday(), openingHours);
-};
-
-const isCurrentlyOpen = (schedule: TimeRange | null): boolean => {
-  if (!schedule) {
-    return false;
-  }
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  return (
-    currentMinutes >= parseTimeToMinutes(schedule.start) &&
-    currentMinutes < parseTimeToMinutes(schedule.end)
-  );
-};
-
-const formatTimeRange = (schedule: TimeRange | null) => {
-  if (!schedule) {
-    return "Zatvorene";
-  }
-  return `${schedule.start} - ${schedule.end}`;
-};
 
 interface HomepageStoresContentProps {
   initialStoreId: string;
@@ -120,7 +94,7 @@ export function HomepageStoresContent({
       </div>
 
       {/* Map with floating store panel */}
-      <div className="relative overflow-hidden rounded-xl border">
+      <div className="relative overflow-hidden rounded-md border">
         {/* Map fills entire section */}
         <div className="h-[450px] md:h-[480px]">
           <StoresMap
@@ -134,7 +108,7 @@ export function HomepageStoresContent({
 
         {/* Floating store info panel */}
         <div className="absolute right-3 bottom-3 left-3 z-10 md:right-auto md:bottom-4 md:left-4 md:w-80">
-          <div className="rounded-lg border bg-background/95 shadow-lg backdrop-blur-sm">
+          <div className="rounded-md border bg-background/95 shadow-lg backdrop-blur-sm">
             {/* Selected store header with image */}
             <Link
               className="group flex gap-3 p-3"
@@ -142,19 +116,13 @@ export function HomepageStoresContent({
             >
               {/* Thumbnail */}
               <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-muted">
-                {selectedStore.image?.url ? (
-                  <Image
-                    alt={selectedStore.name}
-                    className="size-14 object-cover transition-transform duration-300 group-hover:scale-110"
-                    fill
-                    sizes="56px"
-                    src={selectedStore.image.url}
-                  />
-                ) : (
-                  <div className="flex size-full items-center justify-center">
-                    <MapPin className="size-5 text-muted-foreground" />
-                  </div>
-                )}
+                <Image
+                  alt={selectedStore.name}
+                  className="size-14 object-cover transition-transform duration-300 group-hover:scale-110"
+                  fill
+                  sizes="56px"
+                  src={selectedStore.image?.url ?? STORE_IMAGE_FALLBACK_SRC}
+                />
               </div>
 
               {/* Store info */}
@@ -207,7 +175,7 @@ export function HomepageStoresContent({
             </Link>
 
             {/* Store switcher - compact bar at bottom */}
-            <div className="border-t px-3 py-2">
+            <div className="w-full overflow-hidden border-t">
               <StorePicker
                 onSelect={handleStoreSelect}
                 selectedStoreId={selectedStoreId}

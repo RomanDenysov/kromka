@@ -1,6 +1,7 @@
 import { getLastOrderPrefillAction } from "@/features/checkout/api/actions";
 import { getStores } from "@/features/stores/api/queries";
 import { HomepageStoresContent } from "./homepage-stores-content";
+import { HomepageStoresPitchSection } from "./homepage-stores-pitch-section";
 
 export async function HomepageStoresSection() {
   const stores = await getStores();
@@ -14,6 +15,9 @@ export async function HomepageStoresSection() {
     stores.find((s) => s.id === prefill?.storeId)?.id ?? stores[0].id;
 
   return (
-    <HomepageStoresContent initialStoreId={initialStoreId} stores={stores} />
+    <div className="space-y-8">
+      <HomepageStoresContent initialStoreId={initialStoreId} stores={stores} />
+      <HomepageStoresPitchSection stores={stores} />
+    </div>
   );
 }
