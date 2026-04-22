@@ -1,3 +1,6 @@
+/**
+ * @deprecated Was used on /profil/oblubene; page redirects until favorites are rewritten.
+ */
 "use client";
 
 import { ShoppingCartIcon } from "lucide-react";
@@ -14,7 +17,7 @@ interface Props {
 
 const MAX_PRODUCTS_TO_ADD_TO_CART = 5;
 
-export function AddAllToCartButton({ productIds }: Props) {
+export function AddAllToCartFavoritesButton({ productIds }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const handleAddAll = () => {

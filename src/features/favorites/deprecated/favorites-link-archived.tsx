@@ -1,16 +1,22 @@
+/**
+ * Archived header “favorites” link — not used in the app while favorites are disabled.
+ * Restore by importing from layout/header when rebuilding favorites.
+ *
+ * @deprecated Reference only.
+ */
 import { HeartIcon } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
+import { buttonVariants } from "@/components/ui/button";
 import {
   FavoritesBadge,
   FavoritesBadgeSkeleton,
-} from "@/components/favorites/favorites-badge";
-import { buttonVariants } from "@/components/ui/button";
+} from "@/features/favorites/components/favorites-badge";
 import { auth } from "@/lib/auth/server";
 import { cn } from "@/lib/utils";
 
-export async function FavoritesLink() {
+export async function ArchivedFavoritesLink() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

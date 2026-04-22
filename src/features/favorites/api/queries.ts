@@ -1,3 +1,6 @@
+/**
+ * @deprecated Favorites feature shelved pending rewrite. Keep for DB compatibility only.
+ */
 import "server-only";
 
 import { count, desc, eq } from "drizzle-orm";
@@ -48,6 +51,3 @@ export async function getFavoritesCount(): Promise<number> {
 
   return result?.count ?? 0;
 }
-
-// biome-ignore lint/complexity/noVoid: We need to preload the favorites for the server component
-export const preloadFavorites = () => void getFavorites();

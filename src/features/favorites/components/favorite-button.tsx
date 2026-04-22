@@ -1,9 +1,12 @@
+/**
+ * @deprecated Favorites UI is hidden pending a rewrite. Do not import in new code.
+ */
 "use client";
 
 import { HeartIcon } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useFavorite } from "@/hooks/use-favorite";
+import { useFavorite } from "@/features/favorites/hooks/use-favorite";
 import { cn } from "@/lib/utils";
 
 type Props = ButtonProps & {

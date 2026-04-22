@@ -1,3 +1,6 @@
+/**
+ * @deprecated Favorites UI is hidden pending a rewrite. Do not import in new code.
+ */
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getFavoritesCount } from "@/features/favorites/api/queries";

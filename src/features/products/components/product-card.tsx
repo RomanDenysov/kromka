@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import { FavoriteButton } from "@/components/favorites/favorite-button";
 import {
   AddToB2bCartButton,
   AddToCartButton,
@@ -15,7 +13,6 @@ import { cn, formatPrice } from "@/lib/utils";
 interface Props {
   cartVariant?: "b2c" | "b2b";
   className?: string;
-  isFavorite?: boolean;
   preload?: boolean;
   product: Product;
   source?: AddToCartSource;
@@ -25,7 +22,6 @@ export function ProductCard({
   product,
   className,
   preload = false,
-  isFavorite,
   cartVariant = "b2c",
   source = "product_card",
 }: Props) {
@@ -41,18 +37,6 @@ export function ProductCard({
     >
       <Link href={`/product/${product.slug}`}>
         <div className="relative">
-          <div className="absolute top-1 right-1 z-20 md:top-2 md:right-2">
-            <Suspense>
-              <FavoriteButton
-                className="hover:bg-accent/50 [&_svg:not([class*='size-'])]:size-5"
-                initialIsFavorite={isFavorite}
-                productId={product.id}
-                productName={product.name}
-                size="icon"
-                variant="ghost"
-              />
-            </Suspense>
-          </div>
           <ProductImage
             alt={`Product image: ${product.name}`}
             className={cn(

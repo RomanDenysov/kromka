@@ -8,8 +8,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
-import { FavoriteButton } from "@/components/favorites/favorite-button";
 import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
@@ -18,7 +16,6 @@ import { ProductImage } from "@/components/shared/product-image";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getProducts, type Product } from "@/features/products/api/queries";
 import {
   getPublishedReviews,
@@ -235,20 +232,9 @@ export default async function ProductPage({ params }: Props) {
               </Link>
             </div>
           ) : null}
-          <div className="flex items-center justify-between gap-2">
-            <h1 className="line-clamp-2 font-semibold text-2xl leading-tight tracking-tight md:text-3xl">
-              {result.name}
-            </h1>
-            <Suspense fallback={<Skeleton className="size-6" />}>
-              <FavoriteButton
-                className="[&_svg:not([class*='size-'])]:size-6"
-                productId={result.id}
-                productName={result.name}
-                size="icon-lg"
-                variant="ghost"
-              />
-            </Suspense>
-          </div>
+          <h1 className="line-clamp-2 font-semibold text-2xl leading-tight tracking-tight md:text-3xl">
+            {result.name}
+          </h1>
 
           {/* Product Price and Features */}
           <p className="font-semibold text-2xl tracking-tight md:text-4xl">

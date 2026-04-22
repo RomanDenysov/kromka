@@ -1,3 +1,6 @@
+/**
+ * @deprecated Favorites feature shelved pending rewrite. Keep for DB compatibility only.
+ */
 "use server";
 
 import { and, eq } from "drizzle-orm";

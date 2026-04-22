@@ -1,3 +1,6 @@
+/**
+ * @deprecated Favorites UI is hidden pending a rewrite. Do not import in new code.
+ */
 "use client";
 
 import { usePathname } from "next/navigation";
@@ -23,22 +26,18 @@ export function useFavorite(
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Always prioritize session state - if no session, user can't have favorites
     if (!session) {
       setFavorite(false);
       setIsLoading(false);
       return;
     }
 
-    // If we have a session and initialValue is provided, use it as optimization
-    // but only if it's consistent with having a session
     if (initialValue !== undefined) {
       setFavorite(initialValue);
       setIsLoading(false);
       return;
     }
 
-    // Otherwise, fetch from server
     let cancelled = false;
 
     isFavorite(productId).then((result) => {
@@ -55,13 +54,12 @@ export function useFavorite(
 
   const toggle = () => {
     if (!session) {
-      openLogin("favorites", pathname);
+      openLogin("default", pathname);
       return;
     }
 
     const previousFavorite = favorite;
 
-    // Optimistic update
     setFavorite((prev) => !prev);
 
     startTransition(async () => {
@@ -69,7 +67,7 @@ export function useFavorite(
 
       if (!result.success) {
         setFavorite(previousFavorite);
-        openLogin("favorites", pathname);
+        openLogin("default", pathname);
         toast.error("Nastala chyba pri aktualizácii obľúbených");
       } else if (productName) {
         analytics.favoriteToggled({
