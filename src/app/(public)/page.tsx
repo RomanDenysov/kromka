@@ -14,6 +14,7 @@ import { getSiteUrl } from "@/lib/utils";
 import { BrandStorySection } from "./_components/brand-story-section";
 import { HomeHero } from "./_components/home-hero";
 import { HomepageBlogSkeleton } from "./_components/homepage-blog-skeleton";
+import { HomepagePecivoProducts } from "./_components/homepage-pecivo-products";
 import {
   HomepageProducts,
   HomepageProductsSkeleton,
@@ -36,18 +37,23 @@ export default async function Home() {
     <>
       <HomeHero />
       <Container className="my-12 space-y-8 md:my-16 md:space-y-12 xl:my-20 xl:space-y-16">
-        <Suspense>
-          <ReorderBar lastOrderPromise={lastOrderPromise} />
-        </Suspense>
-        <Suspense fallback={null}>
-          <RegistrationBanner />
-        </Suspense>
+        <div className="space-y-4">
+          <Suspense fallback={null}>
+            <RegistrationBanner />
+          </Suspense>
+          <Suspense>
+            <ReorderBar lastOrderPromise={lastOrderPromise} />
+          </Suspense>
+        </div>
         <Suspense fallback={<HomepageProductsSkeleton />}>
           <HomepageProducts />
         </Suspense>
-        <BrandStorySection />
+        {featureFlags.brandStorySection && <BrandStorySection />}
         <Suspense fallback={<HomepageStoresSkeleton />}>
           <HomepageStoresSection />
+        </Suspense>
+        <Suspense fallback={<HomepageProductsSkeleton />}>
+          <HomepagePecivoProducts />
         </Suspense>
         <LoyaltyBanner />
         {featureFlags.game && (

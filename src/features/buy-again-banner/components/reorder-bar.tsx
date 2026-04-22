@@ -8,7 +8,6 @@ import {
   TrashIcon,
   XIcon,
 } from "lucide-react";
-import { motion } from "motion/react";
 import { use, useEffect, useState } from "react";
 import { ResponsiveModal } from "@/components/responsive-modal";
 import { Hint } from "@/components/shared/hint";
@@ -59,13 +58,7 @@ export function ReorderBar({
 
   return (
     <>
-      <motion.div
-        animate={{ y: 0, opacity: 1 }}
-        className="rounded-md border bg-background shadow-sm"
-        exit={{ y: "-100%" }}
-        initial={{ y: "-100%", opacity: 0 }}
-        transition={{ type: "tween", duration: 0.5 }}
-      >
+      <div className="rounded-md border bg-background shadow-sm">
         <div className="flex items-center justify-between gap-2 px-3 py-2">
           <Hint align="start" side="bottom" text="Vaša posledná objednávka">
             <div className="flex shrink-0 items-center gap-1">
@@ -122,7 +115,7 @@ export function ReorderBar({
             </Button>
           </div>
         </div>
-      </motion.div>
+      </div>
       <ResponsiveModal
         footer={
           <OrderFooter

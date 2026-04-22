@@ -1,3 +1,4 @@
+import { featureFlags } from "@/config/features";
 import { getLastOrderPrefillAction } from "@/features/checkout/api/actions";
 import { getStores } from "@/features/stores/api/queries";
 import { HomepageStoresContent } from "./homepage-stores-content";
@@ -16,7 +17,12 @@ export async function HomepageStoresSection() {
 
   return (
     <div className="space-y-8">
-      <HomepageStoresContent initialStoreId={initialStoreId} stores={stores} />
+      {featureFlags.storesMapOnHomepage && (
+        <HomepageStoresContent
+          initialStoreId={initialStoreId}
+          stores={stores}
+        />
+      )}
       <HomepageStoresPitchSection stores={stores} />
     </div>
   );

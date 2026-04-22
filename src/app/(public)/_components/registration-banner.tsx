@@ -10,7 +10,7 @@ export async function RegistrationBanner() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 rounded-md border bg-muted/30 px-6 py-5 sm:flex-row sm:gap-6">
+    <div className="flex flex-col items-center justify-between gap-3 rounded-md border bg-background px-6 py-5 shadow-sm sm:flex-row sm:gap-6">
       <p className="text-pretty text-base text-foreground/70">
         <span className="font-semibold text-foreground">Registrujte sa</span> a
         ziskajte oblubene produkty, pravidelne objednavky a spravu nakupov

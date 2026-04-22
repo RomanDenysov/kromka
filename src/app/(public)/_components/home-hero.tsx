@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowRight, MapPin } from "lucide-react";
 import {
   motion,
   useReducedMotion,
@@ -8,12 +7,11 @@ import {
   useTransform,
 } from "motion/react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRef } from "react";
-import { FadeContainer, FadeDiv, FadeSpan } from "@/components/motion/fade";
-import { buttonVariants } from "@/components/ui/button";
+import { FadeContainer, FadeSpan } from "@/components/motion/fade";
 import { cn } from "@/lib/utils";
 import { HOME_HERO_DOM_ID } from "./home-hero-constants";
+import { HomeHeroCta } from "./home-hero-cta";
 
 /** Max vertical parallax shift (px) while the hero scrolls past the viewport. */
 const PARALLAX_MAX_SHIFT_PX = 160;
@@ -64,32 +62,7 @@ export function HomeHero({ className }: { className?: string }) {
             <FadeSpan>závin z rúk,</FadeSpan> <FadeSpan>káva z lásky</FadeSpan>
           </p>
         </div>
-        <div className="flex w-full flex-col items-stretch gap-3 md:w-auto md:flex-row md:items-center md:justify-center md:gap-4">
-          <FadeDiv>
-            <Link
-              className={cn(
-                buttonVariants({ variant: "glass", size: "xl" }),
-                "group w-full justify-center md:w-auto"
-              )}
-              href="/e-shop"
-            >
-              Objednať online
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </FadeDiv>
-          <FadeDiv>
-            <Link
-              className={cn(
-                buttonVariants({ variant: "link", size: "xl" }),
-                "group min-h-11 w-full justify-center text-white no-underline transition-colors duration-200 ease-out hover:no-underline active:text-white/90 motion-reduce:duration-0 md:w-auto md:hover:text-white/80"
-              )}
-              href="/predajne"
-            >
-              <MapPin className="size-3.5" />
-              Naše predajne
-            </Link>
-          </FadeDiv>
-        </div>
+        <HomeHeroCta animated variant="overlay" />
       </FadeContainer>
     </section>
   );
