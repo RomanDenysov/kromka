@@ -35,7 +35,7 @@ export function HomeHeroCta({
           variant: isOverlay ? "glass" : "brand",
           size: "xl",
         }),
-        "group w-full justify-center md:w-auto"
+        "group w-full justify-center text-shadow-2xs shadow-sm md:w-auto"
       )}
       href="/e-shop"
     >
@@ -53,7 +53,7 @@ export function HomeHeroCta({
         }),
         isOverlay
           ? "group min-h-11 w-full justify-center text-white no-underline transition-colors duration-200 ease-out hover:no-underline active:text-white/90 motion-reduce:duration-0 md:w-auto md:hover:text-white/80"
-          : "group min-h-11 w-full justify-center md:w-auto"
+          : "group min-h-11 w-full justify-center text-shadow-2xs shadow-sm md:w-auto"
       )}
       href="/predajne"
     >

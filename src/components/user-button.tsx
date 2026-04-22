@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth/client";
 import type { User } from "@/lib/auth/session";
-import { getInitials } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Icons } from "./icons";
 
 export function UserButton({ promise }: { promise: Promise<User> }) {
@@ -34,10 +34,13 @@ export function UserButton({ promise }: { promise: Promise<User> }) {
   if (!user) {
     return (
       <Link
-        className={buttonVariants({
-          variant: "outline",
-          size: "icon-sm",
-        })}
+        className={cn(
+          buttonVariants({
+            variant: "outline",
+            size: "icon-sm",
+          }),
+          "text-primary"
+        )}
         href={{
           pathname: "/prihlasenie",
           query: callbackURL ? { origin: callbackURL } : undefined,
@@ -57,7 +60,7 @@ export function UserButton({ promise }: { promise: Promise<User> }) {
             className="rounded-md object-cover"
             src={user.image ?? undefined}
           />
-          <AvatarFallback className="rounded-md font-medium text-sm">
+          <AvatarFallback className="rounded-md font-medium text-primary text-sm">
             {getInitials(user.name || user.email)}
           </AvatarFallback>
         </Avatar>

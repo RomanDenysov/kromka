@@ -4,6 +4,7 @@
  */
 
 export const featureFlags = {
+  registrationBanner: false,
   eshop: true,
   b2b: true,
   partnership: true,

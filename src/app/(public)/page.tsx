@@ -36,11 +36,13 @@ export default async function Home() {
   return (
     <>
       <HomeHero />
-      <Container className="my-12 space-y-8 md:my-16 md:space-y-12 xl:my-20 xl:space-y-16">
+      <Container className="my-12 space-y-12 md:my-16 md:space-y-16 xl:my-20 xl:space-y-20">
         <div className="space-y-4">
-          <Suspense fallback={null}>
-            <RegistrationBanner />
-          </Suspense>
+          {featureFlags.registrationBanner && (
+            <Suspense fallback={null}>
+              <RegistrationBanner />
+            </Suspense>
+          )}
           <Suspense>
             <ReorderBar lastOrderPromise={lastOrderPromise} />
           </Suspense>

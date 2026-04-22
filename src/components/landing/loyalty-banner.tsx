@@ -1,57 +1,56 @@
-import { ArrowRight } from "lucide-react";
-import Image from "next/image";
+import { ArrowRight, StarIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ParallaxScrollImage } from "../motion/parallax-scroll-image";
 
 const SIGNUP_URL =
   "https://www.forms.vexioncards.one/signup/?id=6904a68be39f5e7c3da0b2cd";
 
 export function LoyaltyBanner() {
   return (
-    <section className="relative overflow-hidden rounded-md">
+    <section className="overflow-hidden rounded-md">
       {/* Background image - subtle, covers entire section */}
-      <div className="absolute inset-0">
-        <Image
-          alt=""
-          className="object-cover opacity-30"
-          fill
-          sizes="100vw"
-          src="/images/banner_medzi_nami.webp"
-        />
-        <div className="absolute inset-0 bg-[#191613]/60" />
-      </div>
+      <ParallaxScrollImage
+        alt="Medzi nami"
+        className="group aspect-video w-full bg-muted shadow"
+        imageClassName="object-bottom transition-all duration-300 hover:scale-102"
+        maxShiftPx={96}
+        priority
+        quality={85}
+        scrollOffset={["start start", "end start"]}
+        sizes="(max-width: 768px) 100vw, 90vw"
+        src="/images/banner_medzi_nami.webp"
+      >
+        <div className="relative flex size-full flex-row items-end justify-end gap-3 p-4 md:flex-col md:items-start md:gap-6 md:p-6">
+          <div className="space-y-3">
+            <Badge size="xs" variant="secondary">
+              <StarIcon className="size-3.5 fill-yellow-500 text-yellow-500 group-hover:animate-ping" />
+              Vernostny program
+            </Badge>
+            <h2 className="text-balance font-semibold text-2xl text-shadow-2xs text-white tracking-tight md:text-3xl">
+              Medzi nami
+            </h2>
+            <p className="max-w-md text-pretty text-secondary text-shadow-2xs text-sm md:text-base md:leading-relaxed">
+              Za každú lakocinku si pripíšete vernostné body. <br />
+              Medzi nami sa to oplatí.
+            </p>
+          </div>
 
-      <div className="relative flex flex-col items-start gap-5 px-6 py-10 md:flex-row md:items-center md:justify-between md:px-10 md:py-12">
-        <div className="space-y-3">
-          <Badge
-            className="border-white/20 bg-white/10 text-white/80"
-            variant="outline"
+          <a
+            className={cn(
+              buttonVariants({ variant: "glass", size: "sm" }),
+              "shrink-0"
+            )}
+            href={SIGNUP_URL}
+            rel="noopener noreferrer"
+            target="_blank"
           >
-            Vernostny program
-          </Badge>
-          <h2 className="text-balance font-bold text-2xl tracking-tight md:text-3xl">
-            Medzi nami
-          </h2>
-          <p className="max-w-md text-pretty text-sm text-white/60 leading-relaxed md:text-base">
-            Za kazdu lakocinku si pripisete vernostne body. Medzi nami sa to
-            oplati.
-          </p>
+            Registrovať sa
+            <ArrowRight aria-hidden="true" className="size-3.5" />
+          </a>
         </div>
-
-        <a
-          className={cn(
-            buttonVariants({ variant: "glass", size: "sm" }),
-            "shrink-0"
-          )}
-          href={SIGNUP_URL}
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          Zaregistrovat sa
-          <ArrowRight aria-hidden="true" className="size-3.5" />
-        </a>
-      </div>
+      </ParallaxScrollImage>
     </section>
   );
 }

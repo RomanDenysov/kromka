@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { HomeHeroCta } from "@/app/(public)/_components/home-hero-cta";
+import { FadeContainer, FadeSpan } from "@/components/motion/fade";
+import { ParallaxScrollImage } from "@/components/motion/parallax-scroll-image";
 import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
@@ -50,29 +51,33 @@ export default function AboutPage() {
         {/* Hero Section */}
 
         {/* Main Image */}
-        <div className="relative aspect-video w-full overflow-hidden rounded-md bg-muted shadow">
-          <Image
-            alt="Interiér pekárne Kromka"
-            className="absolute inset-0 z-0 object-cover object-bottom"
-            fill
-            priority
-            quality={85}
-            sizes="(max-width: 768px) 100vw, 90vw"
-            src="/images/shop.jpg"
-          />
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 text-center md:gap-8">
+        <ParallaxScrollImage
+          alt="Interiér pekárne Kromka"
+          className="aspect-video w-full rounded-md bg-muted shadow"
+          imageClassName="object-bottom"
+          maxShiftPx={96}
+          priority
+          quality={85}
+          scrollOffset={["start start", "end start"]}
+          sizes="(max-width: 768px) 100vw, 90vw"
+          src="/images/shop.jpg"
+        >
+          <FadeContainer className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 text-center md:gap-8">
             <h1
               className="text-balance font-bold text-5xl text-shadow-2xs text-white tracking-tight md:text-6xl"
               id="nas-pribeh-title"
             >
-              Náš príbeh
+              <FadeSpan>Náš príbeh</FadeSpan>
             </h1>
             <p className="mx-auto max-w-2xl text-balance font-medium text-lg text-shadow-2xs text-white tracking-tight md:text-xl lg:text-2xl">
-              Chleba, lákocinky a káva. Tri základné piliere remeselnej pekárne
-              Kromka.
+              <FadeSpan>Chleba,</FadeSpan>{" "}
+              <FadeSpan>lákocinky a káva.</FadeSpan>{" "}
+              <FadeSpan>
+                Tri základné piliere remeselnej pekárne Kromka.
+              </FadeSpan>
             </p>
-          </div>
-        </div>
+          </FadeContainer>
+        </ParallaxScrollImage>
 
         {/* Story Section 1 - Image Right */}
         <section className="grid items-center gap-12 md:grid-cols-2 lg:gap-20">
@@ -89,30 +94,24 @@ export default function AboutPage() {
               čerstvé rožky, koláče a pečené buchty.
             </p>
           </div>
-          <div className="relative aspect-4/3 w-full overflow-hidden rounded-md bg-muted shadow">
-            <Image
-              alt="Remeselná pekáreň Kromka"
-              className="object-cover"
-              fill
-              quality={85}
-              sizes="(max-width: 768px) 100vw, 50vw"
-              src="/images/wood-logo.jpg"
-            />
-          </div>
+          <ParallaxScrollImage
+            alt="Remeselná pekáreň Kromka"
+            className="aspect-4/3 w-full rounded-md bg-muted shadow"
+            quality={85}
+            sizes="(max-width: 768px) 100vw, 50vw"
+            src="/images/wood-logo.jpg"
+          />
         </section>
 
         {/* Story Section 2 - Image Left */}
         <section className="grid items-center gap-12 md:grid-cols-2 lg:gap-20">
-          <div className="relative aspect-4/3 w-full overflow-hidden rounded-md bg-muted shadow">
-            <Image
-              alt="Kaviarne Kromka"
-              className="object-cover"
-              fill
-              quality={85}
-              sizes="(max-width: 768px) 100vw, 50vw"
-              src="/images/window.jpg"
-            />
-          </div>
+          <ParallaxScrollImage
+            alt="Kaviarne Kromka"
+            className="aspect-4/3 w-full rounded-md bg-muted shadow"
+            quality={85}
+            sizes="(max-width: 768px) 100vw, 50vw"
+            src="/images/window.jpg"
+          />
           <div className="space-y-6">
             <p className="text-pretty text-base text-foreground/70 leading-relaxed md:text-lg">
               Pečieme každý deň a naše pečivo už ochutnáte aj v ďalších

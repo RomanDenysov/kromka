@@ -29,7 +29,7 @@ import {
 import { formatStreetCity } from "@/lib/geo-utils";
 import { cn } from "@/lib/utils";
 
-const PITCH_AUTOPLAY_DELAY_MS = 9000;
+const PITCH_AUTOPLAY_DELAY_MS = 6000;
 /** Embla scroll animation; higher = slower slide changes. */
 const PITCH_SCROLL_DURATION = 45;
 /** Parallax strength (Embla tween example pattern). */

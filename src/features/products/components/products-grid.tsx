@@ -25,7 +25,7 @@ export async function ProductsGrid({ searchParams }: Props) {
   return (
     <GridView>
       {total > 0 ? (
-        <ShowMore className="col-span-full" initial={12}>
+        <ShowMore className="col-span-full" initial={30}>
           {products.map((product, index) => (
             <div
               key={product.id}

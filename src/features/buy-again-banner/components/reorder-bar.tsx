@@ -58,7 +58,7 @@ export function ReorderBar({
 
   return (
     <>
-      <div className="rounded-md border bg-background shadow-sm">
+      <div className="rounded-md border bg-background shadow">
         <div className="flex items-center justify-between gap-2 px-3 py-2">
           <Hint align="start" side="bottom" text="Vaša posledná objednávka">
             <div className="flex shrink-0 items-center gap-1">

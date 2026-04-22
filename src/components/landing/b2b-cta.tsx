@@ -1,33 +1,27 @@
 import { ArrowRight, Check } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/shared/container";
 import { PageSection } from "@/components/shared/public-page";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ParallaxScrollImage } from "../motion/parallax-scroll-image";
 
 const BENEFITS = [
-  "Vyhodne B2B ceny pre vasu prevadzku",
-  "Fakturacia s flexibilnymi splatnostami",
-  "Dodavka cerstveho peciva priamo k vam",
+  "Vyhodne B2B ceny pre Vašu prevádzku",
+  "Osobné riešenia pre Vas a Vaš podnik",
+  "Dodávka čerstvého pečiva priamo k Vám",
 ] as const;
 
 export function B2BCta() {
   return (
-    <PageSection
-      className="relative overflow-hidden border-border border-t"
-      spacing="xl"
-      tone="muted"
-    >
-      <div className="absolute inset-x-0 top-0 h-px bg-brand/20" />
-
+    <PageSection className="relative overflow-hidden" spacing="xl" tone="muted">
       <Container className="relative">
         <div className="grid items-start gap-10 md:grid-cols-5 md:gap-16">
           {/* Text column */}
           <div className="flex flex-col gap-6 md:col-span-3">
             <div className="space-y-4">
               <p className="font-medium text-muted-foreground text-xs uppercase tracking-widest">
-                Pre kaviarne, restauracie a hotely
+                Pre kaviarne, reštaurácie a hotely
               </p>
               <h2 className="text-balance font-bold text-3xl tracking-tight md:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
                 Podme do toho
@@ -35,9 +29,8 @@ export function B2BCta() {
                 spolu
               </h2>
               <p className="max-w-lg text-pretty text-foreground/60 text-lg leading-relaxed">
-                Dodavame cerstve kvasove pecivo priamo do vasej prevadzky.
-                Specialne ceny, fakturacia a individualne riesenia pre vas
-                biznis.
+                Dodávame čerstvé kvasové pečivo priamo do vašej prevádzky.
+                Individualne riešenia pre Vašu prevádzku.
               </p>
             </div>
 
@@ -66,7 +59,7 @@ export function B2BCta() {
                 className={cn(buttonVariants({ variant: "brand" }))}
                 href="/b2b/apply"
               >
-                Poziadat o spolupracu
+                Požiadať o spoluprácu
                 <ArrowRight />
               </Link>
               {/* TODO: Show for B2B org members only
@@ -88,11 +81,15 @@ export function B2BCta() {
           {/* Image column - hidden on mobile, warm treatment on desktop */}
           <div className="hidden md:col-span-2 md:block">
             <div className="relative aspect-4/5 w-full overflow-hidden rounded-md border bg-muted/30 shadow-sm">
-              <Image
+              <ParallaxScrollImage
                 alt="B2B spolupraca s Pekarnou Kromka"
-                className="object-cover"
-                fill
-                sizes="(min-width: 768px) 40vw, 0px"
+                className="aspect-4/5 w-full rounded-md bg-muted/30 shadow-sm"
+                imageClassName="object-cover"
+                maxShiftPx={96}
+                priority
+                quality={85}
+                scrollOffset={["start start", "end start"]}
+                sizes="(max-width: 768px) 100vw, 90vw"
                 src="/images/cooperation.jpg"
               />
               {/* Warm overlay at bottom for depth */}

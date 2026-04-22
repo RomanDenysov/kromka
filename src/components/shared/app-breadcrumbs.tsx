@@ -42,7 +42,9 @@ export function AppBreadcrumbs({ items }: Props) {
             <Fragment key={item.label}>
               <BreadcrumbItem>
                 {isLast || !item.href ? (
-                  <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                  <BreadcrumbPage className="underline">
+                    {item.label}
+                  </BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
                     <Link href={item.href}>{item.label}</Link>
