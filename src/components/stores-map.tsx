@@ -1,5 +1,6 @@
 "use client";
 
+import { StoreIcon } from "lucide-react";
 import { lazy, Suspense } from "react";
 import { StoreNavigationButton } from "@/components/store-navigation-button";
 import {
@@ -48,6 +49,46 @@ function UserLocationMarker() {
   );
 }
 
+/** Distinctive bakery-style map pin: readable on light tiles, clear selected state. */
+function StoreMarkerPin({ isSelected }: { isSelected: boolean }) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center drop-shadow-md",
+        "duration-200 ease-out motion-safe:transition-[transform,filter] motion-reduce:duration-0",
+        isSelected && "drop-shadow-lg motion-safe:z-10 motion-safe:scale-[1.08]"
+      )}
+    >
+      <div
+        className={cn(
+          "relative flex size-10 items-center justify-center rounded-full border-2 border-white bg-linear-to-br shadow-md",
+          isSelected
+            ? "from-primary via-primary to-primary/90 text-primary-foreground ring-2 ring-primary/35 ring-offset-2 ring-offset-transparent"
+            : "from-amber-50 via-white to-amber-100 text-amber-950 ring-1 ring-amber-950/12 dark:from-zinc-800 dark:via-zinc-800 dark:to-zinc-950 dark:text-amber-50 dark:ring-white/15"
+        )}
+      >
+        {isSelected ? (
+          <span className="pointer-events-none absolute inset-0 rounded-full bg-white/10" />
+        ) : null}
+        <StoreIcon
+          aria-hidden
+          className="relative size-[1.15rem]"
+          strokeWidth={2.35}
+        />
+      </div>
+      <div
+        aria-hidden
+        className={cn(
+          "-mt-2 flex h-2.5 w-2.5 rotate-45 items-center justify-center rounded-[2px] border-2 border-white shadow-sm",
+          isSelected
+            ? "bg-primary shadow-primary/20"
+            : "bg-linear-to-br from-amber-100 to-amber-200/90 dark:from-zinc-700 dark:to-zinc-800"
+        )}
+      />
+    </div>
+  );
+}
+
 interface StoresMapProps {
   onMarkerClick?: (storeId: string) => void;
   routeCoordinates?: [number, number][];
@@ -72,7 +113,7 @@ export function StoresMap({
 
   return (
     <div className="size-full">
-      <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-lg" />}>
+      <Suspense fallback={<Skeleton className="h-[400px] w-full rounded-md" />}>
         <MapComponent center={CENTER_POSITION} zoom={9}>
           <MapControls position="top-right" showLocate />
           {plotted.map((store) => {
@@ -85,14 +126,7 @@ export function StoresMap({
                 onClick={() => onMarkerClick?.(store.id)}
               >
                 <MarkerContent>
-                  <div
-                    className={cn(
-                      "size-4 rounded-full border-2 border-white shadow-lg transition-[transform,box-shadow] duration-200 ease-out motion-reduce:duration-0",
-                      isSelected
-                        ? "scale-150 bg-primary ring-2 ring-primary/30"
-                        : "bg-blue-500"
-                    )}
-                  />
+                  <StoreMarkerPin isSelected={isSelected} />
                 </MarkerContent>
                 <MarkerPopup>
                   <div className="flex flex-col gap-2">
