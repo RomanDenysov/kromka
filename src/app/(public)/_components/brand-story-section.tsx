@@ -3,7 +3,7 @@
 import { ArrowRight, Check } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
-import Link from "next/link";
+import { HomepageCtaLink } from "@/components/analytics/homepage-cta-tracked";
 import { PageSection } from "@/components/shared/public-page";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -114,13 +114,15 @@ export function BrandStorySection() {
           </ul>
 
           <div className="pt-1">
-            <Link
+            <HomepageCtaLink
               className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
+              cta="read_full_story"
               href="/o-nas"
+              section="homepage_brand_story"
             >
               Prečítajte si celý príbeh
               <ArrowRight className="size-4" />
-            </Link>
+            </HomepageCtaLink>
           </div>
         </motion.div>
       </motion.div>

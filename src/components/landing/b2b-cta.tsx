@@ -1,5 +1,5 @@
 import { ArrowRight, Check } from "lucide-react";
-import Link from "next/link";
+import { HomepageCtaLink } from "@/components/analytics/homepage-cta-tracked";
 import { Container } from "@/components/shared/container";
 import { PageSection } from "@/components/shared/public-page";
 import { buttonVariants } from "@/components/ui/button";
@@ -55,13 +55,15 @@ export function B2BCta() {
                 - B2B members (in org): show "Prejst do B2B obchodu" + "Zistit viac"
                 Requires checking session org membership (consider client component or Suspense boundary) */}
             <div className="flex flex-wrap items-center gap-3 pt-2">
-              <Link
+              <HomepageCtaLink
                 className={cn(buttonVariants({ variant: "brand" }))}
+                cta="b2b_apply"
                 href="/b2b/apply"
+                section="b2b"
               >
                 Požiadať o spoluprácu
                 <ArrowRight />
-              </Link>
+              </HomepageCtaLink>
               {/* TODO: Show for B2B org members only
               <Button asChild size="sm" variant="brand">
                 <Link href="/b2b/shop">
@@ -69,12 +71,14 @@ export function B2BCta() {
                   <ArrowRight className="size-3.5" />
                 </Link>
               </Button> */}
-              <Link
+              <HomepageCtaLink
                 className={cn(buttonVariants({ variant: "link" }))}
+                cta="b2b_learn_more"
                 href="/b2b"
+                section="b2b"
               >
                 Zistit viac
-              </Link>
+              </HomepageCtaLink>
             </div>
           </div>
 

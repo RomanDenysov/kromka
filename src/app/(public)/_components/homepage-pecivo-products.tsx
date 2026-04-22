@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
 import { getCategoriesLink } from "@/app/(public)/(pages)/e-shop/eshop-params";
+import { HomepageCtaLink } from "@/components/analytics/homepage-cta-tracked";
 import { ProductScrollRow } from "@/components/shared/product-scroll-row";
 import { buttonVariants } from "@/components/ui/button";
 import { HOMEPAGE_PECIVO_CATEGORY_SLUG } from "@/config/homepage";
@@ -25,16 +25,18 @@ export async function HomepagePecivoProducts() {
         <h2 className="font-semibold text-xl tracking-tight md:text-2xl">
           {heading}
         </h2>
-        <Link
+        <HomepageCtaLink
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
             "text-muted-foreground"
           )}
+          cta="view_all_category"
           href={getCategoriesLink({ category: HOMEPAGE_PECIVO_CATEGORY_SLUG })}
+          section="homepage_pecivo"
         >
           Zobraziť všetko
           <ArrowRight className="size-3.5" />
-        </Link>
+        </HomepageCtaLink>
       </div>
       <ProductScrollRow products={displayed} />
     </section>

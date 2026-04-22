@@ -145,7 +145,7 @@ export default function AboutPage() {
               eyebrow="Ďalší krok"
               title="Chlieb z pece, závin z rúk, káva z lásky"
             />
-            <HomeHeroCta animated={false} variant="surface" />
+            <HomeHeroCta animated={false} placement="about" variant="surface" />
           </div>
         </PageSection>
       </article>

@@ -1,4 +1,5 @@
 import { ArrowRight, StarIcon } from "lucide-react";
+import { HomepageCtaExternalLink } from "@/components/analytics/homepage-cta-tracked";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -22,7 +23,7 @@ export function LoyaltyBanner() {
         sizes="(max-width: 768px) 100vw, 90vw"
         src="/images/banner_medzi_nami.webp"
       >
-        <div className="relative flex size-full flex-row items-end justify-end gap-3 p-4 md:flex-col md:items-start md:gap-6 md:p-6">
+        <div className="relative flex size-full flex-col justify-end gap-3 p-3 md:items-start md:gap-6 md:p-6">
           <div className="space-y-3">
             <Badge size="xs" variant="secondary">
               <StarIcon className="size-3.5 fill-yellow-500 text-yellow-500 group-hover:animate-ping" />
@@ -31,24 +32,26 @@ export function LoyaltyBanner() {
             <h2 className="text-balance font-semibold text-2xl text-shadow-2xs text-white tracking-tight md:text-3xl">
               Medzi nami
             </h2>
-            <p className="max-w-md text-pretty text-secondary text-shadow-2xs text-sm md:text-base md:leading-relaxed">
+            <p className="text-pretty text-secondary text-shadow-2xs text-sm md:max-w-md md:text-base md:leading-relaxed">
               Za každú lakocinku si pripíšete vernostné body. <br />
               Medzi nami sa to oplatí.
             </p>
           </div>
 
-          <a
+          <HomepageCtaExternalLink
             className={cn(
               buttonVariants({ variant: "glass", size: "sm" }),
               "shrink-0"
             )}
+            cta="loyalty_signup"
             href={SIGNUP_URL}
             rel="noopener noreferrer"
+            section="loyalty_banner"
             target="_blank"
           >
             Registrovať sa
             <ArrowRight aria-hidden="true" className="size-3.5" />
-          </a>
+          </HomepageCtaExternalLink>
         </div>
       </ParallaxScrollImage>
     </section>

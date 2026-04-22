@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, MapPin } from "lucide-react";
-import Link from "next/link";
+import { HomepageCtaLink } from "@/components/analytics/homepage-cta-tracked";
 import { FadeDiv } from "@/components/motion/fade";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,8 @@ export type HomeHeroCtaVariant = "overlay" | "surface";
 interface HomeHeroCtaProps {
   animated?: boolean;
   className?: string;
+  /** Where the block is shown — drives analytics `section` (home_hero vs about_cta). */
+  placement?: "homepage" | "about";
   variant?: HomeHeroCtaVariant;
 }
 
@@ -24,12 +26,14 @@ interface HomeHeroCtaProps {
 export function HomeHeroCta({
   animated = true,
   className,
+  placement = "homepage",
   variant = "overlay",
 }: HomeHeroCtaProps) {
   const isOverlay = variant === "overlay";
+  const analyticsSection = placement === "about" ? "about_cta" : "home_hero";
 
   const primary = (
-    <Link
+    <HomepageCtaLink
       className={cn(
         buttonVariants({
           variant: isOverlay ? "glass" : "brand",
@@ -37,15 +41,18 @@ export function HomeHeroCta({
         }),
         "group w-full justify-center text-shadow-2xs shadow-sm md:w-auto"
       )}
+      cta="order_online"
       href="/e-shop"
+      section={analyticsSection}
+      variant={variant}
     >
       Objednať online
       <ArrowRight className="size-3.5" />
-    </Link>
+    </HomepageCtaLink>
   );
 
   const secondary = (
-    <Link
+    <HomepageCtaLink
       className={cn(
         buttonVariants({
           variant: isOverlay ? "link" : "outline",
@@ -55,11 +62,14 @@ export function HomeHeroCta({
           ? "group min-h-11 w-full justify-center text-white no-underline transition-colors duration-200 ease-out hover:no-underline active:text-white/90 motion-reduce:duration-0 md:w-auto md:hover:text-white/80"
           : "group min-h-11 w-full justify-center text-shadow-2xs shadow-sm md:w-auto"
       )}
+      cta="stores"
       href="/predajne"
+      section={analyticsSection}
+      variant={variant}
     >
       <MapPin className="size-3.5" />
       Naše predajne
-    </Link>
+    </HomepageCtaLink>
   );
 
   if (!animated) {

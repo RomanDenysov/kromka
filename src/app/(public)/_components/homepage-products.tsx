@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { HomepageCtaLink } from "@/components/analytics/homepage-cta-tracked";
 import { ProductScrollRow } from "@/components/shared/product-scroll-row";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,16 +20,18 @@ export async function HomepageProducts() {
         <h2 className="font-semibold text-xl tracking-tight md:text-2xl">
           Najobľúbenejšie
         </h2>
-        <Link
+        <HomepageCtaLink
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
             "text-muted-foreground"
           )}
+          cta="view_all_eshop"
           href="/e-shop"
+          section="homepage_top_products"
         >
           Zobraziť všetko
           <ArrowRight className="size-3.5" />
-        </Link>
+        </HomepageCtaLink>
       </div>
       <ProductScrollRow products={topSellers} />
     </section>

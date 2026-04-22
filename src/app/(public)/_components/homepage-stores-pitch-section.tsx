@@ -10,8 +10,8 @@ import { ArrowRight, ChevronRight, Clock, MapPin } from "lucide-react";
 import { useReducedMotion } from "motion/react";
 import type { Route } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { HomepageCtaLink } from "@/components/analytics/homepage-cta-tracked";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Carousel,
@@ -221,16 +221,18 @@ export function HomepageStoresPitchSection({
         <h2 className="text-balance font-semibold text-xl tracking-tight md:text-2xl">
           Nase predajne
         </h2>
-        <Link
+        <HomepageCtaLink
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
             "text-muted-foreground"
           )}
+          cta="view_all_stores"
           href="/predajne"
+          section="homepage_stores_pitch"
         >
           Zobraziť všetky
           <ArrowRight className="size-3.5" />
-        </Link>
+        </HomepageCtaLink>
       </div>
 
       <Carousel
@@ -307,19 +309,22 @@ export function HomepageStoresPitchSection({
                           </div>
                         </div>
 
-                        <Link
+                        <HomepageCtaLink
                           className={cn(
                             buttonVariants({ variant: "ghost", size: "sm" }),
                             "group/btn h-auto w-full justify-center gap-1 rounded-none border-border border-t bg-muted/40 py-2.5 font-medium text-foreground text-xs hover:bg-muted/55 hover:text-foreground focus-visible:z-20 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                           )}
+                          cta="store_detail"
                           href={`/predajne/${store.slug}` as Route}
+                          section="homepage_stores_pitch"
+                          store_slug={store.slug}
                         >
                           Detail predajne
                           <ChevronRight
                             aria-hidden
                             className="size-3 transition-transform duration-500 ease-out group-hover/btn:translate-x-0.5"
                           />
-                        </Link>
+                        </HomepageCtaLink>
                       </div>
                     </div>
                   </div>
