@@ -55,7 +55,6 @@ const SOCIAL_LINKS = [
 ] as const;
 
 const USER_LINKS: { name: string; href: Route }[] = [
-  { name: "Obľúbené", href: "/profil/oblubene" },
   { name: "Objednávky", href: "/profil/objednavky" },
   { name: "Nastavenia profilu", href: "/profil" },
 ];

@@ -1,4 +1,4 @@
-import { HeartIcon, PackageIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { PackageIcon, SettingsIcon, UserIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { type ReactNode, Suspense } from "react";
@@ -58,10 +58,6 @@ async function ProfileLayoutContent({ children }: Props) {
               <ProfileNavLink href="/profil">
                 <UserIcon className="size-4" />
                 Prehľad
-              </ProfileNavLink>
-              <ProfileNavLink href="/profil/oblubene">
-                <HeartIcon className="size-4" />
-                Oblúbené
               </ProfileNavLink>
               <ProfileNavLink href="/profil/objednavky">
                 <PackageIcon className="size-4" />

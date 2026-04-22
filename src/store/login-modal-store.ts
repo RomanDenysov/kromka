@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type LoginReason = "favorites" | "checkout" | "default";
+export type LoginReason = "checkout" | "default";
 
 export interface LoginModalStore {
   isOpen: boolean;

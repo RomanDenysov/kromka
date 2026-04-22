@@ -5,7 +5,6 @@ import { Footer } from "@/components/landing/footer";
 import { LoginModal } from "@/components/login-modal";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
-import { preloadFavorites } from "@/features/favorites/api/queries";
 import { preloadProducts } from "@/features/products/api/queries";
 import { defaultMetadata } from "@/lib/metadata";
 import { getOrganizationSchema, getWebSiteSchema } from "@/lib/seo/json-ld";
@@ -28,7 +27,6 @@ interface Props {
 
 export default function PublicLayout({ children }: Props) {
   preloadProducts();
-  preloadFavorites();
 
   return (
     <>

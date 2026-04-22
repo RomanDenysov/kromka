@@ -1,11 +1,4 @@
-import { HeartIcon } from "lucide-react";
-import Link from "next/link";
 import { Suspense } from "react";
-import {
-  FavoritesBadge,
-  FavoritesBadgeSkeleton,
-} from "@/components/favorites/favorites-badge";
-import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserButton } from "@/components/user-button";
 import {
@@ -19,7 +12,6 @@ import {
   CartDrawerFooterLoader,
 } from "@/features/cart/components/cart-drawer-footer";
 import { getUser } from "@/lib/auth/session";
-import { cn } from "@/lib/utils";
 
 export function HeaderActions() {
   const user = getUser();
@@ -29,20 +21,6 @@ export function HeaderActions() {
       <Suspense fallback={<Skeleton className="size-8 rounded-md" />}>
         <UserButton promise={user} />
       </Suspense>
-
-      <Link
-        className={cn(
-          buttonVariants({ variant: "ghost", size: "icon-sm" }),
-          "relative hidden md:inline-flex"
-        )}
-        href="/profil/oblubene"
-      >
-        <HeartIcon className="size-5" />
-        <Suspense fallback={FavoritesBadgeSkeleton}>
-          <FavoritesBadge />
-        </Suspense>
-        <span className="sr-only">Obľúbené</span>
-      </Link>
 
       <Suspense>
         <CartDrawer
