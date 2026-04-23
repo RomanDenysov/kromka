@@ -33,13 +33,33 @@ export const getProducts = cache(async () => {
     with: {
       image: true,
       category: {
-        columns: { id: true, name: true, slug: true, pickupDates: true },
+        columns: {
+          id: true,
+          name: true,
+          slug: true,
+          pickupDates: true,
+          isActive: true,
+        },
       },
     },
     orderBy: (p, { asc, desc }) => [asc(p.sortOrder), desc(p.createdAt)],
   });
 
-  return data.map(transformProduct);
+  return data
+    .filter((p) => p.category === null || p.category.isActive)
+    .map(({ category, ...rest }) =>
+      transformProduct({
+        ...rest,
+        category: category
+          ? {
+              id: category.id,
+              name: category.name,
+              slug: category.slug,
+              pickupDates: category.pickupDates,
+            }
+          : null,
+      })
+    );
 });
 
 export const preloadProducts = () => void getProducts();
