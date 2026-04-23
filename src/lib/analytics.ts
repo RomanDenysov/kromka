@@ -6,7 +6,42 @@ export type AddToCartSource =
   | "product_page"
   | "product_card"
   | "recommendation"
-  | "favorites";
+  | "favorites"
+  | "homepage";
+
+/** Homepage / landing CTA locations for funnel analysis. */
+export type HomepageCtaSection =
+  | "home_hero"
+  | "about_cta"
+  | "loyalty_banner"
+  | "b2b"
+  | "registration"
+  | "homepage_top_products"
+  | "homepage_pecivo"
+  | "homepage_stores_map"
+  | "homepage_stores_pitch"
+  | "homepage_brand_story";
+
+export type HomepageCtaId =
+  | "order_online"
+  | "stores"
+  | "loyalty_signup"
+  | "b2b_apply"
+  | "b2b_learn_more"
+  | "create_account"
+  | "view_all_eshop"
+  | "view_all_category"
+  | "view_all_stores"
+  | "store_detail"
+  | "read_full_story";
+
+export interface HomepageCtaClickPayload {
+  cta: HomepageCtaId;
+  href: string;
+  section: HomepageCtaSection;
+  store_slug?: string;
+  variant?: "overlay" | "surface";
+}
 
 export const analytics = {
   productViewed(p: {
@@ -64,7 +99,7 @@ export const analytics = {
   orderRepeated(p: {
     item_count: number;
     total: number;
-    source: "banner" | "banner_dialog" | "cart_drawer";
+    source: "banner" | "banner_dialog" | "cart_drawer" | "reorder_bar";
   }) {
     posthog.capture("order repeated", p);
   },
@@ -83,5 +118,8 @@ export const analytics = {
     item_count: number;
   }) {
     posthog.capture("order confirmed", p);
+  },
+  homepageCtaClicked(p: HomepageCtaClickPayload) {
+    posthog.capture("homepage cta clicked", p);
   },
 } as const;

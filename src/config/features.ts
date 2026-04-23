@@ -4,12 +4,15 @@
  */
 
 export const featureFlags = {
+  registrationBanner: false,
   eshop: true,
   b2b: true,
   partnership: true,
   stores: true,
   blog: false,
   game: false,
+  storesMapOnHomepage: false,
+  brandStorySection: false,
 } as const;
 
 export type FeatureFlag = keyof typeof featureFlags;

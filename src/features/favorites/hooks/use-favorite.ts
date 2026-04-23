@@ -1,0 +1,87 @@
+/**
+ * @deprecated Favorites UI is hidden pending a rewrite. Do not import in new code.
+ */
+"use client";
+
+import { usePathname } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { toast } from "sonner";
+import { isFavorite, toggleFavorite } from "@/features/favorites/api/actions";
+import { analytics } from "@/lib/analytics";
+import { useSession } from "@/lib/auth/client";
+import { useLoginModalOpen } from "@/store/login-modal-store";
+
+export function useFavorite(
+  productId: string,
+  initialValue?: boolean,
+  productName?: string
+) {
+  const openLogin = useLoginModalOpen();
+  const pathname = usePathname();
+  const { data: session } = useSession();
+  const [isPending, startTransition] = useTransition();
+  const [favorite, setFavorite] = useState<boolean | null>(
+    initialValue ?? null
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!session) {
+      setFavorite(false);
+      setIsLoading(false);
+      return;
+    }
+
+    if (initialValue !== undefined) {
+      setFavorite(initialValue);
+      setIsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    isFavorite(productId).then((result) => {
+      if (!cancelled) {
+        setFavorite(result);
+        setIsLoading(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [productId, session, initialValue]);
+
+  const toggle = () => {
+    if (!session) {
+      openLogin("default", pathname);
+      return;
+    }
+
+    const previousFavorite = favorite;
+
+    setFavorite((prev) => !prev);
+
+    startTransition(async () => {
+      const result = await toggleFavorite(productId);
+
+      if (!result.success) {
+        setFavorite(previousFavorite);
+        openLogin("default", pathname);
+        toast.error("Nastala chyba pri aktualizácii obľúbených");
+      } else if (productName) {
+        analytics.favoriteToggled({
+          product_id: productId,
+          product_name: productName,
+          action: previousFavorite ? "removed" : "added",
+        });
+      }
+    });
+  };
+
+  return {
+    isFavorite: favorite ?? false,
+    isLoading: isLoading || isPending,
+    toggle,
+  };
+}

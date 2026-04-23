@@ -90,7 +90,7 @@ export function AddToCartButtonIcon({
 
   return (
     <Button
-      className="h-10 w-10 shrink-0 rounded-full bg-white text-black shadow-md transition-all hover:scale-105 hover:bg-white/90"
+      className="h-10 w-10 shrink-0 rounded-full bg-white text-black shadow-md transition-[transform,background-color,opacity] duration-200 ease-out active:scale-95 motion-reduce:transition-none md:hover:scale-105 md:hover:bg-white/90"
       disabled={isPending || disabled}
       onClick={(e) => {
         e.preventDefault();
@@ -152,7 +152,7 @@ export function AddToB2bCartButtonIcon({
 
   return (
     <Button
-      className="h-10 w-10 shrink-0 rounded-full bg-white text-black shadow-md transition-all hover:scale-105 hover:bg-white/90"
+      className="h-10 w-10 shrink-0 rounded-full bg-white text-black shadow-md transition-[transform,background-color,opacity] duration-200 ease-out active:scale-95 motion-reduce:transition-none md:hover:scale-105 md:hover:bg-white/90"
       disabled={isPending || disabled}
       onClick={(e) => {
         e.preventDefault();

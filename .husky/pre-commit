@@ -1,6 +1,21 @@
-#!/bin/sh
-# Exit on any error
+#!/usr/bin/env bash
 set -e
+
+# GUI Git (Cursor / VS Code) runs hooks without a login shell — no ~/.zshrc, so nvm/fnm and
+# pnpm are often missing from PATH. Terminal commits work; this bridges the gap.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+if [ -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ]; then
+  # shellcheck disable=SC1091
+  . "${NVM_DIR:-$HOME/.nvm}/nvm.sh"
+  nvm use default >/dev/null 2>&1 || true
+fi
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "husky/pre-commit: pnpm not found in PATH." >&2
+  echo "If you use nvm/fnm, ensure default Node is set, or install pnpm globally (e.g. brew install pnpm)." >&2
+  exit 1
+fi
 
 # Check if there are any staged files
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)

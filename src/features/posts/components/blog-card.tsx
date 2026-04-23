@@ -26,7 +26,7 @@ export function BlogCard({ post, className, preload = false }: Props) {
   return (
     <article
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg border bg-card transition-shadow hover:shadow-md",
+        "group relative flex flex-col overflow-hidden rounded-md border bg-card transition-shadow hover:shadow-md",
         className
       )}
     >

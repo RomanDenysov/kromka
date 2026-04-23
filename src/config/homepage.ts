@@ -35,3 +35,6 @@ export const homepageConfig: PageConfig = {
     },
   },
 };
+
+/** Category with its own homepage carousel; excluded from the top-sellers row */
+export const HOMEPAGE_PECIVO_CATEGORY_SLUG = "nase-pecivo" as const;

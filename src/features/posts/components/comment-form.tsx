@@ -61,7 +61,7 @@ export function CommentForm({ postId, parentId, className, onSuccess }: Props) {
     return (
       <div
         className={cn(
-          "rounded-lg border border-dashed p-4 text-center",
+          "rounded-md border border-dashed p-4 text-center",
           className
         )}
       >

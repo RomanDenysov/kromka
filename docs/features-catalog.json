@@ -1,8 +1,8 @@
 {
   "$schema": "docs/features-catalog.schema.md",
-  "version": "1.0.0",
-  "lastUpdated": "2026-04-01",
-  "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, dependencies, and usage locations.",
+  "version": "1.1.0",
+  "lastUpdated": "2026-04-08",
+  "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
       "name": "cart",
@@ -427,7 +427,11 @@
         },
         {
           "name": "toggleIsActiveCategoryAction",
-          "description": "Admin: toggle active"
+          "description": "Admin: toggle single category active"
+        },
+        {
+          "name": "toggleIsActiveCategoriesAction",
+          "description": "Admin: batch toggle active on multiple categories"
         },
         {
           "name": "toggleIsFeaturedCategoryAction",
@@ -1203,6 +1207,19 @@
         "writes": []
       },
       "cacheTags": ["users", "user-{id}"]
+    },
+    {
+      "name": "store-manager",
+      "path": "src/features/store-manager",
+      "critical": false,
+      "description": "Placeholder module for Phase 4 ERP roadmap. Store manager dashboard for per-store order management. Directory exists but not yet implemented.",
+      "actions": [],
+      "queries": [],
+      "components": [],
+      "dependencies": [],
+      "routes": [],
+      "tables": { "reads": [], "writes": [] },
+      "cacheTags": []
     }
   ],
   "sharedInfrastructure": [
@@ -1221,7 +1238,7 @@
     {
       "name": "email",
       "path": "src/lib/email",
-      "description": "Transactional emails via Nodemailer (SMTP). 11 email types covering orders, auth, B2B, support.",
+      "description": "Transactional emails via Nodemailer (SMTP). 14 email types covering orders, auth, B2B, support.",
       "keyExports": [
         "sendEmail.newOrder / orderConfirmation / orderReady / receipt / thankYou",
         "sendEmail.magicLink / outOfStock / supportRequest / supportConfirmation",
@@ -1329,9 +1346,76 @@
       "keyExports": [
         "cn() - clsx + twMerge",
         "formatPrice(cents) - EUR with Intl",
+        "formatCentsToPrice(cents) - Convert cents to decimal",
         "getSiteUrl(path?) - Absolute URL",
+        "getInitials(name) - Extract initials (max 3 chars)",
+        "capitalize(str) - Uppercase first char",
         "getItemsLabel(count) - Slovak pluralization"
       ]
+    },
+    {
+      "name": "pipeline",
+      "path": "src/lib/pipeline.ts",
+      "description": "Result type pattern for multi-step operations. Provides typed success/failure without exceptions.",
+      "keyExports": [
+        "StepResult<T> - { ok: true, data } | { ok: false, error, code }",
+        "guard() - Assertion with type narrowing, throws PipelineError",
+        "unwrap() - Extract data or throw",
+        "runPipeline() - Try/catch wrapper",
+        "fail() / succeed() - Result constructors"
+      ],
+      "usedBy": "orders"
+    },
+    {
+      "name": "metadata",
+      "path": "src/lib/metadata.ts",
+      "description": "SEO metadata helpers for Open Graph, Twitter cards, and default site metadata.",
+      "keyExports": [
+        "defaultMetadata - Base metadata config",
+        "createMetadata(options) - Composable metadata builder"
+      ],
+      "usedBy": "All page layouts"
+    },
+    {
+      "name": "seo",
+      "path": "src/lib/seo/json-ld.ts",
+      "description": "Schema.org JSON-LD structured data generators for SEO.",
+      "keyExports": [
+        "Organization, WebSite, Product, Review, LocalBusiness (Bakery)",
+        "BlogPosting, CollectionPage, BreadcrumbList, FAQPage"
+      ],
+      "usedBy": "Product pages, blog, store pages"
+    },
+    {
+      "name": "export-utils",
+      "path": "src/lib/export-utils.ts",
+      "description": "Client-side data export to CSV and XLSX formats for admin tables.",
+      "keyExports": [
+        "exportAsCsv(data, columns, filename) - CSV export with timestamp",
+        "exportAsXlsx(data, columns, filename) - XLSX export (lazy-loads xlsx library)",
+        "exportAsXlsxSheets(sheets, filename) - Multi-sheet XLSX"
+      ],
+      "usedBy": "Admin order/product/user tables"
+    },
+    {
+      "name": "consent",
+      "path": "src/lib/consent.ts",
+      "description": "Cookie consent management via Consentify with analytics category.",
+      "keyExports": [
+        "consent - Consentify instance (analytics category, 1-year cookie)"
+      ],
+      "usedBy": "Cookie banner, analytics providers"
+    },
+    {
+      "name": "working-time-formatter",
+      "path": "src/lib/working-time-formatter.ts",
+      "description": "Store opening hours formatting for Slovak display.",
+      "keyExports": [
+        "formatTimeRange() - Format time range string",
+        "formatDaySchedule() - Format daily schedule",
+        "getOpeningHoursLabel() - Human-readable opening hours"
+      ],
+      "usedBy": "stores, checkout"
     }
   ],
   "routeGroups": {
@@ -1375,6 +1459,14 @@
         "/admin/settings - Site configuration"
       ]
     },
+    "b2b": {
+      "path": "src/app/(b2b)",
+      "description": "B2B partner-facing pages. Currently experimental/test infrastructure with sidebar layout.",
+      "keyRoutes": [
+        "/b2b - B2B landing (planned)",
+        "/b2b/apply - B2B application form"
+      ]
+    },
     "api": {
       "path": "src/app/api",
       "description": "API routes - minimal, auth only. All mutations via server actions.",
@@ -1401,7 +1493,8 @@
       "posts": [],
       "contact-form": [],
       "media-library": [],
-      "user-profile": []
+      "user-profile": [],
+      "store-manager": []
     },
     "hubs": ["checkout (5 deps)", "orders (4 deps)"],
     "isolated": [
@@ -1411,7 +1504,275 @@
       "stores",
       "posts",
       "contact-form",
-      "media-library"
+      "media-library",
+      "store-manager"
+    ]
+  },
+  "sharedComponents": {
+    "description": "Reusable UI components shared across features. Organized by directory.",
+    "ui": {
+      "path": "src/components/ui",
+      "description": "shadcn/ui base primitives. Standard Radix-based components.",
+      "components": [
+        "alert",
+        "alert-dialog",
+        "avatar",
+        "badge",
+        "breadcrumb",
+        "button",
+        "button-group",
+        "calendar",
+        "card",
+        "carousel",
+        "command",
+        "dialog",
+        "distance-badge",
+        "drawer",
+        "editable",
+        "empty",
+        "field",
+        "input",
+        "input-group",
+        "kbd",
+        "label",
+        "map",
+        "popover",
+        "progress",
+        "radio-group",
+        "scroll-area",
+        "select",
+        "sheet",
+        "skeleton",
+        "sonner",
+        "switch",
+        "tabs",
+        "table",
+        "toggle-group",
+        "tooltip"
+      ]
+    },
+    "shared": {
+      "path": "src/components/shared",
+      "description": "Business-level shared components used across features and pages.",
+      "groups": {
+        "cart-and-checkout": [
+          "add-to-cart-button (use client) - Add to cart with loading, B2C/B2B variants",
+          "quantity-input (use client) - Spinbox with -/+ buttons",
+          "quantity-setter (use client) - Alternative quantity widget",
+          "product-cart-list-item - Cart item row display"
+        ],
+        "product-display": [
+          "product-scroll-row - Horizontal product carousel",
+          "product-image - Optimized product image"
+        ],
+        "navigation": [
+          "mobile-nav (use client) - Left drawer nav with user profile and links",
+          "secondary-nav - Breadcrumb navigation",
+          "container - Max-width wrapper",
+          "app-breadcrumbs - Breadcrumb component",
+          "back-button - Back link",
+          "continue-shopping-link - Shop link"
+        ],
+        "search-and-selection": [
+          "search-input (use client) - Search box with debounce",
+          "combobox-input (use client) - Searchable dropdown",
+          "category-selector - Multi-select category tags"
+        ],
+        "pickers": [
+          "order-store-picker (use client) - Store selector with distance/hours",
+          "order-pickup-date-picker - Date picker for checkout",
+          "order-pickup-time-picker - Time slot picker",
+          "mini-calendar (use client) - Calendar widget",
+          "wheel-picker (use client) - iOS-style date/time wheel"
+        ],
+        "maps": [
+          "stores-map (use client) - MapLibre with store markers, user location, routes",
+          "store-navigation-button - Navigate button (Google/Apple Maps)"
+        ],
+        "media": [
+          "media-input (use client) - Image upload with drag/drop, preview, delete (Vercel Blob)"
+        ],
+        "auth-and-theme": [
+          "theme-provider (use client) - Dark mode provider",
+          "theme-switch (use client) - Theme toggle",
+          "user-button (use client) - User avatar menu",
+          "login-modal (use client) - Auth modal",
+          "auth-identity-sync - Session sync",
+          "posthog-provider (use client) - Analytics provider",
+          "cookie-banner (use client) - Cookie consent"
+        ],
+        "utility": [
+          "hint - Help text",
+          "link-status - Link with status badge",
+          "scroll-to-top (use client) - Sticky scroll button",
+          "show-more (use client) - Expandable content",
+          "grid-view - Grid/list toggle"
+        ]
+      }
+    },
+    "forms": {
+      "path": "src/components/forms",
+      "description": "React Hook Form + Zod field wrappers for form building.",
+      "fields": [
+        "address-autocomplete-field",
+        "category-select-field",
+        "checkbox-field",
+        "combobox-field",
+        "date-range-field",
+        "days-toggle-field",
+        "editable-field",
+        "image-upload-field",
+        "opening-hours-field",
+        "phone-field",
+        "pickup-dates-field",
+        "price-input-field",
+        "quantity-field",
+        "quantity-setter-field",
+        "rich-text-field",
+        "select-field",
+        "slug-field",
+        "store-exceptions-field",
+        "switch-field",
+        "text-field",
+        "textarea-field",
+        "time-field",
+        "toggle-field"
+      ],
+      "complexForms": [
+        "b2b-application-form - B2B company registration with nested fields",
+        "support-form - Contact/support form"
+      ]
+    },
+    "landing": {
+      "path": "src/components/landing",
+      "description": "Landing page and homepage section components.",
+      "components": [
+        "footer - Site footer",
+        "cta (use client) - CTA banner",
+        "b2b-cta - B2B partnership upsell banner",
+        "loyalty-banner - Loyalty program promotion (Vexion Cards)",
+        "home-grid - Hero grid with images/videos"
+      ]
+    },
+    "tables": {
+      "path": "src/components/tables",
+      "description": "TanStack Table column definitions for admin data tables.",
+      "components": [
+        "products",
+        "categories",
+        "stores",
+        "orders",
+        "b2b-applications",
+        "b2b-clients",
+        "users",
+        "recent-orders"
+      ]
+    },
+    "sheets": {
+      "path": "src/components/sheets",
+      "description": "Slide-over modal forms for admin CRUD.",
+      "components": [
+        "edit-product-sheet - Product create/edit",
+        "edit-store-sheet - Store create/edit"
+      ]
+    },
+    "filters": {
+      "path": "src/components/filters",
+      "description": "Shop filtering UI for e-shop catalog.",
+      "components": [
+        "categories-sidebar (use client) - Category filter checkboxes",
+        "sort-toggles (use client) - Sort and grid/list view toggle"
+      ]
+    },
+    "b2b": {
+      "path": "src/components/b2b",
+      "description": "B2B admin detail views.",
+      "components": [
+        "application-detail - B2B application detail display",
+        "client-detail - B2B client detail display"
+      ]
+    },
+    "motion": {
+      "path": "src/components/motion",
+      "description": "Animation components using Framer Motion.",
+      "components": [
+        "animated-background - Animated gradient",
+        "motion-wrapper (use client) - Framer Motion wrapper"
+      ]
+    }
+  },
+  "widgets": {
+    "description": "Large composite widgets used across admin and public pages.",
+    "path": "src/widgets",
+    "modules": {
+      "data-table": {
+        "description": "Generic TanStack Table system for admin. Server-rendered table with client pagination, search, filters.",
+        "components": [
+          "data-table - Main table renderer",
+          "data-table-pagination (use client) - Pagination controls",
+          "data-table-search (use client) - Search input",
+          "data-table-date-range-filter (use client) - Date range filter",
+          "data-table-multi-select-filter (use client) - Multi-select filter",
+          "data-table-view-options (use client) - Column visibility toggle",
+          "table-column-header (use client) - Sortable header",
+          "data-table-skeleton - Loading skeleton"
+        ]
+      },
+      "editor": {
+        "description": "TipTap rich text editor with simple and full variants.",
+        "components": [
+          "editor (use client) - Rich text editor, props: content, onChange, variant('simple'|'full')"
+        ]
+      },
+      "grid-card": {
+        "description": "Responsive card for homepage grid. Supports image carousel, video, color backgrounds.",
+        "components": [
+          "grid-card - Main card (image/video/color + title)",
+          "grid-card-carousel (use client) - Image carousel",
+          "grid-card-video (use client) - Video player"
+        ]
+      },
+      "admin-layout": {
+        "description": "Admin chrome: header, breadcrumbs, sidebar.",
+        "components": [
+          "admin-header - Admin top bar",
+          "admin-breadcrumbs - Admin breadcrumbs",
+          "app-sidebar (use client) - Admin left sidebar"
+        ]
+      }
+    }
+  },
+  "stores": {
+    "description": "Zustand client state stores.",
+    "path": "src/store",
+    "modules": [
+      {
+        "name": "login-modal-store",
+        "description": "Login modal state with reason tracking (favorites, checkout, default).",
+        "keyExports": [
+          "useLoginModalStore - Full store hook",
+          "useLoginModalOpen() / useLoginModalClose() - Action hooks",
+          "useLoginModalState() - Read state (reason, origin, isOpen)"
+        ]
+      },
+      {
+        "name": "buy-again-banner/store",
+        "description": "Buy-again banner dismissed state with sessionStorage persistence.",
+        "keyExports": [
+          "useBuyAgainBannerStore - Zustand store with sessionStorage"
+        ]
+      }
+    ]
+  },
+  "publicPageComponents": {
+    "description": "Route-level components in src/app/(public)/_components/ used on homepage and public pages.",
+    "components": [
+      "header - Main site header with nav, cart, user button",
+      "home-hero - Static homepage hero (image and copy in code)",
+      "brand-story-section - Brand tagline with link to /o-nas",
+      "registration-banner - Auth-gated signup promotion for logged-out users",
+      "homepage-stores-content - Store locations section with map",
+      "homepage-blog-skeleton - Loading skeleton for blog cards"
     ]
   }
 }

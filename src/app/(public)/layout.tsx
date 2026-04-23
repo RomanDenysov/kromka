@@ -1,18 +1,10 @@
-import { HeartIcon } from "lucide-react";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { type ReactNode, Suspense } from "react";
-import {
-  FavoritesBadge,
-  FavoritesBadgeSkeleton,
-} from "@/components/favorites/favorites-badge";
+import type { ReactNode } from "react";
+import { Suspense } from "react";
 import { Footer } from "@/components/landing/footer";
 import { LoginModal } from "@/components/login-modal";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ScrollToTop } from "@/components/shared/scroll-to-top";
-import { buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { UserButton } from "@/components/user-button";
 import {
   CartBadge,
   CartBadgeSkeleton,
@@ -23,12 +15,9 @@ import {
   CartDrawerFooter,
   CartDrawerFooterLoader,
 } from "@/features/cart/components/cart-drawer-footer";
-import { preloadFavorites } from "@/features/favorites/api/queries";
 import { preloadProducts } from "@/features/products/api/queries";
-import { getUser } from "@/lib/auth/session";
 import { defaultMetadata } from "@/lib/metadata";
 import { getOrganizationSchema, getWebSiteSchema } from "@/lib/seo/json-ld";
-import { cn } from "@/lib/utils";
 import { Header } from "./_components/header";
 
 export const metadata: Metadata = {
@@ -47,33 +36,13 @@ interface Props {
 
 export default function PublicLayout({ children }: Props) {
   preloadProducts();
-  preloadFavorites();
-
-  const user = getUser();
 
   return (
     <>
       <JsonLd data={[getOrganizationSchema(), getWebSiteSchema()]} />
-      <Header>
-        <div className="flex items-center justify-end gap-2 xl:gap-3">
-          <Suspense fallback={<Skeleton className="size-8 rounded-md" />}>
-            <UserButton promise={user} />
-          </Suspense>
-
-          <Link
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "relative"
-            )}
-            href="/profil/oblubene"
-          >
-            <HeartIcon className="size-5" />
-            <Suspense fallback={FavoritesBadgeSkeleton}>
-              <FavoritesBadge />
-            </Suspense>
-            <span className="sr-only">Obľúbené</span>
-          </Link>
-          <Suspense>
+      <Suspense fallback={<div className="h-12 w-full" />}>
+        <Header
+          cartSlot={
             <CartDrawer
               indicator={
                 <Suspense fallback={CartBadgeSkeleton}>
@@ -88,12 +57,11 @@ export default function PublicLayout({ children }: Props) {
                 <CartDrawerFooter />
               </Suspense>
             </CartDrawer>
-          </Suspense>
-        </div>
-      </Header>
-      <main className="min-h-svh">{children}</main>
+          }
+        />
+      </Suspense>
+      <main className="size-full min-h-svh">{children}</main>
       <Footer />
-
       <LoginModal />
       <Suspense>
         <ScrollToTop />

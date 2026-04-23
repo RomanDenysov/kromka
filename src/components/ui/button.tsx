@@ -4,21 +4,28 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-sm font-medium text-sm outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex shrink-0 touch-manipulation items-center justify-center gap-2 whitespace-nowrap rounded-sm font-medium text-sm outline-none transition-[color,background-color,border-color,box-shadow,opacity,text-decoration-color,transform] duration-200 ease-out motion-reduce:duration-0 motion-safe:active:scale-[0.98] motion-reduce:active:scale-100 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        brand: "bg-brand text-primary-foreground hover:bg-brand/80",
+        default:
+          "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/95",
+        brand:
+          "bg-brand text-white hover:bg-brand/80 active:bg-brand/90",
+        "brand-outline":
+          "border border-brand text-brand hover:bg-brand/10 active:bg-brand/15",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
+          "bg-destructive text-white hover:bg-destructive/90 active:bg-destructive/85 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground active:bg-accent/90 dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          "hover:bg-accent hover:text-accent-foreground active:bg-accent/80 dark:hover:bg-accent/50 dark:active:bg-accent/40",
+        glass:
+          "border border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white hover:text-black active:bg-white/90 active:text-black",
+        link:
+          "text-primary underline-offset-4 hover:underline active:opacity-70 motion-safe:active:scale-100",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -56,7 +63,7 @@ function Button({
 
   return (
     <Comp
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size }), className)}
       data-slot="button"
       {...props}
     />

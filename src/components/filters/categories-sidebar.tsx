@@ -6,7 +6,7 @@ import { use } from "react";
 import {
   getCategoriesLink,
   useEshopParams,
-} from "@/app/(public)/e-shop/eshop-params";
+} from "@/app/(public)/(pages)/e-shop/eshop-params";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Category } from "@/features/categories/api/queries";
 import { analytics } from "@/lib/analytics";
@@ -32,7 +32,7 @@ export function CategoriesSidebar({ categories }: Props) {
             <Link
               className={cn(
                 "cursor-pointer whitespace-nowrap rounded-lg px-3 py-2 text-left font-medium text-sm transition-colors",
-                isFeatured && !isActive && "text-featured",
+                isFeatured && !isActive && "text-brand",
                 isActive
                   ? "bg-primary text-primary-foreground"
                   : "hover:bg-muted"

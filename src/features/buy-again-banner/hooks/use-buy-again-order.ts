@@ -2,7 +2,7 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 import { addItemsToCart } from "@/features/cart/api/actions";
 import { analytics } from "@/lib/analytics";
-import { useBuyAgainDismiss } from "../store";
+import { useBuyAgainStore } from "../store";
 
 interface OrderItem {
   priceCents: number;
@@ -10,11 +10,13 @@ interface OrderItem {
   quantity: number;
 }
 
-type Source = "banner" | "banner_dialog" | "cart_drawer";
+type Source = "banner" | "banner_dialog" | "cart_drawer" | "reorder_bar";
 
 export function useBuyAgainOrder(onSuccess?: () => void) {
+  const visible = useBuyAgainStore((s) => s.visible);
+  const init = useBuyAgainStore((s) => s.init);
+  const dismiss = useBuyAgainStore((s) => s.dismiss);
   const [isPending, startTransition] = useTransition();
-  const dismiss = useBuyAgainDismiss();
 
   const repeatOrder = (items: OrderItem[], source: Source) => {
     const total = items.reduce(
@@ -43,5 +45,5 @@ export function useBuyAgainOrder(onSuccess?: () => void) {
     });
   };
 
-  return { isPending, repeatOrder };
+  return { isPending, repeatOrder, visible, init, dismiss };
 }

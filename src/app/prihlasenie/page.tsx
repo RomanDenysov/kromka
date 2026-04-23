@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
-import { POLICY_LINKS } from "@/app/(public)/(policies)/policies-config";
+import { POLICY_LINKS } from "@/app/(public)/(pages)/(policies)/policies-config";
 import { MagicLinkForm } from "@/app/prihlasenie/magic-link-form";
 import { ProvidersForm } from "@/app/prihlasenie/providers-form";
 import { BackButton } from "@/components/shared/back-button";

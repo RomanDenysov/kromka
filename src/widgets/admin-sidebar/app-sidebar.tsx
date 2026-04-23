@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   BriefcaseIcon,
   FileTextIcon,
+  FlaskConicalIcon,
   ImagesIcon,
   LayoutDashboardIcon,
   MessageSquareIcon,
@@ -96,6 +97,11 @@ const NAV_B2B: NavItem[] = [
 const NAV_BOTTOM: NavItem[] = [
   { href: "/admin/users", label: "Používatelia", icon: UsersIcon },
   { href: "/admin/media", label: "Médiá", icon: ImagesIcon },
+  {
+    href: "/admin/playground" as Route,
+    label: "Playground",
+    icon: FlaskConicalIcon,
+  },
   { href: "/admin/settings", label: "Nastavenia", icon: SettingsIcon },
 ];
 

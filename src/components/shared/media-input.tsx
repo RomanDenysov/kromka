@@ -30,7 +30,7 @@ import { Label } from "../ui/label";
 
 const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
-type MediaFolder = "products" | "categories" | "stores" | "posts";
+type MediaFolder = "products" | "categories" | "stores" | "posts" | "hero";
 
 interface Props {
   className?: string;

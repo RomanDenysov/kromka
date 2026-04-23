@@ -1,30 +1,91 @@
+"use client";
+
 import { MenuIcon } from "lucide-react";
-import type { Route } from "next";
+import { useMotionValueEvent, useScroll } from "motion/react";
 import Link from "next/link";
-import { type ReactNode, Suspense } from "react";
+import { usePathname } from "next/navigation";
+import {
+  type ReactNode,
+  Suspense,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { Icons } from "@/components/icons";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { featureFlags } from "@/config/features";
+import { Button } from "@/components/ui/button";
+import { UserButton } from "@/components/user-button";
 import { cn } from "@/lib/utils";
+import { DesktopNav } from "./desktop-nav";
+import { HOME_HERO_DOM_ID } from "./home-hero-constants";
+import { navigation } from "./navigation";
 
-const navigation: { name: string; href: Route }[] = [
-  { name: "E-shop", href: "/e-shop" },
-  { name: "B2B", href: "/b2b" },
-  { name: "Predajne", href: "/predajne" },
-  ...(featureFlags.blog ? [{ name: "Blog", href: "/blog" as Route }] : []),
-];
+interface Props {
+  cartSlot: ReactNode;
+  className?: string;
+}
 
-export function Header({ children }: { children: ReactNode }) {
+export function Header({ className, cartSlot }: Props) {
+  const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
+  const [isPastHomeHero, setIsPastHomeHero] = useState(false);
+  const { scrollY } = useScroll();
+
+  const updatePastHero = useCallback(() => {
+    if (pathname !== "/") {
+      setIsPastHomeHero(false);
+      return;
+    }
+    const hero = document.getElementById(HOME_HERO_DOM_ID);
+    const headerEl = headerRef.current;
+    if (!(hero && headerEl)) {
+      return;
+    }
+    const headerBottom = headerEl.getBoundingClientRect().bottom;
+    const heroBottom = hero.getBoundingClientRect().bottom;
+    setIsPastHomeHero(heroBottom <= headerBottom);
+  }, [pathname]);
+
+  useMotionValueEvent(scrollY, "change", updatePastHero);
+
+  useLayoutEffect(() => {
+    updatePastHero();
+    if (pathname !== "/") {
+      return;
+    }
+    window.addEventListener("resize", updatePastHero);
+    return () => window.removeEventListener("resize", updatePastHero);
+  }, [pathname, updatePastHero]);
+
+  let positionShell: string;
+  if (pathname !== "/") {
+    positionShell = "sticky border-b bg-background";
+  } else if (isPastHomeHero) {
+    positionShell = "fixed border-b bg-background text-foreground shadow-xs";
+  } else {
+    positionShell =
+      "fixed border-b-0 border-transparent bg-transparent text-shadow-2xs text-white drop-shadow-lg";
+  }
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-background">
+    <header
+      className={cn(
+        "top-0 z-40 w-full pt-[env(safe-area-inset-top)] transition-[background-color,border-color,box-shadow,color,text-shadow] duration-200 ease-out motion-reduce:duration-0",
+        positionShell,
+        className
+      )}
+      data-layout-header
+      ref={headerRef}
+    >
       <Container>
-        <div className="flex h-12 w-full items-center justify-center gap-4 md:grid md:h-14 md:grid-cols-[1fr_auto_1fr] md:gap-5">
+        <div className="grid h-12 w-full grid-cols-[1fr_auto_1fr] items-center gap-4 md:gap-5">
           {/* Navigation */}
           <Suspense
             fallback={
               <Button
+                aria-label="Otvoriť menu"
                 className="md:hidden"
                 size="icon-sm"
                 type="button"
@@ -36,27 +97,18 @@ export function Header({ children }: { children: ReactNode }) {
           >
             <MobileNavigation navigation={navigation} />
           </Suspense>
-          <nav className="hidden grow items-center justify-start gap-2 md:flex">
-            {navigation.map((item) => (
-              <Link
-                className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
-                href={item.href}
-                key={item.href}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+          <DesktopNav />
 
           {/* Logo */}
-          <div className="flex grow items-center justify-start md:justify-center">
-            <Link href="/">
-              <Icons.kromka className="h-4 lg:h-5" />
-            </Link>
-          </div>
+          <Link className="flex items-center justify-center" href="/">
+            <Icons.kromka className="h-4 lg:h-5" />
+          </Link>
 
           {/* Actions */}
-          {children}
+          <div className="flex items-center justify-end gap-2 xl:gap-3">
+            <UserButton />
+            {cartSlot}
+          </div>
         </div>
       </Container>
     </header>

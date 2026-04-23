@@ -9,7 +9,7 @@ export function BlogCardSkeleton({ className }: Props) {
   return (
     <div
       className={cn(
-        "flex flex-col overflow-hidden rounded-lg border bg-card",
+        "flex flex-col overflow-hidden rounded-md border bg-card",
         className
       )}
     >

@@ -68,7 +68,7 @@ export function PostHeader({ post, className }: Props) {
 
       {/* Cover Image */}
       {post.coverImageUrl && (
-        <div className="relative aspect-[2/1] w-full overflow-hidden rounded-lg">
+        <div className="relative aspect-2/1 w-full overflow-hidden rounded-md">
           <Image
             alt={post.title}
             className="object-cover"

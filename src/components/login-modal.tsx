@@ -16,7 +16,6 @@ import {
 } from "@/store/login-modal-store";
 
 const MESSAGES: Record<LoginReason, string> = {
-  favorites: "Pre uloženie obľúbených produktov sa prihláste.",
   checkout: "Prihláste sa pre uloženie objednávky do účtu (voliteľné).",
   default: "Prihláste sa do svojho účtu.",
 };

@@ -34,17 +34,17 @@ export function CookieBanner() {
   return (
     <div
       className={cn(
-        "fixed bottom-4 left-4 z-50 transition-all duration-300",
+        "fixed inset-x-0 bottom-0 z-50 transition-[transform,opacity] duration-300 ease-out motion-reduce:duration-150 md:right-auto md:bottom-4 md:left-4",
         show
-          ? "translate-y-0 scale-100 opacity-100"
-          : "pointer-events-none translate-y-4 scale-0 opacity-0"
+          ? "translate-y-0 opacity-100"
+          : "pointer-events-none translate-y-full opacity-0"
       )}
       style={{
         WebkitTapHighlightColor: "transparent",
         touchAction: "manipulation",
       }}
     >
-      <Card className="max-w-sm shadow-lg">
+      <Card className="rounded-none shadow-lg md:max-w-sm md:rounded-xl">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
             <CookieIcon className="size-5" />
@@ -65,7 +65,7 @@ export function CookieBanner() {
           </Link>
         </CardContent>
 
-        <CardFooter className="gap-2">
+        <CardFooter className="gap-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:pb-6">
           <Button
             className="flex-1"
             onClick={(e) => {

@@ -1,8 +1,7 @@
-import type { EshopParams } from "@/app/(public)/e-shop/eshop-params";
+import type { EshopParams } from "@/app/(public)/(pages)/e-shop/eshop-params";
 import { GridView } from "@/components/grid-view";
 import { ShowMore } from "@/components/show-more";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
-import { getFavoriteIds } from "@/features/favorites/api/queries";
 import { getProducts } from "@/features/products/api/queries";
 import { filterProducts } from "@/features/products/filter";
 import { ProductCard, ProductCardSkeleton } from "./product-card";
@@ -15,17 +14,13 @@ interface Props {
 
 export async function ProductsGrid({ searchParams }: Props) {
   const eshopParams = await searchParams;
-  const [allProducts, favoriteIds] = await Promise.all([
-    getProducts(),
-    getFavoriteIds(),
-  ]);
+  const allProducts = await getProducts();
   const { products, total } = filterProducts(allProducts, eshopParams);
-  const favoriteSet = new Set(favoriteIds);
 
   return (
     <GridView>
       {total > 0 ? (
-        <ShowMore className="col-span-full" initial={12}>
+        <ShowMore className="col-span-full" initial={30}>
           {products.map((product, index) => (
             <div
               key={product.id}
@@ -34,11 +29,7 @@ export async function ProductsGrid({ searchParams }: Props) {
                 containIntrinsicSize: "0 350px",
               }}
             >
-              <ProductCard
-                isFavorite={favoriteSet.has(product.id)}
-                preload={index < PRELOAD_LIMIT}
-                product={product}
-              />
+              <ProductCard preload={index < PRELOAD_LIMIT} product={product} />
             </div>
           ))}
         </ShowMore>

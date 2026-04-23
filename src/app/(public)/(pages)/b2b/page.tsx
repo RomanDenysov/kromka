@@ -1,0 +1,192 @@
+import {
+  ArrowRight,
+  BriefcaseIcon,
+  CheckCircleIcon,
+  FileTextIcon,
+} from "lucide-react";
+import type { Metadata, Route } from "next";
+import Link from "next/link";
+import { JsonLd } from "@/components/seo/json-ld";
+import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
+import { Container, PageWrapper } from "@/components/shared/container";
+import { PageSection, SectionHeader } from "@/components/shared/public-page";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { createMetadata } from "@/lib/metadata";
+import { getFAQSchema } from "@/lib/seo/json-ld";
+import { getSiteUrl } from "@/lib/utils";
+
+const B2B_FAQ = [
+  {
+    question: "Pre koho je B2B spolupráca určená?",
+    answer:
+      "B2B spolupráca je určená pre kaviarne, reštaurácie, hotely, obchody a ďalšie podniky, ktoré chcú ponúkať čerstvé pekárenské výrobky od Pekárne Kromka.",
+  },
+  {
+    question: "Ako funguje fakturácia pre B2B zákazníkov?",
+    answer:
+      "B2B zákazníci platia na faktúru s flexibilnými splatnosťami. Po schválení vašej žiadosti nastavíme fakturačné podmienky podľa vzájomnej dohody.",
+  },
+  {
+    question: "Ako požiadať o B2B spoluprácu?",
+    answer:
+      "Vyplňte jednoduchý formulár na našej stránke s informáciami o vašej spoločnosti. Náš tím preverí vašu žiadosť a ozve sa vám do 2 pracovných dní.",
+  },
+  {
+    question: "Dodávate pečivo priamo do prevádzky?",
+    answer:
+      "Áno, pre B2B zákazníkov zabezpečujeme dodávku čerstvého pečiva priamo do vašej prevádzky podľa dohodnutého harmonogramu.",
+  },
+];
+
+export const metadata: Metadata = createMetadata({
+  title: "B2B Spolupráca",
+  description:
+    "Ponúkame B2B riešenia pre kaviarne, reštaurácie, hotely a obchody. Výhodné ceny, fakturácia a individuálny prístup. Požiadajte o spoluprácu.",
+  canonicalUrl: getSiteUrl("/b2b"),
+});
+
+const BENEFITS = [
+  {
+    icon: BriefcaseIcon,
+    title: "Výhodné ceny",
+    description: "Špeciálne B2B ceny pre vašu organizáciu",
+  },
+  {
+    icon: FileTextIcon,
+    title: "Fakturácia",
+    description: "Platba na faktúru s flexibilnými splatnosťami",
+  },
+  {
+    icon: CheckCircleIcon,
+    title: "Individuálny prístup",
+    description: "Dedikovaná podpora a personalizované riešenia",
+  },
+];
+
+const STEPS = [
+  {
+    number: "1",
+    title: "Vyplňte žiadosť",
+    description: "Pošlite nám informácie o vašej spoločnosti",
+  },
+  {
+    number: "2",
+    title: "Schválenie",
+    description: "Náš tím preverí vašu žiadosť a ozve sa vám",
+  },
+  {
+    number: "3",
+    title: "Objednávajte",
+    description: "Začnite objednávať s výhodnými B2B cenami",
+  },
+  {
+    number: "4",
+    title: "Fakturujte",
+    description: "Platba na faktúru podľa dohodnutých podmienok",
+  },
+];
+
+export default function B2BPage() {
+  return (
+    <PageWrapper>
+      <JsonLd data={getFAQSchema(B2B_FAQ)} />
+      <AppBreadcrumbs items={[{ label: "B2B", href: "/b2b" }]} />
+
+      <PageSection className="border-b" spacing="xl" tone="muted">
+        <Container>
+          <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
+            <h1 className="font-bold text-4xl tracking-tight md:text-5xl lg:text-6xl">
+              B2B Spolupráca
+            </h1>
+            <p className="max-w-2xl text-balance text-lg text-muted-foreground md:text-xl">
+              Dodávame čerstvé pekárenské výrobky pre kaviarne, reštaurácie,
+              hotely a obchody. Výhodné ceny, fakturácia a individuálny prístup
+              pre vašu organizáciu.
+            </p>
+            <Button asChild size="lg">
+              <Link href={"/b2b/apply" as Route}>
+                Požiadať o spoluprácu
+                <ArrowRight className="ml-2 size-4" />
+              </Link>
+            </Button>
+          </div>
+        </Container>
+      </PageSection>
+
+      <PageSection className="border-b" spacing="lg">
+        <Container>
+          <div className="mx-auto max-w-5xl">
+            <SectionHeader
+              align="center"
+              className="mb-8"
+              title="Prečo spolupracovať s nami?"
+            />
+            <div className="grid gap-6 md:grid-cols-3">
+              {BENEFITS.map((benefit) => {
+                const Icon = benefit.icon;
+                return (
+                  <Card key={benefit.title}>
+                    <CardContent className="flex flex-col items-center gap-4 p-6 text-center">
+                      <Icon className="size-8 text-primary" />
+                      <h3 className="font-semibold text-lg">{benefit.title}</h3>
+                      <p className="text-muted-foreground text-sm">
+                        {benefit.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        </Container>
+      </PageSection>
+
+      <PageSection className="border-b" spacing="lg">
+        <Container>
+          <div className="mx-auto max-w-4xl">
+            <SectionHeader
+              align="center"
+              className="mb-8"
+              title="Ako to funguje?"
+            />
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {STEPS.map((step) => (
+                <div
+                  className="flex flex-col items-start gap-3 rounded-md border p-6"
+                  key={step.number}
+                >
+                  <div className="flex size-10 items-center justify-center rounded-full bg-primary font-bold text-lg text-primary-foreground">
+                    {step.number}
+                  </div>
+                  <h3 className="font-semibold text-lg">{step.title}</h3>
+                  <p className="text-muted-foreground text-sm">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </PageSection>
+
+      <PageSection spacing="lg">
+        <Container>
+          <div className="mx-auto flex max-w-2xl flex-col items-center gap-6 text-center">
+            <SectionHeader
+              align="center"
+              description="Vyplňte jednoduchý formulár a my sa vám ozveme do 2 pracovných dní."
+              title="Pripravení začať?"
+            />
+            <Button asChild size="lg">
+              <Link href={"/b2b/apply" as Route}>
+                Požiadať o spoluprácu
+                <ArrowRight className="ml-2 size-4" />
+              </Link>
+            </Button>
+          </div>
+        </Container>
+      </PageSection>
+    </PageWrapper>
+  );
+}
