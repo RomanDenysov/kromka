@@ -22,7 +22,7 @@ export function ProductScrollRow({ products }: Props) {
       opts={{
         align: "start",
         dragFree: true,
-        containScroll: "trimSnaps",
+        loop: true,
       }}
     >
       <CarouselContent>
