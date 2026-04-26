@@ -72,7 +72,7 @@ export function Header({ className, cartSlot }: Props) {
   return (
     <header
       className={cn(
-        "top-0 z-40 w-full pt-[env(safe-area-inset-top)] transition-[background-color,border-color,box-shadow,color,text-shadow] duration-200 ease-out motion-reduce:duration-0",
+        "top-0 z-50 w-full pt-[env(safe-area-inset-top)] transition-[background-color,border-color,box-shadow,color,text-shadow] duration-200 ease-out motion-reduce:duration-0",
         positionShell,
         className
       )}
