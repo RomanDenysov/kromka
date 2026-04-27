@@ -79,7 +79,7 @@ export function HomepageStoresContent({
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-balance font-semibold text-xl tracking-tight md:text-2xl">
-          Nase predajne
+          Naše predajne
         </h2>
         <HomepageCtaLink
           className={cn(
