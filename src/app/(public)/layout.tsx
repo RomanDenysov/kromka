@@ -40,7 +40,9 @@ export default function PublicLayout({ children }: Props) {
   return (
     <>
       <JsonLd data={[getOrganizationSchema(), getWebSiteSchema()]} />
-      <Suspense fallback={<div className="h-12 w-full" />}>
+      <Suspense
+        fallback={<div className="h-12 w-full pt-[env(safe-area-inset-top)]" />}
+      >
         <Header
           cartSlot={
             <CartDrawer

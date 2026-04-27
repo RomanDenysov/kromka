@@ -1,4 +1,5 @@
 import { Analytics } from "@vercel/analytics/next";
+import type { Viewport } from "next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
 import { CookieBanner } from "@/components/cookie-banner";
@@ -14,6 +15,12 @@ import "./globals.css";
 interface Props {
   readonly children: ReactNode;
 }
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export default function RootLayout({ children }: Props) {
   return (
