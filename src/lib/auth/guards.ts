@@ -34,7 +34,7 @@ export async function requireStaff() {
     unauthorized();
   }
 
-  if (!STAFF_ROLES.includes(user.role) || user.role === "user") {
+  if (!STAFF_ROLES.includes(user.role)) {
     forbidden();
   }
 

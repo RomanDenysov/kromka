@@ -1,9 +1,11 @@
+import { notFound } from "next/navigation";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
   getStoreBySlug,
   getStorePendingPickupsCount,
 } from "@/features/store-manager/api/queries";
+import { requireStoreManager } from "@/lib/auth/guards";
 import StoreSidebar, {
   StoreSidebarSkeleton,
 } from "@/widgets/store-manager-sidebar/store-sidebar";
@@ -18,11 +20,12 @@ async function StoreManagerSidebarLoader({
 }: {
   params: Promise<{ storeSlug: string }>;
 }) {
+  await requireStoreManager();
   const { storeSlug } = await params;
   const store = await getStoreBySlug(storeSlug);
 
   if (!store) {
-    return <StoreSidebarSkeleton collapsible="icon" />;
+    notFound();
   }
 
   const pickupCount = await getStorePendingPickupsCount(store.id);

@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getManagerStores } from "@/features/store-manager/api/queries";
-
-// Middleware protects /predajna/* - no auth guard needed here
+import { requireStoreManager } from "@/lib/auth/guards";
 
 async function StorePickerContent() {
+  await requireStoreManager();
   const stores = await getManagerStores();
 
   if (stores.length === 0) {
