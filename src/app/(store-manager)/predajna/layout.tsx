@@ -14,5 +14,5 @@ interface Props {
 }
 
 export default function StoreManagerLayout({ children }: Props) {
-  return <>{children}</>;
+  return children;
 }

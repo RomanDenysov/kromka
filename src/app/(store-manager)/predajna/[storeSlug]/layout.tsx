@@ -5,7 +5,7 @@ import {
   getStoreBySlug,
   getStorePendingPickupsCount,
 } from "@/features/store-manager/api/queries";
-import { requireStoreManager } from "@/lib/auth/guards";
+import { requireStaff } from "@/lib/auth/guards";
 import StoreSidebar, {
   StoreSidebarSkeleton,
 } from "@/widgets/store-manager-sidebar/store-sidebar";
@@ -20,8 +20,7 @@ async function StoreManagerSidebarLoader({
 }: {
   params: Promise<{ storeSlug: string }>;
 }) {
-  await requireStoreManager();
-  const { storeSlug } = await params;
+  const [, { storeSlug }] = await Promise.all([requireStaff(), params]);
   const store = await getStoreBySlug(storeSlug);
 
   if (!store) {

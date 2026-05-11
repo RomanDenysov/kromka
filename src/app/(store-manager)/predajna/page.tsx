@@ -4,11 +4,10 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getManagerStores } from "@/features/store-manager/api/queries";
-import { requireStoreManager } from "@/lib/auth/guards";
+import { requireStaff } from "@/lib/auth/guards";
 
 async function StorePickerContent() {
-  await requireStoreManager();
-  const stores = await getManagerStores();
+  const [, stores] = await Promise.all([requireStaff(), getManagerStores()]);
 
   if (stores.length === 0) {
     return (
