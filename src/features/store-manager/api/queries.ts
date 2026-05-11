@@ -32,13 +32,13 @@ export const getManagerStores = cache(() => {
   });
 });
 
-export async function getStorePendingPickupsCount(storeId: string) {
+export const getStorePendingPickupsCount = cache(async (storeId: string) => {
   const [result] = await db
     .select({ count: count() })
     .from(orders)
     .where(and(eq(orders.storeId, storeId), eq(orders.orderStatus, "new")));
 
   return result?.count ?? 0;
-}
+});
 
 export type ManagerStore = Awaited<ReturnType<typeof getManagerStores>>[number];
