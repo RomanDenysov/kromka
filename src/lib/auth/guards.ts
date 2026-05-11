@@ -1,7 +1,7 @@
 import { forbidden, redirect, unauthorized } from "next/navigation";
 import { getUser, getUserDetails } from "./session";
 
-export const STAFF_ROLES: readonly string[] = ["admin", "manager"];
+export const STAFF_ROLES = ["admin", "manager"] as const;
 
 export async function requireAdmin() {
   const user = await getUser();
@@ -34,7 +34,7 @@ export async function requireStaff() {
     unauthorized();
   }
 
-  if (!STAFF_ROLES.includes(user.role)) {
+  if (!(STAFF_ROLES as readonly string[]).includes(user.role)) {
     forbidden();
   }
 

@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { STORE_MANAGER_BASE_PATH } from "@/features/store-manager/paths";
 import { STAFF_ROLES } from "@/lib/auth/guards";
 import { auth } from "@/lib/auth/server";
 
@@ -9,7 +10,7 @@ export default async function middleware(req: NextRequest) {
     const suffix =
       pathname === "/predajna" ? "" : pathname.slice("/predajna".length);
     const url = req.nextUrl.clone();
-    url.pathname = `/manager/predajna${suffix}`;
+    url.pathname = `${STORE_MANAGER_BASE_PATH}${suffix}`;
     return NextResponse.redirect(url, 308);
   }
 
@@ -20,14 +21,27 @@ export default async function middleware(req: NextRequest) {
   const role = session?.user?.role;
 
   const isAdminPath = pathname.startsWith("/admin");
-  const isStorePath = pathname.startsWith("/manager/predajna");
+  const isStorePath = pathname.startsWith(STORE_MANAGER_BASE_PATH);
+  const isGated = isAdminPath || isStorePath;
 
-  const denied =
-    (isAdminPath && role !== "admin") ||
-    (isStorePath && !(role && STAFF_ROLES.includes(role)));
+  if (!isGated) {
+    return NextResponse.next();
+  }
 
-  if (denied) {
+  // Unauthenticated -> login
+  if (!session?.user) {
     return NextResponse.redirect(new URL("/prihlasenie", req.url));
+  }
+
+  // Authenticated but wrong role -> home
+  const allowed =
+    (isAdminPath && role === "admin") ||
+    (isStorePath &&
+      !!role &&
+      (STAFF_ROLES as readonly string[]).includes(role));
+
+  if (!allowed) {
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   return NextResponse.next();
