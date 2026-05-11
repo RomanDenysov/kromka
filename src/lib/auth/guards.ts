@@ -3,6 +3,10 @@ import { getUser, getUserDetails } from "./session";
 
 export const STAFF_ROLES = ["admin", "manager"] as const;
 
+function isStaffRole(role: string): role is (typeof STAFF_ROLES)[number] {
+  return (STAFF_ROLES as readonly string[]).includes(role);
+}
+
 export async function requireAdmin() {
   const user = await getUser();
 
@@ -34,7 +38,7 @@ export async function requireStaff() {
     unauthorized();
   }
 
-  if (!(STAFF_ROLES as readonly string[]).includes(user.role)) {
+  if (!isStaffRole(user.role)) {
     forbidden();
   }
 

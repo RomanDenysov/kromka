@@ -18,13 +18,10 @@ export default async function middleware(req: NextRequest) {
     headers: req.headers,
   });
 
-  const role = session?.user?.role;
-
   const isAdminPath = pathname.startsWith("/admin");
   const isStorePath = pathname.startsWith(STORE_MANAGER_BASE_PATH);
-  const isGated = isAdminPath || isStorePath;
 
-  if (!isGated) {
+  if (!(isAdminPath || isStorePath)) {
     return NextResponse.next();
   }
 
@@ -33,15 +30,19 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/prihlasenie", req.url));
   }
 
-  // Authenticated but wrong role -> home
-  const allowed =
-    (isAdminPath && role === "admin") ||
-    (isStorePath &&
-      !!role &&
-      (STAFF_ROLES as readonly string[]).includes(role));
+  const { role } = session.user;
 
-  if (!allowed) {
+  // Admin paths require admin role
+  if (isAdminPath && role !== "admin") {
     return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  // Store manager paths require staff role
+  if (isStorePath) {
+    const isStaff = role && (STAFF_ROLES as readonly string[]).includes(role);
+    if (!isStaff) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   }
 
   return NextResponse.next();

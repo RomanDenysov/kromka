@@ -8,9 +8,10 @@ export const getStoreBySlug = cache(async (slug: string) => {
   "use cache";
   cacheLife("max");
   cacheTag("stores", `store-${slug}`);
-  return await db.query.stores.findFirst({
+  const result = await db.query.stores.findFirst({
     where: and(eq(stores.slug, slug), eq(stores.isActive, true)),
   });
+  return result;
 });
 
 /**
@@ -21,7 +22,7 @@ export const getManagerStores = cache(async () => {
   "use cache";
   cacheLife("max");
   cacheTag("stores");
-  return await db.query.stores.findMany({
+  const result = await db.query.stores.findMany({
     where: eq(stores.isActive, true),
     orderBy: (s, { asc }) => asc(s.name),
     columns: {
@@ -30,13 +31,14 @@ export const getManagerStores = cache(async () => {
       slug: true,
     },
   });
+  return result;
 });
 
 export const getStorePendingPickupsCount = cache(async (storeId: string) => {
   "use cache";
   cacheLife("minutes");
   cacheTag("orders", `store-pending-${storeId}`);
-  const [result] = await db
+  const result = await db
     .select({ count: count() })
     .from(orders)
     .where(
@@ -46,7 +48,7 @@ export const getStorePendingPickupsCount = cache(async (storeId: string) => {
       )
     );
 
-  return result?.count ?? 0;
+  return result[0]?.count ?? 0;
 });
 
 export type ManagerStore = Awaited<ReturnType<typeof getManagerStores>>[number];
