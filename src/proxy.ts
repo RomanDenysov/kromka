@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { STAFF_ROLES } from "@/lib/auth/guards";
 import { auth } from "@/lib/auth/server";
-
-const STAFF_ROLES = ["admin", "manager"];
 
 export default async function middleware(req: NextRequest) {
   const session = await auth.api.getSession({
@@ -11,14 +10,14 @@ export default async function middleware(req: NextRequest) {
   const role = session?.user?.role;
   const pathname = req.nextUrl.pathname;
 
-  if (pathname.startsWith("/admin") && role !== "admin") {
-    return NextResponse.redirect(new URL("/prihlasenie", req.url));
-  }
+  const isAdminPath = pathname.startsWith("/admin");
+  const isStorePath = pathname.startsWith("/predajna");
 
-  if (
-    pathname.startsWith("/predajna") &&
-    !(role && STAFF_ROLES.includes(role))
-  ) {
+  const denied =
+    (isAdminPath && role !== "admin") ||
+    (isStorePath && !(role && STAFF_ROLES.includes(role)));
+
+  if (denied) {
     return NextResponse.redirect(new URL("/prihlasenie", req.url));
   }
 

@@ -1,7 +1,7 @@
 import { forbidden, redirect, unauthorized } from "next/navigation";
 import { getUser, getUserDetails } from "./session";
 
-const STAFF_ROLES = ["admin", "manager"];
+export const STAFF_ROLES: readonly string[] = ["admin", "manager"];
 
 export async function requireAdmin() {
   const user = await getUser();
@@ -28,26 +28,6 @@ export async function requireAuth() {
 }
 
 export async function requireStaff() {
-  const user = await getUser();
-
-  if (!user) {
-    unauthorized();
-  }
-
-  if (!STAFF_ROLES.includes(user.role)) {
-    forbidden();
-  }
-
-  return user;
-}
-
-/**
- * Require user to be a store manager (admin or manager role).
- * Used in store manager server actions.
- * TODO: When store_profiles table exists, add requireStoreAccess(storeId)
- * to verify the manager's org actually owns the store.
- */
-export async function requireStoreManager() {
   const user = await getUser();
 
   if (!user) {
