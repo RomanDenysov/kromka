@@ -1,9 +1,11 @@
 import { StoreIcon } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getManagerStores } from "@/features/store-manager/api/queries";
+import { STORE_MANAGER_BASE_PATH } from "@/features/store-manager/paths";
 import { requireStaff } from "@/lib/auth/guards";
 
 async function StorePickerContent() {
@@ -22,7 +24,7 @@ async function StorePickerContent() {
   }
 
   if (stores.length === 1) {
-    redirect(`/predajna/${stores[0].slug}`);
+    redirect(`${STORE_MANAGER_BASE_PATH}/${stores[0].slug}` as Route);
   }
 
   return (
@@ -37,7 +39,7 @@ async function StorePickerContent() {
         {stores.map((store) => (
           <Link
             className="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent"
-            href={`/predajna/${store.slug}`}
+            href={`${STORE_MANAGER_BASE_PATH}/${store.slug}` as Route}
             key={store.id}
           >
             <StoreIcon className="size-5 text-muted-foreground" />

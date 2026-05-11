@@ -30,6 +30,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
+import { STORE_MANAGER_BASE_PATH } from "@/features/store-manager/paths";
 
 interface NavItem {
   badge?: ReactNode;
@@ -46,7 +47,7 @@ function createDailyNav(
 ): NavItem[] {
   return [
     {
-      href: `/predajna/${slug}/vyzdvihnutia` as Route,
+      href: `${STORE_MANAGER_BASE_PATH}/${slug}/vyzdvihnutia` as Route,
       label: "Objednavky na vyzdvihnutie",
       icon: PackageCheckIcon,
       tooltip:
@@ -59,12 +60,12 @@ function createDailyNav(
         ) : null,
     },
     {
-      href: `/predajna/${slug}/sken` as Route,
+      href: `${STORE_MANAGER_BASE_PATH}/${slug}/sken` as Route,
       label: "QR sken vyzdvihnutia",
       icon: QrCodeIcon,
     },
     {
-      href: `/predajna/${slug}/objednavka-na-zajtra` as Route,
+      href: `${STORE_MANAGER_BASE_PATH}/${slug}/objednavka-na-zajtra` as Route,
       label: "Objednavka na zajtra",
       icon: CalendarPlusIcon,
       badge: hasAlert ? (
@@ -79,22 +80,22 @@ function createDailyNav(
 function createManagementNav(slug: string): NavItem[] {
   return [
     {
-      href: `/predajna/${slug}/prehlad` as Route,
+      href: `${STORE_MANAGER_BASE_PATH}/${slug}/prehlad` as Route,
       label: "Prehlad predajne",
       icon: BarChart3Icon,
     },
     {
-      href: `/predajna/${slug}/produkty` as Route,
+      href: `${STORE_MANAGER_BASE_PATH}/${slug}/produkty` as Route,
       label: "Produkty",
       icon: Package2Icon,
     },
     {
-      href: `/predajna/${slug}/odpad` as Route,
+      href: `${STORE_MANAGER_BASE_PATH}/${slug}/odpad` as Route,
       label: "Odpad / straty",
       icon: Trash2Icon,
     },
     {
-      href: `/predajna/${slug}/otvaracie-hodiny` as Route,
+      href: `${STORE_MANAGER_BASE_PATH}/${slug}/otvaracie-hodiny` as Route,
       label: "Otvaracie hodiny",
       icon: ClockIcon,
     },
@@ -113,7 +114,7 @@ function SidebarLogo({
       <SidebarMenu>
         <SidebarMenuItem className="flex flex-row items-center gap-1 group-data-[state=collapsed]:flex-col">
           <SidebarMenuButton asChild size="sm" tooltip={storeName}>
-            <Link href="/predajna">
+            <Link href={STORE_MANAGER_BASE_PATH as Route}>
               <Icons.logo className="size-4!" />
               <div className="flex flex-col group-data-[state=collapsed]:hidden">
                 <span className="font-semibold text-sm leading-tight">
