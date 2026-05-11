@@ -15,7 +15,7 @@ import {
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { Icons } from "@/components/icons";
 import {
   Sidebar,
@@ -31,13 +31,52 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 
-interface NavItem<T extends string = string> {
-  href: Route<T>;
+interface NavItem {
+  badge?: ReactNode;
+  href: Route;
   icon: LucideIcon;
   label: string;
+  tooltip?: string;
 }
 
-function createNavManagement(slug: string): NavItem[] {
+function createDailyNav(
+  slug: string,
+  pickupCount: number,
+  hasAlert: boolean
+): NavItem[] {
+  return [
+    {
+      href: `/predajna/${slug}/vyzdvihnutia` as Route,
+      label: "Objednavky na vyzdvihnutie",
+      icon: PackageCheckIcon,
+      tooltip:
+        pickupCount > 0
+          ? `Objednavky na vyzdvihnutie (${pickupCount})`
+          : undefined,
+      badge:
+        pickupCount > 0 ? (
+          <SidebarMenuBadge>{pickupCount}</SidebarMenuBadge>
+        ) : null,
+    },
+    {
+      href: `/predajna/${slug}/sken` as Route,
+      label: "QR sken vyzdvihnutia",
+      icon: QrCodeIcon,
+    },
+    {
+      href: `/predajna/${slug}/objednavka-na-zajtra` as Route,
+      label: "Objednavka na zajtra",
+      icon: CalendarPlusIcon,
+      badge: hasAlert ? (
+        <SidebarMenuBadge>
+          <AlertCircleIcon className="size-3.5 text-destructive" />
+        </SidebarMenuBadge>
+      ) : null,
+    },
+  ];
+}
+
+function createManagementNav(slug: string): NavItem[] {
   return [
     {
       href: `/predajna/${slug}/prehlad` as Route,
@@ -73,12 +112,7 @@ function SidebarLogo({
     <SidebarHeader>
       <SidebarMenu>
         <SidebarMenuItem className="flex flex-row items-center gap-1 group-data-[state=collapsed]:flex-col">
-          <SidebarMenuButton
-            asChild
-            className="[slot=sidebar-menu-button]:p-1.5!"
-            size="sm"
-            tooltip={storeName}
-          >
+          <SidebarMenuButton asChild size="sm" tooltip={storeName}>
             <Link href="/predajna">
               <Icons.logo className="size-4!" />
               <div className="flex flex-col group-data-[state=collapsed]:hidden">
@@ -103,72 +137,17 @@ function NavMenuItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
   const Icon = item.icon;
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+      <SidebarMenuButton
+        asChild
+        isActive={isActive}
+        tooltip={item.tooltip ?? item.label}
+      >
         <Link href={item.href}>
           <Icon />
           <span>{item.label}</span>
         </Link>
       </SidebarMenuButton>
-    </SidebarMenuItem>
-  );
-}
-
-function PickupMenuItem({
-  href,
-  isActive,
-  pickupCount,
-}: {
-  href: Route;
-  isActive: boolean;
-  pickupCount: number;
-}) {
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        asChild
-        isActive={isActive}
-        tooltip={
-          pickupCount > 0
-            ? `Objednavky na vyzdvihnutie (${pickupCount})`
-            : "Objednavky na vyzdvihnutie"
-        }
-      >
-        <Link href={href}>
-          <PackageCheckIcon />
-          <span>Objednavky na vyzdvihnutie</span>
-        </Link>
-      </SidebarMenuButton>
-      {pickupCount > 0 && <SidebarMenuBadge>{pickupCount}</SidebarMenuBadge>}
-    </SidebarMenuItem>
-  );
-}
-
-function TomorrowOrderMenuItem({
-  href,
-  isActive,
-  hasAlert,
-}: {
-  href: Route;
-  isActive: boolean;
-  hasAlert: boolean;
-}) {
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        asChild
-        isActive={isActive}
-        tooltip="Objednavka na zajtra"
-      >
-        <Link href={href}>
-          <CalendarPlusIcon />
-          <span>Objednavka na zajtra</span>
-        </Link>
-      </SidebarMenuButton>
-      {hasAlert && (
-        <SidebarMenuBadge>
-          <AlertCircleIcon className="size-3.5 text-destructive" />
-        </SidebarMenuBadge>
-      )}
+      {item.badge}
     </SidebarMenuItem>
   );
 }
@@ -192,10 +171,8 @@ export default function StoreSidebar({
   const pathname = usePathname();
   const isActive = (href: string) => pathname.startsWith(href);
 
-  const navManagement = createNavManagement(storeSlug);
-  const pickupHref = `/predajna/${storeSlug}/vyzdvihnutia` as Route;
-  const scanHref = `/predajna/${storeSlug}/sken` as Route;
-  const tomorrowHref = `/predajna/${storeSlug}/objednavka-na-zajtra` as Route;
+  const dailyNav = createDailyNav(storeSlug, pickupCount, tomorrowOrderAlert);
+  const managementNav = createManagementNav(storeSlug);
 
   return (
     <Sidebar {...props}>
@@ -206,24 +183,13 @@ export default function StoreSidebar({
           <SidebarGroupLabel>Denne</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <PickupMenuItem
-                href={pickupHref}
-                isActive={isActive(pickupHref)}
-                pickupCount={pickupCount}
-              />
-              <NavMenuItem
-                isActive={isActive(scanHref)}
-                item={{
-                  href: scanHref,
-                  label: "QR sken vyzdvihnutia",
-                  icon: QrCodeIcon,
-                }}
-              />
-              <TomorrowOrderMenuItem
-                hasAlert={tomorrowOrderAlert}
-                href={tomorrowHref}
-                isActive={isActive(tomorrowHref)}
-              />
+              {dailyNav.map((item) => (
+                <NavMenuItem
+                  isActive={isActive(item.href)}
+                  item={item}
+                  key={item.href}
+                />
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -232,7 +198,7 @@ export default function StoreSidebar({
           <SidebarGroupLabel>Sprava</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navManagement.map((item) => (
+              {managementNav.map((item) => (
                 <NavMenuItem
                   isActive={isActive(item.href)}
                   item={item}
@@ -262,17 +228,25 @@ export default function StoreSidebar({
   );
 }
 
-function SkeletonGroup({ count, id }: { count: number; id: string }) {
+function SkeletonGroup({ keys }: { keys: readonly string[] }) {
   return (
     <SidebarMenu>
-      {Array.from({ length: count }, (_, i) => (
-        <SidebarMenuItem key={`${id}-${i.toString()}`}>
+      {keys.map((key) => (
+        <SidebarMenuItem key={key}>
           <SidebarMenuSkeleton showIcon />
         </SidebarMenuItem>
       ))}
     </SidebarMenu>
   );
 }
+
+const DAILY_SKELETON_KEYS = ["daily-1", "daily-2", "daily-3"] as const;
+const MANAGEMENT_SKELETON_KEYS = [
+  "mgmt-1",
+  "mgmt-2",
+  "mgmt-3",
+  "mgmt-4",
+] as const;
 
 export function StoreSidebarSkeleton(props: ComponentProps<typeof Sidebar>) {
   return (
@@ -287,12 +261,12 @@ export function StoreSidebarSkeleton(props: ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SkeletonGroup count={3} id="daily" />
+            <SkeletonGroup keys={DAILY_SKELETON_KEYS} />
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SkeletonGroup count={4} id="management" />
+            <SkeletonGroup keys={MANAGEMENT_SKELETON_KEYS} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
