@@ -4,6 +4,12 @@ import { cache } from "react";
 import { db } from "@/db";
 import { orders, stores } from "@/db/schema";
 
+/**
+ * Resolve a store by slug for the manager UI.
+ * TODO(phase-4): production blocker — currently any staff user can open
+ * any store by slug. When `store_profiles` lands, gate by the caller's
+ * store assignments (return null + trigger notFound for unauthorized).
+ */
 export const getStoreBySlug = cache(async (slug: string) => {
   "use cache";
   cacheLife("max");
@@ -15,8 +21,10 @@ export const getStoreBySlug = cache(async (slug: string) => {
 });
 
 /**
- * Get all active stores accessible by the current manager.
- * TODO: When store_profiles table exists, filter by manager's organizations.
+ * Stores listed in the manager picker.
+ * TODO(phase-4): production blocker — currently returns ALL active stores
+ * to every staff user. When `store_profiles` lands, filter by the caller's
+ * assignments. Until then, do NOT enable `manager` role in production.
  */
 export const getManagerStores = cache(async () => {
   "use cache";
