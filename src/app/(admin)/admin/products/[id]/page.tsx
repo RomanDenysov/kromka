@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { FormSkeleton } from "@/components/forms/form-skeleton";
+import { getAllergens } from "@/features/allergens/api/queries";
 import { getAdminCategories } from "@/features/categories/api/queries";
 import { getAdminProductById } from "@/features/products/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
@@ -15,14 +16,21 @@ interface Props {
 async function ProductFormLoader({ params }: Props) {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
-  const [product, categories] = await Promise.all([
+  const [product, categories, allergens] = await Promise.all([
     getAdminProductById(decodedId),
     getAdminCategories(),
+    getAllergens(),
   ]);
   if (!product) {
     notFound();
   }
-  return <FormContainer categories={categories} product={product} />;
+  return (
+    <FormContainer
+      allergens={allergens}
+      categories={categories}
+      product={product}
+    />
+  );
 }
 export default function B2CProductPage({ params }: Props) {
   return (

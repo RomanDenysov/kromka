@@ -16,6 +16,9 @@ import { ProductImage } from "@/components/shared/product-image";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { getAllergens } from "@/features/allergens/api/queries";
+import { AllergenList } from "@/features/allergens/components/allergen-list";
+import type { AllergenCode } from "@/features/allergens/schema";
 import { getProducts, type Product } from "@/features/products/api/queries";
 import {
   getPublishedReviews,
@@ -113,7 +116,10 @@ function getProductRecommendations(
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const urlDecoded = decodeURIComponent(slug);
-  const products = await getProducts();
+  const [products, allergens] = await Promise.all([
+    getProducts(),
+    getAllergens(),
+  ]);
   const result = products.find((p) => p.slug === urlDecoded) ?? null;
 
   if (!result) {
@@ -275,6 +281,16 @@ export default async function ProductPage({ params }: Props) {
               dangerouslySetInnerHTML={{ __html: descriptionHtml }}
             />
           </div>
+
+          {result.allergenCodes.length > 0 && (
+            <>
+              <Separator />
+              <AllergenList
+                allergens={allergens}
+                codes={result.allergenCodes as AllergenCode[]}
+              />
+            </>
+          )}
 
           <Separator />
 

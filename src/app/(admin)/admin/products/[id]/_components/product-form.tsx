@@ -23,6 +23,9 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { PRODUCT_STATUSES } from "@/db/types";
+import type { Allergen } from "@/features/allergens/api/queries";
+import { AllergenPicker } from "@/features/allergens/components/allergen-picker";
+import { allergenCodeSchema } from "@/features/allergens/schema";
 import type { Category } from "@/features/categories/api/queries";
 import { updateProductAction } from "@/features/products/api/actions";
 import type { AdminProduct } from "@/features/products/api/queries";
@@ -42,6 +45,7 @@ export const productSchema = z.object({
   priceCents: z.number(),
   imageId: z.string().nullable(),
   categoryId: z.string().nullable(),
+  allergenCodes: z.array(allergenCodeSchema),
 });
 
 export type ProductSchema = z.infer<typeof productSchema>;
@@ -49,12 +53,14 @@ export type ProductSchema = z.infer<typeof productSchema>;
 export function ProductForm({
   product,
   categories,
+  allergens,
   formId,
   renderFooter,
   className,
 }: {
   product: AdminProduct;
   categories: Category[];
+  allergens: Allergen[];
   formId: string;
   renderFooter: (props: { isPending: boolean }) => ReactNode;
   className?: string;
@@ -84,6 +90,8 @@ export function ProductForm({
       priceCents: product.priceCents,
       imageId: product.imageId ?? null,
       categoryId: product.category?.id ?? null,
+      allergenCodes: (product.allergenCodes ??
+        []) as ProductSchema["allergenCodes"],
     },
   });
 
@@ -147,6 +155,19 @@ export function ProductForm({
               />
               <PriceInputField label="Cena" name="priceCents" />
             </FieldGroup>
+          </FieldSet>
+
+          <FieldSet className="@xl/page:gap-8 gap-4">
+            <FieldLabel>Alergény</FieldLabel>
+            <FieldDescription>
+              Vyberte alergény, ktoré produkt obsahuje. Zoznam pochádza z
+              povinných 14 alergénov podľa nariadenia EÚ 1169/2011.
+            </FieldDescription>
+            <AllergenPicker
+              allergens={allergens}
+              label=""
+              name="allergenCodes"
+            />
           </FieldSet>
 
           <FieldSet className="@xl/page:gap-8 gap-4">

@@ -841,6 +841,14 @@ export const products = pgTable(
     showInB2c: boolean("show_in_b2c").default(true).notNull(),
     showInB2b: boolean("show_in_b2b").default(false).notNull(),
 
+    // EU 14-allergen codes manually tagged by admin (Phase A).
+    // In Phase D, products with a recipe derive allergens from ingredients;
+    // this column stays as the fallback for products without a recipe.
+    allergenCodes: text("allergen_codes")
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`),
+
     isActive: boolean("is_active").default(true).notNull(),
     sortOrder: integer("sort_order").default(0).notNull(),
     status: text("status").$type<ProductStatus>().default("draft").notNull(),
@@ -1278,3 +1286,21 @@ export const heroBannersRelations = relations(heroBanners, ({ one }) => ({
 }));
 
 // #endregion Hero banners
+
+// #region Allergens
+
+/**
+ * EU 14 mandatory allergens (Regulation 1169/2011 Annex II).
+ * Seeded once via migration; the row count must match
+ * ALLERGEN_CODES in src/features/allergens/schema.ts.
+ *
+ * `code` is the primary key — EU identifiers are stable, no need for prefixed CUIDs.
+ */
+export const allergens = pgTable("allergens", {
+  code: text("code").primaryKey(),
+  nameSk: text("name_sk").notNull(),
+  nameEn: text("name_en").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+// #endregion Allergens

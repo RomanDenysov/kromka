@@ -4,19 +4,22 @@ import { useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
+import type { Allergen } from "@/features/allergens/api/queries";
 import type { Category } from "@/features/categories/api/queries";
 import type { AdminProduct } from "@/features/products/api/queries";
 import { ProductForm } from "./_components/product-form";
 
 interface Props {
+  allergens: Allergen[];
   categories: Category[];
   product: AdminProduct;
 }
 
-export function FormContainer({ categories, product }: Props) {
+export function FormContainer({ categories, allergens, product }: Props) {
   const formId = useId();
   return (
     <ProductForm
+      allergens={allergens}
       categories={categories}
       formId={formId}
       product={product}

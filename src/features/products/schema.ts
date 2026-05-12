@@ -1,5 +1,6 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
+import { allergenCodeSchema } from "@/features/allergens/schema";
 import { MAX_STRING_LENGTH } from "@/lib/constants";
 
 const PRODUCT_STATUSES = ["draft", "active", "sold", "archived"] as const;
@@ -21,6 +22,7 @@ export const updateProductSchema = z.object({
   ...productSchema.shape,
   categoryId: z.string().nullable(),
   imageId: z.string().nullable(),
+  allergenCodes: z.array(allergenCodeSchema),
 });
 
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>;

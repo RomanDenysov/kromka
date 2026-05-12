@@ -2,6 +2,7 @@ import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import { EditProductSheet } from "@/components/sheets/edit-product-sheet";
 import { ProductsTable } from "@/components/tables/products/table";
+import { getAllergens } from "@/features/allergens/api/queries";
 import { getAdminCategories } from "@/features/categories/api/queries";
 import {
   getAdminProductById,
@@ -21,12 +22,21 @@ async function ProductSheetLoader({
   searchParams: Promise<SearchParams>;
 }) {
   const { productId } = await searchParams;
-  const product = await getAdminProductById(productId as string);
-  const categories = await getAdminCategories();
+  const [product, categories, allergens] = await Promise.all([
+    getAdminProductById(productId as string),
+    getAdminCategories(),
+    getAllergens(),
+  ]);
   if (!product) {
     return null;
   }
-  return <EditProductSheet categories={categories} product={product} />;
+  return (
+    <EditProductSheet
+      allergens={allergens}
+      categories={categories}
+      product={product}
+    />
+  );
 }
 
 export default function ProductsPage({
