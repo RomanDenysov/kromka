@@ -10,6 +10,7 @@
     "includes": [
       "!node_modules",
       "!.next",
+      "!.claude",
       "!dist",
       "!build",
       "!pnpm-lock.yaml",

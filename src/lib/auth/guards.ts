@@ -1,7 +1,11 @@
 import { forbidden, redirect, unauthorized } from "next/navigation";
 import { getUser, getUserDetails } from "./session";
 
-const STAFF_ROLES = ["admin", "manager"];
+export const STAFF_ROLES = ["admin", "manager"] as const;
+
+function isStaffRole(role: string): role is (typeof STAFF_ROLES)[number] {
+  return (STAFF_ROLES as readonly string[]).includes(role);
+}
 
 export async function requireAdmin() {
   const user = await getUser();
@@ -34,7 +38,7 @@ export async function requireStaff() {
     unauthorized();
   }
 
-  if (!STAFF_ROLES.includes(user.role) || user.role === "user") {
+  if (!isStaffRole(user.role)) {
     forbidden();
   }
 

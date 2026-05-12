@@ -44,5 +44,5 @@ next-env.d.ts
 # Sentry Config File
 .env.sentry-build-plugin
 
-# claude config
-.claude.worktrees/
+# claude codex worktrees (nested biome.json breaks hooks)
+.claude/worktrees/
