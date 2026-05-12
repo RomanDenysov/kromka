@@ -50,6 +50,13 @@
       "when": 1775573863927,
       "tag": "0006_spicy_roughhouse",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1778601525106,
+      "tag": "0007_nasty_leader",
+      "breakpoints": true
     }
   ]
 }

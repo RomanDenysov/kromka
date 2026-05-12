@@ -677,10 +677,17 @@ export const orderItems = pgTable(
     productSnapshot: jsonb("product_snapshot").$type<ProductSnapshot>(),
     quantity: integer("quantity").notNull().default(1),
     price: integer("price").notNull(),
+    // Snapshot of computed cost-per-unit at order creation (Phase C populates this).
+    // Nullable: legacy orders + orders for products without a recipe stay null.
+    unitCostCents: integer("unit_cost_cents"),
   },
   (table) => [
     primaryKey({ columns: [table.orderId, table.productId] }),
     check("order_items_price_non_negative", sql`${table.price} >= 0`),
+    check(
+      "order_items_unit_cost_non_negative",
+      sql`${table.unitCostCents} IS NULL OR ${table.unitCostCents} >= 0`
+    ),
   ]
 );
 

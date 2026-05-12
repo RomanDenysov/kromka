@@ -29,6 +29,12 @@ const MODULES = [
   "db",
   "payments",
   "invoices",
+  // Recipe-costing arc namespaces (pre-A scaffolding; used by Phases B-E)
+  "ingredients",
+  "recipes",
+  "nutrition",
+  "reports",
+  "products",
 ] as const;
 
 export type LogModule = (typeof MODULES)[number];
