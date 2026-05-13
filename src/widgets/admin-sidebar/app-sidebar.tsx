@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
+  BarChart3Icon,
   BookOpenIcon,
   BriefcaseIcon,
   FileTextIcon,
@@ -62,6 +63,11 @@ const NAV_ESHOP: NavItem[] = [
     href: "/admin/recipes" as Route,
     label: "Recepty",
     icon: BookOpenIcon,
+  },
+  {
+    href: "/admin/reports" as Route,
+    label: "Reporty",
+    icon: BarChart3Icon,
   },
 ];
 

@@ -8,6 +8,7 @@ import {
   getProductsAggregateByPickupDate,
   getRecentOrders,
 } from "@/features/admin-dashboard/api/queries";
+import { DashboardProfitWidget } from "@/features/reports/components/dashboard-profit-widget";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { AttentionRequiredCard } from "../_components/attention-required-card";
 import { DashboardTopMetrics } from "../_components/dashboard-top-metrics";
@@ -103,12 +104,15 @@ export async function DashboardContent({
       </div>
 
       {/* NEW ANALYTICS ROW */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <Suspense fallback={<Skeleton className="h-48" />}>
           <RevenueProgressCard />
         </Suspense>
         <Suspense fallback={<Skeleton className="h-48" />}>
           <GrowthComparisonCard />
+        </Suspense>
+        <Suspense fallback={<Skeleton className="h-48" />}>
+          <DashboardProfitWidget />
         </Suspense>
       </div>
 

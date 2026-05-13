@@ -125,6 +125,7 @@ export async function createB2COrder(data: {
     const { orderId, orderNumber, userId, totalCents, itemCount } = result.data;
 
     updateTag("orders");
+    updateTag("reports");
 
     // Clear cart only after confirmed pipeline success
     await clearCartAfterOrder().catch((err) => {
