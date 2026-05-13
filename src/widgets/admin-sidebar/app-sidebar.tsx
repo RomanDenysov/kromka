@@ -2,6 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
+  BookOpenIcon,
   BriefcaseIcon,
   FileTextIcon,
   FlaskConicalIcon,
@@ -56,6 +57,11 @@ const NAV_ESHOP: NavItem[] = [
     href: "/admin/ingredients" as Route,
     label: "Suroviny",
     icon: WheatIcon,
+  },
+  {
+    href: "/admin/recipes" as Route,
+    label: "Recepty",
+    icon: BookOpenIcon,
   },
 ];
 

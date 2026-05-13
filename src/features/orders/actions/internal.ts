@@ -16,6 +16,8 @@ import {
   getCart,
 } from "@/features/cart/cookies";
 import { userInfoSchema } from "@/features/checkout/schema";
+import { getResolverContext } from "@/features/recipes/api/queries";
+import { resolveRecipeCost } from "@/features/recipes/lib/cost-resolver";
 import { sendEmail } from "@/lib/email";
 import { createOrderNumber, createPrefixedId } from "@/lib/ids";
 import { log } from "@/lib/logger";
@@ -28,6 +30,12 @@ export interface OrderItemData {
   productId: string;
   productSnapshot: ProductSnapshot;
   quantity: number;
+  /**
+   * Computed cost-per-unit at order creation (Phase C). Nullable when
+   * the product has no recipe or the resolver fails — never block
+   * checkout to track cost.
+   */
+  unitCostCents: number | null;
 }
 
 export interface GuestCustomerInfo {
@@ -104,6 +112,8 @@ export async function buildOrderItems(
       ? await getEffectivePrices({ productPrices, priceTierId })
       : new Map<string, number>();
 
+  const productCosts = await computeProductCosts(activeProducts);
+
   return cartItems.flatMap((item) => {
     const product = activeProducts.find((p) => p.id === item.productId);
     if (!product) {
@@ -125,9 +135,51 @@ export async function buildOrderItems(
         },
         price: effectivePrice,
         quantity: item.qty,
+        unitCostCents: productCosts.get(product.id) ?? null,
       },
     ];
   });
+}
+
+/**
+ * Resolve cost-per-unit for each product that has a recipe. Failures
+ * are logged and the product gets null — checkout never breaks because
+ * of cost tracking.
+ */
+async function computeProductCosts(
+  activeProducts: Array<{ id: string; recipeId: string | null }>
+): Promise<Map<string, number | null>> {
+  const out = new Map<string, number | null>();
+  const productsWithRecipe = activeProducts.filter((p) => p.recipeId);
+  if (productsWithRecipe.length === 0) {
+    return out;
+  }
+
+  try {
+    const ctx = await getResolverContext({ includeDrafts: false });
+    for (const p of productsWithRecipe) {
+      if (!p.recipeId) {
+        continue;
+      }
+      try {
+        const resolved = resolveRecipeCost(p.recipeId, ctx);
+        out.set(p.id, resolved.costPerUnitCents);
+      } catch (err) {
+        log.orders.warn(
+          { err, productId: p.id, recipeId: p.recipeId },
+          "Cost snapshot failed; storing null"
+        );
+        out.set(p.id, null);
+      }
+    }
+  } catch (err) {
+    log.orders.warn(
+      { err },
+      "Resolver context unavailable; all order items get null cost"
+    );
+  }
+
+  return out;
 }
 
 /**
@@ -201,7 +253,7 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
 
     const itemValues = params.orderItemsData.map(
       (item) =>
-        sql`(${item.productId}::text, ${JSON.stringify(item.productSnapshot)}::jsonb, ${item.quantity}::integer, ${item.price}::integer)`
+        sql`(${item.productId}::text, ${JSON.stringify(item.productSnapshot)}::jsonb, ${item.quantity}::integer, ${item.price}::integer, ${item.unitCostCents}::integer)`
     );
 
     const query = sql`
@@ -225,10 +277,10 @@ export async function persistOrder(params: PersistOrderParams): Promise<{
       new_items AS (
         INSERT INTO ${orderItems} (
           order_id, product_id,
-          product_snapshot, quantity, price
+          product_snapshot, quantity, price, unit_cost_cents
         )
-        SELECT new_order.id, v.product_id, v.snapshot, v.qty, v.price
-        FROM new_order, (VALUES ${sql.join(itemValues, sql`, `)}) AS v(product_id, snapshot, qty, price)
+        SELECT new_order.id, v.product_id, v.snapshot, v.qty, v.price, v.unit_cost
+        FROM new_order, (VALUES ${sql.join(itemValues, sql`, `)}) AS v(product_id, snapshot, qty, price, unit_cost)
         RETURNING 1
       ),
       new_event AS (

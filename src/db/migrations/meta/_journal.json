@@ -71,6 +71,13 @@
       "when": 1778610510148,
       "tag": "0009_curved_firebrand",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1778656838566,
+      "tag": "0010_smart_franklin_storm",
+      "breakpoints": true
     }
   ]
 }

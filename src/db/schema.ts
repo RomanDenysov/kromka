@@ -849,6 +849,13 @@ export const products = pgTable(
       .notNull()
       .default(sql`ARRAY[]::text[]`),
 
+    // Optional FK to a recipe (Phase C). Phase C derives cost from this
+    // recipe at order time; Phase D derives nutrition + allergens.
+    // Nullable: products can ship without a recipe (resold packaged items).
+    // Defined as plain text + manual FK in a separate file to avoid the
+    // circular ref between products and recipes tables.
+    recipeId: text("recipe_id"),
+
     isActive: boolean("is_active").default(true).notNull(),
     sortOrder: integer("sort_order").default(0).notNull(),
     status: text("status").$type<ProductStatus>().default("draft").notNull(),
@@ -899,6 +906,10 @@ export const productsRelations = relations(products, ({ many, one }) => ({
   image: one(media, {
     fields: [products.imageId],
     references: [media.id],
+  }),
+  recipe: one(recipes, {
+    fields: [products.recipeId],
+    references: [recipes.id],
   }),
 }));
 
@@ -1452,3 +1463,124 @@ export const ingredientPriceHistoryRelations = relations(
 );
 
 // #endregion Ingredients
+
+// #region Recipes (Phase C)
+
+export const RECIPE_KINDS = ["product", "sub_recipe"] as const;
+export type RecipeKind = (typeof RECIPE_KINDS)[number];
+
+export const RECIPE_STATUSES = ["draft", "published"] as const;
+export type RecipeStatus = (typeof RECIPE_STATUSES)[number];
+
+/**
+ * Recipe header. Two kinds: 'product' (linked to a product, final SKU)
+ * and 'sub_recipe' (reusable BOM building block — kvások, krém, ...).
+ *
+ * Yield: batch produces N units totalling M grams. Phase D uses
+ * batchYieldGrams + yieldLossPercent to derive finished mass for the
+ * per-100g nutrition table.
+ */
+export const recipes = pgTable(
+  "recipes",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("rec")),
+    name: text("name").notNull().default("Nový recept"),
+    slug: text("slug")
+      .notNull()
+      .unique()
+      .$defaultFn(() => draftSlug("Nový recept")),
+    kind: text("kind").$type<RecipeKind>().notNull().default("product"),
+    status: text("status").$type<RecipeStatus>().notNull().default("draft"),
+    batchYieldUnits: integer("batch_yield_units").notNull().default(1),
+    batchYieldGrams: integer("batch_yield_grams").notNull().default(0),
+    yieldLossPercent: integer("yield_loss_percent").notNull().default(10),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index("idx_recipes_kind_status").on(t.kind, t.status),
+    index("idx_recipes_slug").on(t.slug),
+    check("recipes_yield_units_positive", sql`${t.batchYieldUnits} > 0`),
+    check("recipes_yield_grams_non_negative", sql`${t.batchYieldGrams} >= 0`),
+    check(
+      "recipes_loss_percent_range",
+      sql`${t.yieldLossPercent} >= 0 AND ${t.yieldLossPercent} <= 50`
+    ),
+  ]
+);
+
+/**
+ * Recipe BOM. Each row is exactly one of (ingredientId, subRecipeId).
+ * XOR enforced by CHECK; duplicate prevention via unique partial indexes.
+ *
+ * quantityBaseUnit is in the linked ingredient's base unit (g or pieces)
+ * for ingredients, or grams for sub-recipes (consumed by mass).
+ */
+export const recipeItems = pgTable(
+  "recipe_items",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("rci")),
+    recipeId: text("recipe_id")
+      .notNull()
+      .references(() => recipes.id, { onDelete: "cascade" }),
+    ingredientId: text("ingredient_id").references(() => ingredients.id, {
+      onDelete: "restrict",
+    }),
+    subRecipeId: text("sub_recipe_id").references(() => recipes.id, {
+      onDelete: "restrict",
+    }),
+    quantityBaseUnit: integer("quantity_base_unit").notNull(),
+    sortOrder: integer("sort_order").notNull().default(0),
+    notes: text("notes"),
+  },
+  (t) => [
+    index("idx_recipe_items_recipe_id").on(t.recipeId, t.sortOrder),
+    index("idx_recipe_items_ingredient_id").on(t.ingredientId),
+    index("idx_recipe_items_sub_recipe_id").on(t.subRecipeId),
+    check(
+      "recipe_items_xor_ingredient_or_subrecipe",
+      sql`(${t.ingredientId} IS NOT NULL) <> (${t.subRecipeId} IS NOT NULL)`
+    ),
+    check("recipe_items_quantity_positive", sql`${t.quantityBaseUnit} > 0`),
+    check(
+      "recipe_items_no_self_reference",
+      sql`${t.subRecipeId} IS NULL OR ${t.subRecipeId} <> ${t.recipeId}`
+    ),
+    unique("recipe_items_unique_ingredient").on(t.recipeId, t.ingredientId),
+    unique("recipe_items_unique_subrecipe").on(t.recipeId, t.subRecipeId),
+  ]
+);
+
+export const recipesRelations = relations(recipes, ({ many, one }) => ({
+  items: many(recipeItems, { relationName: "recipe_items" }),
+  product: one(products, {
+    fields: [recipes.id],
+    references: [products.recipeId],
+  }),
+}));
+
+export const recipeItemsRelations = relations(recipeItems, ({ one }) => ({
+  recipe: one(recipes, {
+    fields: [recipeItems.recipeId],
+    references: [recipes.id],
+    relationName: "recipe_items",
+  }),
+  ingredient: one(ingredients, {
+    fields: [recipeItems.ingredientId],
+    references: [ingredients.id],
+  }),
+  subRecipe: one(recipes, {
+    fields: [recipeItems.subRecipeId],
+    references: [recipes.id],
+  }),
+}));
+
+// #endregion Recipes

@@ -21,6 +21,7 @@
     "migrate:images:prod": "pnpm dlx tsx scripts/migrate-product-images.ts prod",
     "typecheck": "pnpm tsc --noEmit && echo '✓ Types OK'",
     "test:stress": "pnpm dlx tsx scripts/stress-test-orders.ts",
+    "test:resolver": "pnpm dlx tsx src/features/recipes/lib/cost-resolver.test.ts",
     "check": "ultracite check",
     "fix": "ultracite fix",
     "prepare": "husky"
