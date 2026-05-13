@@ -1304,3 +1304,151 @@ export const allergens = pgTable("allergens", {
 });
 
 // #endregion Allergens
+
+// #region Ingredients (Phase B)
+
+export const INGREDIENT_BASE_UNITS = ["g", "piece"] as const;
+export type IngredientBaseUnit = (typeof INGREDIENT_BASE_UNITS)[number];
+
+export const INGREDIENT_NUTRITION_SOURCES = [
+  "manual",
+  "ai",
+  "supplier",
+  "seed",
+] as const;
+export type IngredientNutritionSource =
+  (typeof INGREDIENT_NUTRITION_SOURCES)[number];
+
+/** Nutrition values per 100 g of the ingredient. EU 1169/2011 fields. */
+export interface NutritionPer100 {
+  carbs: number;
+  fat: number;
+  fiber: number;
+  kcal: number;
+  protein: number;
+  salt: number;
+  saturatedFat: number;
+  sugar: number;
+}
+
+/**
+ * Raw-material catalog. Pricing uses XOR: cents/kg for mass, cents/piece
+ * for piece. See docs/specs/_arc-overview.md §3 for the rationale —
+ * per-kg storage is integer-lossless for every realistic supplier price.
+ */
+export const ingredients = pgTable(
+  "ingredients",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("ing")),
+    name: text("name").notNull().default("Nová surovina"),
+    slug: text("slug")
+      .notNull()
+      .unique()
+      .$defaultFn(() => draftSlug("Nová surovina")),
+
+    baseUnit: text("base_unit")
+      .$type<IngredientBaseUnit>()
+      .notNull()
+      .default("g"),
+    gramsPerPiece: integer("grams_per_piece"),
+
+    pricePerKgCents: integer("price_per_kg_cents"),
+    pricePerPieceCents: integer("price_per_piece_cents"),
+
+    supplierName: text("supplier_name"),
+
+    allergenCodes: text("allergen_codes")
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`),
+
+    nutritionPer100: jsonb("nutrition_per_100").$type<NutritionPer100>(),
+    nutritionSource: text("nutrition_source")
+      .$type<IngredientNutritionSource>()
+      .notNull()
+      .default("manual"),
+
+    notes: text("notes"),
+    isActive: boolean("is_active").notNull().default(true),
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    index("idx_ingredients_slug").on(t.slug),
+    index("idx_ingredients_active").on(t.isActive),
+    check(
+      "ingredients_price_kg_non_negative",
+      sql`${t.pricePerKgCents} IS NULL OR ${t.pricePerKgCents} >= 0`
+    ),
+    check(
+      "ingredients_price_piece_non_negative",
+      sql`${t.pricePerPieceCents} IS NULL OR ${t.pricePerPieceCents} >= 0`
+    ),
+    check(
+      "ingredients_grams_per_piece_when_piece",
+      sql`(${t.baseUnit} <> 'piece') OR (${t.gramsPerPiece} IS NOT NULL AND ${t.gramsPerPiece} > 0)`
+    ),
+    check(
+      "ingredients_price_matches_base_unit",
+      sql`(${t.baseUnit} = 'g'     AND ${t.pricePerKgCents}    IS NOT NULL AND ${t.pricePerPieceCents} IS NULL)
+       OR (${t.baseUnit} = 'piece' AND ${t.pricePerPieceCents} IS NOT NULL AND ${t.pricePerKgCents}    IS NULL)`
+    ),
+  ]
+);
+
+/** Append-only price-change log. Mirrors the ingredients XOR pricing shape. */
+export const ingredientPriceHistory = pgTable(
+  "ingredient_price_history",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("iph")),
+    ingredientId: text("ingredient_id")
+      .notNull()
+      .references(() => ingredients.id, { onDelete: "cascade" }),
+    pricePerKgCents: integer("price_per_kg_cents"),
+    pricePerPieceCents: integer("price_per_piece_cents"),
+    supplierName: text("supplier_name"),
+    source: text("source").default("manual").notNull(),
+    notes: text("notes"),
+    effectiveFrom: timestamp("effective_from").defaultNow().notNull(),
+  },
+  (t) => [
+    index("idx_iph_ingredient_effective").on(t.ingredientId, t.effectiveFrom),
+    check(
+      "iph_price_kg_non_negative",
+      sql`${t.pricePerKgCents}    IS NULL OR ${t.pricePerKgCents}    >= 0`
+    ),
+    check(
+      "iph_price_piece_non_negative",
+      sql`${t.pricePerPieceCents} IS NULL OR ${t.pricePerPieceCents} >= 0`
+    ),
+    check(
+      "iph_price_xor",
+      sql`(${t.pricePerKgCents}    IS NOT NULL AND ${t.pricePerPieceCents} IS NULL)
+       OR (${t.pricePerPieceCents} IS NOT NULL AND ${t.pricePerKgCents}    IS NULL)`
+    ),
+  ]
+);
+
+export const ingredientsRelations = relations(ingredients, ({ many }) => ({
+  priceHistory: many(ingredientPriceHistory),
+}));
+
+export const ingredientPriceHistoryRelations = relations(
+  ingredientPriceHistory,
+  ({ one }) => ({
+    ingredient: one(ingredients, {
+      fields: [ingredientPriceHistory.ingredientId],
+      references: [ingredients.id],
+    }),
+  })
+);
+
+// #endregion Ingredients

@@ -16,6 +16,7 @@ import {
   TagsIcon,
   UsersIcon,
   WalletIcon,
+  WheatIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -51,6 +52,11 @@ const NAV_ESHOP: NavItem[] = [
   { href: "/admin/stores", label: "Predajne", icon: StoreIcon },
   { href: "/admin/categories", label: "Kategórie", icon: TagsIcon },
   { href: "/admin/products", label: "Produkty", icon: Package2Icon },
+  {
+    href: "/admin/ingredients" as Route,
+    label: "Suroviny",
+    icon: WheatIcon,
+  },
 ];
 
 const NAV_BLOG: NavItem[] = [
