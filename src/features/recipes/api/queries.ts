@@ -95,6 +95,7 @@ export async function getResolverContext(
         pricePerKgCents: ingredients.pricePerKgCents,
         pricePerPieceCents: ingredients.pricePerPieceCents,
         allergenCodes: ingredients.allergenCodes,
+        nutritionPer100: ingredients.nutritionPer100,
       })
       .from(ingredients),
     opts.includeDrafts
@@ -140,6 +141,7 @@ export async function getResolverContext(
       pricePerKgCents: i.pricePerKgCents,
       pricePerPieceCents: i.pricePerPieceCents,
       allergenCodes: i.allergenCodes as AllergenCode[],
+      nutritionPer100: i.nutritionPer100,
     });
   }
 

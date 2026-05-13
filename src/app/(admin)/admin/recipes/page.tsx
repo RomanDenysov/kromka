@@ -82,7 +82,10 @@ export default async function RecipesPage() {
         ]}
       />
       <section className="@container/page space-y-4 p-4">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-2">
+          <Button asChild size="sm" variant="outline">
+            <a href="/admin/recipes/drift">Rozdiely alergénov</a>
+          </Button>
           <form action={createSubRecipe}>
             <Button size="sm" type="submit">
               + Nový subrecept

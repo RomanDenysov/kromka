@@ -856,6 +856,11 @@ export const products = pgTable(
     // circular ref between products and recipes tables.
     recipeId: text("recipe_id"),
 
+    // Phase D: manual nutrition override. When non-null, PDP shows these
+    // values verbatim and labels them "manuálne". When null, PDP derives
+    // from the recipe (if present) or hides the nutrition section.
+    nutritionOverride: jsonb("nutrition_override"),
+
     isActive: boolean("is_active").default(true).notNull(),
     sortOrder: integer("sort_order").default(0).notNull(),
     status: text("status").$type<ProductStatus>().default("draft").notNull(),

@@ -15,6 +15,13 @@
  */
 
 import type { AllergenCode } from "@/features/allergens/schema";
+import type { NutritionPer100Schema } from "@/features/ingredients/schema";
+import {
+  roundNutrition,
+  scaleNutrition,
+  sumNutrition,
+  ZERO_NUTRITION,
+} from "./nutrition-math";
 
 export const MAX_RECIPE_DEPTH = 3;
 
@@ -24,6 +31,8 @@ export interface IngredientLite {
   gramsPerPiece: number | null;
   id: string;
   name: string;
+  /** Phase D: nutrition per 100 g; null when admin hasn't filled it yet. */
+  nutritionPer100?: NutritionPer100Schema | null;
   pricePerKgCents: number | null;
   pricePerPieceCents: number | null;
 }
@@ -51,11 +60,15 @@ export interface ResolverContext {
 
 export interface ResolvedRecipeItem {
   allergenCodes: readonly AllergenCode[];
+  /** Phase D: nutrition contributed by this item to the parent batch (absolute g / kcal). */
+  contributedNutrition: NutritionPer100Schema;
+  /** Phase D: false when the ingredient has no nutrition data. */
+  hasNutrition: boolean;
   /** False when the ingredient/sub-recipe has no usable price. */
   hasPrice: boolean;
   itemId?: string;
   kind: "ingredient" | "sub_recipe";
-  /** Mass contribution in grams (used by Phase D for nutrition math). */
+  /** Mass contribution in grams. */
   massGrams: number;
   quantityBaseUnit: number;
   refId: string;
@@ -69,8 +82,14 @@ export interface ResolvedRecipeItem {
 export interface ResolvedRecipe {
   allergenCodes: AllergenCode[];
   batchCostCents: number;
+  /** Phase D: nutrition for the whole batch (sum of items, absolute). */
+  batchNutrition: NutritionPer100Schema;
   costPerUnitCents: number;
   finishedMassGrams: number;
+  /** Phase D: true when any item lacked nutrition data; preview surfaces a warning. */
+  nutritionIncomplete: boolean;
+  /** Phase D: nutrition per 100 g of finished product (final display value). */
+  nutritionPer100: NutritionPer100Schema;
   recipeId: string;
   trace: ResolvedRecipeItem[];
 }
@@ -144,6 +163,8 @@ export function resolveRecipeCost(
   nextVisited.add(recipeId);
 
   let batchCostCents = 0;
+  let batchNutrition = { ...ZERO_NUTRITION };
+  let nutritionIncomplete = false;
   const allergens = new Set<AllergenCode>();
   const trace: ResolvedRecipeItem[] = [];
 
@@ -152,6 +173,13 @@ export function resolveRecipeCost(
     if (resolved) {
       trace.push(resolved);
       batchCostCents += resolved.totalCostCents;
+      batchNutrition = sumNutrition(
+        batchNutrition,
+        resolved.contributedNutrition
+      );
+      if (!resolved.hasNutrition) {
+        nutritionIncomplete = true;
+      }
       for (const c of resolved.allergenCodes) {
         allergens.add(c);
       }
@@ -164,6 +192,10 @@ export function resolveRecipeCost(
   const costPerUnitCents = Math.round(
     batchCostCents / Math.max(recipe.batchYieldUnits, 1)
   );
+  const nutritionPer100 =
+    finishedMassGrams > 0
+      ? roundNutrition(scaleNutrition(batchNutrition, 100 / finishedMassGrams))
+      : { ...ZERO_NUTRITION };
 
   return {
     recipeId,
@@ -172,6 +204,9 @@ export function resolveRecipeCost(
     allergenCodes: [...allergens].sort(),
     finishedMassGrams,
     trace,
+    batchNutrition,
+    nutritionPer100,
+    nutritionIncomplete,
   };
 }
 
@@ -222,6 +257,14 @@ function resolveIngredientItem(
     }
   }
 
+  // Nutrition contribution: ingredient's per-100g values scaled by massGrams.
+  let contributedNutrition = { ...ZERO_NUTRITION };
+  let hasNutrition = false;
+  if (ing.nutritionPer100 && massGrams > 0) {
+    contributedNutrition = scaleNutrition(ing.nutritionPer100, massGrams / 100);
+    hasNutrition = true;
+  }
+
   return {
     itemId: item.id,
     kind: "ingredient",
@@ -232,7 +275,9 @@ function resolveIngredientItem(
     totalCostCents,
     allergenCodes: ing.allergenCodes,
     hasPrice,
+    hasNutrition,
     massGrams,
+    contributedNutrition,
   };
 }
 
@@ -255,6 +300,15 @@ function resolveSubRecipeItem(
     hasPrice = true;
   }
 
+  // Sub-recipe nutrition is scaled by mass fraction.
+  let contributedNutrition = { ...ZERO_NUTRITION };
+  let hasNutrition = false;
+  if (sub.finishedMassGrams > 0 && !sub.nutritionIncomplete) {
+    const fraction = massGrams / sub.finishedMassGrams;
+    contributedNutrition = scaleNutrition(sub.batchNutrition, fraction);
+    hasNutrition = true;
+  }
+
   return {
     itemId: item.id,
     kind: "sub_recipe",
@@ -265,7 +319,9 @@ function resolveSubRecipeItem(
     totalCostCents,
     allergenCodes: sub.allergenCodes,
     hasPrice,
+    hasNutrition,
     massGrams,
+    contributedNutrition,
   };
 }
 

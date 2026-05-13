@@ -1,6 +1,7 @@
 import type { JSONContent } from "@tiptap/react";
 import z from "zod";
 import { allergenCodeSchema } from "@/features/allergens/schema";
+import { nutritionPer100Schema } from "@/features/ingredients/schema";
 import { MAX_STRING_LENGTH } from "@/lib/constants";
 
 const PRODUCT_STATUSES = ["draft", "active", "sold", "archived"] as const;
@@ -23,6 +24,8 @@ export const updateProductSchema = z.object({
   categoryId: z.string().nullable(),
   imageId: z.string().nullable(),
   allergenCodes: z.array(allergenCodeSchema),
+  /** Phase D: optional manual override; null = derive from recipe (or hide). */
+  nutritionOverride: nutritionPer100Schema.nullable(),
 });
 
 export type UpdateProductSchema = z.infer<typeof updateProductSchema>;

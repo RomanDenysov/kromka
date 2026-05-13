@@ -27,6 +27,7 @@ import type { Allergen } from "@/features/allergens/api/queries";
 import { AllergenPicker } from "@/features/allergens/components/allergen-picker";
 import { allergenCodeSchema } from "@/features/allergens/schema";
 import type { Category } from "@/features/categories/api/queries";
+import { nutritionPer100Schema } from "@/features/ingredients/schema";
 import { updateProductAction } from "@/features/products/api/actions";
 import type { AdminProduct } from "@/features/products/api/queries";
 import { MAX_STRING_LENGTH, PRODUCT_STATUSES_LABELS } from "@/lib/constants";
@@ -46,6 +47,9 @@ export const productSchema = z.object({
   imageId: z.string().nullable(),
   categoryId: z.string().nullable(),
   allergenCodes: z.array(allergenCodeSchema),
+  // Phase D: full override UI is a follow-up; for now the value
+  // passes through as-is so we don't clobber DB-edited values.
+  nutritionOverride: nutritionPer100Schema.nullable(),
 });
 
 export type ProductSchema = z.infer<typeof productSchema>;
@@ -92,6 +96,9 @@ export function ProductForm({
       categoryId: product.category?.id ?? null,
       allergenCodes: (product.allergenCodes ??
         []) as ProductSchema["allergenCodes"],
+      nutritionOverride:
+        (product as { nutritionOverride?: ProductSchema["nutritionOverride"] })
+          .nutritionOverride ?? null,
     },
   });
 

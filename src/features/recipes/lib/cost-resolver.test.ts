@@ -298,6 +298,73 @@ t("canAddSubRecipe: cycle when candidate uses host transitively", () => {
   });
 });
 
+// --- Phase D: nutrition tests ---
+
+t(
+  "nutrition: per-100g flows from ingredients into batch + per-100g output",
+  () => {
+    const ctx = baseCtx();
+    // Add nutrition to flour: 360 kcal/100g, 10g protein/100g
+    ctx.ingredients.set("ing_flour", {
+      ...flour,
+      nutritionPer100: {
+        kcal: 360,
+        protein: 10,
+        fat: 1,
+        saturatedFat: 0.2,
+        carbs: 75,
+        sugar: 0.3,
+        salt: 0.01,
+        fiber: 2.5,
+      },
+    });
+    const r = resolveRecipeCost("rec_roll", ctx);
+    // flour: 1000g; scale = 1000/100 = 10x → 3600 kcal contribution
+    // water + salt have no nutrition → contribute 0; nutritionIncomplete = true
+    assert.equal(r.nutritionIncomplete, true);
+    assert.equal(r.batchNutrition.kcal, 3600);
+    // finished mass = 1320g; per-100g = 3600 / 1320 * 100 ≈ 273
+    assert.equal(r.nutritionPer100.kcal, 273);
+  }
+);
+
+t(
+  "nutrition: ingredient without nutritionPer100 contributes zero, flagged",
+  () => {
+    const ctx = baseCtx();
+    const r = resolveRecipeCost("rec_roll", ctx);
+    assert.equal(r.batchNutrition.kcal, 0);
+    assert.equal(r.nutritionIncomplete, true);
+    // All trace items should have hasNutrition = false
+    for (const t of r.trace) {
+      assert.equal(t.hasNutrition, false);
+    }
+  }
+);
+
+t("nutrition: piece-based item uses gramsPerPiece for mass", () => {
+  const ctx = baseCtx();
+  ctx.ingredients.set("ing_egg", {
+    ...egg,
+    nutritionPer100: {
+      kcal: 140,
+      protein: 12,
+      fat: 9.5,
+      saturatedFat: 3,
+      carbs: 1,
+      sugar: 1,
+      salt: 0.4,
+      fiber: 0,
+    },
+  });
+  const r = resolveRecipeCost("rec_palacinka", ctx);
+  // egg: 3 pieces * 50g = 150g; 150/100 = 1.5x → 210 kcal contribution
+  const eggRow = r.trace.find((i) => i.refId === "ing_egg");
+  assert.ok(eggRow);
+  assert.equal(eggRow.hasNutrition, true);
+  assert.equal(eggRow.contributedNutrition.kcal, 210);
+});
+
 t("canAddSubRecipe: depth exceeded when adding would push past 3", () => {
   // host already at depth 2; candidate has its own 2-level chain.
   const graph = new Map<string, readonly string[]>([
