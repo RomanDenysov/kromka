@@ -13,7 +13,6 @@ import {
   marginColor,
 } from "@/features/reports/lib/format";
 import { resolvePeriod } from "@/features/reports/lib/period";
-import { requireReportsView } from "@/lib/auth/guards";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 interface Props {
@@ -94,13 +93,21 @@ async function ProductReport({ searchParams }: Props) {
   );
 }
 
-export default async function ProductProfitabilityPage({
-  searchParams,
-}: Props) {
-  await requireReportsView();
+async function ExportButton({ searchParams }: Props) {
   const params = await searchParams;
   const preset = params.period ?? "30d";
+  return (
+    <Button asChild size="sm" variant="outline">
+      <a href={`/api/admin/reports/export?report=products&period=${preset}`}>
+        <DownloadIcon className="mr-1.5 size-4" />
+        Stiahnuť CSV
+      </a>
+    </Button>
+  );
+}
 
+export default function ProductProfitabilityPage({ searchParams }: Props) {
+  // Middleware guards /admin/*; the CSV export route enforces requireReportsView.
   return (
     <>
       <AdminHeader
@@ -112,22 +119,19 @@ export default async function ProductProfitabilityPage({
       />
       <section className="@container/page space-y-4 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <PeriodPicker basePath="/admin/reports/profitability/products" />
-          <Button asChild size="sm" variant="outline">
-            <a
-              href={`/api/admin/reports/export?report=products&period=${preset}`}
-            >
-              <DownloadIcon className="mr-1.5 size-4" />
-              Stiahnuť CSV
-            </a>
-          </Button>
+          <Suspense fallback={<div className="h-9 w-48" />}>
+            <PeriodPicker basePath="/admin/reports/profitability/products" />
+          </Suspense>
+          <Suspense fallback={null}>
+            <ExportButton searchParams={searchParams} />
+          </Suspense>
         </div>
         <Suspense
           fallback={
             <div className="h-64 animate-pulse rounded-lg bg-muted/40" />
           }
         >
-          <ProductReport searchParams={Promise.resolve(params)} />
+          <ProductReport searchParams={searchParams} />
         </Suspense>
       </section>
     </>

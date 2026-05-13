@@ -4,7 +4,6 @@ import { getAllergens } from "@/features/allergens/api/queries";
 import { createDraftIngredientAction } from "@/features/ingredients/api/actions";
 import { getIngredients } from "@/features/ingredients/api/queries";
 import { IngredientsTable } from "@/features/ingredients/components/ingredients-table";
-import { requireIngredientEdit } from "@/lib/auth/guards";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 import { IngredientsListFilters } from "./_components/ingredients-list-filters";
@@ -40,9 +39,11 @@ async function IngredientsLoader({ searchParams }: Props) {
   return <IngredientsTable allergens={allergens} ingredients={items} />;
 }
 
-export default async function IngredientsPage({ searchParams }: Props) {
-  await requireIngredientEdit();
-
+export default function IngredientsPage({ searchParams }: Props) {
+  // Middleware (src/proxy.ts) guards /admin/* page navigation; per CLAUDE.md
+  // we don't call auth guards in pages — they trigger cacheComponents
+  // "uncached data outside Suspense" build errors. Server actions still
+  // require their own requireIngredientEdit() guard.
   return (
     <>
       <AdminHeader
@@ -53,7 +54,9 @@ export default async function IngredientsPage({ searchParams }: Props) {
       />
       <section className="@container/page space-y-4 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <IngredientsListFilters />
+          <Suspense fallback={<div className="h-9 w-64" />}>
+            <IngredientsListFilters />
+          </Suspense>
           <div className="flex items-center gap-2">
             <Button asChild size="sm" variant="outline">
               <a href="/admin/ingredients/duplicates">Duplicity</a>

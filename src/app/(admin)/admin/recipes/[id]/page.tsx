@@ -10,7 +10,6 @@ import {
   getResolverContext,
 } from "@/features/recipes/api/queries";
 import { RecipeBuilder } from "@/features/recipes/components/recipe-builder";
-import { requireRecipeView } from "@/lib/auth/guards";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 interface Props {
@@ -85,9 +84,8 @@ async function RecipeDetailLoader({ params }: Props) {
   );
 }
 
-export default async function RecipeDetailPage({ params }: Props) {
-  await requireRecipeView();
-  const { id } = await params;
+export default function RecipeDetailPage({ params }: Props) {
+  // Middleware guards /admin/*; server actions handle mutations.
   return (
     <>
       <AdminHeader
@@ -99,7 +97,7 @@ export default async function RecipeDetailPage({ params }: Props) {
       />
       <section className="@container/page p-4">
         <Suspense fallback={<FormSkeleton />}>
-          <RecipeDetailLoader params={Promise.resolve({ id })} />
+          <RecipeDetailLoader params={params} />
         </Suspense>
       </section>
     </>

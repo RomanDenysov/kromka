@@ -8,7 +8,6 @@ import {
 } from "@/features/ingredients/api/queries";
 import { IngredientForm } from "@/features/ingredients/components/ingredient-form";
 import { PriceHistoryPanel } from "@/features/ingredients/components/price-history-panel";
-import { requireIngredientEdit } from "@/lib/auth/guards";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 interface Props {
@@ -43,9 +42,8 @@ async function IngredientDetailLoader({ params }: Props) {
   );
 }
 
-export default async function IngredientDetailPage({ params }: Props) {
-  await requireIngredientEdit();
-  const { id } = await params;
+export default function IngredientDetailPage({ params }: Props) {
+  // Middleware guards /admin/*; server actions guard mutations.
   return (
     <>
       <AdminHeader
@@ -57,7 +55,7 @@ export default async function IngredientDetailPage({ params }: Props) {
       />
       <section className="@container/page p-4">
         <Suspense fallback={<FormSkeleton />}>
-          <IngredientDetailLoader params={Promise.resolve({ id })} />
+          <IngredientDetailLoader params={params} />
         </Suspense>
       </section>
     </>

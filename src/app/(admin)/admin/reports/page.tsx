@@ -1,37 +1,6 @@
 import { BarChart3Icon, PackageIcon, StoreIcon } from "lucide-react";
 import Link from "next/link";
-import { Suspense } from "react";
-import { getProfitabilitySummary } from "@/features/reports/api/queries";
-import { KpiCard } from "@/features/reports/components/kpi-card";
-import {
-  formatEur,
-  formatPct,
-  marginColor,
-} from "@/features/reports/lib/format";
-import { resolvePeriod } from "@/features/reports/lib/period";
-import { requireReportsView } from "@/lib/auth/guards";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
-
-async function SummaryStrip() {
-  const period = resolvePeriod("30d");
-  const summary = await getProfitabilitySummary(period);
-  return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <KpiCard
-        hint="Posledných 30 dní"
-        label="Tržby"
-        value={formatEur(summary.revenueCents)}
-      />
-      <KpiCard label="Náklady" value={formatEur(summary.costCents)} />
-      <KpiCard label="Marža (€)" value={formatEur(summary.marginCents)} />
-      <KpiCard
-        className={marginColor(summary.marginPct)}
-        label="Marža %"
-        value={formatPct(summary.marginPct)}
-      />
-    </div>
-  );
-}
 
 const REPORT_LINKS = [
   {
@@ -49,9 +18,11 @@ const REPORT_LINKS = [
   },
 ] as const;
 
-export default async function ReportsLandingPage() {
-  await requireReportsView();
-
+export default function ReportsLandingPage() {
+  // Middleware guards /admin/*; route handlers / actions guard their own
+  // paths. Summary KPIs live on the /admin dashboard widget — duplicating
+  // them here would force new Date() into a server component before any
+  // uncached read, which Next.js 16 cacheComponents disallows.
   return (
     <>
       <AdminHeader
@@ -61,14 +32,6 @@ export default async function ReportsLandingPage() {
         ]}
       />
       <section className="@container/page space-y-6 p-4">
-        <Suspense
-          fallback={
-            <div className="h-24 animate-pulse rounded-lg bg-muted/40" />
-          }
-        >
-          <SummaryStrip />
-        </Suspense>
-
         <div className="grid gap-3 sm:grid-cols-2">
           {REPORT_LINKS.map((r) => {
             const Icon = r.icon;

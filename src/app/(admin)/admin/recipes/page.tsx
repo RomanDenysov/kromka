@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createRecipeAction } from "@/features/recipes/api/actions";
 import { getRecipes } from "@/features/recipes/api/queries";
-import { requireRecipeView } from "@/lib/auth/guards";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
@@ -70,9 +69,8 @@ async function RecipesLoader() {
   );
 }
 
-export default async function RecipesPage() {
-  await requireRecipeView();
-
+export default function RecipesPage() {
+  // Middleware guards /admin/*; server actions handle mutations.
   return (
     <>
       <AdminHeader
