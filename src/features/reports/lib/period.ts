@@ -33,11 +33,11 @@ export function resolvePeriod(
   customFromIso?: string,
   customToIso?: string
 ): Period {
-  const now = new Date();
-  const today = endOfDay(now);
+  const today = endOfDay(new Date());
+  const thirtyDaysBack = startOfDay(subDays(today, 30));
 
   let from: Date;
-  let to: Date = today;
+  let to = today;
 
   switch (preset) {
     case "7d":
@@ -55,14 +55,12 @@ export function resolvePeriod(
     case "custom": {
       const parsedFrom = safeParseIso(customFromIso);
       const parsedTo = safeParseIso(customToIso);
-      from = parsedFrom
-        ? startOfDay(parsedFrom)
-        : startOfDay(subDays(today, 30));
+      from = parsedFrom ? startOfDay(parsedFrom) : thirtyDaysBack;
       to = parsedTo ? endOfDay(parsedTo) : today;
       break;
     }
     default:
-      from = startOfDay(subDays(today, 30));
+      from = thirtyDaysBack;
   }
 
   const lengthMs = to.getTime() - from.getTime();

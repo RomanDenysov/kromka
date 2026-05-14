@@ -72,8 +72,7 @@ export async function getAllergenDrift(
     let derived: AllergenCode[] = [];
     let resolverError: string | null = null;
     try {
-      const resolved = resolveRecipeCost(p.recipeId, ctx);
-      derived = resolved.allergenCodes.slice().sort();
+      derived = resolveRecipeCost(p.recipeId, ctx).allergenCodes.slice().sort();
     } catch (err) {
       log.products.warn(
         { err, productId: p.id, recipeId: p.recipeId },
