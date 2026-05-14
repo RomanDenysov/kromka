@@ -1,20 +1,25 @@
 import { z } from "zod";
 import { RECIPE_KINDS, RECIPE_STATUSES } from "@/db/schema";
 
-export const recipeHeaderSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Názov je povinný")
-    .max(100, "Názov je príliš dlhý"),
-  slug: z.string().trim().min(1).max(120),
-  kind: z.enum(RECIPE_KINDS),
-  status: z.enum(RECIPE_STATUSES),
-  batchYieldUnits: z.number().int().positive("Výnos musí byť kladné číslo"),
-  batchYieldGrams: z.number().int().min(0),
-  yieldLossPercent: z.number().int().min(0).max(50),
-  notes: z.string().trim().max(2000).nullable(),
-});
+export const recipeHeaderSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, "Názov je povinný")
+      .max(100, "Názov je príliš dlhý"),
+    slug: z.string().trim().min(1).max(120),
+    kind: z.enum(RECIPE_KINDS),
+    status: z.enum(RECIPE_STATUSES),
+    batchYieldUnits: z.number().int().positive("Výnos musí byť kladné číslo"),
+    batchYieldGrams: z.number().int().min(0),
+    yieldLossPercent: z.number().int().min(0).max(50),
+    notes: z.string().trim().max(2000).nullable(),
+  })
+  .refine((v) => v.kind !== "product" || v.batchYieldGrams > 0, {
+    message: "Produktový recept musí mať výťažnosť väčšiu ako 0 g",
+    path: ["batchYieldGrams"],
+  });
 
 export type RecipeHeaderSchema = z.infer<typeof recipeHeaderSchema>;
 

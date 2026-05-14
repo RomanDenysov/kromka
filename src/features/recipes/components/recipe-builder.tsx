@@ -79,7 +79,7 @@ function pushRecent(id: string) {
   try {
     window.localStorage.setItem(RECENT_KEY, JSON.stringify(next));
   } catch {
-    // ignore quota errors
+    // localStorage may be full or disabled (private mode); recent picks are non-essential UX state.
   }
 }
 

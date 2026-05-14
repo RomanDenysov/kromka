@@ -127,7 +127,6 @@ export async function deleteRecipeAction({
 }): Promise<ActionResult> {
   await requireRecipeEdit();
 
-  // Block deletion if any product or parent recipe references this.
   const deps = await getRecipeDependents(id);
   if (deps.products.length > 0 || deps.parentRecipes.length > 0) {
     return {
@@ -250,7 +249,6 @@ export async function addRecipeItemAction(
     }
   }
 
-  // sortOrder = max+1
   const max = await db
     .select({ max: sql<number>`COALESCE(MAX(${recipeItems.sortOrder}), -1)` })
     .from(recipeItems)
@@ -354,7 +352,15 @@ export async function bulkAddItemsFromRecipeAction({
   }
 
   if (toInsert.length > 0) {
-    await db.insert(recipeItems).values(toInsert);
+    try {
+      await db.insert(recipeItems).values(toInsert);
+    } catch (err) {
+      log.recipes.error(
+        { err, targetRecipeId, count: toInsert.length },
+        "Bulk recipe items insert failed"
+      );
+      return { success: false, error: "Skupinové pridanie zlyhalo" };
+    }
   }
   invalidate(targetRecipeId);
   return { success: true, added: toInsert.length, skipped };

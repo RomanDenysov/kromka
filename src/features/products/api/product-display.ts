@@ -2,20 +2,34 @@ import "server-only";
 
 import { eq } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
+import { z } from "zod";
 import { db } from "@/db";
 import { products } from "@/db/schema";
-import type { AllergenCode } from "@/features/allergens/schema";
+import {
+  type AllergenCode,
+  allergenCodeSchema,
+} from "@/features/allergens/schema";
 import type { NutritionPer100Schema } from "@/features/ingredients/schema";
 import { getResolverContext } from "@/features/recipes/api/queries";
 import { resolveRecipeCost } from "@/features/recipes/lib/cost-resolver";
+import { log } from "@/lib/logger";
 
-export interface ProductDisplay {
+interface ProductDisplayBase {
   allergenCodes: AllergenCode[];
   allergenSource: "derived" | "manual";
-  nutrition: NutritionPer100Schema | null;
   nutritionIncomplete: boolean;
-  nutritionSource: "computed" | "override" | "none";
 }
+
+export type ProductDisplay = ProductDisplayBase &
+  (
+    | { nutrition: null; nutritionSource: "none" }
+    | {
+        nutrition: NutritionPer100Schema;
+        nutritionSource: "computed" | "override";
+      }
+  );
+
+const manualAllergensSchema = z.array(allergenCodeSchema);
 
 /**
  * Consolidated PDP data source for allergens + nutrition.
@@ -55,11 +69,16 @@ export async function getDerivedProductDisplay(
   }
 
   const product = row[0];
-  const manualAllergens = product.allergenCodes as AllergenCode[];
+  const parsed = manualAllergensSchema.safeParse(product.allergenCodes ?? []);
+  if (!parsed.success) {
+    log.products.warn(
+      { err: parsed.error, productId },
+      "Invalid allergen codes in DB; falling back to empty manual list"
+    );
+  }
+  const manualAllergens: AllergenCode[] = parsed.success ? parsed.data : [];
   const override = product.nutritionOverride as NutritionPer100Schema | null;
 
-  // If admin set a nutrition override, use it verbatim. Allergens still
-  // try to derive from the recipe.
   let allergenCodes = manualAllergens;
   let allergenSource: "derived" | "manual" = "manual";
   let computedNutrition: NutritionPer100Schema | null = null;
@@ -73,31 +92,30 @@ export async function getDerivedProductDisplay(
       allergenSource = "derived";
       computedNutrition = resolved.nutritionPer100;
       nutritionIncomplete = resolved.nutritionIncomplete;
-    } catch {
-      // Resolver threw — fall back to manual allergens, hide nutrition.
+    } catch (err) {
+      log.products.warn(
+        { err, productId, recipeId: product.recipeId },
+        "Recipe cost resolver failed; falling back to manual allergens"
+      );
       allergenCodes = manualAllergens;
       allergenSource = "manual";
     }
   }
 
-  let nutrition: NutritionPer100Schema | null;
-  let nutritionSource: "computed" | "override" | "none";
-  if (override) {
-    nutrition = override;
-    nutritionSource = "override";
-  } else if (computedNutrition && !nutritionIncomplete) {
-    nutrition = computedNutrition;
-    nutritionSource = "computed";
-  } else {
-    nutrition = null;
-    nutritionSource = "none";
-  }
-
-  return {
+  const base: ProductDisplayBase = {
     allergenCodes,
     allergenSource,
-    nutrition,
-    nutritionSource,
     nutritionIncomplete,
   };
+  if (override) {
+    return { ...base, nutrition: override, nutritionSource: "override" };
+  }
+  if (computedNutrition && !nutritionIncomplete) {
+    return {
+      ...base,
+      nutrition: computedNutrition,
+      nutritionSource: "computed",
+    };
+  }
+  return { ...base, nutrition: null, nutritionSource: "none" };
 }

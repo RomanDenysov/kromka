@@ -1,5 +1,7 @@
 "use server";
 
+import { anthropic } from "@ai-sdk/anthropic";
+import { generateObject } from "ai";
 import { eq, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -9,8 +11,8 @@ import { draftSlug } from "@/db/utils";
 import { requireIngredientEdit } from "@/lib/auth/guards";
 import { log } from "@/lib/logger";
 import {
-  anthropic,
-  extractJsonBlock,
+  isAiNutritionConfigured,
+  NUTRITION_MODEL_ID,
   NUTRITION_SYSTEM_PROMPT,
 } from "../lib/anthropic";
 import {
@@ -264,10 +266,10 @@ export async function aiAutofillNutritionAction({
 }): Promise<ActionResult<{ suggestion: AiNutritionSuggestion }>> {
   await requireIngredientEdit();
 
-  if (!anthropic) {
+  if (!isAiNutritionConfigured()) {
     return {
       success: false,
-      error: "AI funkcia nie je nakonfigurované (chýba ANTHROPIC_API_KEY)",
+      error: "AI funkcia nie je nakonfigurovaná (chýba ANTHROPIC_API_KEY)",
     };
   }
 
@@ -290,46 +292,17 @@ export async function aiAutofillNutritionAction({
 Jednotka: ${i.baseUnit === "g" ? "100 g" : `1 kus = ${i.gramsPerPiece ?? "?"} g, hodnoty na 100 g`}`;
 
   try {
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-5",
-      max_tokens: 512,
-      system: [
-        {
-          type: "text",
-          text: NUTRITION_SYSTEM_PROMPT,
-          cache_control: { type: "ephemeral" },
-        },
-      ],
-      messages: [{ role: "user", content: userContent }],
+    const { object } = await generateObject({
+      model: anthropic(NUTRITION_MODEL_ID),
+      schema: aiNutritionSuggestionSchema,
+      system: NUTRITION_SYSTEM_PROMPT,
+      prompt: userContent,
     });
 
-    const text =
-      message.content[0]?.type === "text" ? message.content[0].text : "";
-    if (!text) {
-      return { success: false, error: "AI nevrátila odpoveď" };
-    }
-
-    let json: unknown;
-    try {
-      json = JSON.parse(extractJsonBlock(text));
-    } catch (err) {
-      log.ingredients.error(
-        { err, ingredientId, raw: text },
-        "AI returned non-JSON"
-      );
-      return { success: false, error: "AI vrátila nesprávny formát" };
-    }
-
-    const parsed = aiNutritionSuggestionSchema.safeParse(json);
-    if (!parsed.success) {
-      log.ingredients.error(
-        { ingredientId, raw: text, issues: parsed.error.issues },
-        "AI response failed schema validation"
-      );
-      return { success: false, error: "AI vrátila neplatné hodnoty" };
-    }
-
-    return { success: true, suggestion: parsed.data };
+    return {
+      success: true,
+      suggestion: object satisfies AiNutritionSuggestion,
+    };
   } catch (err) {
     log.ingredients.error({ err, ingredientId }, "AI autofill call failed");
     return { success: false, error: "AI volanie zlyhalo" };

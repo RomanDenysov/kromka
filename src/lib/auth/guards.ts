@@ -33,7 +33,6 @@ export function requireAdmin() {
 export async function requireAuth() {
   const user = await getUser();
 
-  // TODO: Check if we need to redirect to login page or just return 'unauthorized'
   if (!user) {
     unauthorized();
   }

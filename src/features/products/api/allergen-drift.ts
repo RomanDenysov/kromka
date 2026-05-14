@@ -7,6 +7,7 @@ import { products } from "@/db/schema";
 import type { AllergenCode } from "@/features/allergens/schema";
 import { getResolverContext } from "@/features/recipes/api/queries";
 import { resolveRecipeCost } from "@/features/recipes/lib/cost-resolver";
+import { log } from "@/lib/logger";
 
 export interface DriftRow {
   added: AllergenCode[];
@@ -74,6 +75,10 @@ export async function getAllergenDrift(
       const resolved = resolveRecipeCost(p.recipeId, ctx);
       derived = resolved.allergenCodes.slice().sort();
     } catch (err) {
+      log.products.warn(
+        { err, productId: p.id, recipeId: p.recipeId },
+        "Allergen drift resolver failed"
+      );
       resolverError = err instanceof Error ? err.message : "Unknown error";
     }
 

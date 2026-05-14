@@ -1,4 +1,11 @@
-import { endOfDay, formatISO, startOfDay, subDays } from "date-fns";
+import {
+  endOfDay,
+  formatISO,
+  isValid,
+  parseISO,
+  startOfDay,
+  subDays,
+} from "date-fns";
 import type { PeriodPreset } from "./constants";
 
 export interface Period {
@@ -7,6 +14,14 @@ export interface Period {
   previousFrom: Date;
   previousTo: Date;
   to: Date;
+}
+
+function safeParseIso(s: string | undefined): Date | null {
+  if (!s) {
+    return null;
+  }
+  const d = parseISO(s);
+  return isValid(d) ? d : null;
 }
 
 /**
@@ -37,12 +52,15 @@ export function resolvePeriod(
     case "ytd":
       from = startOfDay(new Date(today.getFullYear(), 0, 1));
       break;
-    case "custom":
-      from = customFromIso
-        ? startOfDay(new Date(customFromIso))
+    case "custom": {
+      const parsedFrom = safeParseIso(customFromIso);
+      const parsedTo = safeParseIso(customToIso);
+      from = parsedFrom
+        ? startOfDay(parsedFrom)
         : startOfDay(subDays(today, 30));
-      to = customToIso ? endOfDay(new Date(customToIso)) : today;
+      to = parsedTo ? endOfDay(parsedTo) : today;
       break;
+    }
     default:
       from = startOfDay(subDays(today, 30));
   }
