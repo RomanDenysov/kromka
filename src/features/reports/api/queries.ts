@@ -1,10 +1,26 @@
 "use cache";
 
-import { sql } from "drizzle-orm";
+import { sql, type SQL } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 import { PROFIT_ORDER_STATUSES } from "../lib/constants";
 import type { Period } from "../lib/period";
+
+const STATUS_LIST: SQL = sql.join(
+  PROFIT_ORDER_STATUSES.map((s) => sql`${s}`),
+  sql`, `
+);
+
+function storeFilter(storeIds: string[] | undefined): SQL {
+  if (!storeIds || storeIds.length === 0) {
+    return sql``;
+  }
+  const list = sql.join(
+    storeIds.map((id) => sql`${id}`),
+    sql`, `
+  );
+  return sql`AND o.store_id IN (${list})`;
+}
 
 export interface StoreProfitabilityRow {
   costCents: number | null;
@@ -62,8 +78,8 @@ export async function getProfitabilitySummary(
     JOIN order_items oi ON oi.order_id = o.id
     WHERE o.created_at >= ${period.from}
       AND o.created_at <= ${period.to}
-      AND o.order_status = ANY(${[...PROFIT_ORDER_STATUSES]})
-      AND (${opts.storeIds ? opts.storeIds : null}::text[] IS NULL OR o.store_id = ANY(${opts.storeIds ?? []}))
+      AND o.order_status IN (${STATUS_LIST})
+      ${storeFilter(opts.storeIds)}
   `);
 
   const row = rows.rows[0] as
@@ -124,8 +140,8 @@ export async function getStoreProfitability(
     LEFT JOIN stores s ON s.id = o.store_id
     WHERE o.created_at >= ${period.from}
       AND o.created_at <= ${period.to}
-      AND o.order_status = ANY(${[...PROFIT_ORDER_STATUSES]})
-      AND (${opts.storeIds ? opts.storeIds : null}::text[] IS NULL OR o.store_id = ANY(${opts.storeIds ?? []}))
+      AND o.order_status IN (${STATUS_LIST})
+      ${storeFilter(opts.storeIds)}
     GROUP BY o.store_id, s.name
     ORDER BY revenue_cents DESC NULLS LAST
   `);
@@ -181,8 +197,8 @@ export async function getProductProfitability(
     LEFT JOIN categories c ON c.id = p.category_id
     WHERE o.created_at >= ${period.from}
       AND o.created_at <= ${period.to}
-      AND o.order_status = ANY(${[...PROFIT_ORDER_STATUSES]})
-      AND (${opts.storeIds ? opts.storeIds : null}::text[] IS NULL OR o.store_id = ANY(${opts.storeIds ?? []}))
+      AND o.order_status IN (${STATUS_LIST})
+      ${storeFilter(opts.storeIds)}
     GROUP BY oi.product_id, p.name, c.name
     HAVING SUM(oi.quantity) >= ${minQty}
     ORDER BY revenue_cents DESC

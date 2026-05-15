@@ -41,11 +41,9 @@ export function RecipeHeaderForm({ recipeId, initial, onChange }: Props) {
     key: K,
     value: RecipeHeaderSchema[K]
   ) => {
-    setState((prev) => {
-      const next = { ...prev, [key]: value };
-      onChange(next);
-      return next;
-    });
+    const next = { ...state, [key]: value };
+    setState(next);
+    onChange(next);
   };
 
   const handleSave = () => {
