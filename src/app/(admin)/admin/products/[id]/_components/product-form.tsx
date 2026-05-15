@@ -17,11 +17,12 @@ import { SlugField } from "@/components/forms/fields/slug-field";
 import { SwitchField } from "@/components/forms/fields/switch-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import {
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-} from "@/components/ui/field";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { PRODUCT_STATUSES } from "@/db/types";
 import type { Allergen } from "@/features/allergens/api/queries";
 import { AllergenPicker } from "@/features/allergens/components/allergen-picker";
@@ -47,8 +48,6 @@ export const productSchema = z.object({
   imageId: z.string().nullable(),
   categoryId: z.string().nullable(),
   allergenCodes: z.array(allergenCodeSchema),
-  // Phase D: full override UI is a follow-up; for now the value
-  // passes through as-is so we don't clobber DB-edited values.
   nutritionOverride: nutritionPer100Schema.nullable(),
 });
 
@@ -114,96 +113,121 @@ export function ProductForm({
       toast.success("Produkt bol uložený");
     }
   };
+
   return (
     <FormProvider {...form}>
       <form id={formId} onSubmit={form.handleSubmit(onSubmit)} ref={formRef}>
-        <div
-          className={cn(
-            "grid @xl/page:max-w-5xl max-w-full gap-6 @lg/page:p-5 @xl/page:p-8 p-4",
-            className
-          )}
-        >
-          <FieldSet className="@xl/page:gap-8 gap-5">
-            <FieldGroup className="grid @xl/page:grid-cols-4 grid-cols-2 @xl/page:gap-6 gap-4">
+        <div className={cn("flex flex-col gap-6", className)}>
+          <Card>
+            <CardHeader>
+              <CardTitle>Základné informácie</CardTitle>
+              <CardDescription>
+                Obrázok, názov a katalógové údaje produktu.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid @2xl/page:grid-cols-[minmax(0,240px)_1fr] gap-6">
               <ImageUploadField
-                className="@xl/page:col-span-3 col-span-full @xl/page:row-span-2"
+                className="@2xl/page:max-w-[240px]"
                 folder="products"
                 imageUrl={product.imageUrl ?? undefined}
                 name="imageId"
               />
-              <TextField
-                label="Názov"
-                name="name"
-                placeholder="Názov produktu"
-              />
-              <SlugField label="Slug" name="slug" />
+              <div className="flex flex-col gap-4">
+                <div className="grid @md/page:grid-cols-2 gap-4">
+                  <TextField
+                    label="Názov"
+                    name="name"
+                    placeholder="Názov produktu"
+                  />
+                  <SlugField label="Slug" name="slug" />
+                </div>
+                <div className="grid @lg/page:grid-cols-3 gap-4">
+                  <ComboboxField
+                    label="Kategória"
+                    name="categoryId"
+                    options={categories.map((category) => ({
+                      value: category.id,
+                      label: category.name,
+                    }))}
+                  />
+                  <SelectField
+                    label="Status"
+                    name="status"
+                    options={PRODUCT_STATUSES.map((status) => ({
+                      value: status,
+                      label: PRODUCT_STATUSES_LABELS[status],
+                    }))}
+                  />
+                  <PriceInputField label="Cena" name="priceCents" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Popis</CardTitle>
+              <CardDescription>
+                Marketingový popis zobrazený zákazníkom na detaile produktu.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <RichTextField
-                label="Popis"
+                label=""
                 name="description"
                 placeholder="Popis produktu"
                 variant="simple"
               />
-              <ComboboxField
-                label="Kategória"
-                name="categoryId"
-                options={categories.map((category) => ({
-                  value: category.id,
-                  label: category.name,
-                }))}
-              />
+            </CardContent>
+          </Card>
 
-              <SelectField
-                label="Status"
-                name="status"
-                options={PRODUCT_STATUSES.map((status) => ({
-                  value: status,
-                  label: PRODUCT_STATUSES_LABELS[status],
-                }))}
+          <Card>
+            <CardHeader>
+              <CardTitle>Alergény</CardTitle>
+              <CardDescription>
+                Vyberte alergény, ktoré produkt obsahuje. Zoznam pochádza z
+                povinných 14 alergénov podľa nariadenia EÚ 1169/2011.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AllergenPicker
+                allergens={allergens}
+                label=""
+                name="allergenCodes"
               />
-              <PriceInputField label="Cena" name="priceCents" />
-            </FieldGroup>
-          </FieldSet>
+            </CardContent>
+          </Card>
 
-          <FieldSet className="@xl/page:gap-8 gap-4">
-            <FieldLabel>Alergény</FieldLabel>
-            <FieldDescription>
-              Vyberte alergény, ktoré produkt obsahuje. Zoznam pochádza z
-              povinných 14 alergénov podľa nariadenia EÚ 1169/2011.
-            </FieldDescription>
-            <AllergenPicker
-              allergens={allergens}
-              label=""
-              name="allergenCodes"
-            />
-          </FieldSet>
-
-          <FieldSet className="@xl/page:gap-8 gap-4">
-            <FieldLabel>Zobrazenie</FieldLabel>
-            <FieldDescription>
-              Nastavenie configurácie zobrazenia produktu pre B2C a B2B
-              klientov.
-            </FieldDescription>
-            <FieldGroup
-              className="flex-row gap-3 rounded-md border p-3"
-              data-slot="checkbox-group"
-            >
-              <CheckboxField label="B2B" name="showInB2b" />
-              <CheckboxField label="B2C" name="showInB2c" />
-            </FieldGroup>
-            <FieldGroup className="flex-row gap-3">
-              <SwitchField
-                className="grow"
-                description="Zobraziť produkt na stránkach?"
-                label="Aktívny"
-                name="isActive"
-              />
-              <QuantityField
-                className="flex-1"
-                label="Poradie"
-                name="sortOrder"
-              />
-            </FieldGroup>
-          </FieldSet>
+          <Card>
+            <CardHeader>
+              <CardTitle>Zobrazenie</CardTitle>
+              <CardDescription>
+                Nastavenie zobrazenia produktu pre B2C a B2B klientov.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <div
+                className="flex flex-wrap items-center gap-6 rounded-md border bg-muted/30 p-4"
+                data-slot="checkbox-group"
+              >
+                <CheckboxField label="B2B" name="showInB2b" />
+                <CheckboxField label="B2C" name="showInB2c" />
+              </div>
+              <div className="grid @md/page:grid-cols-[1fr_auto] @md/page:items-stretch gap-4">
+                <SwitchField
+                  className="bg-muted/30"
+                  description="Zobraziť produkt na stránkach?"
+                  label="Aktívny"
+                  name="isActive"
+                />
+                <QuantityField
+                  className="@md/page:w-[180px] bg-muted/30"
+                  label="Poradie"
+                  name="sortOrder"
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </form>
       {renderFooter({ isPending: form.formState.isSubmitting })}

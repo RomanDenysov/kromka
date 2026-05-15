@@ -36,17 +36,19 @@ async function ProductFormLoader({ params }: Props) {
   const recipeCard = await loadRecipeCard(product.id, product.recipeId ?? null);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+    <div className="mx-auto grid w-full max-w-6xl @3xl/page:grid-cols-[minmax(0,1fr)_320px] gap-6">
       <FormContainer
         allergens={allergens}
         categories={categories}
         product={product}
       />
-      <ProductRecipeCard
-        availableProductRecipes={recipeCard.availableProductRecipes}
-        linkedRecipe={recipeCard.linkedRecipe}
-        productId={product.id}
-      />
+      <div className="@3xl/page:sticky @3xl/page:top-4 @3xl/page:self-start">
+        <ProductRecipeCard
+          availableProductRecipes={recipeCard.availableProductRecipes}
+          linkedRecipe={recipeCard.linkedRecipe}
+          productId={product.id}
+        />
+      </div>
     </div>
   );
 }

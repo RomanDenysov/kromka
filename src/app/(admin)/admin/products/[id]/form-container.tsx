@@ -24,13 +24,8 @@ export function FormContainer({ categories, allergens, product }: Props) {
       formId={formId}
       product={product}
       renderFooter={({ isPending }) => (
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            disabled={isPending}
-            form="product-form"
-            size="sm"
-            type="submit"
-          >
+        <div className="sticky bottom-0 z-10 -mx-4 mt-6 flex items-center justify-end gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <Button disabled={isPending} form={formId} size="sm" type="submit">
             Uložiť
             {isPending ? <Spinner /> : <Kbd>↵</Kbd>}
           </Button>
