@@ -16,6 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
+import type { Allergen } from "@/features/allergens/api/queries";
 import type { Category } from "@/features/categories/api/queries";
 import type { AdminProduct } from "@/features/products/api/queries";
 import { useProductParams } from "@/hooks/use-product-params";
@@ -24,9 +25,11 @@ import { cn } from "@/lib/utils";
 export function EditProductSheet({
   product,
   categories,
+  allergens,
 }: {
   product: AdminProduct;
   categories: Category[];
+  allergens: Allergen[];
 }) {
   const { productId, setParams } = useProductParams();
 
@@ -48,6 +51,7 @@ export function EditProductSheet({
 
         <div className="flex flex-1 flex-col overflow-y-auto">
           <ProductForm
+            allergens={allergens}
             categories={categories}
             className=""
             formId={formId}

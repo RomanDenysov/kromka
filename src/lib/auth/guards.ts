@@ -7,24 +7,32 @@ function isStaffRole(role: string): role is (typeof STAFF_ROLES)[number] {
   return (STAFF_ROLES as readonly string[]).includes(role);
 }
 
-export async function requireAdmin() {
+/**
+ * Resource-scoped guard: enforce that the user holds one of the listed roles.
+ * Foundation for the per-resource guards below; lets us tweak who sees what
+ * without grep-and-replacing across feature code.
+ */
+async function requireRoles(allowed: readonly string[]) {
   const user = await getUser();
 
   if (!user) {
     unauthorized();
   }
 
-  if (user.role !== "admin") {
+  if (!allowed.includes(user.role)) {
     forbidden();
   }
 
   return user;
 }
 
+export function requireAdmin() {
+  return requireRoles(["admin"]);
+}
+
 export async function requireAuth() {
   const user = await getUser();
 
-  // TODO: Check if we need to redirect to login page or just return 'unauthorized'
   if (!user) {
     unauthorized();
   }
@@ -44,6 +52,19 @@ export async function requireStaff() {
 
   return user;
 }
+
+// --- Resource-scoped guards (recipe-costing arc, pre-A scaffolding) ---
+//
+// These wrap `requireRoles` with a per-resource semantic name so when the
+// `baker` role lands in ERP Phase 4, we only edit the `requireRecipeView`
+// allow-list — no churn across feature modules.
+
+export const requireProductEdit = () => requireRoles(STAFF_ROLES);
+export const requireRecipeView = () => requireRoles(STAFF_ROLES); // baker added in Phase 4
+export const requireRecipeEdit = () => requireRoles(STAFF_ROLES);
+export const requireCostView = () => requireRoles(STAFF_ROLES);
+export const requireIngredientEdit = () => requireRoles(STAFF_ROLES);
+export const requireReportsView = () => requireRoles(STAFF_ROLES);
 
 /**
  * Require user to be a member of a B2B organization.

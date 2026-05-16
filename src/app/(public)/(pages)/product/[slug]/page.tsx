@@ -16,6 +16,10 @@ import { ProductImage } from "@/components/shared/product-image";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { getAllergens } from "@/features/allergens/api/queries";
+import { AllergenList } from "@/features/allergens/components/allergen-list";
+import { NutritionTable } from "@/features/nutrition/components/nutrition-table";
+import { getDerivedProductDisplay } from "@/features/products/api/product-display";
 import { getProducts, type Product } from "@/features/products/api/queries";
 import {
   getPublishedReviews,
@@ -113,12 +117,19 @@ function getProductRecommendations(
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const urlDecoded = decodeURIComponent(slug);
-  const products = await getProducts();
+  const [products, allergens] = await Promise.all([
+    getProducts(),
+    getAllergens(),
+  ]);
   const result = products.find((p) => p.slug === urlDecoded) ?? null;
 
   if (!result) {
     notFound();
   }
+
+  // Phase D: derive allergens (recipe → ingredients with manual fallback)
+  // and nutrition (override > computed > none) for the consolidated PDP view.
+  const display = await getDerivedProductDisplay(result.id);
 
   const isInStock = result.status === "active";
   const pickupDates = result.category?.pickupDates;
@@ -275,6 +286,26 @@ export default async function ProductPage({ params }: Props) {
               dangerouslySetInnerHTML={{ __html: descriptionHtml }}
             />
           </div>
+
+          {display.allergenCodes.length > 0 && (
+            <>
+              <Separator />
+              <AllergenList
+                allergens={allergens}
+                codes={display.allergenCodes}
+              />
+            </>
+          )}
+
+          {display.nutrition && (
+            <>
+              <Separator />
+              <NutritionTable
+                nutrition={display.nutrition}
+                source={display.nutritionSource}
+              />
+            </>
+          )}
 
           <Separator />
 

@@ -2,6 +2,8 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
+  BarChart3Icon,
+  BookOpenIcon,
   BriefcaseIcon,
   FileTextIcon,
   FlaskConicalIcon,
@@ -16,6 +18,7 @@ import {
   TagsIcon,
   UsersIcon,
   WalletIcon,
+  WheatIcon,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
@@ -51,6 +54,21 @@ const NAV_ESHOP: NavItem[] = [
   { href: "/admin/stores", label: "Predajne", icon: StoreIcon },
   { href: "/admin/categories", label: "Kategórie", icon: TagsIcon },
   { href: "/admin/products", label: "Produkty", icon: Package2Icon },
+  {
+    href: "/admin/ingredients" as Route,
+    label: "Suroviny",
+    icon: WheatIcon,
+  },
+  {
+    href: "/admin/recipes" as Route,
+    label: "Recepty",
+    icon: BookOpenIcon,
+  },
+  {
+    href: "/admin/reports" as Route,
+    label: "Reporty",
+    icon: BarChart3Icon,
+  },
 ];
 
 const NAV_BLOG: NavItem[] = [

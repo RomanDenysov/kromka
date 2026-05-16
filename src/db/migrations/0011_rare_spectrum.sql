@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "nutrition_override" jsonb;
