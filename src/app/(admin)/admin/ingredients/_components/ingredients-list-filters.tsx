@@ -2,7 +2,7 @@
 
 import { SearchIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -23,19 +23,27 @@ export function IngredientsListFilters() {
   const [search, setSearch] = useState(params.get("search") ?? "");
   const active = params.get("active") ?? "all";
   const missing = params.get("missing") ?? "all";
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    const handle = setTimeout(() => {
+  const pushParams = (next: URLSearchParams) => {
+    router.replace(`/admin/ingredients?${next.toString()}` as never);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = setTimeout(() => {
       const next = new URLSearchParams(params.toString());
-      if (search) {
-        next.set("search", search);
+      if (value) {
+        next.set("search", value);
       } else {
         next.delete("search");
       }
-      router.replace(`/admin/ingredients?${next.toString()}` as never);
+      pushParams(next);
     }, 300);
-    return () => clearTimeout(handle);
-  }, [search, params, router]);
+  };
 
   const setParam = (key: string, value: string) => {
     const next = new URLSearchParams(params.toString());
@@ -44,7 +52,7 @@ export function IngredientsListFilters() {
     } else {
       next.set(key, value);
     }
-    router.replace(`/admin/ingredients?${next.toString()}` as never);
+    pushParams(next);
   };
 
   return (
@@ -53,7 +61,7 @@ export function IngredientsListFilters() {
         <SearchIcon className="absolute top-2.5 left-2 size-4 text-muted-foreground" />
         <Input
           className="w-64 pl-8"
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="Hľadať surovinu (muka, mlieko...)"
           value={search}
         />
