@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { getAllergens } from "@/features/allergens/api/queries";
@@ -59,7 +60,7 @@ export default function IngredientsPage({ searchParams }: Props) {
           </Suspense>
           <div className="flex items-center gap-2">
             <Button asChild size="sm" variant="outline">
-              <a href="/admin/ingredients/duplicates">Duplicity</a>
+              <Link href="/admin/ingredients/duplicates">Duplicity</Link>
             </Button>
             <form action={createDraftIngredientAction}>
               <Button size="sm" type="submit">
