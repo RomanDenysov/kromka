@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-04-08",
+  "lastUpdated": "2026-05-17",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -320,7 +320,8 @@
         "Slug uniqueness enforced at DB level",
         "Sort: sortOrder asc, then createdAt desc",
         "Public queries cached with 'max' lifetime until invalidation",
-        "Admin queries are never cached (always fresh)"
+        "Admin queries are never cached (always fresh)",
+        "Description is plain text (textarea); weight is structured (weightValue + weightUnit g/ml/ks). Legacy jsonb 'description' column is kept in schema as 'descriptionLegacy' during deprecation window."
       ],
       "actions": [
         {
@@ -373,11 +374,11 @@
       "schemas": [
         {
           "name": "productSchema",
-          "validates": "Core fields: id, name, slug, description, status, isActive, sortOrder, showInB2c/B2b, priceCents"
+          "validates": "Core fields: id, name, slug, description (plain text, max 2000), status, isActive, sortOrder, showInB2c/B2b, priceCents, weightValue (int positive), weightUnit (g/ml/ks). weightValue and weightUnit must be both set or both null."
         },
         {
           "name": "updateProductSchema",
-          "validates": "productSchema + categoryId, imageId"
+          "validates": "productSchema + categoryId, imageId, allergenCodes, nutritionOverride"
         }
       ],
       "components": [

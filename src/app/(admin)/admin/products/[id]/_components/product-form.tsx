@@ -1,29 +1,29 @@
 "use client";
 
-import type { JSONContent } from "@tiptap/react";
 import { type ReactNode, useRef } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
 import z from "zod";
-import { CheckboxField } from "@/components/forms/fields/checkbox-field";
 import { ComboboxField } from "@/components/forms/fields/combobox-field";
 import { ImageUploadField } from "@/components/forms/fields/image-upload-field";
 import { PriceInputField } from "@/components/forms/fields/price-input-field";
 import { QuantityField } from "@/components/forms/fields/quantity-field";
-import { RichTextField } from "@/components/forms/fields/rich-text-field";
 import { SelectField } from "@/components/forms/fields/select-field";
 import { SlugField } from "@/components/forms/fields/slug-field";
 import { SwitchField } from "@/components/forms/fields/switch-field";
 import { TextField } from "@/components/forms/fields/text-field";
+import { TextareaField } from "@/components/forms/fields/textarea-field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { PRODUCT_STATUSES } from "@/db/types";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { PRODUCT_STATUSES, WEIGHT_UNITS } from "@/db/types";
 import type { Allergen } from "@/features/allergens/api/queries";
 import { AllergenPicker } from "@/features/allergens/components/allergen-picker";
 import { allergenCodeSchema } from "@/features/allergens/schema";
@@ -34,22 +34,37 @@ import type { AdminProduct } from "@/features/products/api/queries";
 import { MAX_STRING_LENGTH, PRODUCT_STATUSES_LABELS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export const productSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1).max(MAX_STRING_LENGTH),
-  slug: z.string().min(1).max(MAX_STRING_LENGTH),
-  description: z.custom<JSONContent>().nullable(),
-  isActive: z.boolean(),
-  sortOrder: z.number(),
-  status: z.enum(PRODUCT_STATUSES),
-  showInB2c: z.boolean(),
-  showInB2b: z.boolean(),
-  priceCents: z.number(),
-  imageId: z.string().nullable(),
-  categoryId: z.string().nullable(),
-  allergenCodes: z.array(allergenCodeSchema),
-  nutritionOverride: nutritionPer100Schema.nullable(),
-});
+const MAX_DESCRIPTION_LENGTH = 2000;
+
+const WEIGHT_UNIT_LABELS: Record<(typeof WEIGHT_UNITS)[number], string> = {
+  g: "gramy (g)",
+  ml: "mililitre (ml)",
+  ks: "kusy (ks)",
+};
+
+export const productSchema = z
+  .object({
+    id: z.string(),
+    name: z.string().min(1).max(MAX_STRING_LENGTH),
+    slug: z.string().min(1).max(MAX_STRING_LENGTH),
+    description: z.string().max(MAX_DESCRIPTION_LENGTH).nullable(),
+    isActive: z.boolean(),
+    sortOrder: z.number(),
+    status: z.enum(PRODUCT_STATUSES),
+    showInB2c: z.boolean(),
+    showInB2b: z.boolean(),
+    priceCents: z.number(),
+    imageId: z.string().nullable(),
+    categoryId: z.string().nullable(),
+    allergenCodes: z.array(allergenCodeSchema),
+    nutritionOverride: nutritionPer100Schema.nullable(),
+    weightValue: z.number().int().positive().nullable(),
+    weightUnit: z.enum(WEIGHT_UNITS).nullable(),
+  })
+  .refine((data) => data.weightValue === null || data.weightUnit !== null, {
+    message: "Vyberte jednotku pre zadanú hodnotu",
+    path: ["weightUnit"],
+  });
 
 export type ProductSchema = z.infer<typeof productSchema>;
 
@@ -98,15 +113,21 @@ export function ProductForm({
       nutritionOverride:
         (product as { nutritionOverride?: ProductSchema["nutritionOverride"] })
           .nutritionOverride ?? null,
+      weightValue: product.weightValue ?? null,
+      weightUnit: product.weightUnit ?? "g",
     },
   });
 
   const onSubmit = async (data: ProductSchema) => {
+    // Empty weight value clears the unit so we never persist a unit without a value.
+    const normalizedWeightUnit =
+      data.weightValue === null ? null : data.weightUnit;
     const result = await updateProductAction({
       id: data.id,
       product: {
         ...data,
         categoryId: data.categoryId ?? null,
+        weightUnit: normalizedWeightUnit,
       },
     });
     if (result.success) {
@@ -116,121 +137,197 @@ export function ProductForm({
 
   return (
     <FormProvider {...form}>
-      <form id={formId} onSubmit={form.handleSubmit(onSubmit)} ref={formRef}>
-        <div className={cn("flex flex-col gap-6", className)}>
-          <Card>
-            <CardHeader>
-              <CardTitle>Základné informácie</CardTitle>
-              <CardDescription>
-                Obrázok, názov a katalógové údaje produktu.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid @2xl/page:grid-cols-[minmax(0,240px)_1fr] gap-6">
+      <div className="flex flex-col">
+        <form id={formId} onSubmit={form.handleSubmit(onSubmit)} ref={formRef}>
+          <div className={cn("flex flex-col gap-10", className)}>
+            <section className="flex flex-col gap-4">
+              <header>
+                <h2 className="font-semibold text-base">Základné informácie</h2>
+                <p className="text-muted-foreground text-sm">
+                  Obrázok, názov a katalógové údaje produktu.
+                </p>
+              </header>
               <ImageUploadField
-                className="@2xl/page:max-w-[240px]"
+                className="size-40 self-start"
                 folder="products"
                 imageUrl={product.imageUrl ?? undefined}
                 name="imageId"
               />
-              <div className="flex flex-col gap-4">
-                <div className="grid @md/page:grid-cols-2 gap-4">
-                  <TextField
-                    label="Názov"
-                    name="name"
-                    placeholder="Názov produktu"
-                  />
-                  <SlugField label="Slug" name="slug" />
-                </div>
-                <div className="grid @lg/page:grid-cols-3 gap-4">
-                  <ComboboxField
-                    label="Kategória"
-                    name="categoryId"
-                    options={categories.map((category) => ({
-                      value: category.id,
-                      label: category.name,
-                    }))}
-                  />
-                  <SelectField
-                    label="Status"
-                    name="status"
-                    options={PRODUCT_STATUSES.map((status) => ({
-                      value: status,
-                      label: PRODUCT_STATUSES_LABELS[status],
-                    }))}
-                  />
-                  <PriceInputField label="Cena" name="priceCents" />
-                </div>
+              <div className="grid @md/page:grid-cols-2 gap-4">
+                <TextField
+                  label="Názov"
+                  name="name"
+                  placeholder="Názov produktu"
+                />
+                <SlugField label="Slug" name="slug" />
               </div>
-            </CardContent>
-          </Card>
+              <div className="grid @md/page:grid-cols-3 gap-4">
+                <ComboboxField
+                  label="Kategória"
+                  name="categoryId"
+                  options={categories.map((category) => ({
+                    value: category.id,
+                    label: category.name,
+                  }))}
+                />
+                <SelectField
+                  label="Status"
+                  name="status"
+                  options={PRODUCT_STATUSES.map((status) => ({
+                    value: status,
+                    label: PRODUCT_STATUSES_LABELS[status],
+                  }))}
+                />
+                <PriceInputField label="Cena" name="priceCents" />
+              </div>
+            </section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Popis</CardTitle>
-              <CardDescription>
-                Marketingový popis zobrazený zákazníkom na detaile produktu.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RichTextField
-                label=""
+            <section className="flex flex-col gap-4">
+              <header>
+                <h2 className="font-semibold text-base">Popis</h2>
+                <p className="text-muted-foreground text-sm">
+                  Marketingový popis zobrazený zákazníkom na detaile produktu.
+                  Jednoduchý text - na štruktúrované údaje (váha, zloženie)
+                  použite vyhradené polia.
+                </p>
+              </header>
+              <TextareaField
                 name="description"
-                placeholder="Popis produktu"
-                variant="simple"
+                placeholder="Krátky marketingový popis produktu..."
+                rows={4}
               />
-            </CardContent>
-          </Card>
+            </section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Alergény</CardTitle>
-              <CardDescription>
-                Vyberte alergény, ktoré produkt obsahuje. Zoznam pochádza z
-                povinných 14 alergénov podľa nariadenia EÚ 1169/2011.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+            <section className="flex flex-col gap-4">
+              <header>
+                <h2 className="font-semibold text-base">Váha / množstvo</h2>
+                <p className="text-muted-foreground text-sm">
+                  Čistá hmotnosť alebo počet kusov v jednom balení. Nechajte
+                  prázdne, ak produkt nemá zmysluplnú váhu.
+                </p>
+              </header>
+              <div className="grid @md/page:grid-cols-[1fr_180px] gap-4">
+                <Controller
+                  control={form.control}
+                  name="weightValue"
+                  render={({ field, fieldState }) => (
+                    <Field className="gap-1" data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Hodnota</FieldLabel>
+                      <Input
+                        aria-invalid={fieldState.invalid}
+                        id={field.name}
+                        inputMode="numeric"
+                        min={1}
+                        name={field.name}
+                        onBlur={field.onBlur}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === "") {
+                            field.onChange(null);
+                            return;
+                          }
+                          const parsed = Number.parseInt(raw, 10);
+                          field.onChange(Number.isNaN(parsed) ? null : parsed);
+                        }}
+                        placeholder="napr. 750"
+                        type="number"
+                        value={field.value ?? ""}
+                        volume="xs"
+                      />
+                      {fieldState.error && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+                <Controller
+                  control={form.control}
+                  name="weightUnit"
+                  render={({ field, fieldState }) => (
+                    <Field className="gap-1" data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Jednotka</FieldLabel>
+                      <Select
+                        onValueChange={(v) =>
+                          field.onChange(v === "" ? null : v)
+                        }
+                        value={field.value ?? ""}
+                      >
+                        <SelectTrigger
+                          aria-invalid={fieldState.invalid}
+                          className="w-full"
+                          id={field.name}
+                          name={field.name}
+                        >
+                          <SelectValue placeholder="—" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {WEIGHT_UNITS.map((u) => (
+                            <SelectItem key={u} value={u}>
+                              {WEIGHT_UNIT_LABELS[u]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {fieldState.error && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+              </div>
+            </section>
+
+            <section className="flex flex-col gap-4">
+              <header>
+                <h2 className="font-semibold text-base">Alergény</h2>
+                <p className="text-muted-foreground text-sm">
+                  Vyberte alergény, ktoré produkt obsahuje. Zoznam pochádza z
+                  povinných 14 alergénov podľa nariadenia EÚ 1169/2011.
+                </p>
+              </header>
               <AllergenPicker
                 allergens={allergens}
                 label=""
                 name="allergenCodes"
               />
-            </CardContent>
-          </Card>
+            </section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Zobrazenie</CardTitle>
-              <CardDescription>
-                Nastavenie zobrazenia produktu pre B2C a B2B klientov.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <div
-                className="flex flex-wrap items-center gap-6 rounded-md border bg-muted/30 p-4"
-                data-slot="checkbox-group"
-              >
-                <CheckboxField label="B2B" name="showInB2b" />
-                <CheckboxField label="B2C" name="showInB2c" />
+            <section className="flex flex-col gap-4">
+              <header>
+                <h2 className="font-semibold text-base">Zobrazenie</h2>
+                <p className="text-muted-foreground text-sm">
+                  Nastavenie zobrazenia produktu pre B2C a B2B klientov.
+                </p>
+              </header>
+              <div className="grid @md/page:grid-cols-2 gap-4">
+                <SwitchField
+                  description="Zobraziť produkt B2B klientom"
+                  label="B2B"
+                  name="showInB2b"
+                />
+                <SwitchField
+                  description="Zobraziť produkt B2C klientom"
+                  label="B2C"
+                  name="showInB2c"
+                />
               </div>
               <div className="grid @md/page:grid-cols-[1fr_auto] @md/page:items-stretch gap-4">
                 <SwitchField
-                  className="bg-muted/30"
                   description="Zobraziť produkt na stránkach?"
                   label="Aktívny"
                   name="isActive"
                 />
                 <QuantityField
-                  className="@md/page:w-[180px] bg-muted/30"
+                  className="@md/page:w-[180px]"
                   label="Poradie"
                   name="sortOrder"
                 />
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </form>
-      {renderFooter({ isPending: form.formState.isSubmitting })}
+            </section>
+          </div>
+        </form>
+        {renderFooter({ isPending: form.formState.isSubmitting })}
+      </div>
     </FormProvider>
   );
 }

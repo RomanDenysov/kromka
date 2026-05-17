@@ -7,7 +7,7 @@ interface Props {
   allergens: Allergen[];
   className?: string;
   codes: AllergenCode[];
-  heading?: string;
+  heading?: string | null;
 }
 
 /**
@@ -39,7 +39,9 @@ export function AllergenList({
 
   return (
     <section className={className}>
-      <h3 className="mb-3 font-semibold text-sm tracking-tight">{heading}</h3>
+      {heading ? (
+        <h3 className="mb-3 font-semibold text-sm tracking-tight">{heading}</h3>
+      ) : null}
       <div className="flex flex-wrap gap-2">
         {present.map((a) => {
           const Icon = ALLERGEN_ICONS[a.code as AllergenCode];

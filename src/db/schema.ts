@@ -31,6 +31,7 @@ import {
   type PromoType,
   type StoreSchedule,
   type UserRole,
+  type WeightUnit,
 } from "./types";
 import { draftSlug } from "./utils";
 
@@ -816,17 +817,23 @@ export const products = pgTable(
       .notNull()
       .unique()
       .$defaultFn(() => draftSlug("Nový produkt")),
-    description: jsonb("description")
-      .$type<JSONContent>()
-      .default({
-        type: "doc",
-        content: [
-          {
-            type: "paragraph",
-            content: [{ type: "text", text: "Popis nového produktu..." }],
-          },
-        ],
-      }),
+    // Plain text marketing description. Backed by the `description_text`
+    // column; the legacy jsonb `description` column is kept in the DB during
+    // the deprecation window and exposed below as `descriptionLegacy`.
+    description: text("description_text"),
+
+    // DEPRECATED: legacy Tiptap JSONContent description. Kept in the schema so
+    // Drizzle does not drop the underlying `description` column during the
+    // deprecation window. Read-only - app code should use `description`.
+    // TODO: remove after the cleanup migration drops this column and renames
+    // `description_text` -> `description`.
+    descriptionLegacy: jsonb("description").$type<JSONContent>(),
+
+    // Net weight / quantity per product unit. Both nullable: products without
+    // a meaningful weight (e.g. services) leave them null. Cross-field rule
+    // enforced at the validation layer: both set or both null.
+    weightValue: integer("weight_value"),
+    weightUnit: text("weight_unit").$type<WeightUnit>(),
 
     categoryId: text("category_id").references(() => categories.id, {
       onDelete: "set null",
