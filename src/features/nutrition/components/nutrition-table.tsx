@@ -3,6 +3,7 @@ import { kJFromKcal } from "@/features/recipes/lib/nutrition-math";
 
 interface Props {
   className?: string;
+  heading?: string | null;
   nutrition: NutritionPer100Schema | null;
   source: "computed" | "override" | "none";
 }
@@ -12,7 +13,12 @@ interface Props {
  * comma formatting. Returns null when no nutrition data is available —
  * silence is the right UX for products without recipe + override.
  */
-export function NutritionTable({ nutrition, source, className }: Props) {
+export function NutritionTable({
+  nutrition,
+  source,
+  className,
+  heading = "Nutričné hodnoty na 100 g",
+}: Props) {
   if (!nutrition || source === "none") {
     return null;
   }
@@ -21,9 +27,9 @@ export function NutritionTable({ nutrition, source, className }: Props) {
 
   return (
     <section className={className}>
-      <h3 className="mb-3 font-semibold text-sm tracking-tight">
-        Nutričné hodnoty na 100 g
-      </h3>
+      {heading ? (
+        <h3 className="mb-3 font-semibold text-sm tracking-tight">{heading}</h3>
+      ) : null}
       <table className="w-full border-collapse text-sm">
         <tbody>
           <Row label="Energia" value={`${kJ} kJ / ${nutrition.kcal} kcal`} />

@@ -19,6 +19,8 @@
     "generate:icons": "pnpm dlx tsx scripts/generate-metadata-icons.ts",
     "migrate:images": "pnpm dlx tsx scripts/migrate-product-images.ts",
     "migrate:images:prod": "pnpm dlx tsx scripts/migrate-product-images.ts prod",
+    "migrate:descriptions": "pnpm dlx tsx scripts/migrate-product-descriptions.ts",
+    "migrate:descriptions:prod": "pnpm dlx tsx scripts/migrate-product-descriptions.ts prod",
     "typecheck": "pnpm tsc --noEmit && echo '✓ Types OK'",
     "test:stress": "pnpm dlx tsx scripts/stress-test-orders.ts",
     "test:resolver": "pnpm dlx tsx src/features/recipes/lib/cost-resolver.test.ts",

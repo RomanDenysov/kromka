@@ -13,6 +13,12 @@ import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
 import { Hint } from "@/components/shared/hint";
 import { ProductImage } from "@/components/shared/product-image";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -25,7 +31,7 @@ import {
   getPublishedReviews,
   getReviewAggregate,
 } from "@/features/products/api/review-queries";
-import { jsonContentToHtml, jsonContentToText } from "@/lib/editor-utils";
+import { formatWeight } from "@/lib/format-weight";
 import { log } from "@/lib/logger";
 import { createMetadata } from "@/lib/metadata";
 import {
@@ -59,8 +65,7 @@ export async function generateMetadata({ params }: Props) {
   if (!result) {
     notFound();
   }
-  const descriptionText =
-    jsonContentToText(result?.description) || "Popis produktu chýba";
+  const descriptionText = result?.description || "Popis produktu chýba";
 
   return createMetadata({
     title: result.name,
@@ -135,12 +140,10 @@ export default async function ProductPage({ params }: Props) {
   const pickupDates = result.category?.pickupDates;
   const hasPickupRestriction = pickupDates && pickupDates.length > 0;
 
-  const descriptionHtml = jsonContentToHtml(result?.description);
-
   const recommendations = getProductRecommendations(result, products);
 
-  const descriptionText =
-    jsonContentToText(result?.description) || "Popis produktu chýba";
+  const descriptionText = result?.description || "Popis produktu chýba";
+  const formattedWeight = formatWeight(result.weightValue, result.weightUnit);
 
   let reviewAggregate: Awaited<ReturnType<typeof getReviewAggregate>> = null;
   let publishedReviews: Awaited<ReturnType<typeof getPublishedReviews>> = [];
@@ -251,6 +254,9 @@ export default async function ProductPage({ params }: Props) {
           <p className="font-semibold text-2xl tracking-tight md:text-4xl">
             {formatPrice(result.priceCents)}
           </p>
+          {formattedWeight && (
+            <p className="text-muted-foreground text-sm">{formattedWeight}</p>
+          )}
           <div className="flex flex-wrap items-center gap-2">
             {isInStock ? (
               <Badge className="w-fit" variant="success">
@@ -279,33 +285,46 @@ export default async function ProductPage({ params }: Props) {
 
           <Separator />
 
-          <div className="grow">
-            <div
-              className="prose prose-stone dark:prose-invert prose-p:mb-4 max-w-none"
-              // biome-ignore lint/security/noDangerouslySetInnerHtml: trusted content from admin editor
-              dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-            />
-          </div>
+          <Accordion
+            className="w-full"
+            defaultValue={["description"]}
+            type="multiple"
+          >
+            <AccordionItem value="description">
+              <AccordionTrigger>Popis produktu</AccordionTrigger>
+              <AccordionContent>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                  {descriptionText}
+                </p>
+              </AccordionContent>
+            </AccordionItem>
 
-          {display.allergenCodes.length > 0 && (
-            <>
-              <Separator />
-              <AllergenList
-                allergens={allergens}
-                codes={display.allergenCodes}
-              />
-            </>
-          )}
+            {display.allergenCodes.length > 0 && (
+              <AccordionItem value="allergens">
+                <AccordionTrigger>Alergény</AccordionTrigger>
+                <AccordionContent>
+                  <AllergenList
+                    allergens={allergens}
+                    codes={display.allergenCodes}
+                    heading={null}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
-          {display.nutrition && (
-            <>
-              <Separator />
-              <NutritionTable
-                nutrition={display.nutrition}
-                source={display.nutritionSource}
-              />
-            </>
-          )}
+            {display.nutrition && (
+              <AccordionItem value="nutrition">
+                <AccordionTrigger>Nutričné hodnoty na 100 g</AccordionTrigger>
+                <AccordionContent>
+                  <NutritionTable
+                    heading={null}
+                    nutrition={display.nutrition}
+                    source={display.nutritionSource}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
 
           <Separator />
 

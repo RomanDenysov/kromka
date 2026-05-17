@@ -57,6 +57,9 @@ export const PRODUCT_STATUSES = [
 ] as const;
 export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
 
+export const WEIGHT_UNITS = ["g", "ml", "ks"] as const;
+export type WeightUnit = (typeof WEIGHT_UNITS)[number];
+
 export const POST_STATUSES = ["draft", "published", "archived"] as const;
 export type PostStatus = (typeof POST_STATUSES)[number];
 
