@@ -285,46 +285,39 @@ export default async function ProductPage({ params }: Props) {
 
           <Separator />
 
-          <Accordion
-            className="w-full"
-            defaultValue={["description"]}
-            type="multiple"
-          >
-            <AccordionItem value="description">
-              <AccordionTrigger>Popis produktu</AccordionTrigger>
-              <AccordionContent>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {descriptionText}
-                </p>
-              </AccordionContent>
-            </AccordionItem>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed md:text-base">
+            {descriptionText}
+          </p>
 
-            {display.allergenCodes.length > 0 && (
-              <AccordionItem value="allergens">
-                <AccordionTrigger>Alergény</AccordionTrigger>
-                <AccordionContent>
-                  <AllergenList
-                    allergens={allergens}
-                    codes={display.allergenCodes}
-                    heading={null}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            )}
+          {(display.allergenCodes.length > 0 || display.nutrition) && (
+            <Accordion className="w-full" type="multiple">
+              {display.allergenCodes.length > 0 && (
+                <AccordionItem value="allergens">
+                  <AccordionTrigger>Alergény</AccordionTrigger>
+                  <AccordionContent>
+                    <AllergenList
+                      allergens={allergens}
+                      codes={display.allergenCodes}
+                      heading={null}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
 
-            {display.nutrition && (
-              <AccordionItem value="nutrition">
-                <AccordionTrigger>Nutričné hodnoty na 100 g</AccordionTrigger>
-                <AccordionContent>
-                  <NutritionTable
-                    heading={null}
-                    nutrition={display.nutrition}
-                    source={display.nutritionSource}
-                  />
-                </AccordionContent>
-              </AccordionItem>
-            )}
-          </Accordion>
+              {display.nutrition && (
+                <AccordionItem value="nutrition">
+                  <AccordionTrigger>Nutričné hodnoty na 100 g</AccordionTrigger>
+                  <AccordionContent>
+                    <NutritionTable
+                      heading={null}
+                      nutrition={display.nutrition}
+                      source={display.nutritionSource}
+                    />
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+            </Accordion>
+          )}
 
           <Separator />
 
