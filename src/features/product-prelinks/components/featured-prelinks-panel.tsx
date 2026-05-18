@@ -4,7 +4,6 @@ import {
   getPrelinksByProductId,
   type PrelinkWithLinkedProduct,
 } from "@/features/product-prelinks/api/queries";
-import { log } from "@/lib/logger";
 import { formatPrice } from "@/lib/utils";
 import { PrelinkAddButton } from "./prelink-add-button";
 
@@ -15,11 +14,13 @@ interface Props {
 const DEFAULT_HEADING = "Pre väčšiu spoločnosť?";
 
 export async function FeaturedPrelinksPanel({ productId }: Props) {
+  // Drizzle logs the underlying query error to stderr; we swallow here to keep
+  // the PDP renderable. Logging here is not safe inside cacheComponents prerender
+  // (pino calls Date.now() which violates the non-deterministic-time rule).
   let prelinks: PrelinkWithLinkedProduct[];
   try {
     prelinks = await getPrelinksByProductId(productId);
-  } catch (error) {
-    log.db.error({ err: error, productId }, "getPrelinksByProductId failed");
+  } catch {
     return null;
   }
 
