@@ -19,8 +19,9 @@ import {
   ProductsGrid,
   ProductsGridSkeleton,
 } from "@/features/products/components/products-grid";
-import { defaultMetadata } from "@/lib/metadata";
+import { createMetadata } from "@/lib/metadata";
 import { getCollectionPageSchema } from "@/lib/seo/json-ld";
+import { getSiteUrl } from "@/lib/utils";
 import { CategoriesChips, CategoriesChipsSkeleton } from "./categories-chips";
 import { loadEshopParams } from "./eshop-params";
 import { ProductSearch, ProductSearchSkeleton } from "./product-search";
@@ -29,25 +30,13 @@ interface Props {
   searchParams: Promise<SearchParams>;
 }
 
-export const metadata: Metadata = {
-  ...defaultMetadata,
-  title: "Naše Produkty",
+export const metadata: Metadata = createMetadata({
+  title: "Naše produkty - chlieb, pečivo a koláče | Kromka e-shop",
   description:
     "Objavte širokú ponuku tradičných slovenských pekárenských výrobkov z Pekárne Kromka. Čerstvý domáci chlieb, pečivo, koláče a iné špeciality pečené s láskou a podľa tradičných receptov. Nakupujte online.",
-  openGraph: {
-    title: "Naše Produkty",
-    description:
-      "Objavte širokú ponuku tradičných slovenských pekárenských výrobkov z Pekárne Kromka. Čerstvý domáci chlieb, pečivo, koláče a iné špeciality pečené s láskou a podľa tradičných receptov. Nakupujte online.",
-    images: [
-      {
-        url: "/images/kromka-vianoce-hero-min.webp",
-        width: 1200,
-        height: 630,
-        alt: "Ponuka pekárenských výrobkov Pekárne Kromka",
-      },
-    ],
-  },
-};
+  canonicalUrl: getSiteUrl("/e-shop"),
+  image: "/images/kromka-vianoce-hero-min.webp",
+});
 
 export default function EshopPage({ searchParams }: Props) {
   const categoriesPromise = getCategories();
@@ -58,6 +47,14 @@ export default function EshopPage({ searchParams }: Props) {
       <JsonLd data={[getCollectionPageSchema()]} />
       <PageWrapper>
         <AppBreadcrumbs items={[{ label: "E-shop", href: "/e-shop" }]} />
+        <div className="space-y-2">
+          <h1 className="font-bold text-3xl tracking-tight md:text-4xl">
+            Naše produkty
+          </h1>
+          <p className="text-muted-foreground">
+            Chlieb, pečivo, koláče a lokálne lakomky z Pekárne Kromka.
+          </p>
+        </div>
         <Suspense>
           <ReorderBar lastOrderPromise={lastOrderPromise} />
         </Suspense>

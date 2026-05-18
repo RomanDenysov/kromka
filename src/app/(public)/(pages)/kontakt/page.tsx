@@ -42,9 +42,9 @@ const CONTACT_FAQ = [
 ];
 
 export const metadata: Metadata = createMetadata({
-  title: "Kontakt",
+  title: "Kontakt a otváracie hodiny - Pekáreň Kromka Prešov, Košice",
   description:
-    "Máte otázky? Kontaktujte nás emailom na kromka@kavejo.sk alebo telefonicky. Sledujte nás na Instagrame a Facebooku.",
+    "Kontaktujte Pekáreň Kromka v Prešove a Košiciach. Email, telefón, otváracie hodiny našich predajní a kontaktný formulár pre podporu.",
   canonicalUrl: getSiteUrl("/kontakt"),
 });
 

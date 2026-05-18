@@ -100,7 +100,11 @@ export function Header({ className, cartSlot }: Props) {
           <DesktopNav />
 
           {/* Logo */}
-          <Link className="flex items-center justify-center" href="/">
+          <Link
+            aria-label="Pekáreň Kromka - domov"
+            className="flex items-center justify-center"
+            href="/"
+          >
             <Icons.kromka className="h-4 lg:h-5" />
           </Link>
 

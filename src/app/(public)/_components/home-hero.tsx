@@ -53,10 +53,13 @@ export function HomeHero({ className }: { className?: string }) {
       <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-black/10" />
 
       <FadeContainer className="justify-end-safe absolute inset-0 z-10 flex flex-col items-center gap-6 p-6 px-6 md:justify-center md:gap-8">
+        <h1 className="sr-only">
+          Pekáreň Kromka - Remeselná pekáreň v Prešove a Košiciach
+        </h1>
         <div className="flex flex-col items-center gap-2">
-          <h1 className="text-balance text-center font-bold text-5xl text-shadow-2xs text-white tracking-tight md:text-6xl">
+          <p className="text-balance text-center font-bold text-5xl text-shadow-2xs text-white tracking-tight md:text-6xl">
             <FadeSpan>S láskou</FadeSpan> <FadeSpan>ku kvásku</FadeSpan>
-          </h1>
+          </p>
           <p className="text-balance text-center font-medium text-lg text-shadow-2xs text-white tracking-tight md:text-xl lg:text-2xl">
             <FadeSpan>Chlieb z pece,</FadeSpan>{" "}
             <FadeSpan>závin z rúk,</FadeSpan> <FadeSpan>káva z lásky</FadeSpan>

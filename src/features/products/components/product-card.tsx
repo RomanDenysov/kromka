@@ -40,7 +40,7 @@ export function ProductCard({
       <Link href={`/product/${product.slug}`}>
         <div className="relative">
           <ProductImage
-            alt={`Product image: ${product.name}`}
+            alt={product.name}
             className={cn(
               "aspect-square size-full rounded-sm object-cover object-center"
             )}

@@ -27,6 +27,7 @@ export function getOrganizationSchema(): WithContext<Organization> {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${SITE_URL}#organization`,
     name: SITE_NAME,
     url: SITE_URL,
     logo: getSiteUrl("/icons/icon-512x512.png"),
@@ -98,7 +99,9 @@ interface ProductSchemaInput {
 export function getProductSchema(
   product: ProductSchemaInput
 ): WithContext<Product> {
-  const offer: Offer = {
+  const offer: Offer & {
+    shippingDetails?: { "@type": string; doesNotShip: boolean };
+  } = {
     "@type": "Offer",
     price: (product.priceCents / 100).toFixed(2),
     priceCurrency: "EUR",
@@ -106,18 +109,39 @@ export function getProductSchema(
       ? "https://schema.org/InStock"
       : "https://schema.org/OutOfStock",
     url: getSiteUrl(`/product/${product.slug}`),
+    shippingDetails: {
+      "@type": "OfferShippingDetails",
+      doesNotShip: true,
+    },
   };
 
-  const schema: WithContext<Product> = {
+  const schema: WithContext<
+    Product & {
+      "@id"?: string;
+      itemCondition?: string;
+      hasMerchantReturnPolicy?: {
+        "@type": string;
+        applicableCountry: string;
+        returnPolicyCategory: string;
+      };
+    }
+  > = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": `${SITE_URL}/product/${product.slug}#product`,
     name: product.name,
     description: product.description,
     url: getSiteUrl(`/product/${product.slug}`),
+    itemCondition: "https://schema.org/NewCondition",
     offers: offer,
     brand: {
       "@type": "Brand",
       name: SITE_NAME,
+    },
+    hasMerchantReturnPolicy: {
+      "@type": "MerchantReturnPolicy",
+      applicableCountry: "SK",
+      returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
     },
   };
 
@@ -255,13 +279,15 @@ function parseCoordinate(
 export function getLocalBusinessSchema(
   store: StoreSchemaInput
 ): WithContext<LocalBusiness> {
-  const schema: WithContext<LocalBusiness> = {
+  const schema: WithContext<LocalBusiness & { "@id"?: string }> = {
     "@context": "https://schema.org",
     "@type": "Bakery",
+    "@id": `${SITE_URL}/predajne/${store.slug}#localbusiness`,
     name: store.name,
     url: getSiteUrl(`/predajne/${store.slug}`),
     parentOrganization: {
       "@type": "Organization",
+      "@id": `${SITE_URL}#organization`,
       name: SITE_NAME,
       url: SITE_URL,
     },
@@ -277,7 +303,7 @@ export function getLocalBusinessSchema(
         latitude: 48.72,
         longitude: 21.26,
       },
-      geoRadius: "100000",
+      geoRadius: "15000",
     },
   };
 

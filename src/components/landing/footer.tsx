@@ -76,7 +76,11 @@ export function Footer() {
         <div className="mb-10 grid grid-cols-2 gap-8 sm:grid-cols-4">
           {/* Brand Section */}
           <div className="col-span-2 space-y-4 sm:col-span-1">
-            <Link className="inline-block" href="/">
+            <Link
+              aria-label="Pekáreň Kromka - domov"
+              className="inline-block"
+              href="/"
+            >
               <Icons.kromka className="h-8" />
             </Link>
             <p className="max-w-xs text-foreground/60 text-sm leading-relaxed">

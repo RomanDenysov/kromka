@@ -213,7 +213,7 @@ export default async function ProductPage({ params }: Props) {
         <div className="col-span-1 md:col-span-2">
           <div className="aspect-square rounded-sm">
             <ProductImage
-              alt={`Product image: ${result.name}`}
+              alt={result.name}
               className={cn(
                 "aspect-square size-full rounded-sm object-cover object-center"
               )}
