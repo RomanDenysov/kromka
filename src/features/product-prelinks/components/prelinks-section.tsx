@@ -81,12 +81,8 @@ export function ProductPrelinksSection({
       setPrelinks((prev) => [
         ...prev,
         {
+          ...target,
           linkedProductId: target.id,
-          name: target.name,
-          priceCents: target.priceCents,
-          imageUrl: target.imageUrl,
-          status: target.status,
-          isActive: target.isActive,
         },
       ]);
       setSelectedId(null);

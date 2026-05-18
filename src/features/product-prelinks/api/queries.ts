@@ -69,14 +69,7 @@ export const getPrelinksByProductId = cache(async (productId: string) => {
       label: r.label,
       sortOrder: r.sortOrder,
       linkedProduct: {
-        id: r.linkedProduct.id,
-        name: r.linkedProduct.name,
-        slug: r.linkedProduct.slug,
-        priceCents: r.linkedProduct.priceCents,
-        isActive: r.linkedProduct.isActive,
-        status: r.linkedProduct.status,
-        weightValue: r.linkedProduct.weightValue,
-        weightUnit: r.linkedProduct.weightUnit,
+        ...r.linkedProduct,
         imageUrl: r.linkedProduct.image?.url ?? null,
       },
     })) satisfies PrelinkWithLinkedProduct[];
