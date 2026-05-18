@@ -41,8 +41,6 @@ export default function RootLayout({ children }: Props) {
           </PostHogProvider>
         </NuqsAdapter>
         <Analytics />
-        {/* TODO: add speed insights back when we have a better way to measure performance */}
-        {/* <SpeedInsights /> */}
       </body>
     </html>
   );
