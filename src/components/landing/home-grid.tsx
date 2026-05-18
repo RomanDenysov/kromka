@@ -1,10 +1,7 @@
 import { featureFlags } from "@/config/features";
 import { homepageConfig } from "@/config/homepage";
-import {
-  GridCard,
-  type GridCardSize,
-  type GridItemConfig,
-} from "@/widgets/grid-card";
+import { GridCard } from "@/widgets/grid-card/grid-card";
+import type { GridCardSize, GridItemConfig } from "@/widgets/grid-card/types";
 
 // Define the entire homepage grid layout
 const gridItems: GridItemConfig[] = [
