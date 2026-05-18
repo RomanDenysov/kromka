@@ -96,6 +96,7 @@ function Calendar({
           "select-none text-[0.8rem] text-muted-foreground",
           defaultClassNames.week_number
         ),
+        month_grid: "w-full border-collapse",
         day: cn(
           "group/day relative aspect-square h-full w-full select-none p-0 text-center [&:last-child[data-selected=true]_button]:rounded-r-md",
           props.showWeekNumber

@@ -46,3 +46,4 @@ next-env.d.ts
 
 # claude codex worktrees (nested biome.json breaks hooks)
 .claude/worktrees/
+.claude/scheduled_tasks.lock
