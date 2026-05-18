@@ -923,6 +923,8 @@ export const productsRelations = relations(products, ({ many, one }) => ({
     fields: [products.recipeId],
     references: [recipes.id],
   }),
+  prelinksFrom: many(productPrelinks, { relationName: "prelinkSource" }),
+  prelinksTo: many(productPrelinks, { relationName: "prelinkTarget" }),
 }));
 
 export const productImagesRelations = relations(productImages, ({ one }) => ({
@@ -935,6 +937,49 @@ export const productImagesRelations = relations(productImages, ({ one }) => ({
     references: [media.id],
   }),
 }));
+
+// Directional product-to-product links surfaced on the PDP (e.g. "Pre väčšiu
+// spoločnosť?" upsell from a single sandwich to its boxed multi-pack). The
+// linked target is itself a normal product with its own price, stock, image
+// and add-to-cart flow - prelinks are purely a curation layer.
+export const productPrelinks = pgTable(
+  "product_prelinks",
+  {
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    linkedProductId: text("linked_product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    label: text("label"),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.productId, t.linkedProductId] }),
+    index("idx_product_prelinks_linked").on(t.linkedProductId),
+    check(
+      "product_prelinks_no_self_link",
+      sql`${t.productId} <> ${t.linkedProductId}`
+    ),
+  ]
+);
+
+export const productPrelinksRelations = relations(
+  productPrelinks,
+  ({ one }) => ({
+    product: one(products, {
+      fields: [productPrelinks.productId],
+      references: [products.id],
+      relationName: "prelinkSource",
+    }),
+    linkedProduct: one(products, {
+      fields: [productPrelinks.linkedProductId],
+      references: [products.id],
+      relationName: "prelinkTarget",
+    }),
+  })
+);
 
 // #endregion Products
 

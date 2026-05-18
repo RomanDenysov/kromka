@@ -1,4 +1,5 @@
 import type { Route } from "next";
+import Link from "next/link";
 import { Fragment } from "react/jsx-runtime";
 import {
   Breadcrumb,
@@ -32,8 +33,8 @@ export const AdminBreadcrumbs = ({ breadcrumbs }: Props) => (
                   {item.label}
                 </BreadcrumbPage>
               ) : (
-                <BreadcrumbLink className="font-medium" href={item.href ?? "#"}>
-                  {item.label}
+                <BreadcrumbLink asChild className="font-medium">
+                  <Link href={item.href ?? "#"}>{item.label}</Link>
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>

@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-05-17",
+  "lastUpdated": "2026-05-18",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -398,6 +398,74 @@
         "writes": ["products"]
       },
       "cacheTags": ["products", "product-{slug}", "categories"]
+    },
+    {
+      "name": "product-prelinks",
+      "path": "src/features/product-prelinks",
+      "critical": false,
+      "description": "Directional product-to-product upsell links surfaced on the PDP (e.g. linking a single sandwich to its 6-pack box). Linked targets are normal products with their own price, stock and add-to-cart flow; prelinks are a curation layer only.",
+      "businessLogic": [
+        "Composite primary key (productId, linkedProductId) - directional, no duplicates",
+        "Self-link blocked by DB CHECK constraint and action-level guard",
+        "Add is idempotent: existing (productId, linkedProductId) pair returns success without insert",
+        "Public PDP query filters out draft/archived/inactive linked products so customers never see un-buyable upsells",
+        "Optional per-link label - first non-empty label wins as panel heading on PDP; defaults to 'Pre väčšiu spoločnosť?'",
+        "Cascade-on-delete: removing either product cleans up its prelinks rows",
+        "Cart additions go through the standard addToCart action with the linked product's id - no kit semantics in v1"
+      ],
+      "actions": [
+        {
+          "name": "addPrelinkAction",
+          "description": "Admin: link source product to a target product, idempotent"
+        },
+        {
+          "name": "updatePrelinkAction",
+          "description": "Admin: update label and/or sortOrder on an existing link"
+        },
+        {
+          "name": "removePrelinkAction",
+          "description": "Admin: delete a prelink row"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getPrelinksByProductId",
+          "description": "Cached public view: prelinks for a product with linked product fields, filters out un-buyable targets"
+        },
+        {
+          "name": "getAdminPrelinksByProductId",
+          "description": "Uncached admin view: all prelinks regardless of linked product status"
+        }
+      ],
+      "schemas": [
+        {
+          "name": "addPrelinkSchema",
+          "validates": "productId, linkedProductId, optional label"
+        },
+        {
+          "name": "updatePrelinkSchema",
+          "validates": "productId, linkedProductId, optional label and sortOrder"
+        },
+        {
+          "name": "removePrelinkSchema",
+          "validates": "productId, linkedProductId"
+        }
+      ],
+      "components": [
+        "FeaturedPrelinksPanel - server component rendering the 'Pre väčšiu spoločnosť?' panel on PDP",
+        "PrelinkAddButton - client button calling addToCart for the linked product",
+        "ProductPrelinksSection - admin form section: combobox picker + list of current links"
+      ],
+      "dependencies": ["products", "cart", "analytics"],
+      "routes": [
+        "/product/[slug] (FeaturedPrelinksPanel rendered inside PDP)",
+        "/admin/products/[id] (ProductPrelinksSection rendered below the form)"
+      ],
+      "tables": {
+        "reads": ["product_prelinks", "products", "media"],
+        "writes": ["product_prelinks"]
+      },
+      "cacheTags": ["product-prelinks", "product-prelinks-{productId}"]
     },
     {
       "name": "categories",
