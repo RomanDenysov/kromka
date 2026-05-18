@@ -4,7 +4,7 @@ import type { IngredientBaseUnit } from "@/db/schema";
  * Admin-facing units that can be entered in the price input. Internally
  * everything normalizes to cents/kg (mass) or cents/piece (piece).
  *
- * See docs/specs/_arc-overview.md §3.
+ * See docs/specs/costing-architecture.md §3.
  */
 export type MassInputUnit = "kg" | "500g" | "100g";
 export type PieceInputUnit = "1piece" | "12pieces" | "10pieces" | "6pieces";

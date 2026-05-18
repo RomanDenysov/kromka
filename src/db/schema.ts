@@ -1401,7 +1401,7 @@ export interface NutritionPer100 {
 
 /**
  * Raw-material catalog. Pricing uses XOR: cents/kg for mass, cents/piece
- * for piece. See docs/specs/_arc-overview.md §3 for the rationale —
+ * for piece. See docs/specs/costing-architecture.md §3 for the rationale —
  * per-kg storage is integer-lossless for every realistic supplier price.
  */
 export const ingredients = pgTable(

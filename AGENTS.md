@@ -121,8 +121,8 @@ hooks/            # Custom React hooks
 Reference docs in `docs/` directory:
 
 - `docs/database-schema.md` - Database tables, relationships, patterns
-- `docs/product-management.md` - Product admin guide
 - `docs/features/` - Feature-specific documentation (checkout, b2b)
+- `docs/specs/costing-architecture.md` - Pricing model + cross-cutting decisions (cited from code)
 
 ## Pre-commit Checklist
 
