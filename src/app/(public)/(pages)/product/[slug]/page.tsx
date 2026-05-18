@@ -25,6 +25,7 @@ import { Separator } from "@/components/ui/separator";
 import { getAllergens } from "@/features/allergens/api/queries";
 import { AllergenList } from "@/features/allergens/components/allergen-list";
 import { NutritionTable } from "@/features/nutrition/components/nutrition-table";
+import { FeaturedPrelinksPanel } from "@/features/product-prelinks/components/featured-prelinks-panel";
 import { getDerivedProductDisplay } from "@/features/products/api/product-display";
 import { getProducts, type Product } from "@/features/products/api/queries";
 import {
@@ -331,6 +332,8 @@ export default async function ProductPage({ params }: Props) {
               categoryId: result.category?.id ?? "",
             }}
           />
+
+          <FeaturedPrelinksPanel productId={result.id} />
 
           <ProductMobileFooter
             disabled={!isInStock}

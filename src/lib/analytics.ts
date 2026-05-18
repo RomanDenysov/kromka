@@ -5,6 +5,7 @@ import posthog from "posthog-js";
 export type AddToCartSource =
   | "product_page"
   | "product_card"
+  | "product_prelink"
   | "recommendation"
   | "favorites"
   | "homepage";
