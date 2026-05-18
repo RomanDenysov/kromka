@@ -31,9 +31,11 @@ export function ComboboxInput({ value, onChange, options }: Props) {
       <PopoverTrigger asChild>
         <Button
           aria-expanded={open}
-          className="max-w-xs justify-between font-normal text-sm"
+          className={cn(
+            "w-full justify-between font-normal text-xs",
+            !value && "text-muted-foreground"
+          )}
           role="combobox"
-          size="xs"
           variant="outline"
         >
           {value

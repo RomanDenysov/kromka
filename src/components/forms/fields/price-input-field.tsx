@@ -136,7 +136,6 @@ function PriceInputInner({
           placeholder ?? `0${DECIMAL_SEPARATOR}00 ${CURRENCY_SYMBOL}`
         }
         value={displayValue}
-        volume="sm"
       />
     </Field>
   );
