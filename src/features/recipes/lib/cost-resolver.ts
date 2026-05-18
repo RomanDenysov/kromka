@@ -7,7 +7,7 @@
  * - Client preview panel (instant feedback during edit)
  *
  * Pricing model: cents/kg (mass) or cents/piece (piece). See
- * docs/specs/_arc-overview.md §3.
+ * docs/specs/costing-architecture.md §3.
  *
  * NEVER throws for missing/zero prices — those degrade to zero
  * contribution + a flag in the trace. Only throws for cycle, depth

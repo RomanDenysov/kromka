@@ -47,7 +47,7 @@ const DEFAULT_PIECE_UNIT: PieceInputUnit = "1piece";
  * Unit-aware price input. Admin types whatever amount + chooses a unit
  * (kg / 500 g / 100 g / 1 piece / 12 pieces / ...). Component normalizes
  * to canonical cents/kg or cents/piece on every keystroke and reports
- * back via onChange. See docs/specs/_arc-overview.md §3.
+ * back via onChange. See docs/specs/costing-architecture.md §3.
  */
 export function PriceInput({
   baseUnit,

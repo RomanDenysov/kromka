@@ -254,8 +254,8 @@ Event naming: **Object Action** format (`product viewed`, `order completed`). Pr
 All documentation is centralized in the `/docs` directory:
 
 - `docs/database-schema.md` - Database schema reference
-- `docs/product-management.md` - Product management guide
 - `docs/features/` - Feature-specific documentation
+- `docs/specs/costing-architecture.md` - Pricing model, role guards, cache tags (cited from code)
 - **[`docs/features-catalog.json`](docs/features-catalog.json)** - Structured feature catalog (for AI agent context). Contains every feature module with description, business logic, actions, queries, schemas, components, dependencies, routes, DB tables, and cache tags.
 
 ### Keeping `features-catalog.json` Current
