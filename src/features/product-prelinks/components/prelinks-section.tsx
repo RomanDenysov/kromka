@@ -10,24 +10,20 @@ import {
   addPrelinkAction,
   removePrelinkAction,
 } from "@/features/product-prelinks/api/actions";
+import type { LinkedProductCard } from "@/features/product-prelinks/api/queries";
 import { formatPrice } from "@/lib/utils";
 
-interface PickerProduct {
+type PrelinkProductFields = Pick<
+  LinkedProductCard,
+  "imageUrl" | "isActive" | "name" | "priceCents" | "status"
+>;
+
+interface PickerProduct extends PrelinkProductFields {
   id: string;
-  imageUrl: string | null;
-  isActive: boolean;
-  name: string;
-  priceCents: number;
-  status: string;
 }
 
-export interface ExistingPrelink {
-  imageUrl: string | null;
-  isActive: boolean;
+export interface ExistingPrelink extends PrelinkProductFields {
   linkedProductId: string;
-  name: string;
-  priceCents: number;
-  status: string;
 }
 
 interface Props {
@@ -38,7 +34,6 @@ interface Props {
 
 const ACTION_ERRORS: Record<string, string> = {
   INVALID_DATA: "Neplatné údaje.",
-  SELF_LINK: "Nemôžete prepojiť produkt sám so sebou.",
   NOT_FOUND: "Produkt nebol nájdený.",
   INSERT_FAILED: "Pridanie zlyhalo. Skúste to znova.",
 };

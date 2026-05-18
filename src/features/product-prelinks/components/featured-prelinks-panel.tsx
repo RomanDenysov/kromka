@@ -1,6 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getPrelinksByProductId } from "@/features/product-prelinks/api/queries";
+import {
+  getPrelinksByProductId,
+  type PrelinkWithLinkedProduct,
+} from "@/features/product-prelinks/api/queries";
+import { log } from "@/lib/logger";
 import { formatPrice } from "@/lib/utils";
 import { PrelinkAddButton } from "./prelink-add-button";
 
@@ -11,14 +15,19 @@ interface Props {
 const DEFAULT_HEADING = "Pre väčšiu spoločnosť?";
 
 export async function FeaturedPrelinksPanel({ productId }: Props) {
-  const prelinks = await getPrelinksByProductId(productId);
+  let prelinks: PrelinkWithLinkedProduct[];
+  try {
+    prelinks = await getPrelinksByProductId(productId);
+  } catch (error) {
+    log.db.error({ err: error, productId }, "getPrelinksByProductId failed");
+    return null;
+  }
+
   if (prelinks.length === 0) {
     return null;
   }
 
-  // Use the first prelink's label as the panel heading if any link has one;
-  // otherwise the generic Slovak fallback. Per-card labels feel cluttered in
-  // the v1 layout, so the section heading carries the editorial voice.
+  // First non-empty label wins as panel heading (per-card labels would clutter the v1 layout).
   const heading =
     prelinks.find((p) => p.label && p.label.trim().length > 0)?.label ??
     DEFAULT_HEADING;

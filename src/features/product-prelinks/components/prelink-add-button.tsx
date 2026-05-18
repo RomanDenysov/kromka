@@ -2,6 +2,7 @@
 
 import { ShoppingCartIcon } from "lucide-react";
 import { useTransition } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { addToCart } from "@/features/cart/api/actions";
@@ -22,15 +23,19 @@ export function PrelinkAddButton({
 
   const handleClick = () => {
     startTransition(async () => {
-      await addToCart(productId, 1);
-      analytics.productAdded({
-        product_id: productId,
-        product_name: productName,
-        price: priceCents,
-        quantity: 1,
-        cart_type: "b2c",
-        source: "product_prelink",
-      });
+      try {
+        await addToCart(productId, 1);
+        analytics.productAdded({
+          product_id: productId,
+          product_name: productName,
+          price: priceCents,
+          quantity: 1,
+          cart_type: "b2c",
+          source: "product_prelink",
+        });
+      } catch (_error) {
+        toast.error("Pridanie do košíka zlyhalo. Skúste to znova.");
+      }
     });
   };
 

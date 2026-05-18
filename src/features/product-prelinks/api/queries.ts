@@ -5,20 +5,23 @@ import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
 import { productPrelinks } from "@/db/schema";
+import type { ProductStatus, WeightUnit } from "@/db/types";
+
+export interface LinkedProductCard {
+  id: string;
+  imageUrl: string | null;
+  isActive: boolean;
+  name: string;
+  priceCents: number;
+  slug: string;
+  status: ProductStatus;
+  weightUnit: WeightUnit | null;
+  weightValue: number | null;
+}
 
 export interface PrelinkWithLinkedProduct {
   label: string | null;
-  linkedProduct: {
-    id: string;
-    name: string;
-    slug: string;
-    priceCents: number;
-    isActive: boolean;
-    status: string;
-    weightValue: number | null;
-    weightUnit: string | null;
-    imageUrl: string | null;
-  };
+  linkedProduct: LinkedProductCard;
   linkedProductId: string;
   productId: string;
   sortOrder: number;

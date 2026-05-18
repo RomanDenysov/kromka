@@ -34,10 +34,6 @@ export async function addPrelinkAction(
 
   const { productId, linkedProductId, label } = parsed.data;
 
-  if (productId === linkedProductId) {
-    return { success: false, error: "SELF_LINK" };
-  }
-
   // Verify both products exist and the linked one isn't archived/draft.
   const [source, target] = await Promise.all([
     db.query.products.findFirst({
@@ -107,7 +103,7 @@ export async function updatePrelinkAction(
     return { success: true };
   }
 
-  await db
+  const updated = await db
     .update(productPrelinks)
     .set(updates)
     .where(
@@ -115,7 +111,12 @@ export async function updatePrelinkAction(
         eq(productPrelinks.productId, productId),
         eq(productPrelinks.linkedProductId, linkedProductId)
       )
-    );
+    )
+    .returning({ productId: productPrelinks.productId });
+
+  if (updated.length === 0) {
+    return { success: false, error: "NOT_FOUND" };
+  }
 
   invalidateForProduct(productId);
   return { success: true };
