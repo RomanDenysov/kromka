@@ -1,8 +1,9 @@
 "use client";
 
-import { CheckIcon, CopyIcon, FacebookIcon, TwitterIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, Share2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +45,7 @@ export function ShareButtons({ url, title, className }: Props) {
         variant="outline"
       >
         <a href={facebookUrl} rel="noopener noreferrer" target="_blank">
-          <FacebookIcon className="size-4" />
+          <Icons.facebook className="size-4" />
         </a>
       </Button>
 
@@ -56,7 +57,7 @@ export function ShareButtons({ url, title, className }: Props) {
         variant="outline"
       >
         <a href={twitterUrl} rel="noopener noreferrer" target="_blank">
-          <TwitterIcon className="size-4" />
+          <Share2Icon className="size-4" />
         </a>
       </Button>
 
