@@ -34,9 +34,9 @@ const ABOUT_FAQ = [
 ];
 
 export const metadata: Metadata = createMetadata({
-  title: "O nás",
+  title: "Náš príbeh - Pekáreň Kromka v Prešove a Košiciach",
   description:
-    "Náš príbeh začal v roku 2020 láskou ku kvásku. Pečieme tradičné slovenské pekárenské výrobky s použitím kvalitných surovín v Prešove a Košiciach.",
+    "Pečieme kváskový chlieb a tradičné pečivo od 2020 v Prešove a Košiciach. Spoznajte náš remeselný prístup a príbeh za Pekárňou Kromka.",
   canonicalUrl: getSiteUrl("/o-nas"),
   image: "/images/shop.jpg",
 });

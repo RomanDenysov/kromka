@@ -60,15 +60,12 @@ export const defaultMetadata: Metadata = {
     ],
   },
   manifest: getSiteUrl("/site.webmanifest"),
-  alternates: {
-    canonical: getSiteUrl(),
-  },
 };
 
 type MetadataGenerator = Omit<Metadata, "description" | "title"> & {
   title: string;
   description: string;
-  canonicalUrl?: string;
+  canonicalUrl: string;
   image?: string;
 };
 
@@ -92,7 +89,6 @@ export function createMetadata(props: MetadataGenerator): Metadata {
       ...(props.image ? { images: [props.image] } : {}),
     },
     alternates: {
-      ...defaultMetadata.alternates,
       canonical: props.canonicalUrl,
     },
   };

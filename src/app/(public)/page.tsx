@@ -26,7 +26,7 @@ import { RegistrationBanner } from "./_components/registration-banner";
 export const metadata: Metadata = createMetadata({
   title: "Pekáreň Kromka - Remeselná pekáreň v Prešove a Košiciach",
   description:
-    "Čerstvý kváskový chlieb, pečivo a koláče pečené s láskou. Objednajte online a vyzdvihnite si v našich predajniach v Prešove a Košiciach.",
+    "Kváskový chlieb, čerstvé pečivo a koláče v Prešove a Košiciach. Remeselná pekáreň Kromka - objednajte online, vyzdvihnite v predajni.",
   canonicalUrl: getSiteUrl(),
   image: "/images/shop.jpg",
 });
