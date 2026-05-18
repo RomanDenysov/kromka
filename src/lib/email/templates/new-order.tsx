@@ -1,4 +1,4 @@
-import { Img, Link, Row, render, Section, Text } from "@react-email/components";
+import { Img, Link, Row, render, Section, Text } from "react-email";
 import { formatPrice } from "@/lib/utils";
 
 import { EmailLayout } from "./email-layout";

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   Body,
   Container,
@@ -8,8 +9,7 @@ import {
   Section,
   Tailwind,
   Text,
-} from "@react-email/components";
-import type { ReactNode } from "react";
+} from "react-email";
 
 import {
   DEFAULT_CONTACT_PHONES,

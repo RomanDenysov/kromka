@@ -1,4 +1,4 @@
-import { Img, Link, render, Section, Text } from "@react-email/components";
+import { Img, Link, render, Section, Text } from "react-email";
 
 import { formatPrice } from "@/lib/utils";
 

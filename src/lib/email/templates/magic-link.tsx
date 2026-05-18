@@ -12,7 +12,7 @@ import {
   Section,
   Tailwind,
   Text,
-} from "@react-email/components";
+} from "react-email";
 
 import { EmailFooter } from "./email-layout";
 import { DEFAULT_LOGO_URL } from "./shared";
