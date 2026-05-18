@@ -1,6 +1,6 @@
 "use cache";
 
-import { sql, type SQL } from "drizzle-orm";
+import { type SQL, sql } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 import { PROFIT_ORDER_STATUSES } from "../lib/constants";

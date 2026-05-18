@@ -54,10 +54,9 @@ export function SelectField<T extends FieldValues>({
           <Select onValueChange={field.onChange} value={field.value}>
             <SelectTrigger
               aria-invalid={fieldState.invalid}
-              className="px-1.5 py-0.5"
+              className="w-full"
               id={field.name}
               name={field.name}
-              size="xs"
             >
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>

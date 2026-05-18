@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Product } from "@/features/products/api/queries";
 import type { AddToCartSource } from "@/lib/analytics";
+import { formatWeight } from "@/lib/format-weight";
 import { cn, formatPrice } from "@/lib/utils";
 
 interface Props {
@@ -26,6 +27,7 @@ export function ProductCard({
   source = "product_card",
 }: Props) {
   const isActive = product.status === "active";
+  const weightLabel = formatWeight(product.weightValue, product.weightUnit);
 
   return (
     <article
@@ -50,6 +52,15 @@ export function ProductCard({
             src={product.imageUrl ?? ""}
             width={500}
           />
+          {weightLabel ? (
+            <Badge
+              className="absolute top-2 right-2 bg-background/90 text-foreground shadow-sm backdrop-blur-sm"
+              size="sm"
+              variant="secondary"
+            >
+              {weightLabel}
+            </Badge>
+          ) : null}
         </div>
       </Link>
       <div className="flex size-full flex-col justify-between gap-1 px-1 pb-1">
