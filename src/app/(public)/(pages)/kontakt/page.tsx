@@ -1,4 +1,4 @@
-import { Facebook, Instagram, MailIcon, PhoneIcon } from "lucide-react";
+import { MailIcon, PhoneIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
@@ -108,7 +108,7 @@ export default function KontaktPage() {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <Instagram className="size-4" />
+                <Icons.instagram className="size-4" />
                 Instagram
               </Link>
               <Link
@@ -120,7 +120,7 @@ export default function KontaktPage() {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <Facebook className="size-4" />
+                <Icons.facebook className="size-4" />
                 Facebook
               </Link>
               <Link

@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Facebook,
-  Instagram,
-  LogOutIcon,
-  MailIcon,
-  MenuIcon,
-  PhoneIcon,
-} from "lucide-react";
+import { LogOutIcon, MailIcon, MenuIcon, PhoneIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -34,12 +27,12 @@ interface Props {
 const SOCIAL_LINKS = [
   {
     href: "https://www.instagram.com/pekaren.kromka",
-    icon: Instagram,
+    icon: Icons.instagram,
     label: "Instagram",
   },
   {
     href: "https://www.facebook.com/pekaren.kromka",
-    icon: Facebook,
+    icon: Icons.facebook,
     label: "Facebook",
   },
   {
