@@ -15,7 +15,7 @@ import { log } from "@/lib/logger";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
-export async function createPriceTierAction() {
+export async function createPriceTierAction(): Promise<never> {
   await requireAdmin();
 
   let tierId: string;

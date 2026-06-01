@@ -154,19 +154,20 @@ async function sendEmailBasedOnOrderStatus(
   if (!order) {
     throw new Error("Order not found");
   }
-  if (status === "in_progress") {
-    return sendEmail.orderConfirmation({ order });
+
+  switch (status) {
+    case "in_progress":
+      return sendEmail.orderConfirmation({ order });
+    case "ready_for_pickup":
+      return sendEmail.orderReady({ order });
+    case "completed":
+      return sendEmail.thankYou({ order });
+    case "cancelled":
+      return sendEmail.orderCancelled({ order });
+    // "new" and "refunded" have no customer-facing email template yet.
+    default:
+      return undefined;
   }
-  if (status === "ready_for_pickup") {
-    return sendEmail.orderReady({ order });
-  }
-  if (status === "completed") {
-    return sendEmail.thankYou({ order });
-  }
-  if (status === "cancelled") {
-    return sendEmail.orderCancelled({ order });
-  }
-  // "new" and "refunded" have no customer-facing email template yet.
 }
 
 /**
