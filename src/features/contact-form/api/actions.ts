@@ -43,7 +43,8 @@ export async function submitSupportRequest(data: {
         userAgent: validatedData.userAgent,
         posthogId: validatedData.posthogId,
       });
-    } catch {
+    } catch (err) {
+      log.email.error({ err }, "Failed to send support request email");
       return {
         success: false,
         error: "Nastala chyba pri odosielaní správy. Skúste to prosím znova.",
@@ -60,7 +61,8 @@ export async function submitSupportRequest(data: {
     }
 
     return { success: true };
-  } catch (_error) {
+  } catch (err) {
+    log.email.error({ err }, "Submit support request failed");
     return {
       success: false,
       error: "Nastala chyba pri odosielaní správy. Skúste to prosím znova.",

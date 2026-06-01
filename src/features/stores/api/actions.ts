@@ -55,6 +55,12 @@ export async function updateStoreAction({
     .where(eq(stores.id, id))
     .returning();
 
+  // Store may have been deleted by a concurrent request between the read above
+  // and this update, leaving updatedStore undefined.
+  if (!updatedStore) {
+    return { success: false, error: "STORE_NOT_FOUND" };
+  }
+
   updateTag("stores");
   updateTag(`store-${updatedStore.slug}`);
   if (currentStore?.slug && currentStore.slug !== updatedStore.slug) {
@@ -72,12 +78,15 @@ export async function copyStoreAction({ storeId }: { storeId: string }) {
   });
 
   if (!referenceStore) {
-    throw new Error("Store not found");
+    return { success: false, error: "STORE_NOT_FOUND" };
   }
 
   const newStoreData = {
     ...referenceStore,
     id: undefined, // We don't want to copy the id
+    // Let the DB assign fresh timestamps instead of inheriting the original's.
+    createdAt: undefined,
+    updatedAt: undefined,
     slug: draftSlug(referenceStore.name),
   };
 

@@ -1,94 +1,108 @@
 import "server-only";
 
 import { and, count, desc, eq, ilike, or, type SQL, sql } from "drizzle-orm";
+import { cacheLife, cacheTag } from "next/cache";
+import { cache } from "react";
 import { db } from "@/db";
 import { orders, organizations } from "@/db/schema";
 
-export async function getOrganizations({
-  search,
-  priceTierId,
-  limit = 50,
-  offset = 0,
-}: {
-  search?: string;
-  priceTierId?: string;
-  limit?: number;
-  offset?: number;
-} = {}) {
-  const conditions: (SQL<unknown> | undefined)[] = [];
+export const getOrganizations = cache(
+  async ({
+    search,
+    priceTierId,
+    limit = 50,
+    offset = 0,
+  }: {
+    search?: string;
+    priceTierId?: string;
+    limit?: number;
+    offset?: number;
+  } = {}) => {
+    "use cache";
+    cacheLife("minutes");
+    // Joins order stats, so order mutations must invalidate this too.
+    cacheTag("organizations", "orders");
 
-  if (search) {
-    conditions.push(
-      or(
-        ilike(organizations.name, `%${search}%`),
-        ilike(organizations.billingName ?? "", `%${search}%`),
-        ilike(organizations.ico ?? "", `%${search}%`)
-      )
-    );
-  }
+    const conditions: (SQL<unknown> | undefined)[] = [];
 
-  if (priceTierId) {
-    conditions.push(eq(organizations.priceTierId, priceTierId));
-  }
+    if (search) {
+      conditions.push(
+        or(
+          ilike(organizations.name, `%${search}%`),
+          ilike(organizations.billingName ?? "", `%${search}%`),
+          ilike(organizations.ico ?? "", `%${search}%`)
+        )
+      );
+    }
 
-  const orgs = await db.query.organizations.findMany({
-    where: conditions.length > 0 ? and(...conditions) : undefined,
-    with: {
-      priceTier: {
-        columns: { id: true, name: true },
+    if (priceTierId) {
+      conditions.push(eq(organizations.priceTierId, priceTierId));
+    }
+
+    const orgs = await db.query.organizations.findMany({
+      where: conditions.length > 0 ? and(...conditions) : undefined,
+      with: {
+        priceTier: {
+          columns: { id: true, name: true },
+        },
+        members: {
+          columns: { id: true },
+        },
       },
-      members: {
-        columns: { id: true },
-      },
-    },
-    orderBy: [desc(organizations.createdAt)],
-    limit,
-    offset,
-  });
+      orderBy: [desc(organizations.createdAt)],
+      limit,
+      offset,
+    });
 
-  // Get order stats for each organization
-  const orgIds = orgs.map((org) => org.id);
-  const orderStats =
-    orgIds.length > 0
-      ? await db
-          .select({
-            orgId: orders.companyId,
-            orderCount: count(),
-            totalRevenue:
-              sql<number>`COALESCE(SUM(${orders.totalCents}), 0)`.as(
-                "totalRevenue"
-              ),
-          })
-          .from(orders)
-          .where(
-            and(
-              or(...orgIds.map((id) => eq(orders.companyId, id))),
-              eq(orders.paymentStatus, "paid")
+    // Get order stats for each organization
+    const orgIds = orgs.map((org) => org.id);
+    const orderStats =
+      orgIds.length > 0
+        ? await db
+            .select({
+              orgId: orders.companyId,
+              orderCount: count(),
+              totalRevenue:
+                sql<number>`COALESCE(SUM(${orders.totalCents}), 0)`.as(
+                  "totalRevenue"
+                ),
+            })
+            .from(orders)
+            .where(
+              and(
+                or(...orgIds.map((id) => eq(orders.companyId, id))),
+                eq(orders.paymentStatus, "paid")
+              )
             )
-          )
-          .groupBy(orders.companyId)
-      : [];
+            .groupBy(orders.companyId)
+        : [];
 
-  const statsMap = new Map(
-    orderStats.map((stat) => [
-      stat.orgId ?? "",
-      {
-        orderCount: Number(stat.orderCount) ?? 0,
-        totalRevenue: Number(stat.totalRevenue) ?? 0,
-      },
-    ])
-  );
+    const statsMap = new Map(
+      orderStats.map((stat) => [
+        stat.orgId ?? "",
+        {
+          orderCount: Number(stat.orderCount) ?? 0,
+          totalRevenue: Number(stat.totalRevenue) ?? 0,
+        },
+      ])
+    );
 
-  return orgs.map((org) => ({
-    ...org,
-    orderCount: statsMap.get(org.id)?.orderCount ?? 0,
-    totalRevenue: statsMap.get(org.id)?.totalRevenue ?? 0,
-    memberCount: org.members?.length ?? 0,
-  }));
-}
+    return orgs.map((org) => ({
+      ...org,
+      orderCount: statsMap.get(org.id)?.orderCount ?? 0,
+      totalRevenue: statsMap.get(org.id)?.totalRevenue ?? 0,
+      memberCount: org.members?.length ?? 0,
+    }));
+  }
+);
 
-export function getOrganizationById(id: string) {
-  return db.query.organizations.findFirst({
+export const getOrganizationById = cache(async (id: string) => {
+  "use cache";
+  cacheLife("minutes");
+  // Joins related orders, so order mutations must invalidate this too.
+  cacheTag("organizations", "orders");
+
+  return await db.query.organizations.findFirst({
     where: (org, { eq: eqOp }) => eqOp(org.id, id),
     with: {
       priceTier: true,
@@ -114,7 +128,7 @@ export function getOrganizationById(id: string) {
       },
     },
   });
-}
+});
 
 export type Organization = NonNullable<
   Awaited<ReturnType<typeof getOrganizations>>[number]

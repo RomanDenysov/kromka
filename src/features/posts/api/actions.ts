@@ -185,6 +185,7 @@ export async function deletePostAction(id: string) {
   }
 
   refresh();
+  return { success: true };
 }
 
 // ==========================================

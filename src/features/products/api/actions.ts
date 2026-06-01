@@ -11,6 +11,7 @@ import {
   updateProductSchema,
 } from "@/features/products/schema";
 import { requireAdmin } from "@/lib/auth/guards";
+import { log } from "@/lib/logger";
 
 export async function updateProductAction({
   id,
@@ -96,7 +97,7 @@ export async function copyProductAction({ productId }: { productId: string }) {
   });
 
   if (!referenceProduct) {
-    throw new Error("Product not found");
+    return { success: false, error: "NOT_FOUND" };
   }
 
   const newProductData = {
@@ -110,30 +111,38 @@ export async function copyProductAction({ productId }: { productId: string }) {
     imageId: referenceProduct.imageId,
   };
 
-  const [newProduct] = await db
-    .insert(products)
-    .values({ ...newProductData })
-    .returning({ id: products.id, slug: products.slug });
+  let newProductId: string;
+  try {
+    const [newProduct] = await db
+      .insert(products)
+      .values({ ...newProductData })
+      .returning({ id: products.id, slug: products.slug });
+    newProductId = newProduct.id;
 
-  // Batch insert prices
-  if (referenceProduct.prices.length > 0) {
-    await db.insert(prices).values(
-      referenceProduct.prices.map(({ priceCents, priceTierId }) => ({
-        productId: newProduct.id,
-        priceTierId,
-        priceCents,
-      }))
-    );
+    // Batch insert prices
+    if (referenceProduct.prices.length > 0) {
+      await db.insert(prices).values(
+        referenceProduct.prices.map(({ priceCents, priceTierId }) => ({
+          productId: newProduct.id,
+          priceTierId,
+          priceCents,
+        }))
+      );
+    }
+
+    // Invalidate public cache
+    updateTag("products");
+    updateTag("categories"); // Categories depend on products
+    if (newProduct.slug) {
+      updateTag(`product-${newProduct.slug}`);
+    }
+  } catch (err) {
+    log.products.error({ err, productId }, "Copy product failed");
+    return { success: false, error: "COPY_FAILED" };
   }
 
-  // Invalidate public cache
-  updateTag("products");
-  updateTag("categories"); // Categories depend on products
-  if (newProduct.slug) {
-    updateTag(`product-${newProduct.slug}`);
-  }
-
-  redirect(`/admin/products/${newProduct.id}`);
+  // redirect() must stay outside the try/catch — it throws NEXT_REDIRECT.
+  redirect(`/admin/products/${newProductId}`);
 }
 
 export async function toggleIsActiveProductAction({ id }: { id: string }) {

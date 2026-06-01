@@ -1,6 +1,8 @@
 import "server-only";
 
 import { count, desc, eq, inArray } from "drizzle-orm";
+import { cacheLife, cacheTag } from "next/cache";
+import { cache } from "react";
 import { db } from "@/db";
 import { orderStatusEvents, orders } from "@/db/schema";
 import type { OrderStatus } from "@/db/types";
@@ -73,13 +75,17 @@ export function getOrderByStore(storeId: string) {
   });
 }
 
-export async function getNewOrdersCount() {
+export const getNewOrdersCount = cache(async () => {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("orders");
+
   const [{ count: newOrdersCount }] = await db
     .select({ count: count() })
     .from(orders)
     .where(eq(orders.orderStatus, "new"));
 
   return newOrdersCount;
-}
+});
 
 export type Order = NonNullable<Awaited<ReturnType<typeof getOrderById>>>;

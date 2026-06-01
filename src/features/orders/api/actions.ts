@@ -2,7 +2,7 @@
 
 import { parseISO } from "date-fns";
 import { and, eq, inArray } from "drizzle-orm";
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
 import { db } from "@/db";
@@ -163,9 +163,10 @@ async function sendEmailBasedOnOrderStatus(
   if (status === "completed") {
     return sendEmail.thankYou({ order });
   }
-  // if (status === "cancelled") {
-  //   return sendEmail.outOfStock({ email: order.createdBy?.email ?? "", productName: order.items[0].product.name });
-  // }
+  if (status === "cancelled") {
+    return sendEmail.orderCancelled({ order });
+  }
+  // "new" and "refunded" have no customer-facing email template yet.
 }
 
 /**
@@ -225,8 +226,21 @@ export async function updateOrderStatusAction({
     note: note ?? null,
   });
 
-  await sendEmailBasedOnOrderStatus(updatedOrder.id, status);
+  // Send the status email out-of-band: a mail failure must not fail the
+  // status change (which is already persisted) nor throw to the client.
+  after(async () => {
+    try {
+      await sendEmailBasedOnOrderStatus(updatedOrder.id, status);
+    } catch (err) {
+      log.email.error(
+        { err, orderId, status },
+        "Failed to send order status email"
+      );
+    }
+  });
 
+  // Invalidate cached dashboard metrics and reports (tagged "orders").
+  updateTag("orders");
   refresh();
 
   return updatedOrder;
@@ -245,6 +259,7 @@ export async function updateOrderPaymentStatusAction({
     .set({ paymentStatus: status })
     .where(eq(orders.id, orderId));
 
+  updateTag("orders");
   refresh();
 }
 
@@ -353,6 +368,7 @@ export async function bulkUpdateOrdersAction(data: {
       await handleBulkStatusNotifications(orderIds, orderStatus, admin.id);
     }
 
+    updateTag("orders");
     refresh();
     return { success: true, updatedCount: orderIds.length };
   } catch (error) {
@@ -423,6 +439,7 @@ export async function cancelOrderAction(
       }
     });
 
+    updateTag("orders");
     refresh();
     return { success: true };
   } catch (error) {

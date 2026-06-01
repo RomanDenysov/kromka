@@ -1,5 +1,6 @@
 "use server";
 
+import { addDays } from "date-fns";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -110,8 +111,7 @@ export async function generateInvoiceForCompany(
     });
 
     const paymentTermDays = org?.paymentTermDays ?? DEFAULT_PAYMENT_TERM_DAYS;
-    const dueDate = new Date(periodEnd);
-    dueDate.setDate(dueDate.getDate() + paymentTermDays);
+    const dueDate = addDays(new Date(periodEnd), paymentTermDays);
 
     // Generate invoice number
     const invoiceNumber = await generateInvoiceNumber();
