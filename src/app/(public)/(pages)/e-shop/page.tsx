@@ -1,3 +1,4 @@
+import { ClockIcon } from "lucide-react";
 import type { Metadata } from "next";
 import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
@@ -12,6 +13,7 @@ import {
 import { JsonLd } from "@/components/seo/json-ld";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
+import { Badge } from "@/components/ui/badge";
 import { ReorderBar } from "@/features/buy-again-banner/components/reorder-bar";
 import { getCategories } from "@/features/categories/api/queries";
 import { getLastOrderWithItemsAction } from "@/features/checkout/api/actions";
@@ -52,8 +54,13 @@ export default function EshopPage({ searchParams }: Props) {
             Naše produkty
           </h1>
           <p className="text-muted-foreground">
-            Chlieb, pečivo, koláče a lokálne lakomky z Pekárne Kromka.
+            Čerstvo upečené každý deň - chlieb, pečivo, koláče a lokálne lakomky
+            z Pekárne Kromka.
           </p>
+          <Badge className="gap-1.5" variant="secondary">
+            <ClockIcon />
+            Objednajte do 12:00 a vyzdvihnite zajtra
+          </Badge>
         </div>
         <Suspense>
           <ReorderBar lastOrderPromise={lastOrderPromise} />

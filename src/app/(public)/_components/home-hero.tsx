@@ -1,5 +1,6 @@
 "use client";
 
+import { ClockIcon } from "lucide-react";
 import {
   motion,
   useReducedMotion,
@@ -9,6 +10,7 @@ import {
 import Image from "next/image";
 import { useRef } from "react";
 import { FadeContainer, FadeSpan } from "@/components/motion/fade";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { HOME_HERO_DOM_ID } from "./home-hero-constants";
 import { HomeHeroCta } from "./home-hero-cta";
@@ -61,11 +63,20 @@ export function HomeHero({ className }: { className?: string }) {
             <FadeSpan>S láskou</FadeSpan> <FadeSpan>ku kvásku</FadeSpan>
           </p>
           <p className="text-balance text-center font-medium text-lg text-shadow-2xs text-white tracking-tight md:text-xl lg:text-2xl">
-            <FadeSpan>Chlieb z pece,</FadeSpan>{" "}
-            <FadeSpan>závin z rúk,</FadeSpan> <FadeSpan>káva z lásky</FadeSpan>
+            <FadeSpan>Remeselná pekáreň</FadeSpan>{" "}
+            <FadeSpan>v Prešove a Košiciach</FadeSpan>
           </p>
         </div>
         <HomeHeroCta animated variant="overlay" />
+        <FadeSpan>
+          <Badge
+            className="border-white/30 bg-white/15 text-shadow-2xs text-white backdrop-blur-sm"
+            variant="outline"
+          >
+            <ClockIcon />
+            Objednajte online, vyzdvihnite bez čakania
+          </Badge>
+        </FadeSpan>
       </FadeContainer>
     </section>
   );

@@ -32,6 +32,8 @@ import {
   getPublishedReviews,
   getReviewAggregate,
 } from "@/features/products/api/review-queries";
+import { ProductReviews } from "@/features/products/components/product-reviews";
+import { StarRating } from "@/features/products/components/star-rating";
 import { formatWeight } from "@/lib/format-weight";
 import { log } from "@/lib/logger";
 import { createMetadata } from "@/lib/metadata";
@@ -251,6 +253,15 @@ export default async function ProductPage({ params }: Props) {
             {result.name}
           </h1>
 
+          {reviewAggregate && (
+            <a className="w-fit" href="#product-reviews-heading">
+              <StarRating
+                count={reviewAggregate.reviewCount}
+                rating={reviewAggregate.averageRating}
+              />
+            </a>
+          )}
+
           {/* Product Price and Features */}
           <p className="font-semibold text-2xl tracking-tight md:text-4xl">
             {formatPrice(result.priceCents)}
@@ -272,7 +283,10 @@ export default async function ProductPage({ params }: Props) {
             )}
             {hasPickupRestriction && (
               <div className="flex flex-row flex-wrap items-center gap-1">
-                <Hint text="Dostupné len v týchto dňoch">
+                <span className="font-medium text-muted-foreground text-xs">
+                  Čerstvé na vyzdvihnutie:
+                </span>
+                <Hint text="Dni, kedy je tento produkt čerstvo upečený">
                   <CalendarIcon className="size-4 text-muted-foreground" />
                 </Hint>
                 {pickupDates.map((date) => (
@@ -346,6 +360,7 @@ export default async function ProductPage({ params }: Props) {
           />
         </div>
       </section>
+      <ProductReviews aggregate={reviewAggregate} reviews={publishedReviews} />
       {recommendations.length > 0 && (
         <section
           aria-labelledby="product-recommendations"

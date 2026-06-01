@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 import { ParallaxScrollImage } from "../motion/parallax-scroll-image";
 
 const BENEFITS = [
-  "Vyhodne B2B ceny pre Vašu prevádzku",
-  "Osobné riešenia pre Vas a Vaš podnik",
-  "Dodávka čerstvého pečiva priamo k Vám",
+  "Výhodné B2B ceny pre vašu prevádzku",
+  "Osobné riešenia pre vás a váš podnik",
+  "Dodávka čerstvého pečiva priamo k vám",
 ] as const;
 
 export function B2BCta() {
@@ -24,13 +24,13 @@ export function B2BCta() {
                 Pre kaviarne, reštaurácie a hotely
               </p>
               <h2 className="text-balance font-bold text-3xl tracking-tight md:text-4xl lg:text-[2.75rem] lg:leading-[1.1]">
-                Podme do toho
+                Poďme do toho
                 <br />
                 spolu
               </h2>
               <p className="max-w-lg text-pretty text-foreground/60 text-lg leading-relaxed">
                 Dodávame čerstvé kvasové pečivo priamo do vašej prevádzky.
-                Individualne riešenia pre Vašu prevádzku.
+                Individuálne riešenia na mieru.
               </p>
             </div>
 
@@ -77,7 +77,7 @@ export function B2BCta() {
                 href="/b2b"
                 section="b2b"
               >
-                Zistit viac
+                Zistiť viac
               </HomepageCtaLink>
             </div>
           </div>
