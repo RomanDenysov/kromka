@@ -73,7 +73,7 @@ export async function copyCategoryAction({ id }: { id: string }) {
   });
 
   if (!referenceCategory) {
-    throw new Error("Category not found");
+    return { success: false, error: "NOT_FOUND" };
   }
 
   const newCategoryData = {
@@ -96,7 +96,8 @@ export async function copyCategoryAction({ id }: { id: string }) {
     updateTag(`category-${newCategory.slug}`);
   }
 
-  return { success: true, id: newCategory.id };
+  // Navigate to the new draft editor, matching copyProductAction.
+  redirect(`/admin/categories/${newCategory.id}`);
 }
 
 export async function toggleIsActiveCategoryAction({ id }: { id: string }) {

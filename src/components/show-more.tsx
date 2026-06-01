@@ -33,7 +33,7 @@ export function ShowMore({
   return (
     <>
       {items}
-      <center className={cn("mt-4", className)}>
+      <div className={cn("mt-4 text-center", className)}>
         <Button
           className="font-medium text-sm"
           onClick={() => setExpanded(!expanded)}
@@ -42,7 +42,7 @@ export function ShowMore({
         >
           {expanded ? showLessLabel : showMoreLabel(remaining)}
         </Button>
-      </center>
+      </div>
     </>
   );
 }

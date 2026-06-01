@@ -64,12 +64,21 @@ export async function createRecipeAction({
     .values({ kind: kind ?? "product" })
     .returning({ id: recipes.id });
 
-  // Optionally link to a product (e.g. when called from the product page)
+  // Optionally link to a product (e.g. when called from the product page).
+  // A link failure must not lose the freshly created recipe — log and continue
+  // so the user still lands on the editable recipe.
   if (productId) {
-    await db
-      .update(products)
-      .set({ recipeId: created.id })
-      .where(eq(products.id, productId));
+    try {
+      await db
+        .update(products)
+        .set({ recipeId: created.id })
+        .where(eq(products.id, productId));
+    } catch (err) {
+      log.recipes.warn(
+        { err, recipeId: created.id, productId },
+        "Failed to link product to new recipe"
+      );
+    }
   }
 
   invalidate(created.id, productId ?? undefined);

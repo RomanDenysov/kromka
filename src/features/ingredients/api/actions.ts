@@ -85,7 +85,8 @@ export async function createIngredientAction(
         pricePerKgCents: v.pricePerKgCents,
         pricePerPieceCents: v.pricePerPieceCents,
         supplierName: v.supplierName,
-        source: v.nutritionSource === "seed" ? "seed" : "manual",
+        // Price provenance, not nutrition: an admin-entered price is manual.
+        source: "manual",
         notes: "Initial price",
       });
     } catch (err) {
@@ -148,7 +149,8 @@ export async function updateIngredientAction({
         pricePerKgCents: v.pricePerKgCents,
         pricePerPieceCents: v.pricePerPieceCents,
         supplierName: v.supplierName,
-        source: v.nutritionSource === "ai" ? "ai" : "manual",
+        // Price provenance, not nutrition: an admin-edited price is manual.
+        source: "manual",
       });
     }
 
@@ -339,7 +341,7 @@ export async function createDraftIngredientAction() {
     );
   }
 
-  updateTag("ingredients");
+  invalidateIngredients(created.id);
   redirect(`/admin/ingredients/${created.id}`);
 }
 

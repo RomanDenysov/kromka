@@ -63,7 +63,7 @@ async function CheckoutDataLoader() {
             </div>
           </CheckoutList>
         ) : (
-          <center className="flex w-full items-start justify-center rounded-sm border border-dashed py-20">
+          <div className="flex w-full items-start justify-center rounded-sm border border-dashed py-20">
             <Empty className="flex flex-col gap-2">
               <EmptyHeader>
                 <EmptyMedia variant="icon">
@@ -80,7 +80,7 @@ async function CheckoutDataLoader() {
                 </Link>
               </EmptyContent>
             </Empty>
-          </center>
+          </div>
         )}
       </section>
 

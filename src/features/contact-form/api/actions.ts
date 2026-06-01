@@ -32,18 +32,9 @@ export async function submitSupportRequest(data: {
 
     // Send email to staff (critical - must succeed)
     try {
-      await sendEmail.supportRequest({
-        name: validatedData.name,
-        email: validatedData.email,
-        rootCause: validatedData.rootCause,
-        message: validatedData.message,
-        sourcePath: validatedData.sourcePath,
-        sourceUrl: validatedData.sourceUrl,
-        sourceRef: validatedData.sourceRef,
-        userAgent: validatedData.userAgent,
-        posthogId: validatedData.posthogId,
-      });
-    } catch {
+      await sendEmail.supportRequest(validatedData);
+    } catch (err) {
+      log.email.error({ err }, "Failed to send support request email");
       return {
         success: false,
         error: "Nastala chyba pri odosielaní správy. Skúste to prosím znova.",
@@ -60,7 +51,8 @@ export async function submitSupportRequest(data: {
     }
 
     return { success: true };
-  } catch (_error) {
+  } catch (err) {
+    log.email.error({ err }, "Submit support request failed");
     return {
       success: false,
       error: "Nastala chyba pri odosielaní správy. Skúste to prosím znova.",

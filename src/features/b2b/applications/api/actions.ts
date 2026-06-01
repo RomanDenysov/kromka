@@ -189,7 +189,19 @@ export async function approveB2bApplication(
 
     updateTag("b2b-applications");
 
-    // TODO: Send approval email with invitation link
+    // Notify the applicant. Email failure must not fail the approval itself,
+    // since the organization and invitation are already persisted.
+    try {
+      await sendEmail.b2bApplicationApproved({
+        email: application.contactEmail,
+        companyName: application.companyName,
+      });
+    } catch (err) {
+      log.email.error(
+        { err, applicationId },
+        "Failed to send B2B approval email"
+      );
+    }
 
     return {
       success: true,
@@ -251,7 +263,22 @@ export async function rejectB2bApplication(
 
     updateTag("b2b-applications");
 
-    // TODO: Send rejection email
+    // Notify the applicant. Email failure must not fail the rejection itself.
+    try {
+      const application = await getB2bApplicationById(applicationId);
+      if (application) {
+        await sendEmail.b2bApplicationRejected({
+          email: application.contactEmail,
+          companyName: application.companyName,
+          reason: rejectionReason,
+        });
+      }
+    } catch (err) {
+      log.email.error(
+        { err, applicationId },
+        "Failed to send B2B rejection email"
+      );
+    }
 
     return { success: true };
   } catch (error) {

@@ -4,6 +4,8 @@ import { createTransport } from "nodemailer";
 import { env } from "@/env";
 import type { Order } from "@/features/orders/api/queries";
 import { renderB2BApplicationEmail } from "./templates/b2b-application";
+import { renderB2bApplicationApprovedEmail } from "./templates/b2b-application-approved";
+import { renderB2bApplicationRejectedEmail } from "./templates/b2b-application-rejected";
 
 import { renderMagicLink } from "./templates/magic-link";
 import { renderNewOrderEmail } from "./templates/new-order";
@@ -390,6 +392,54 @@ export const sendEmail = {
       to: STAFF_EMAIL,
       replyTo: contactEmail,
       subject: `Nová B2B žiadosť od ${companyName}`,
+      html,
+    });
+  },
+
+  /**
+   * Notify the applicant that their B2B application was approved.
+   */
+  b2bApplicationApproved: async ({
+    email,
+    companyName,
+  }: {
+    email: string;
+    companyName: string;
+  }) => {
+    const html = await renderB2bApplicationApprovedEmail({
+      companyName,
+      signInUrl: `${getBaseUrl()}/prihlasenie`,
+    });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: email,
+      subject: "Vaša B2B žiadosť bola schválená – Kromka",
+      html,
+    });
+  },
+
+  /**
+   * Notify the applicant that their B2B application was rejected.
+   */
+  b2bApplicationRejected: async ({
+    email,
+    companyName,
+    reason,
+  }: {
+    email: string;
+    companyName: string;
+    reason?: string | null;
+  }) => {
+    const html = await renderB2bApplicationRejectedEmail({
+      companyName,
+      reason,
+    });
+
+    return emailService({
+      from: `"Kromka" <${env.EMAIL_USER}>`,
+      to: email,
+      subject: "Stav vašej B2B žiadosti – Kromka",
       html,
     });
   },
