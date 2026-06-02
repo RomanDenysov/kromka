@@ -1,6 +1,6 @@
 "use client";
 
-import { CategoryForm } from "@/app/(admin)/admin/categories/[id]/_components/category-form";
+import { CategoryForm } from "@/app/(admin)/admin/eshop/categories/[id]/_components/category-form";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";

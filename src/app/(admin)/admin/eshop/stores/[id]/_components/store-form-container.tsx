@@ -1,6 +1,6 @@
 "use client";
 
-import { StoreForm } from "@/app/(admin)/admin/stores/[id]/_components/store-form";
+import { StoreForm } from "@/app/(admin)/admin/eshop/stores/[id]/_components/store-form";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";

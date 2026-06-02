@@ -94,7 +94,7 @@ function OrdersList({ orders }: { orders: RecentOrder[] }) {
                 </span>
               ))}
             </div>
-            <Link href={`/admin/orders/${order.id}`}>
+            <Link href={`/admin/eshop/orders/${order.id}`}>
               <ArrowUpRightFromSquareIcon className="size-4" />
             </Link>
           </div>

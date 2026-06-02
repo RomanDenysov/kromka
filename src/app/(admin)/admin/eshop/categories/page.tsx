@@ -1,6 +1,6 @@
 import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
-import { EditCategorySheet } from "@/app/(admin)/admin/categories/[id]/edit-category-sheet";
+import { EditCategorySheet } from "@/app/(admin)/admin/eshop/categories/[id]/edit-category-sheet";
 import { CategoriesTable } from "@/components/tables/categories/table";
 import {
   getAdminCategories,

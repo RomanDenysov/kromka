@@ -3,7 +3,7 @@
 import { formatDate } from "date-fns";
 import { SquareArrowOutUpLeftIcon } from "lucide-react";
 import Link from "next/link";
-import { CategoryForm } from "@/app/(admin)/admin/categories/[id]/_components/category-form";
+import { CategoryForm } from "@/app/(admin)/admin/eshop/categories/[id]/_components/category-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import {
