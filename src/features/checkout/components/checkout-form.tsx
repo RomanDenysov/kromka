@@ -1,6 +1,6 @@
 "use client";
 
-import { CreditCardIcon, StoreIcon } from "lucide-react";
+import { CheckCircleIcon, CreditCardIcon, StoreIcon } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Controller, FormProvider } from "react-hook-form";
 import { ContinueShoppingLink } from "@/components/continue-shopping-link";
@@ -229,9 +229,6 @@ export function CheckoutForm({
           <FieldSet>
             <FieldLegend>
               <FieldTitle>Platba</FieldTitle>
-              <FieldDescription>
-                Platba prebieha pri vyzdvihnutí objednávky na predajni.
-              </FieldDescription>
             </FieldLegend>
             <FieldGroup>
               <Controller
@@ -289,6 +286,15 @@ export function CheckoutForm({
                             </Field>
                           </FieldLabel>
                         </RadioGroup>
+                        {field.value === "in_store" && (
+                          <div className="flex items-start gap-2.5 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3">
+                            <CheckCircleIcon className="mt-0.5 size-4 shrink-0 text-emerald-600" />
+                            <p className="text-foreground/80 text-sm leading-relaxed">
+                              Za objednávku zaplatíte až pri vyzdvihnutí na
+                              predajni. Vopred neplatíte nič.
+                            </p>
+                          </div>
+                        )}
                       </FieldContent>
                     </Field>
                   );
