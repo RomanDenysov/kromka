@@ -54,8 +54,8 @@ export default function EshopPage({ searchParams }: Props) {
             Naše produkty
           </h1>
           <p className="text-muted-foreground">
-            Čerstvo upečené každý deň - chlieb, pečivo, koláče a lokálne lakomky
-            z Pekárne Kromka.
+            Čerstvo upečené každý deň - chlieb, pečivo, koláče a lokálne
+            lákocinky z Pekárne Kromka.
           </p>
           <Badge className="gap-1.5" variant="secondary">
             <ClockIcon />
