@@ -21,7 +21,7 @@ export function DashboardCalendar({ dailyStats }: Props) {
   return (
     <Calendar
       captionLayout="dropdown"
-      className="[--cell-size:--spacing(8)] md:[--cell-size:--spacing(10)]"
+      className="rounded-t-lg bg-card [--cell-size:--spacing(8)] md:[--cell-size:--spacing(10)]"
       components={{
         DayButton: ({ children, modifiers, day, ...props }) => {
           const formattedDayDate = format(day.date, "yyyy-MM-dd");

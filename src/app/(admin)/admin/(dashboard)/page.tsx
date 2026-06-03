@@ -1,11 +1,12 @@
 import { format, getMonth, getYear } from "date-fns";
 import { Suspense } from "react";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getRecentActivity } from "@/features/activity-log/api/queries";
 import {
   getMonthlyOrderStats,
   getOrdersByPickupDate,
   getProductsAggregateByPickupDate,
-  getRecentOrders,
 } from "@/features/admin-dashboard/api/queries";
 import { DashboardProfitWidget } from "@/features/reports/components/dashboard-profit-widget";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
@@ -17,6 +18,7 @@ import { RevenueProgressCard } from "../_components/revenue-progress-card";
 import { StoreLoadCard } from "../_components/store-load-card";
 import { TopProductsSectionWrapper } from "../_components/top-products-section-wrapper";
 import { DashboardCalendar } from "./dashboard-calendar";
+import { DashboardRecentActivity } from "./dashboard-recent-activity";
 import { DashboardRecentTabs } from "./dashboard-recent-tabs";
 import {
   type DashboardSearchParams,
@@ -33,9 +35,9 @@ export async function DashboardContent({
   const formattedDate = format(date, "yyyy-MM-dd");
   const year = getYear(date);
   const month = getMonth(date);
-  const [orders, _recentOrders, products, monthlyStats] = await Promise.all([
+  const [orders, recentActivity, products, monthlyStats] = await Promise.all([
     getOrdersByPickupDate(formattedDate),
-    getRecentOrders(),
+    getRecentActivity(),
     getProductsAggregateByPickupDate(formattedDate),
     getMonthlyOrderStats(year, month),
   ]);
@@ -123,9 +125,12 @@ export async function DashboardContent({
         </div>
       </div>
       {/* EXISTING CONTENT: Calendar + Date Orders/Products */}
-      <div className="flex shrink-0 flex-col">
+      <div className="flex w-fit shrink-0 flex-col rounded-lg border bg-card">
         <DashboardCalendar dailyStats={dailyStats} />
+        <Separator />
         <DashboardRecentTabs orders={orders} products={products} />
+        <Separator />
+        <DashboardRecentActivity activity={recentActivity} />
       </div>
     </div>
   );

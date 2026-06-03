@@ -1,15 +1,16 @@
 "use client";
 
 import { format } from "date-fns";
-import { ArrowUpRightFromSquareIcon } from "lucide-react";
+import { sk } from "date-fns/locale";
+import { ArrowUpRightFromSquareIcon, ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { RecentOrder } from "@/features/admin-dashboard/api/queries";
 import { useDashboardParams } from "@/hooks/use-dashboard-params";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 
 interface ProductAggregate {
   orderCount: number;
@@ -27,43 +28,55 @@ interface Props {
 export function DashboardRecentTabs({ orders, products }: Props) {
   const [{ date, tab }, setSearchParams] = useDashboardParams();
   return (
-    <Card className="size-full">
-      <Tabs
-        onValueChange={(value) =>
-          setSearchParams({ tab: value as "orders" | "products" })
-        }
-        value={tab}
-      >
-        <CardHeader>
-          <CardTitle>{format(date, "EEEE d. MMMM yyyy")}</CardTitle>
-          <TabsList>
-            <TabsTrigger value="orders">
-              Objednávky ({orders.length})
-            </TabsTrigger>
-            <TabsTrigger value="products">
-              Produkty ({products.length})
-            </TabsTrigger>
-          </TabsList>
-        </CardHeader>
-        <CardContent>
-          <TabsContent value="orders">
-            <OrdersList orders={orders} />
-          </TabsContent>
-          <TabsContent value="products">
-            <ProductsAggregate products={products} />
-          </TabsContent>
-        </CardContent>
-      </Tabs>
-    </Card>
+    <Tabs
+      className="flex-1"
+      onValueChange={(value) =>
+        setSearchParams({ tab: value as "orders" | "products" })
+      }
+      value={tab}
+    >
+      <div className="gap-4 p-2">
+        <div className="flex items-center justify-between gap-2 p-1">
+          <h3 className="font-medium text-lg capitalize">
+            {format(date, "d. EEEE ", { locale: sk })}
+          </h3>
+          <Link
+            className={cn(buttonVariants({ variant: "ghost", size: "xs" }))}
+            href={`/admin/eshop/orders?date=${date}`}
+          >
+            Všetky
+            <ChevronRightIcon />
+          </Link>
+        </div>
+        <TabsList className="h-fit w-full rounded-none bg-transparent">
+          <TabsTrigger className="h-6 text-xs" value="orders">
+            Objednávky ({orders.length})
+          </TabsTrigger>
+          <TabsTrigger className="h-6 text-xs" value="products">
+            Produkty ({products.length})
+          </TabsTrigger>
+        </TabsList>
+      </div>
+      <div className="h-full grow overflow-hidden">
+        <TabsContent value="orders">
+          <OrdersList orders={orders} />
+        </TabsContent>
+        <TabsContent value="products">
+          <ProductsAggregate products={products} />
+        </TabsContent>
+      </div>
+    </Tabs>
   );
 }
 
 function OrdersList({ orders }: { orders: RecentOrder[] }) {
   if (orders.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm">
-        Žiadne objednávky na tento deň.
-      </p>
+      <div className="flex items-center justify-center py-20">
+        <p className="text-muted-foreground text-sm">
+          Žiadne objednávky na tento deň.
+        </p>
+      </div>
     );
   }
 
@@ -107,9 +120,11 @@ function OrdersList({ orders }: { orders: RecentOrder[] }) {
 function ProductsAggregate({ products }: { products: ProductAggregate[] }) {
   if (products.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm">
-        Žiadne produkty na tento deň.
-      </p>
+      <div className="flex items-center justify-center py-20">
+        <p className="text-muted-foreground text-sm">
+          Žiadne produkty na tento deň.
+        </p>
+      </div>
     );
   }
 
