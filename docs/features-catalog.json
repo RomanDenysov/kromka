@@ -947,6 +947,8 @@
       "instrumentedAt": [
         "order.created (checkout create-b2c-order)",
         "order.status_changed (admin updateOrderStatusAction)",
+        "order.status_changed bulk (bulkUpdateOrdersAction → logActivityBatch, shared batchId)",
+        "order.pickup_updated (applyPickupUpdate: user + admin pickup changes)",
         "order.cancelled (user cancelOrderAction)",
         "product.created (createDraftProductAction, copyProductAction)",
         "product.updated / product.archived (updateProductAction)",
@@ -954,7 +956,8 @@
         "b2b_application.approved (approveB2bApplication)",
         "b2b_application.rejected (rejectB2bApplication)"
       ],
-      "backfill": "scripts/backfill-activity-log.ts (pnpm backfill:activity[:prod]) - seeds from order_status_events, idempotent via deterministic 'act-<eventId>' ids + onConflictDoNothing",
+      "bulkGrouping": "Bulk actions log one entry per entity sharing metadata.batchId (logActivityBatch, single insert); ActivityFeed collapses a contiguous batchId run into one 'N objednávok' row so the feed isn't flooded",
+      "backfill": "scripts/backfill-activity-log.ts (pnpm backfill:activity[:prod]) - seeds from order_status_events, idempotent via deterministic 'act-<eventId>' ids + onConflictDoNothing; guest (no-user) 'new' events attributed to customer/guest to match live checkout",
       "filters": "Full page filters by entity type and derived role (staff/user/guest/system) via nuqs search params",
       "pending": [
         "Wire payment.received once a payment webhook exists (no handler today)"
