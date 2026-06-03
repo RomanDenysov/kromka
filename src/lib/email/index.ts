@@ -132,7 +132,7 @@ export const sendEmail = {
     const html = await renderNewOrderEmail({
       orderId: order.id,
       orderNumber: order.orderNumber,
-      orderUrl: `${getBaseUrl()}/admin/orders/${order.id}`,
+      orderUrl: `${getBaseUrl()}/admin/eshop/orders/${order.id}`,
       pickupPlace: order.store?.name ?? "Neurčené",
       pickupPlaceUrl: getPickupPlaceUrl(order.store?.slug),
       pickupTime,
@@ -525,7 +525,7 @@ export const sendEmail = {
       renderOrderPickupUpdatedEmail(sharedData),
       renderOrderPickupUpdatedEmail({
         ...sharedData,
-        orderUrl: `${getBaseUrl()}/admin/orders/${order.id}`,
+        orderUrl: `${getBaseUrl()}/admin/eshop/orders/${order.id}`,
         changedBy: { name: changedBy.name, email: changedBy.email },
         customer: getCustomerInfo(order),
       }),

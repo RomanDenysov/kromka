@@ -54,7 +54,7 @@ async function DriftContent({ searchParams }: Props) {
                   <td className="px-3 py-2">
                     <Link
                       className="font-medium hover:underline"
-                      href={`/admin/products/${row.productId}` as never}
+                      href={`/admin/eshop/products/${row.productId}`}
                     >
                       {row.productName}
                     </Link>
@@ -104,7 +104,7 @@ async function DriftContent({ searchParams }: Props) {
                   </td>
                   <td className="px-3 py-2 text-right">
                     <Button asChild size="sm" variant="ghost">
-                      <Link href={`/admin/products/${row.productId}` as never}>
+                      <Link href={`/admin/eshop/products/${row.productId}`}>
                         Otvoriť
                       </Link>
                     </Button>

@@ -3,7 +3,7 @@
 import { formatDate } from "date-fns";
 import { SquareArrowOutUpLeftIcon } from "lucide-react";
 import Link from "next/link";
-import { StoreForm } from "@/app/(admin)/admin/stores/[id]/_components/store-form";
+import { StoreForm } from "@/app/(admin)/admin/eshop/stores/[id]/_components/store-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import {
@@ -48,7 +48,7 @@ export function EditStoreSheet({ store }: { store: AdminStore }) {
                     buttonVariants({ variant: "outline", size: "sm" }),
                     "ml-auto"
                   )}
-                  href={`/admin/stores/${storeId}`}
+                  href={`/admin/eshop/stores/${storeId}`}
                 >
                   <SquareArrowOutUpLeftIcon />
                   Otvoriť

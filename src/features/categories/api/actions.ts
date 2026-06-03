@@ -62,7 +62,7 @@ export async function createDraftCategoryAction() {
   updateTag("categories");
   updateTag("products");
 
-  redirect(`/admin/categories/${newDraftCategory.id}`);
+  redirect(`/admin/eshop/categories/${newDraftCategory.id}`);
 }
 
 export async function copyCategoryAction({ id }: { id: string }) {
@@ -97,7 +97,7 @@ export async function copyCategoryAction({ id }: { id: string }) {
   }
 
   // Navigate to the new draft editor, matching copyProductAction.
-  redirect(`/admin/categories/${newCategory.id}`);
+  redirect(`/admin/eshop/categories/${newCategory.id}`);
 }
 
 export async function toggleIsActiveCategoryAction({ id }: { id: string }) {

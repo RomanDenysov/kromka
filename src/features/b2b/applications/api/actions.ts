@@ -6,6 +6,7 @@ import { updateTag } from "next/cache";
 import { db } from "@/db";
 import { b2bApplications, invitations, organizations } from "@/db/schema";
 import { DEFAULT_PAYMENT_TERM_DAYS } from "@/db/types";
+import { logActivity } from "@/features/activity-log/api/log";
 import { requireAdmin } from "@/lib/auth/guards";
 import { sendEmail } from "@/lib/email";
 import { getSlug } from "@/lib/get-slug";
@@ -68,6 +69,14 @@ export async function submitB2bApplication(
       contactPhone: validatedData.contactPhone,
       billingAddress: validatedData.billingAddress,
       message: validatedData.message,
+    });
+
+    logActivity({
+      action: "b2b_application.submitted",
+      entityType: "b2b_application",
+      entityId: application.id,
+      actor: { type: "customer", label: validatedData.contactName },
+      summary: `Nová B2B žiadosť · ${validatedData.companyName}`,
     });
 
     return { success: true };
@@ -189,6 +198,15 @@ export async function approveB2bApplication(
 
     updateTag("b2b-applications");
 
+    logActivity({
+      action: "b2b_application.approved",
+      entityType: "b2b_application",
+      entityId: applicationId,
+      actor: { id: admin.id, type: "staff", label: admin.name },
+      summary: `B2B žiadosť schválená · ${application.companyName}`,
+      metadata: { context: application.companyName },
+    });
+
     // Notify the applicant. Email failure must not fail the approval itself,
     // since the organization and invitation are already persisted.
     try {
@@ -262,6 +280,15 @@ export async function rejectB2bApplication(
     }
 
     updateTag("b2b-applications");
+
+    logActivity({
+      action: "b2b_application.rejected",
+      entityType: "b2b_application",
+      entityId: applicationId,
+      actor: { id: admin.id, type: "staff", label: admin.name },
+      summary: "B2B žiadosť zamietnutá",
+      metadata: { note: rejectionReason },
+    });
 
     // Notify the applicant. Email failure must not fail the rejection itself.
     try {

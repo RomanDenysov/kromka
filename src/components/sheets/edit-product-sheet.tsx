@@ -4,7 +4,7 @@ import { formatDate } from "date-fns";
 import { SquareArrowOutUpLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { useId } from "react";
-import { ProductForm } from "@/app/(admin)/admin/products/[id]/_components/product-form";
+import { ProductForm } from "@/app/(admin)/admin/eshop/products/[id]/_components/product-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import {
@@ -63,7 +63,7 @@ export function EditProductSheet({
                     buttonVariants({ variant: "outline", size: "sm" }),
                     "ml-auto"
                   )}
-                  href={`/admin/products/${productId}`}
+                  href={`/admin/eshop/products/${productId}`}
                 >
                   <SquareArrowOutUpLeftIcon />
                   Otvoriť

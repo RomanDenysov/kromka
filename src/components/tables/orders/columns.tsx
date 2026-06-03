@@ -79,7 +79,7 @@ export const columns: ColumnDef<Order>[] = [
     cell: ({ row }) => (
       <Link
         className="font-medium text-xs underline-offset-2 hover:underline"
-        href={`/admin/orders/${row.original.id}`}
+        href={`/admin/eshop/orders/${row.original.id}`}
       >
         #{row.original.orderNumber}
       </Link>
@@ -367,7 +367,7 @@ export const columns: ColumnDef<Order>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/orders/${order.id}`}>
+              <Link href={`/admin/eshop/orders/${order.id}`}>
                 <SquareArrowOutUpRight />
                 Otvoriť
               </Link>

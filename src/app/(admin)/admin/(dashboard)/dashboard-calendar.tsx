@@ -21,7 +21,7 @@ export function DashboardCalendar({ dailyStats }: Props) {
   return (
     <Calendar
       captionLayout="dropdown"
-      className="[--cell-size:--spacing(11)] md:[--cell-size:--spacing(13)]"
+      className="rounded-t-lg bg-card [--cell-size:--spacing(8)] md:[--cell-size:--spacing(10)]"
       components={{
         DayButton: ({ children, modifiers, day, ...props }) => {
           const formattedDayDate = format(day.date, "yyyy-MM-dd");
@@ -32,17 +32,14 @@ export function DashboardCalendar({ dailyStats }: Props) {
               day={day}
               modifiers={modifiers}
               {...props}
-              className={cn(
-                "justify-start p-1.5",
-                hasOrders && "bg-muted text-primary"
-              )}
+              className={cn("gap-0 p-0", hasOrders && "bg-muted text-primary")}
             >
               {children}
-              {!modifiers.outside && stats && (
+              {!modifiers.outside && stats ? (
                 <span className="text-[10px] data-[selected-single=true]:bg-primary-foreground">
-                  {stats.orderCount > 0 ? `${stats.orderCount}` : ""}
+                  {stats.orderCount}
                 </span>
-              )}
+              ) : null}
             </CalendarDayButton>
           );
         },

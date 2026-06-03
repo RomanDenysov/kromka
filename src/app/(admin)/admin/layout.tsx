@@ -1,41 +1,30 @@
 import type { Metadata } from "next";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { getNewOrdersCount } from "@/features/orders/api/queries";
-import AppSidebar, {
-  AppSidebarSkeleton,
-} from "@/widgets/admin-sidebar/app-sidebar";
+import { AdminSidebar } from "@/widgets/admin-sidebar/admin-sidebar";
+import { AppSidebarSkeleton } from "@/widgets/admin-sidebar/main-sidebar";
 
 export const metadata: Metadata = {
   title: {
     default: "Admin panel",
-    template: "%s | Pekáreň Kromka – Admin",
+    template: "%s | Pekáreň Kromka - Admin",
   },
   description:
     "Admin panel Pekárne Kromka. Zobrazí sa iba pre administrátorov.",
 };
 
-interface Props {
-  readonly children: ReactNode;
-}
-
-async function AdminSidebarLoader() {
-  const newOrdersCount = await getNewOrdersCount();
-  return <AppSidebar collapsible="icon" newOrdersCount={newOrdersCount} />;
-}
-
-export default async function AdminLayout({ children }: Props) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 48)",
+          "--sidebar-width": "calc(var(--spacing) * 56)",
           "--header-height": "calc(var(--spacing) * 12)",
         } as CSSProperties
       }
     >
-      <Suspense fallback={<AppSidebarSkeleton />}>
-        <AdminSidebarLoader />
+      <Suspense fallback={<AppSidebarSkeleton collapsible="icon" />}>
+        <AdminSidebar />
       </Suspense>
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>

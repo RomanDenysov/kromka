@@ -13,6 +13,7 @@ import {
   MODIFIABLE_ORDER_STATUSES,
   ORDER_STATUSES,
 } from "@/db/types";
+import { logActivity } from "@/features/activity-log/api/log";
 import {
   filterTimeSlots,
   generateAllTimeSlots,
@@ -24,6 +25,7 @@ import {
   updateOrderPickupSchema,
 } from "@/features/orders/schema";
 import { requireAdmin, requireAuth, requireStaff } from "@/lib/auth/guards";
+import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { sendEmail } from "@/lib/email";
 import { log } from "@/lib/logger";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
@@ -227,6 +229,20 @@ export async function updateOrderStatusAction({
     note: note ?? null,
   });
 
+  logActivity({
+    action: "order.status_changed",
+    entityType: "order",
+    entityId: orderId,
+    actor: { id: admin.id, type: "staff", label: admin.name },
+    summary: `${ORDER_STATUS_LABELS[status]} · #${currentOrder.orderNumber}`,
+    metadata: {
+      from: currentOrder.orderStatus,
+      to: status,
+      note: note ?? null,
+      context: currentOrder.orderNumber,
+    },
+  });
+
   // Send the status email out-of-band: a mail failure must not fail the
   // status change (which is already persisted) nor throw to the client.
   after(async () => {
@@ -425,6 +441,20 @@ export async function cancelOrderAction(
       status: "cancelled",
       createdBy: user.id,
       note: reason || "Zrušené zákazníkom",
+    });
+
+    logActivity({
+      action: "order.cancelled",
+      entityType: "order",
+      entityId: orderId,
+      actor: { id: user.id, type: "customer", label: user.name },
+      summary: `Objednávka zrušená · #${order.orderNumber}`,
+      metadata: {
+        from: order.orderStatus,
+        to: "cancelled",
+        note: reason || "Zrušené zákazníkom",
+        context: order.orderNumber,
+      },
     });
 
     log.orders.info({ orderId, userId: user.id }, "Order cancelled by user");

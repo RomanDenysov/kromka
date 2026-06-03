@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-05-18",
+  "lastUpdated": "2026-06-03",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -914,6 +914,59 @@
       "cacheTags": []
     },
     {
+      "name": "activity-log",
+      "path": "src/features/activity-log",
+      "critical": false,
+      "description": "Cross-entity activity feed (audit + operational stream). Unified polymorphic log capturing staff actions and business events across orders, products, B2B, etc. Surfaced in the admin dashboard 'Aktivita' panel and a full /admin/activity page. Complements per-order orderStatusEvents (the order timeline) - this is the horizontal 'what happened across the shop' stream.",
+      "businessLogic": [
+        "Single polymorphic activity_log table: entityId is a soft reference (no FK) across entity types",
+        "logActivity() is fire-and-forget via after() - a failed audit write is logged, never thrown, never fails the business action",
+        "actorType distinguishes staff / customer / system; actorLabel is a denormalized name snapshot that survives user deletion",
+        "summary stores a pre-rendered Slovak feed line; frontend maps action/entityType to icon + tone via activity-presentation",
+        "Dual-write for orders: orderStatusEvents (timeline + emails) is untouched; activity_log is appended alongside"
+      ],
+      "actions": [
+        "logActivity({ action, entityType, entityId, actor?, summary?, metadata? }) - server-only feed write helper"
+      ],
+      "queries": [
+        {
+          "name": "getRecentActivity",
+          "description": "Most recent activity entries (default 12), ordered by createdAt desc, cached 'minutes' under tag 'activity'"
+        }
+      ],
+      "components": [
+        "ActivityFeed - shared server component rendering icon + summary + relative time rows",
+        "activity-presentation - client-safe map: getActivityVisual (icon + tone), getActivityHref, ACTIVITY_ACTION_LABELS"
+      ],
+      "dependencies": [
+        "orders",
+        "products",
+        "b2b/applications",
+        "auth (session/guards)"
+      ],
+      "instrumentedAt": [
+        "order.created (checkout create-b2c-order)",
+        "order.status_changed (admin updateOrderStatusAction)",
+        "order.cancelled (user cancelOrderAction)",
+        "product.created (createDraftProductAction, copyProductAction)",
+        "product.updated / product.archived (updateProductAction)",
+        "b2b_application.submitted (submitB2bApplication)",
+        "b2b_application.approved (approveB2bApplication)",
+        "b2b_application.rejected (rejectB2bApplication)"
+      ],
+      "backfill": "scripts/backfill-activity-log.ts (pnpm backfill:activity[:prod]) - seeds from order_status_events, idempotent via deterministic 'act-<eventId>' ids + onConflictDoNothing",
+      "filters": "Full page filters by entity type and derived role (staff/user/guest/system) via nuqs search params",
+      "pending": [
+        "Wire payment.received once a payment webhook exists (no handler today)"
+      ],
+      "routes": [
+        "/admin (Aktivita panel)",
+        "/admin/activity (full feed + filters)"
+      ],
+      "tables": { "reads": ["activity_log"], "writes": ["activity_log"] },
+      "cacheTags": ["activity"]
+    },
+    {
       "name": "admin-dashboard",
       "path": "src/features/admin-dashboard",
       "critical": false,
@@ -1556,6 +1609,7 @@
       "b2b/applications": [],
       "b2b/invoices": [],
       "admin-dashboard": [],
+      "activity-log": ["orders"],
       "user-management": [],
       "site-config": [],
       "stores": [],

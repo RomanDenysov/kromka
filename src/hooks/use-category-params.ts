@@ -22,6 +22,6 @@ export const useCategoryParams = (options: Options = {}) =>
   });
 
 export const getAdminCategoriesLink = createTypedLink(
-  "/admin/categories",
+  "/admin/eshop/categories",
   categoryParams
 );

@@ -15,7 +15,10 @@ const storeParams = {
   isActive: parseAsBoolean,
 };
 
-export const getAdminStoresLink = createTypedLink("/admin/stores", storeParams);
+export const getAdminStoresLink = createTypedLink(
+  "/admin/eshop/stores",
+  storeParams
+);
 
 export const useStoreParams = (options: Options = {}) =>
   useQueryStates(storeParams, {

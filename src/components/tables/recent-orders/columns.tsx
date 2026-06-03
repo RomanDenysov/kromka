@@ -37,7 +37,7 @@ export const columns: ColumnDef<RecentOrder>[] = [
         <div className="flex items-center gap-2">
           <Link
             className="font-medium hover:underline"
-            href={`/admin/orders/${id}`}
+            href={`/admin/eshop/orders/${id}`}
           >
             {orderNumber || id.slice(0, ORDER_ID_DISPLAY_LENGTH)}
           </Link>
@@ -214,7 +214,7 @@ export const columns: ColumnDef<RecentOrder>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href={`/admin/orders/${order.id}`}>
+              <Link href={`/admin/eshop/orders/${order.id}`}>
                 <EyeIcon />
                 Zobraziť detaily
               </Link>

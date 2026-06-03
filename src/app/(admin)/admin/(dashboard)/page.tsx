@@ -1,12 +1,12 @@
 import { format, getMonth, getYear } from "date-fns";
 import { Suspense } from "react";
-import { RecentOrdersTable } from "@/components/tables/recent-orders/table";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getRecentActivity } from "@/features/activity-log/api/queries";
 import {
   getMonthlyOrderStats,
   getOrdersByPickupDate,
   getProductsAggregateByPickupDate,
-  getRecentOrders,
 } from "@/features/admin-dashboard/api/queries";
 import { DashboardProfitWidget } from "@/features/reports/components/dashboard-profit-widget";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
@@ -15,11 +15,10 @@ import { DashboardTopMetrics } from "../_components/dashboard-top-metrics";
 import { GrowthComparisonCard } from "../_components/growth-comparison-card";
 import { RevenueChartSection } from "../_components/revenue-chart-section";
 import { RevenueProgressCard } from "../_components/revenue-progress-card";
-import { SecondaryMenuSection } from "../_components/secondary-menu-section";
 import { StoreLoadCard } from "../_components/store-load-card";
 import { TopProductsSectionWrapper } from "../_components/top-products-section-wrapper";
-import { UnusedProductsAlert } from "../_components/unused-products-alert";
 import { DashboardCalendar } from "./dashboard-calendar";
+import { DashboardRecentActivity } from "./dashboard-recent-activity";
 import { DashboardRecentTabs } from "./dashboard-recent-tabs";
 import {
   type DashboardSearchParams,
@@ -36,9 +35,9 @@ export async function DashboardContent({
   const formattedDate = format(date, "yyyy-MM-dd");
   const year = getYear(date);
   const month = getMonth(date);
-  const [orders, recentOrders, products, monthlyStats] = await Promise.all([
+  const [orders, recentActivity, products, monthlyStats] = await Promise.all([
     getOrdersByPickupDate(formattedDate),
-    getRecentOrders(),
+    getRecentActivity(),
     getProductsAggregateByPickupDate(formattedDate),
     getMonthlyOrderStats(year, month),
   ]);
@@ -56,72 +55,61 @@ export async function DashboardContent({
     {} as Record<string, { orderCount: number; revenue: number }>
   );
   return (
-    <div className="grid grid-cols-1 gap-4 p-4">
+    <div className="flex gap-4 p-4">
       {/* TOP CARDS */}
-      <Suspense
-        fallback={
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-            <Skeleton className="h-32" />
-          </div>
-        }
-      >
-        <DashboardTopMetrics />
-      </Suspense>
-
-      {/* MIDDLE ROW: Attention Required + Store Load */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Suspense fallback={<Skeleton className="h-32" />}>
-          <AttentionRequiredCard />
-        </Suspense>
-        <Suspense fallback={<Skeleton className="h-32" />}>
-          <StoreLoadCard />
-        </Suspense>
-      </div>
-
-      {/* EXISTING CONTENT: Calendar + Date Orders/Products */}
-      <div className="flex flex-1 flex-col space-y-4">
-        <div className="flex gap-8">
-          <div className="shrink-0">
-            <DashboardCalendar dailyStats={dailyStats} />
-          </div>
-          <div className="grow">
-            <DashboardRecentTabs orders={orders} products={products} />
-          </div>
-        </div>
-      </div>
-
-      {/* Revenue Chart + Top Products */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Suspense fallback={<Skeleton className="col-span-4 size-full" />}>
-          <RevenueChartSection />
-        </Suspense>
-        <Suspense fallback={<Skeleton className="col-span-3 size-full" />}>
-          <TopProductsSectionWrapper />
-        </Suspense>
-      </div>
-
-      {/* NEW ANALYTICS ROW */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Suspense fallback={<Skeleton className="h-48" />}>
-          <RevenueProgressCard />
-        </Suspense>
-        <Suspense fallback={<Skeleton className="h-48" />}>
-          <GrowthComparisonCard />
-        </Suspense>
-        <Suspense fallback={<Skeleton className="h-48" />}>
-          <DashboardProfitWidget />
-        </Suspense>
-      </div>
-
-      {/* BOTTOM: Unused Products Alert + Recent Orders */}
-      <div className="grid grid-cols-1 gap-4">
-        <Suspense fallback={<Skeleton className="h-32" />}>
-          <UnusedProductsAlert />
-        </Suspense>
+      <div className="grid flex-1 gap-4">
         <Suspense
+          fallback={
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Skeleton className="h-32" />
+              <Skeleton className="h-32" />
+              <Skeleton className="h-32" />
+              <Skeleton className="h-32" />
+            </div>
+          }
+        >
+          <DashboardTopMetrics />
+        </Suspense>
+
+        {/* MIDDLE ROW: Attention Required + Store Load */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <Suspense fallback={<Skeleton className="h-32" />}>
+            <AttentionRequiredCard />
+          </Suspense>
+          <Suspense fallback={<Skeleton className="h-32" />}>
+            <StoreLoadCard />
+          </Suspense>
+        </div>
+
+        {/* Revenue Chart + Top Products */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+          <Suspense fallback={<Skeleton className="col-span-4 size-full" />}>
+            <RevenueChartSection />
+          </Suspense>
+          <Suspense fallback={<Skeleton className="col-span-3 size-full" />}>
+            <TopProductsSectionWrapper />
+          </Suspense>
+        </div>
+
+        {/* NEW ANALYTICS ROW */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Suspense fallback={<Skeleton className="h-48" />}>
+            <RevenueProgressCard />
+          </Suspense>
+          <Suspense fallback={<Skeleton className="h-48" />}>
+            <GrowthComparisonCard />
+          </Suspense>
+          <Suspense fallback={<Skeleton className="h-48" />}>
+            <DashboardProfitWidget />
+          </Suspense>
+        </div>
+
+        {/* BOTTOM: Unused Products Alert + Recent Orders */}
+        <div className="grid grid-cols-1 gap-4">
+          {/* <Suspense fallback={<Skeleton className="h-32" />}>
+          <UnusedProductsAlert />
+        </Suspense> */}
+          {/* <Suspense
           fallback={
             <div className="flex items-center gap-2">
               <Skeleton className="h-8 w-24" />
@@ -130,10 +118,19 @@ export async function DashboardContent({
           }
         >
           <SecondaryMenuSection />
-        </Suspense>
-        <div className="grow overflow-hidden">
+        </Suspense> */}
+          {/* <div className="grow overflow-hidden">
           <RecentOrdersTable orders={recentOrders} />
+        </div> */}
         </div>
+      </div>
+      {/* EXISTING CONTENT: Calendar + Date Orders/Products */}
+      <div className="flex w-fit shrink-0 flex-col rounded-lg border bg-card">
+        <DashboardCalendar dailyStats={dailyStats} />
+        <Separator />
+        <DashboardRecentTabs orders={orders} products={products} />
+        <Separator />
+        <DashboardRecentActivity activity={recentActivity} />
       </div>
     </div>
   );
