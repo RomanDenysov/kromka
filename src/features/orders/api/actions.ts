@@ -13,7 +13,7 @@ import {
   MODIFIABLE_ORDER_STATUSES,
   ORDER_STATUSES,
 } from "@/db/types";
-import { logActivity } from "@/features/activity-log/api/log";
+import { logActivity, logActivityBatch } from "@/features/activity-log/api/log";
 import {
   filterTimeSlots,
   generateAllTimeSlots,
@@ -27,6 +27,7 @@ import {
 import { requireAdmin, requireAuth, requireStaff } from "@/lib/auth/guards";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { sendEmail } from "@/lib/email";
+import { createId } from "@/lib/ids";
 import { log } from "@/lib/logger";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
 
@@ -86,6 +87,7 @@ async function validatePickupDetails(
 /** Persist pickup changes, log event, and send notification email. */
 async function applyPickupUpdate(
   orderId: string,
+  orderNumber: string,
   storeId: string,
   pickupDate: string,
   pickupTime: string,
@@ -117,6 +119,19 @@ async function applyPickupUpdate(
       note,
     }),
   ]);
+
+  logActivity({
+    action: "order.pickup_updated",
+    entityType: "order",
+    entityId: orderId,
+    actor: {
+      id: userId,
+      type: changedBy.isStaff ? "staff" : "customer",
+      label: changedBy.name,
+    },
+    summary: `Zmena vyzdvihnutia · #${orderNumber}`,
+    metadata: { note, context: orderNumber },
+  });
 
   const previousPickup = {
     storeName: oldStore?.name ?? null,
@@ -290,20 +305,34 @@ type BulkUpdateResult =
 async function handleBulkStatusNotifications(
   orderIds: string[],
   orderStatus: OrderStatus,
-  userId: string
+  admin: { id: string; name: string }
 ) {
   // Create status events for each order
   await db.insert(orderStatusEvents).values(
     orderIds.map((orderId) => ({
       orderId,
       status: orderStatus,
-      createdBy: userId,
+      createdBy: admin.id,
       note: `Hromadná zmena stavu (${orderIds.length} objednávok)`,
     }))
   );
 
   // Fetch all orders in one go for email sending
   const allOrders = await getOrdersByIds(orderIds);
+
+  // Log one activity entry per order, sharing a batchId so the feed collapses
+  // them into a single "N objednávok" row instead of flooding it.
+  const batchId = createId();
+  logActivityBatch(
+    allOrders.map((order) => ({
+      action: "order.status_changed" as const,
+      entityType: "order" as const,
+      entityId: order.id,
+      actor: { id: admin.id, type: "staff" as const, label: admin.name },
+      summary: `${ORDER_STATUS_LABELS[orderStatus]} · #${order.orderNumber}`,
+      metadata: { to: orderStatus, batchId, context: order.orderNumber },
+    }))
+  );
 
   // Send emails in chunks to prevent SMTP issues
   const CHUNK_SIZE = 5;
@@ -382,7 +411,7 @@ export async function bulkUpdateOrdersAction(data: {
     await db.update(orders).set(updates).where(inArray(orders.id, orderIds));
 
     if (orderStatus) {
-      await handleBulkStatusNotifications(orderIds, orderStatus, admin.id);
+      await handleBulkStatusNotifications(orderIds, orderStatus, admin);
     }
 
     updateTag("orders");
@@ -518,6 +547,7 @@ export async function updateOrderPickupAction(
 
     await applyPickupUpdate(
       orderId,
+      order.orderNumber,
       storeId,
       pickupDate,
       pickupTime,
@@ -589,6 +619,7 @@ export async function adminUpdateOrderPickupAction(
 
     await applyPickupUpdate(
       orderId,
+      order.orderNumber,
       storeId,
       pickupDate,
       pickupTime,

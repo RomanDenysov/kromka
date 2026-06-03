@@ -19,6 +19,43 @@ interface ActivityFeedProps {
   emptyLabel?: string;
 }
 
+type FeedItem =
+  | { kind: "single"; entry: ActivityEntry }
+  | { kind: "group"; batchId: string; entries: ActivityEntry[] };
+
+/**
+ * Collapse consecutive entries sharing a `metadata.batchId` (one bulk action)
+ * into a single group. Batch rows share a timestamp, so they sort adjacently.
+ */
+function groupFeed(activity: ActivityEntry[]): FeedItem[] {
+  const items: FeedItem[] = [];
+  let i = 0;
+  while (i < activity.length) {
+    const entry = activity[i];
+    const batchId = entry.metadata?.batchId;
+    if (!batchId) {
+      items.push({ kind: "single", entry });
+      i += 1;
+      continue;
+    }
+    let end = i + 1;
+    while (
+      end < activity.length &&
+      activity[end].metadata?.batchId === batchId
+    ) {
+      end += 1;
+    }
+    const entries = activity.slice(i, end);
+    items.push(
+      entries.length > 1
+        ? { kind: "group", batchId, entries }
+        : { kind: "single", entry }
+    );
+    i = end;
+  }
+  return items;
+}
+
 export function ActivityFeed({
   activity,
   emptyLabel = "Žiadna nedávna aktivita.",
@@ -34,9 +71,21 @@ export function ActivityFeed({
 
   return (
     <div className={cn(detailed ? "divide-y" : "space-y-0.5")}>
-      {activity.map((entry) => (
-        <ActivityRow detailed={detailed} entry={entry} key={entry.id} />
-      ))}
+      {groupFeed(activity).map((item) =>
+        item.kind === "group" ? (
+          <GroupedRow
+            detailed={detailed}
+            entries={item.entries}
+            key={item.batchId}
+          />
+        ) : (
+          <ActivityRow
+            detailed={detailed}
+            entry={item.entry}
+            key={item.entry.id}
+          />
+        )
+      )}
     </div>
   );
 }
@@ -85,6 +134,50 @@ function ActivityRow({
   return (
     <div className={cn("flex items-start gap-3", detailed ? "p-3" : "p-2")}>
       {body}
+    </div>
+  );
+}
+
+/** Slovak count: 2-4 → "objednávky", otherwise "objednávok" (groups are ≥2). */
+function pluralizeOrders(count: number): string {
+  const word = count >= 2 && count <= 4 ? "objednávky" : "objednávok";
+  return `${count} ${word}`;
+}
+
+/**
+ * One row standing in for a whole bulk action. Not linked (it spans many
+ * entities); the action label is taken from the first entry's summary prefix.
+ */
+function GroupedRow({
+  entries,
+  detailed,
+}: {
+  entries: ActivityEntry[];
+  detailed: boolean;
+}) {
+  const first = entries[0];
+  const { Icon, toneClass } = getActivityVisual(first.action, first.entityType);
+  const prefix =
+    first.summary?.split(" · ")[0] ?? ACTIVITY_ACTION_LABELS[first.action];
+  const title = `${prefix} · ${pluralizeOrders(entries.length)}`;
+
+  return (
+    <div className={cn("flex items-start gap-3", detailed ? "p-3" : "p-2")}>
+      {detailed ? (
+        <DetailedBody
+          entry={first}
+          Icon={Icon}
+          title={title}
+          toneClass={toneClass}
+        />
+      ) : (
+        <CompactBody
+          entry={first}
+          Icon={Icon}
+          title={title}
+          toneClass={toneClass}
+        />
+      )}
     </div>
   );
 }
