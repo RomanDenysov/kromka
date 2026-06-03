@@ -118,7 +118,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
       return (
         <Link
           className={buttonVariants({ variant: "link", size: "xs" })}
-          href={`/admin/products?productId=${product.id}`}
+          href={`/admin/eshop/products?productId=${product.id}`}
         >
           {product.name}
         </Link>
@@ -320,7 +320,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={`/admin/products/${row.original.id}`}>
+              <Link href={`/admin/eshop/products/${row.original.id}`}>
                 <PencilIcon />
                 Upraviť
               </Link>

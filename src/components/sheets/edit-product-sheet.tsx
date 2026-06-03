@@ -63,7 +63,7 @@ export function EditProductSheet({
                     buttonVariants({ variant: "outline", size: "sm" }),
                     "ml-auto"
                   )}
-                  href={`/admin/products/${productId}`}
+                  href={`/admin/eshop/products/${productId}`}
                 >
                   <SquareArrowOutUpLeftIcon />
                   Otvoriť

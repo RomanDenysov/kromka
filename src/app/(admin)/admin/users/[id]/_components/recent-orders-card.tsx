@@ -49,7 +49,7 @@ export function RecentOrdersCard({ recentOrders, totalOrders, userId }: Props) {
           {totalOrders > 10 && (
             <Link
               className="text-primary text-sm hover:underline"
-              href={`/admin/orders?userId=${userId}`}
+              href={`/admin/eshop/orders?userId=${userId}`}
             >
               Zobraziť všetky
             </Link>
@@ -96,7 +96,7 @@ function OrderRow({ order }: { order: Order }) {
       <TableCell>
         <Link
           className="font-medium hover:underline"
-          href={`/admin/orders/${order.id}`}
+          href={`/admin/eshop/orders/${order.id}`}
         >
           {order.orderNumber}
         </Link>

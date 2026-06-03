@@ -48,7 +48,7 @@ export function EditStoreSheet({ store }: { store: AdminStore }) {
                     buttonVariants({ variant: "outline", size: "sm" }),
                     "ml-auto"
                   )}
-                  href={`/admin/stores/${storeId}`}
+                  href={`/admin/eshop/stores/${storeId}`}
                 >
                   <SquareArrowOutUpLeftIcon />
                   Otvoriť

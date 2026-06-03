@@ -29,13 +29,13 @@ async function CategorySheetLoader({
 
 export default function CategoriesPage({
   searchParams,
-}: PageProps<"/admin/categories">) {
+}: PageProps<"/admin/eshop/categories">) {
   return (
     <>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Kategórie", href: "/admin/categories" },
+          { label: "Kategórie", href: "/admin/eshop/categories" },
         ]}
       />
       <section className="h-full flex-1">

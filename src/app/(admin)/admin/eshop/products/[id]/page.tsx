@@ -150,7 +150,7 @@ export default function B2CProductPage({ params }: Props) {
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Produkty", href: "/admin/products" },
+          { label: "Produkty", href: "/admin/eshop/products" },
           { label: "Upraviť produkt" },
         ]}
       />

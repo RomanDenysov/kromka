@@ -19,7 +19,7 @@ export async function createDraftStoreAction() {
 
   updateTag("stores");
 
-  redirect(`/admin/stores/${newDraftStore.id}`);
+  redirect(`/admin/eshop/stores/${newDraftStore.id}`);
 }
 
 export async function updateStoreAction({

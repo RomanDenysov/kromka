@@ -41,13 +41,13 @@ async function ProductSheetLoader({
 
 export default function ProductsPage({
   searchParams,
-}: PageProps<"/admin/products">) {
+}: PageProps<"/admin/eshop/products">) {
   return (
     <>
       <AdminHeader
         breadcrumbs={[
           { label: "Dashboard", href: "/admin" },
-          { label: "Produkty", href: "/admin/products" },
+          { label: "Produkty", href: "/admin/eshop/products" },
         ]}
       />
       <section className="h-full flex-1">

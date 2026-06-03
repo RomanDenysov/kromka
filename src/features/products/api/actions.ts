@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { prices, products } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
+import { logActivity } from "@/features/activity-log/api/log";
 import {
   type UpdateProductSchema,
   updateProductSchema,
@@ -20,7 +21,7 @@ export async function updateProductAction({
   id: string;
   product: UpdateProductSchema;
 }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const parsed = updateProductSchema.safeParse(product);
   if (!parsed.success) {
@@ -33,7 +34,7 @@ export async function updateProductAction({
   // Get current product to check for slug changes
   const currentProduct = await db.query.products.findFirst({
     where: (p, { eq: eqFn }) => eqFn(p.id, id),
-    columns: { slug: true },
+    columns: { slug: true, name: true, status: true },
   });
 
   // Check if slug is taken by another product
@@ -64,11 +65,21 @@ export async function updateProductAction({
     updateTag(`product-${product.slug}`);
   }
 
+  const isArchiving =
+    updateData.status === "archived" && currentProduct?.status !== "archived";
+  logActivity({
+    action: isArchiving ? "product.archived" : "product.updated",
+    entityType: "product",
+    entityId: id,
+    actor: { id: admin.id, type: "staff", label: admin.name },
+    summary: `${isArchiving ? "Produkt archivovaný" : "Úprava produktu"} · ${updateData.name}`,
+  });
+
   return { success: true };
 }
 
 export async function createDraftProductAction() {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const [newDraftProduct] = await db
     .insert(products)
@@ -78,11 +89,19 @@ export async function createDraftProductAction() {
   // Invalidate public cache
   updateTag("products");
 
-  redirect(`/admin/products/${newDraftProduct.id}`);
+  logActivity({
+    action: "product.created",
+    entityType: "product",
+    entityId: newDraftProduct.id,
+    actor: { id: admin.id, type: "staff", label: admin.name },
+    summary: "Nový produkt (koncept)",
+  });
+
+  redirect(`/admin/eshop/products/${newDraftProduct.id}`);
 }
 
 export async function copyProductAction({ productId }: { productId: string }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
   const referenceProduct = await db.query.products.findFirst({
     where: (product, { eq: eqFn }) => eqFn(product.id, productId),
@@ -136,13 +155,21 @@ export async function copyProductAction({ productId }: { productId: string }) {
     if (newProduct.slug) {
       updateTag(`product-${newProduct.slug}`);
     }
+
+    logActivity({
+      action: "product.created",
+      entityType: "product",
+      entityId: newProduct.id,
+      actor: { id: admin.id, type: "staff", label: admin.name },
+      summary: `Nový produkt · ${referenceProduct.name} (kópia)`,
+    });
   } catch (err) {
     log.products.error({ err, productId }, "Copy product failed");
     return { success: false, error: "COPY_FAILED" };
   }
 
   // redirect() must stay outside the try/catch — it throws NEXT_REDIRECT.
-  redirect(`/admin/products/${newProductId}`);
+  redirect(`/admin/eshop/products/${newProductId}`);
 }
 
 export async function toggleIsActiveProductAction({ id }: { id: string }) {

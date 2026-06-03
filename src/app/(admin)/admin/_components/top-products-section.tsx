@@ -73,7 +73,7 @@ function TopProductsList({
           <div className="space-y-1">
             <Link
               className="font-medium leading-none"
-              href={`/admin/products/${product.id}`}
+              href={`/admin/eshop/products/${product.id}`}
             >
               {product.name}
             </Link>

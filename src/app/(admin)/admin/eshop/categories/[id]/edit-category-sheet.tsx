@@ -47,7 +47,7 @@ export function EditCategorySheet({ category }: { category: AdminCategory }) {
                     buttonVariants({ variant: "outline", size: "sm" }),
                     "ml-auto"
                   )}
-                  href={`/admin/categories/${categoryId}`}
+                  href={`/admin/eshop/categories/${categoryId}`}
                 >
                   <SquareArrowOutUpLeftIcon />
                   Otvoriť

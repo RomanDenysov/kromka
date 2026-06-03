@@ -29,7 +29,7 @@ async function StoreSheetLoader({
 
 export default function StoresPage({
   searchParams,
-}: PageProps<"/admin/stores">) {
+}: PageProps<"/admin/eshop/stores">) {
   return (
     <>
       <AdminHeader

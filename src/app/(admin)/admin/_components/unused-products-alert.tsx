@@ -33,7 +33,7 @@ export async function UnusedProductsAlert() {
             >
               <Link
                 className="text-primary hover:underline"
-                href={`/admin/products/${product.productId}`}
+                href={`/admin/eshop/products/${product.productId}`}
               >
                 {product.productName}
               </Link>
