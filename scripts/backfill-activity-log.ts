@@ -89,14 +89,21 @@ function confirmProduction(): Promise<boolean> {
 function deriveActor(
   createdBy: string | null,
   userRole: string | null,
-  userName: string | null
+  userName: string | null,
+  status: OrderStatus
 ): {
   actorId: string | null;
   actorType: ActivityActorType;
   actorLabel: string | null;
 } {
   if (!createdBy) {
-    return { actorId: null, actorType: "system", actorLabel: null };
+    // A "new" event with no user is a guest checkout (customer, no account);
+    // matches the live create-b2c-order path. Other statuses → system.
+    return {
+      actorId: null,
+      actorType: status === "new" ? "customer" : "system",
+      actorLabel: null,
+    };
   }
   const isStaff = userRole === "admin" || userRole === "manager";
   return {
@@ -159,7 +166,12 @@ async function backfill() {
   console.log(`📦 Found ${events.length} order status events\n`);
 
   const values = events.map((event) => {
-    const actor = deriveActor(event.createdBy, event.userRole, event.userName);
+    const actor = deriveActor(
+      event.createdBy,
+      event.userRole,
+      event.userName,
+      event.status
+    );
     const { action, summary } = deriveEvent(event.status, event.orderNumber);
     return {
       id: `act-${event.eventId}`,

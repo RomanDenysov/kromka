@@ -160,6 +160,8 @@ export interface ProductSnapshot {
 export interface ActivityMetadata {
   /** Monetary amount in cents (e.g. payment received). */
   amountCents?: number | null;
+  /** Shared id across entries from one bulk action; the feed collapses them. */
+  batchId?: string | null;
   /** Display suffix shown after "·" in the feed (store, gateway, client...). */
   context?: string | null;
   /** Previous value, e.g. old order status. */
