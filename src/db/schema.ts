@@ -17,6 +17,10 @@ import {
 import { relations } from "drizzle-orm/relations";
 import { createPrefixedId } from "@/lib/ids";
 import {
+  type ActivityAction,
+  type ActivityActorType,
+  type ActivityEntityType,
+  type ActivityMetadata,
   type Address,
   type B2bApplicationStatus,
   DEFAULT_OPENING_HOURS,
@@ -730,6 +734,49 @@ export const orderStatusEventsRelations = relations(
     }),
   })
 );
+
+// Cross-entity activity feed. Polymorphic by design: `entityId` is a soft
+// reference (no FK) because it points at orders, products, B2B apps, etc.
+// Complements `orderStatusEvents` (the per-order timeline) - this is the
+// horizontal "what happened across the shop" stream consumed by the dashboard.
+export const activityLog = pgTable(
+  "activity_log",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("act")),
+    actorId: text("actor_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    actorType: text("actor_type")
+      .$type<ActivityActorType>()
+      .default("system")
+      .notNull(),
+    // Denormalized actor name/email snapshot so the feed still renders after
+    // the user is deleted, or when the actor is a customer / system process.
+    actorLabel: text("actor_label"),
+    action: text("action").$type<ActivityAction>().notNull(),
+    entityType: text("entity_type").$type<ActivityEntityType>().notNull(),
+    entityId: text("entity_id").notNull(),
+    // Pre-rendered Slovak line for the feed ("Nová objednávka · #OBJ-...").
+    summary: text("summary"),
+    metadata: jsonb("metadata").$type<ActivityMetadata>(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("idx_activity_entity").on(t.entityType, t.entityId),
+    index("idx_activity_created_at").on(t.createdAt),
+    index("idx_activity_actor").on(t.actorId),
+    index("idx_activity_action").on(t.action),
+  ]
+);
+
+export const activityLogRelations = relations(activityLog, ({ one }) => ({
+  actor: one(users, {
+    fields: [activityLog.actorId],
+    references: [users.id],
+  }),
+}));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
   order: one(orders, {

@@ -77,6 +77,48 @@ export const PROMO_TYPES = [
 ] as const;
 export type PromoType = (typeof PROMO_TYPES)[number];
 
+// === Activity Log ===
+/** Who triggered an activity entry. */
+export const ACTIVITY_ACTOR_TYPES = ["staff", "customer", "system"] as const;
+export type ActivityActorType = (typeof ACTIVITY_ACTOR_TYPES)[number];
+
+/** Domain object an activity entry points at (soft, polymorphic reference). */
+export const ACTIVITY_ENTITY_TYPES = [
+  "order",
+  "product",
+  "b2b_application",
+  "organization",
+  "store",
+  "invoice",
+  "promo_code",
+  "user",
+] as const;
+export type ActivityEntityType = (typeof ACTIVITY_ENTITY_TYPES)[number];
+
+/** Object.Action event names, matching the analytics naming convention. */
+export const ACTIVITY_ACTIONS = [
+  "order.created",
+  "order.status_changed",
+  "order.pickup_updated",
+  "order.cancelled",
+  "payment.received",
+  "product.created",
+  "product.updated",
+  "product.archived",
+  "b2b_application.submitted",
+  "b2b_application.approved",
+  "b2b_application.rejected",
+] as const;
+export type ActivityAction = (typeof ACTIVITY_ACTIONS)[number];
+
+/**
+ * Display/filter role, derived from `actorType` + whether `actorId` is set:
+ * staff (admin/manager), user (registered customer), guest (anonymous
+ * customer), system (automated). Not a stored column.
+ */
+export const ACTIVITY_ROLES = ["staff", "user", "guest", "system"] as const;
+export type ActivityRole = (typeof ACTIVITY_ROLES)[number];
+
 // === JSONB Types ===
 export interface Address {
   city?: string;
@@ -112,6 +154,21 @@ export interface ProductSnapshot {
   effectivePriceCents: number;
   name: string;
   price: number;
+}
+
+/** Extra context stored on an activity_log entry (all optional). */
+export interface ActivityMetadata {
+  /** Monetary amount in cents (e.g. payment received). */
+  amountCents?: number | null;
+  /** Display suffix shown after "·" in the feed (store, gateway, client...). */
+  context?: string | null;
+  /** Previous value, e.g. old order status. */
+  from?: string | null;
+  /** Free-text note (e.g. cancellation reason). */
+  note?: string | null;
+  /** New value, e.g. new order status. */
+  to?: string | null;
+  [key: string]: unknown;
 }
 
 // === Order Status Subsets ===
