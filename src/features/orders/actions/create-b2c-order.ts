@@ -4,6 +4,7 @@ import { updateTag } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { after } from "next/server";
 import { isB2cPaymentMethod } from "@/db/types";
+import { logActivity } from "@/features/activity-log/api/log";
 import { getSiteConfig } from "@/features/site-config/api/queries";
 import { updateCurrentUserProfile } from "@/features/user-profile/api/actions";
 import { getUser } from "@/lib/auth/session";
@@ -126,6 +127,19 @@ export async function createB2COrder(data: {
 
     updateTag("orders");
     updateTag("reports");
+
+    logActivity({
+      action: "order.created",
+      entityType: "order",
+      entityId: orderId,
+      actor: {
+        id: userId,
+        type: "customer",
+        label: data.customerInfo.name ?? data.customerInfo.email,
+      },
+      summary: `Nová objednávka · #${orderNumber}`,
+      metadata: { amountCents: totalCents, context: orderNumber },
+    });
 
     // Clear cart only after confirmed pipeline success
     await clearCartAfterOrder().catch((err) => {
