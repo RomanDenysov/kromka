@@ -19,11 +19,3 @@ export const POLICY_LINKS: Record<string, PolicyLink> = {
     href: "/pouzivanie-cookies",
   },
 } as const;
-
-export const COMPANY_INFO = {
-  name: "KROMKA s.r.o.",
-  ico: "46 670 068",
-  address: "ul. 17. novembra 8288/106, Prešov 080 01",
-  email: "kromka@kavejo.sk",
-  court: "Okresný súd Prešov, Oddiel: Sro, Vložka číslo: 26041/P",
-} as const;

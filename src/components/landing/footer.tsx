@@ -1,13 +1,11 @@
 import { MailIcon, PhoneIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import {
-  COMPANY_INFO,
-  POLICY_LINKS,
-} from "@/app/(public)/(pages)/(policies)/policies-config";
+import { POLICY_LINKS } from "@/app/(public)/(pages)/(policies)/policies-config";
 import { Container } from "@/components/shared/container";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { COMPANY_INFO } from "@/config";
 import { cn } from "@/lib/utils";
 import { Icons } from "../icons";
 

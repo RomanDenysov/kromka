@@ -15,6 +15,7 @@ import { SwitchField } from "@/components/forms/fields/switch-field";
 import { TextField } from "@/components/forms/fields/text-field";
 import { FieldGroup, FieldSet } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
+import { publicContactEmail } from "@/config";
 import { updateStoreAction } from "@/features/stores/api/actions";
 import type { AdminStore } from "@/features/stores/api/queries";
 import type { StoreSchema } from "@/lib/stores/types";
@@ -57,7 +58,7 @@ export function StoreForm({ store, children, className }: Props) {
       slug: store?.slug ?? "",
       description: store?.description ?? null,
       phone: store?.phone ?? "",
-      email: store?.email ?? "kromka@kavejo.sk",
+      email: store?.email ?? publicContactEmail,
       isActive: store?.isActive ?? false,
       sortOrder: store?.sortOrder ?? 0,
       imageId: store?.imageId ?? null,
