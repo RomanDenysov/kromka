@@ -10,10 +10,9 @@ import {
   Text,
 } from "@react-email/components";
 import type { ReactNode } from "react";
-
+import { emails } from "@/config.server";
 import {
   DEFAULT_CONTACT_PHONES,
-  DEFAULT_SUPPORT_EMAIL,
   EMAIL_BODY_CLASS,
   EMAIL_CONTAINER_CLASS,
   EMAIL_MUTED_TEXT_CLASS,
@@ -21,15 +20,16 @@ import {
 } from "./shared";
 
 export function EmailFooter() {
+  const supportEmail = emails.support;
   return (
     <Section className="mt-6 border-gray-200 border-t pt-4 text-center">
       <Text className={EMAIL_MUTED_TEXT_CLASS}>
         {"Máte otázky? Napíšte nám na "}
         <Link
           className="text-gray-700 underline"
-          href={`mailto:${DEFAULT_SUPPORT_EMAIL}`}
+          href={`mailto:${supportEmail}`}
         >
-          {DEFAULT_SUPPORT_EMAIL}
+          {supportEmail}
         </Link>
       </Text>
       <Text className={`${EMAIL_MUTED_TEXT_CLASS} mt-1`}>
