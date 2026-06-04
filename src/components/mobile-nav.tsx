@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { COMPANY_INFO } from "@/app/(public)/(pages)/(policies)/policies-config";
 import { Icons } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { COMPANY_INFO } from "@/config";
 import { signOut, useSession } from "@/lib/auth/client";
 import { cn, getInitials } from "@/lib/utils";
 

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { site } from "@/config";
 import { getSiteUrl } from "./utils";
 
-const siteName = "Pekáreň Kromka";
+const siteName = site.name;
 
 const author: Metadata["authors"] = {
   name: siteName,
-  url: "https://www.pekarenkromka.sk",
+  url: site.productionUrl,
 };
 
 export const defaultMetadata: Metadata = {
@@ -18,7 +19,7 @@ export const defaultMetadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://www.pekarenkromka.sk"),
+  metadataBase: new URL(site.productionUrl),
   openGraph: {
     type: "website",
     siteName,

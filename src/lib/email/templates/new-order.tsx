@@ -4,7 +4,6 @@ import { formatPrice } from "@/lib/utils";
 import { EmailLayout } from "./email-layout";
 import {
   DEFAULT_LOGO_URL,
-  DEFAULT_SUPPORT_EMAIL,
   EMAIL_CARD_CLASS,
   EMAIL_HEADING_CLASS,
   EMAIL_MUTED_TEXT_CLASS,
@@ -37,7 +36,7 @@ export interface NewOrderEmailData {
   pickupPlaceUrl?: string;
   pickupTime: string;
   products: OrderSummaryProduct[];
-  supportEmail?: string;
+  supportEmail: string;
 }
 
 const labels: Record<string, string> = {
@@ -65,7 +64,6 @@ export function NewOrderEmail({
 }: NewOrderEmailData) {
   const formattedOrderId = formatOrderCode(orderNumber);
   const paymentLabel = labels[paymentMethod] ?? paymentMethod;
-  const contactEmail = supportEmail ?? DEFAULT_SUPPORT_EMAIL;
   const hasProducts = products.length > 0;
   const totalCents = products.reduce(
     (sum, p) => sum + p.priceCents * p.quantity,
@@ -218,9 +216,9 @@ export function NewOrderEmail({
           Ak ste tento email neočakávali, kontaktujte nás na{" "}
           <Link
             className="text-gray-900 underline"
-            href={`mailto:${contactEmail}`}
+            href={`mailto:${supportEmail}`}
           >
-            {contactEmail}
+            {supportEmail}
           </Link>
           .
         </Text>

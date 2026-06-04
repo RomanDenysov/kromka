@@ -1,7 +1,12 @@
 import { format } from "date-fns";
 import { sk } from "date-fns/locale/sk";
 import { createTransport } from "nodemailer";
-import { env } from "@/env";
+import {
+  emails,
+  getStaffNotificationRecipients,
+  getSupportFormRecipient,
+  smtp,
+} from "@/config.server";
 import type { Order } from "@/features/orders/api/queries";
 import { renderB2BApplicationEmail } from "./templates/b2b-application";
 import { renderB2bApplicationApprovedEmail } from "./templates/b2b-application-approved";
@@ -15,11 +20,7 @@ import { renderOrderPickupUpdatedEmail } from "./templates/order-pickup-updated"
 import { renderOrderReadyEmail } from "./templates/order-ready";
 import { renderOutOfStockEmail } from "./templates/out-of-stock";
 import { renderReceiptEmail } from "./templates/receipt";
-import {
-  DEFAULT_LOGO_URL,
-  DEFAULT_SUPPORT_EMAIL,
-  getBaseUrl,
-} from "./templates/shared";
+import { DEFAULT_LOGO_URL, getBaseUrl } from "./templates/shared";
 import { renderSupportConfirmationEmail } from "./templates/support-confirmation";
 import { renderSupportRequestEmail } from "./templates/support-request";
 import { renderThankYouEmail } from "./templates/thank-you";
@@ -40,24 +41,9 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
   cash: "cash",
 };
 
-const config = {
-  host: env.EMAIL_HOST,
-  port: env.EMAIL_PORT,
-  secure: true,
-  auth: {
-    user: env.EMAIL_USER,
-    pass: env.EMAIL_PASSWORD,
-  },
-};
+const STAFF_EMAIL = getStaffNotificationRecipients();
 
-const isDev = process.env.NODE_ENV === "development";
-
-const STAFF_EMAIL = isDev
-  ? ["r.denysov96@gmail.com"]
-  : ["kromka@kavejo.sk", "r.denysov96@gmail.com"];
-
-const DEVELOPER_EMAIL = "r.denysov96@gmail.com";
-const transporter = createTransport(config);
+const transporter = createTransport(smtp);
 
 async function emailService(options: {
   from: string;
@@ -111,7 +97,7 @@ export const sendEmail = {
   magicLink: async ({ email, url }: { email: string; url: string }) => {
     const html = await renderMagicLink(url);
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: email,
       subject: "Prihlásenie do Kromka účtu",
       html,
@@ -144,11 +130,11 @@ export const sendEmail = {
         priceCents: item.price,
       })),
       customer: getCustomerInfo(order),
-      supportEmail: DEFAULT_SUPPORT_EMAIL,
+      supportEmail: emails.support,
     });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: STAFF_EMAIL,
       subject: `Nová objednávka ${order.orderNumber}`,
       html,
@@ -174,7 +160,7 @@ export const sendEmail = {
     });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: customerEmail,
       subject: "Potvrdenie objednávky – Kromka",
       html,
@@ -201,7 +187,7 @@ export const sendEmail = {
     });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: customerEmail,
       subject: "Vaša objednávka je pripravená – Kromka",
       html,
@@ -240,7 +226,7 @@ export const sendEmail = {
     });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: customerEmail,
       subject: `Potvrdenie objednávky ${order.orderNumber} – Kromka`,
       html,
@@ -262,7 +248,7 @@ export const sendEmail = {
     });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: customerEmail,
       subject: "Ďakujeme za vašu objednávku – Kromka",
       html,
@@ -282,7 +268,7 @@ export const sendEmail = {
     const html = await renderOutOfStockEmail({ productName });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: email,
       subject: "Produkt nie je k dispozícii – Kromka",
       html,
@@ -326,8 +312,8 @@ export const sendEmail = {
     });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
-      to: DEVELOPER_EMAIL,
+      from: `"Kromka" <${emails.from}>`,
+      to: getSupportFormRecipient(),
       replyTo: email,
       subject: `Nová žiadosť o podporu od ${name}`,
       html,
@@ -341,7 +327,7 @@ export const sendEmail = {
     const html = await renderSupportConfirmationEmail({});
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: email,
       subject: "Vaša žiadosť o podporu bola prijatá – Kromka",
       html,
@@ -388,7 +374,7 @@ export const sendEmail = {
     });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: STAFF_EMAIL,
       replyTo: contactEmail,
       subject: `Nová B2B žiadosť od ${companyName}`,
@@ -412,7 +398,7 @@ export const sendEmail = {
     });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: email,
       subject: "Vaša B2B žiadosť bola schválená – Kromka",
       html,
@@ -437,7 +423,7 @@ export const sendEmail = {
     });
 
     return emailService({
-      from: `"Kromka" <${env.EMAIL_USER}>`,
+      from: `"Kromka" <${emails.from}>`,
       to: email,
       subject: "Stav vašej B2B žiadosti – Kromka",
       html,
@@ -466,13 +452,13 @@ export const sendEmail = {
 
     await Promise.all([
       emailService({
-        from: `"Kromka" <${env.EMAIL_USER}>`,
+        from: `"Kromka" <${emails.from}>`,
         to: customerEmail,
         subject: `Objednávka ${order.orderNumber} bola zrušená - Kromka`,
         html,
       }),
       emailService({
-        from: `"Kromka" <${env.EMAIL_USER}>`,
+        from: `"Kromka" <${emails.from}>`,
         to: STAFF_EMAIL,
         subject: `Zákazník zrušil objednávku ${order.orderNumber}`,
         html,
@@ -537,13 +523,13 @@ export const sendEmail = {
 
     await Promise.all([
       emailService({
-        from: `"Kromka" <${env.EMAIL_USER}>`,
+        from: `"Kromka" <${emails.from}>`,
         to: customerEmail,
         subject: `Zmena vyzdvihnutia objednávky ${order.orderNumber} - Kromka`,
         html: customerHtml,
       }),
       emailService({
-        from: `"Kromka" <${env.EMAIL_USER}>`,
+        from: `"Kromka" <${emails.from}>`,
         to: STAFF_EMAIL,
         subject: staffSubject,
         html: staffHtml,

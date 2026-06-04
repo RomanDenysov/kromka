@@ -40,13 +40,9 @@ export const DEFAULT_LOGO_URL = buildAssetUrl("logo-kromka.png");
 
 export const DEFAULT_SIGNATURE_LOGO_URL = buildAssetUrl("kromka-sign.png");
 
-export const DEFAULT_SUPPORT_EMAIL = "support@pekarenkromka.sk";
+import { contactPhones } from "@/config";
 
-export const DEFAULT_CONTACT_PHONES = [
-  { label: "Prešov", phone: "+421908889550" },
-  { label: "Košice: Kuzmányho", phone: "+421907993881" },
-  { label: "Košice: Masarykova", phone: "+421919085558" },
-] as const;
+export const DEFAULT_CONTACT_PHONES = contactPhones;
 
 export function formatOrderCode(orderId: string | number) {
   const raw = typeof orderId === "number" ? orderId.toString() : orderId;

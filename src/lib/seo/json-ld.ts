@@ -13,11 +13,12 @@ import type {
   WebSite,
   WithContext,
 } from "schema-dts";
+import { publicContactEmail, site } from "@/config";
 import type { Address, StoreSchedule } from "@/db/types";
 import { getSiteUrl } from "@/lib/utils";
 
-export const SITE_NAME = "Pekáreň Kromka";
-const SITE_URL = "https://www.pekarenkromka.sk";
+export const SITE_NAME = site.name;
+const SITE_URL = site.productionUrl;
 
 // ============================================================================
 // Organization Schema
@@ -40,7 +41,7 @@ export function getOrganizationSchema(): WithContext<Organization> {
     ],
     contactPoint: {
       "@type": "ContactPoint",
-      email: "kromka@kavejo.sk",
+      email: publicContactEmail,
       contactType: "customer service",
       availableLanguage: ["Slovak"],
     },

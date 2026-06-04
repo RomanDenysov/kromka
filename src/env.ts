@@ -23,6 +23,8 @@ export const env = createEnv({
     EMAIL_USER: z.string().email(),
     EMAIL_PASSWORD: z.string().min(1),
     EMAIL_PORT: z.coerce.number().min(1),
+
+    DEVELOPER_EMAIL: z.email().min(1),
   },
 
   runtimeEnv: {
@@ -46,5 +48,6 @@ export const env = createEnv({
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
     NEXT_PUBLIC_GOOGLE_PLACES_API_KEY:
       process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY,
+    DEVELOPER_EMAIL: process.env.DEVELOPER_EMAIL,
   },
 });
