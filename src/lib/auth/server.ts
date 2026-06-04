@@ -3,6 +3,11 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { admin, magicLink, organization } from "better-auth/plugins";
 
+import { authCookieDomain } from "@/config";
+import {
+  getAuthBaseUrlConfig,
+  isProductionCustomDomainDeployment,
+} from "@/config.server";
 import { db } from "@/db";
 import {
   accounts,
@@ -57,31 +62,16 @@ export const auth = betterAuth({
       }),
     },
   },
-  trustedOrigins: [
-    // Production
-    "https://pekarenkromka.sk",
-    "https://www.pekarenkromka.sk",
-    "https://shop.pekarenkromka.sk",
-
-    // Vercel
-    "https://kromka.vercel.app",
-
-    // Vercel preview deployments (динамічно)
-    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
-
-    // Development
-    ...(process.env.NODE_ENV === "development"
-      ? ["http://localhost:3000"]
-      : []),
-  ],
+  baseURL: getAuthBaseUrlConfig(),
   advanced: {
     database: {
       generateId: createId,
     },
-    ...(process.env.NODE_ENV === "production" && {
+    trustedProxyHeaders: true,
+    ...(isProductionCustomDomainDeployment() && {
       crossSubDomainCookies: {
         enabled: true,
-        domain: "pekarenkromka.sk",
+        domain: authCookieDomain,
       },
     }),
   },
