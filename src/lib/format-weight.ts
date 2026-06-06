@@ -10,10 +10,10 @@ export function formatWeight(
     return null;
   }
   if (unit === "g" && value >= UNIT_THRESHOLD) {
-    return `${(value / UNIT_THRESHOLD).toLocaleString("sk-SK")} kg`;
+    return `${(value / UNIT_THRESHOLD).toLocaleString("sk-SK")}kg`;
   }
   if (unit === "ml" && value >= UNIT_THRESHOLD) {
-    return `${(value / UNIT_THRESHOLD).toLocaleString("sk-SK")} l`;
+    return `${(value / UNIT_THRESHOLD).toLocaleString("sk-SK")}l`;
   }
-  return `${value} ${unit}`;
+  return `${value}${unit}`;
 }
