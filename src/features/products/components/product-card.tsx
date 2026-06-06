@@ -54,7 +54,7 @@ export function ProductCard({
           />
           {weightLabel ? (
             <Badge
-              className="absolute top-2 right-2 bg-background/90 text-foreground shadow-sm backdrop-blur-sm"
+              className="absolute top-2 right-2 bg-background/90 font-mono text-foreground shadow-sm backdrop-blur-sm"
               size="sm"
               variant="secondary"
             >
