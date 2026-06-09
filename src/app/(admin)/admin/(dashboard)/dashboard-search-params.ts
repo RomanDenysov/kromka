@@ -23,6 +23,7 @@ export const dashboardSearchParams = {
   ]).withDefault("pending"),
   store: parseAsString.withDefault(""),
   tab: parseAsStringEnum(["orders", "products"]).withDefault("orders"),
+  sidebarTab: parseAsStringEnum(["orders", "activity"]).withDefault("orders"),
 };
 
 export const loadDashboardSearchParams = createLoader(dashboardSearchParams);
