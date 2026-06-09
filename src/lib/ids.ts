@@ -7,7 +7,7 @@ const PREFIX_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
 const RANDOM_NUMBER_LENGTH = 5;
 const RANDOM_NUMBER_MAX = 100_000;
-const ORDER_SUFFIX_LENGTH = 10;
+const ORDER_SUFFIX_LENGTH = 6;
 const ORDER_SUFFIX_MAX = 10 ** ORDER_SUFFIX_LENGTH;
 export const createId = _createId;
 export const createShortId = shortId;
@@ -88,8 +88,8 @@ export function createPrefixedNumericId(
 
 /**
  * Creates a prefixed order number with cryptographic numeric suffix.
- * Format: {prefix}-YYYYMMDD-XXXXXXXXXX (e.g., OBJ-20250605-4829105732)
- * 10B combinations per day with crypto.randomInt + retry on collision.
+ * Format: {prefix}-YYMMDD-XXXXXX (e.g., OBJ-250605-482910)
+ * 1M combinations per day with crypto.randomInt + retry on collision.
  */
 export function createOrderNumber(
   prefix: string,
@@ -98,7 +98,8 @@ export function createOrderNumber(
   const now = new Date();
   const dateStr = now
     .toLocaleDateString("sv-SE", { timeZone: timezone })
-    .replace(/-/g, "");
+    .replace(/-/g, "")
+    .slice(2);
 
   const suffix = randomInt(0, ORDER_SUFFIX_MAX)
     .toString()
