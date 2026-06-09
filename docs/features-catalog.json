@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-06-03",
+  "lastUpdated": "2026-06-08",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -1038,6 +1038,36 @@
         "writes": []
       },
       "cacheTags": ["orders", "products", "stores", "carts"]
+    },
+    {
+      "name": "daily-view-sidebar",
+      "path": "src/features/daily-view-sidebar",
+      "critical": false,
+      "description": "Sticky context rail for admin pages: date picker (full or compact), orders and activity tabs, collapsible with localStorage persistence.",
+      "businessLogic": [
+        "Date synced via nuqs dashboard search params (date, sidebarTab)",
+        "Full calendar on dashboard; compact date strip with popover on eshop",
+        "Orders list filtered by selected pickup date",
+        "Activity feed shows recent global activity",
+        "Context rail collapse state persisted in localStorage"
+      ],
+      "components": [
+        "AdminPageLayout",
+        "DailyViewSidebar",
+        "DailyViewSidebarTabs",
+        "DashboardCalendar",
+        "CompactDatePicker",
+        "DashboardDateChip",
+        "ContextRailShell",
+        "SidebarOrdersList"
+      ],
+      "dependencies": ["admin-dashboard", "activity-log"],
+      "routes": ["/admin", "/admin/eshop"],
+      "tables": {
+        "reads": ["orders", "orderItems", "products", "activity_log"],
+        "writes": []
+      },
+      "cacheTags": ["orders", "activity"]
     },
     {
       "name": "b2b/applications",
