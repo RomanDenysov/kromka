@@ -1,5 +1,6 @@
 import { format, getMonth, getYear } from "date-fns";
 import { PlusIcon } from "lucide-react";
+import type { SearchParams } from "nuqs/server";
 import { loadDashboardSearchParams } from "@/app/(admin)/admin/(dashboard)/dashboard-search-params";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -17,7 +18,7 @@ import { DashboardCalendar } from "./dashboard-calendar";
 export async function DailyViewSidebar({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+  searchParams: Promise<SearchParams>;
 }) {
   const dashboardParams = await loadDashboardSearchParams(searchParams);
   const { date } = dashboardParams;

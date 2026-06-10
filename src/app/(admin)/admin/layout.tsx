@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { type CSSProperties, type ReactNode, Suspense } from "react";
+import { type CSSProperties, Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { DailyViewSidebar } from "@/features/daily-view-sidebar/components/daily-view-sidebar";
 import { AdminSidebar } from "@/widgets/admin-sidebar/admin-sidebar";
 import { AppSidebarSkeleton } from "@/widgets/admin-sidebar/main-sidebar";
 
@@ -16,11 +15,8 @@ export const metadata: Metadata = {
 
 export default function AdminLayout({
   children,
-  searchParams,
-}: {
-  children: ReactNode;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+  dailyView,
+}: LayoutProps<"/admin">) {
   return (
     <SidebarProvider
       style={
@@ -38,7 +34,7 @@ export default function AdminLayout({
       <Suspense
         fallback={<div className="hidden w-[300px] shrink-0 p-2 lg:block" />}
       >
-        <DailyViewSidebar searchParams={searchParams} />
+        {dailyView}
       </Suspense>
     </SidebarProvider>
   );
