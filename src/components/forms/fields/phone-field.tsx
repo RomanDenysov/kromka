@@ -3,6 +3,7 @@
 import type { FieldPath, FieldValues } from "react-hook-form";
 import { Controller, useFormContext } from "react-hook-form";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import type { InputProps } from "@/components/ui/input";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ interface Props<T extends FieldValues> {
   label?: string;
   name: FieldPath<T>;
   placeholder?: string;
+  volume?: InputProps["volume"];
 }
 
 export function PhoneField<T extends FieldValues>({
@@ -23,6 +25,7 @@ export function PhoneField<T extends FieldValues>({
   placeholder = "+421 900 000 000",
   className,
   inputClassName,
+  volume = "default",
 }: Props<T>) {
   const { control } = useFormContext();
 
@@ -45,7 +48,7 @@ export function PhoneField<T extends FieldValues>({
             maxLength={MAX_PHONE_LENGTH}
             placeholder={placeholder}
             type="tel"
-            volume="xs"
+            volume={volume}
           />
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
