@@ -1,9 +1,14 @@
 "use client";
 
-import { CalendarDaysIcon, PanelRightCloseIcon } from "lucide-react";
-import { type ReactNode, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { setContextRailOpenAction } from "@/features/daily-view-sidebar/api/actions";
+import { type CSSProperties, type ReactNode, useLayoutEffect } from "react";
+import { cn } from "@/lib/utils";
+import {
+  useContextRailInitialize,
+  useContextRailInitialized,
+  useContextRailOpen,
+} from "@/store/context-rail-store";
+
+const RAIL_WIDTH_PX = 300;
 
 interface ContextRailShellProps {
   children: ReactNode;
@@ -24,42 +29,34 @@ export function ContextRailShell({
   defaultOpen,
   children,
 }: ContextRailShellProps) {
-  const [open, setOpen] = useState(defaultOpen);
+  const storeOpen = useContextRailOpen();
+  const initialized = useContextRailInitialized();
+  const initialize = useContextRailInitialize();
+  const open = initialized ? storeOpen : defaultOpen;
 
-  const toggle = (next: boolean) => {
-    setOpen(next);
-    // biome-ignore lint/complexity/noVoid: persist preference via fire-and-forget server action
-    void setContextRailOpenAction(next);
-  };
-
-  if (!open) {
-    return (
-      <div className="sticky top-0 hidden h-fit shrink-0 p-2 lg:block">
-        <Button
-          aria-label="Otvoriť denný prehľad"
-          className="size-9"
-          onClick={() => toggle(true)}
-          size="icon"
-          variant="outline"
-        >
-          <CalendarDaysIcon className="size-4" />
-        </Button>
-      </div>
-    );
-  }
+  useLayoutEffect(() => {
+    if (!initialized) {
+      initialize(defaultOpen);
+    }
+  }, [defaultOpen, initialize, initialized]);
 
   return (
-    <aside className="sticky top-0 hidden h-svh w-[300px] shrink-0 p-2 lg:block">
-      <div className="relative h-full">
-        <Button
-          aria-label="Skryť denný prehľad"
-          className="absolute top-2 right-2 z-10 size-7 bg-card/90 backdrop-blur-sm"
-          onClick={() => toggle(false)}
-          size="icon"
-          variant="ghost"
-        >
-          <PanelRightCloseIcon className="size-3.5" />
-        </Button>
+    <aside
+      aria-hidden={!open}
+      className={cn(
+        "sticky top-0 hidden h-svh shrink-0 overflow-hidden lg:block",
+        "transition-[width] duration-300 ease-in-out motion-reduce:transition-none",
+        open ? "w-[300px]" : "pointer-events-none w-0"
+      )}
+      style={{ "--rail-width": `${RAIL_WIDTH_PX}px` } as CSSProperties}
+    >
+      <div
+        className={cn(
+          "h-full w-(--rail-width) p-2",
+          "transition-opacity duration-200 ease-out motion-reduce:transition-none",
+          open ? "opacity-100" : "opacity-0"
+        )}
+      >
         {children}
       </div>
     </aside>

@@ -1,57 +1,52 @@
 "use client";
 
-import { format, isToday } from "date-fns";
+import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { setContextRailOpenAction } from "@/features/daily-view-sidebar/api/actions";
 import { useDashboardParams } from "@/hooks/use-dashboard-params";
-import { DashboardCalendar } from "./dashboard-calendar";
-
-interface DailyStats {
-  [date: string]: { orderCount: number; revenue: number };
-}
+import { cn } from "@/lib/utils";
+import {
+  useContextRailInitialized,
+  useContextRailOpen,
+  useContextRailSetOpen,
+} from "@/store/context-rail-store";
 
 interface DashboardDateChipProps {
-  dailyStats: DailyStats;
-  orderCount: number;
+  defaultRailOpen: boolean;
 }
 
-export function DashboardDateChip({
-  dailyStats,
-  orderCount,
-}: DashboardDateChipProps) {
+export function DashboardDateChip({ defaultRailOpen }: DashboardDateChipProps) {
   const [{ date }] = useDashboardParams();
+  const storeOpen = useContextRailOpen();
+  const initialized = useContextRailInitialized();
+  const setOpen = useContextRailSetOpen();
+  const railOpen = initialized ? storeOpen : defaultRailOpen;
+
+  const toggleRail = () => {
+    const next = !railOpen;
+    setOpen(next);
+    // biome-ignore lint/complexity/noVoid: persist preference via fire-and-forget server action
+    void setContextRailOpenAction(next);
+  };
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          className="h-8 gap-2 px-2.5 font-normal text-sm"
-          variant="outline"
-        >
-          <CalendarIcon className="size-3.5 text-muted-foreground" />
-          <span className="capitalize">
-            {format(date, "EEE d. M. yyyy", { locale: sk })}
-          </span>
-          <Badge size="xs" variant="secondary">
-            {orderCount} obj.
-          </Badge>
-          {isToday(date) ? (
-            <Badge className="text-[10px]" size="xs" variant="outline">
-              Dnes
-            </Badge>
-          ) : null}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-auto p-0">
-        <DashboardCalendar dailyStats={dailyStats} />
-      </PopoverContent>
-    </Popover>
+    <Button
+      aria-expanded={railOpen}
+      aria-label={railOpen ? "Skryť denný prehľad" : "Otvoriť denný prehľad"}
+      className={cn(
+        "h-7 gap-1 px-2 font-medium text-xs",
+        railOpen && "bg-accent text-accent-foreground"
+      )}
+      onClick={toggleRail}
+      size="sm"
+      variant="outline"
+    >
+      <CalendarIcon className="size-3 text-muted-foreground" />
+      <span className="capitalize tabular-nums">
+        {format(date, "d. MMM", { locale: sk })}
+      </span>
+    </Button>
   );
 }

@@ -11,18 +11,12 @@ import { RevenueProgressCard } from "../_components/revenue-progress-card";
 import { StoreLoadCard } from "../_components/store-load-card";
 import { TopProductsSectionWrapper } from "../_components/top-products-section-wrapper";
 
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-
-export default function AdminDashboardPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default function AdminDashboardPage() {
   return (
     <>
       <AdminHeader breadcrumbs={[{ label: "Prehľad", href: "/admin" }]}>
         <Suspense fallback={null}>
-          <DashboardDateChipLoader searchParams={searchParams} />
+          <DashboardDateChipLoader />
         </Suspense>
       </AdminHeader>
       <div className="grid gap-4">

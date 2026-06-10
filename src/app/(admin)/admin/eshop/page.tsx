@@ -3,13 +3,7 @@ import { DashboardDateChipLoader } from "@/features/daily-view-sidebar/component
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { StoresGrid, StoresGridSkeleton } from "./_components/stores-grid";
 
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-
-export default function EshopPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default function EshopPage() {
   return (
     <>
       <AdminHeader
@@ -19,7 +13,7 @@ export default function EshopPage({
         ]}
       >
         <Suspense fallback={null}>
-          <DashboardDateChipLoader searchParams={searchParams} />
+          <DashboardDateChipLoader />
         </Suspense>
       </AdminHeader>
       <Suspense fallback={<StoresGridSkeleton />}>

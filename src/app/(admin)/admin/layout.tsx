@@ -32,7 +32,9 @@ export default function AdminLayout({
 
       <SidebarInset>{children}</SidebarInset>
       <Suspense
-        fallback={<div className="hidden w-[300px] shrink-0 p-2 lg:block" />}
+        fallback={
+          <div className="hidden h-svh w-0 shrink-0 overflow-hidden lg:block" />
+        }
       >
         {dailyView}
       </Suspense>
