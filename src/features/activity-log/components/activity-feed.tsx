@@ -63,14 +63,14 @@ export function ActivityFeed({
 }: ActivityFeedProps) {
   if (activity.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-8">
         <p className="text-muted-foreground text-sm">{emptyLabel}</p>
       </div>
     );
   }
 
   return (
-    <div className={cn(detailed ? "divide-y" : "space-y-0.5")}>
+    <div className={cn(detailed ? "divide-y" : "divide-y divide-border/60")}>
       {groupFeed(activity).map((item) =>
         item.kind === "group" ? (
           <GroupedRow
@@ -121,8 +121,8 @@ function ActivityRow({
     return (
       <Link
         className={cn(
-          "flex items-start gap-3 transition-colors hover:bg-accent",
-          detailed ? "p-3" : "rounded-lg p-2"
+          "flex min-w-0 items-start gap-2.5 transition-colors hover:bg-accent/60",
+          detailed ? "p-3" : "px-1 py-2"
         )}
         href={href}
       >
@@ -132,10 +132,31 @@ function ActivityRow({
   }
 
   return (
-    <div className={cn("flex items-start gap-3", detailed ? "p-3" : "p-2")}>
+    <div
+      className={cn(
+        "flex min-w-0 items-start gap-2.5",
+        detailed ? "p-3" : "px-1 py-2"
+      )}
+    >
       {body}
     </div>
   );
+}
+
+/** Split "action · detail" summaries for compact two-line rows. */
+function parseCompactTitle(title: string): {
+  label: string;
+  detail: string | null;
+} {
+  const separator = " · ";
+  const index = title.indexOf(separator);
+  if (index === -1) {
+    return { label: title, detail: null };
+  }
+  return {
+    label: title.slice(0, index),
+    detail: title.slice(index + separator.length),
+  };
 }
 
 /** Slovak count: 2-4 → "objednávky", otherwise "objednávok" (groups are ≥2). */
@@ -162,7 +183,12 @@ function GroupedRow({
   const title = `${prefix} · ${pluralizeOrders(entries.length)}`;
 
   return (
-    <div className={cn("flex items-start gap-3", detailed ? "p-3" : "p-2")}>
+    <div
+      className={cn(
+        "flex min-w-0 items-start gap-2.5",
+        detailed ? "p-3" : "px-1 py-2"
+      )}
+    >
       {detailed ? (
         <DetailedBody
           entry={first}
@@ -190,17 +216,27 @@ interface RowBodyProps {
 }
 
 function CompactBody({ Icon, toneClass, title, entry }: RowBodyProps) {
+  const { label, detail } = parseCompactTitle(title);
+  const relativeTime = formatDistanceToNow(entry.createdAt, {
+    addSuffix: true,
+    locale: sk,
+  });
+
   return (
     <>
-      <Icon className={cn("mt-0.5 size-5 shrink-0", toneClass)} />
+      <Icon className={cn("mt-0.5 size-4 shrink-0", toneClass)} />
       <div className="min-w-0 flex-1">
-        <p className="font-medium text-sm leading-snug">{title}</p>
-        <p className="text-muted-foreground text-xs">
-          {formatDistanceToNow(entry.createdAt, {
-            addSuffix: true,
-            locale: sk,
-          })}
-        </p>
+        <div className="flex items-baseline justify-between gap-2">
+          <p className="truncate font-medium text-sm leading-snug">{label}</p>
+          <span className="shrink-0 text-muted-foreground text-xs">
+            {relativeTime}
+          </span>
+        </div>
+        {detail ? (
+          <p className="truncate font-mono text-muted-foreground text-xs">
+            {detail}
+          </p>
+        ) : null}
       </div>
     </>
   );
@@ -216,7 +252,9 @@ function DetailedBody({ Icon, toneClass, title, entry }: RowBodyProps) {
       <Icon className={cn("mt-0.5 size-5 shrink-0", toneClass)} />
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
-          <p className="font-medium text-sm leading-snug">{title}</p>
+          <p className="line-clamp-2 font-medium text-sm leading-snug">
+            {title}
+          </p>
           <Badge size="xs" variant={roleBadge.variant}>
             {roleBadge.label}
           </Badge>

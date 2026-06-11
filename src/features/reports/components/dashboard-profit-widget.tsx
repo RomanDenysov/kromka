@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { Button } from "@/components/ui/button";
 import { getProfitabilitySummary } from "../api/queries";
 import { formatEur, formatPct, marginColor } from "../lib/format";
@@ -9,6 +10,7 @@ import { resolvePeriod } from "../lib/period";
  * landing page so admins see "did we make money" without navigating.
  */
 export async function DashboardProfitWidget() {
+  await connection();
   const period = resolvePeriod("30d");
   const summary = await getProfitabilitySummary(period);
 

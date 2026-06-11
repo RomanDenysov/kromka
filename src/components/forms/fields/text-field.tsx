@@ -9,6 +9,7 @@ import {
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
+import type { InputProps } from "@/components/ui/input";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ interface Props<T extends FieldValues> {
   name: FieldPath<T>;
   placeholder?: string;
   type?: InputHTMLAttributes<HTMLInputElement>["type"];
+  volume?: InputProps["volume"];
 }
 
 export function TextField<T extends FieldValues>({
@@ -36,6 +38,7 @@ export function TextField<T extends FieldValues>({
   type = "text",
   inputMode,
   autoComplete,
+  volume = "default",
 }: Props<T>) {
   const { control } = useFormContext();
 
@@ -58,7 +61,7 @@ export function TextField<T extends FieldValues>({
             maxLength={maxLength}
             placeholder={placeholder}
             type={type}
-            volume="xs"
+            volume={volume}
           />
           {description && (
             <FieldDescription className="text-muted-foreground text-xs">

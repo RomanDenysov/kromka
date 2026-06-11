@@ -228,10 +228,12 @@ export default function MainSidebar({
     <Sidebar
       className="overflow-hidden *:data-[sidebar=sidebar]:flex-row"
       collapsible="icon"
+      variant="floating"
     >
       <Sidebar
-        className="w-[calc(var(--sidebar-width-icon)+1px)]! border-r"
+        className="w-[calc(var(--sidebar-width-icon)+1px)]! rounded-l-lg border-r"
         collapsible="none"
+        variant="floating"
       >
         <SidebarLogo />
 
@@ -266,12 +268,16 @@ export default function MainSidebar({
       </Sidebar>
 
       {/* Second pane is URL-derived; empty on routes without a sub-nav. */}
-      <Sidebar className="hidden flex-1 md:flex" collapsible="none">
+      <Sidebar
+        className="hidden flex-1 rounded-r-lg md:flex"
+        collapsible="none"
+        variant="floating"
+      >
         <SidebarHeader>
           <SidebarInput placeholder="Hľadať..." />
         </SidebarHeader>
         <SidebarContent>
-          <SidebarGroup className="px-1">
+          <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
                 {segment?.items?.map((item) => {

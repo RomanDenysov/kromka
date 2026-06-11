@@ -14,6 +14,7 @@ import "./globals.css";
 
 interface Props {
   readonly children: ReactNode;
+  readonly modal: ReactNode;
 }
 
 export const viewport: Viewport = {
@@ -22,7 +23,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: Props) {
+export default function RootLayout({ children, modal }: Props) {
   return (
     <html lang="sk" suppressHydrationWarning>
       <body className={cn(fonts, "min-h-svh scroll-smooth")}>
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: Props) {
               enableSystem
             >
               {children}
+              {modal}
               <Toaster richColors />
               <CookieBanner />
             </ThemeProvider>

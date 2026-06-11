@@ -1,16 +1,12 @@
 "use client";
-
-import { format } from "date-fns";
-import { sk } from "date-fns/locale";
-import { ArrowUpRightFromSquareIcon, ChevronRightIcon } from "lucide-react";
+import { ArrowUpRightFromSquareIcon } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { RecentOrder } from "@/features/admin-dashboard/api/queries";
 import { useDashboardParams } from "@/hooks/use-dashboard-params";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_VARIANTS } from "@/lib/constants";
-import { cn, formatPrice } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 
 interface ProductAggregate {
   orderCount: number;
@@ -26,45 +22,29 @@ interface Props {
 }
 
 export function DashboardRecentTabs({ orders, products }: Props) {
-  const [{ date, tab }, setSearchParams] = useDashboardParams();
+  const [{ tab }, setSearchParams] = useDashboardParams();
   return (
     <Tabs
-      className="flex-1"
+      className="h-full"
       onValueChange={(value) =>
         setSearchParams({ tab: value as "orders" | "products" })
       }
       value={tab}
     >
-      <div className="gap-4 p-2">
-        <div className="flex items-center justify-between gap-2 p-1">
-          <h3 className="font-medium text-lg capitalize">
-            {format(date, "d. EEEE ", { locale: sk })}
-          </h3>
-          <Link
-            className={cn(buttonVariants({ variant: "ghost", size: "xs" }))}
-            href={`/admin/eshop/orders?date=${date}`}
-          >
-            Všetky
-            <ChevronRightIcon />
-          </Link>
-        </div>
-        <TabsList className="h-fit w-full rounded-none bg-transparent">
-          <TabsTrigger className="h-6 text-xs" value="orders">
-            Objednávky ({orders.length})
-          </TabsTrigger>
-          <TabsTrigger className="h-6 text-xs" value="products">
-            Produkty ({products.length})
-          </TabsTrigger>
-        </TabsList>
-      </div>
-      <div className="h-full grow overflow-hidden">
-        <TabsContent value="orders">
-          <OrdersList orders={orders} />
-        </TabsContent>
-        <TabsContent value="products">
-          <ProductsAggregate products={products} />
-        </TabsContent>
-      </div>
+      <TabsList className="h-fit w-full rounded-none bg-transparent">
+        <TabsTrigger className="h-6 text-xs" value="orders">
+          Objednávky ({orders.length})
+        </TabsTrigger>
+        <TabsTrigger className="h-6 text-xs" value="products">
+          Produkty ({products.length})
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="orders">
+        <OrdersList orders={orders} />
+      </TabsContent>
+      <TabsContent value="products">
+        <ProductsAggregate products={products} />
+      </TabsContent>
     </Tabs>
   );
 }
