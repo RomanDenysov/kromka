@@ -1,7 +1,7 @@
 "use server";
 
 import { parseISO } from "date-fns";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, ne } from "drizzle-orm";
 import { refresh, updateTag } from "next/cache";
 import { after } from "next/server";
 import { z } from "zod";
@@ -20,6 +20,7 @@ import {
   getTimeRangeForDate,
   isValidPickupDate,
 } from "@/features/checkout/utils";
+import { getOrderPickupRestrictions } from "@/features/orders/actions/internal";
 import {
   cancelOrderSchema,
   updateOrderPickupSchema,
@@ -38,7 +39,8 @@ import { getOrderById, getOrdersByIds, type Order } from "./queries";
 async function validatePickupDetails(
   storeId: string,
   pickupDate: string,
-  pickupTime: string
+  pickupTime: string,
+  restrictedDates: Set<string> | null = null
 ): Promise<
   | { valid: true; store: { id: string; name: string } }
   | { valid: false; result: ActionResult }
@@ -55,7 +57,7 @@ async function validatePickupDetails(
   }
 
   const parsedDate = parseISO(pickupDate);
-  if (!isValidPickupDate(parsedDate, store.openingHours, null)) {
+  if (!isValidPickupDate(parsedDate, store.openingHours, restrictedDates)) {
     return {
       valid: false,
       result: {
@@ -216,19 +218,22 @@ export async function updateOrderStatusAction({
     throw new Error("Order not found");
   }
 
-  // Auto-update payment status based on order status
+  // Auto-update payment status based on order status. Invoice-method
+  // orders are excluded: they settle via the B2B invoice flow, and
+  // auto-marking them "paid" would hide them from invoice generation
+  // (which collects paymentStatus = "pending" orders only).
   const updates: { orderStatus: OrderStatus; paymentStatus?: PaymentStatus } = {
     orderStatus: status,
   };
 
-  // Set payment status to "paid" if order is completed and payment wasn't already set
-  if (status === "completed" && currentOrder.paymentStatus !== "paid") {
-    updates.paymentStatus = "paid";
-  }
+  if (currentOrder.paymentMethod !== "invoice") {
+    if (status === "completed" && currentOrder.paymentStatus !== "paid") {
+      updates.paymentStatus = "paid";
+    }
 
-  // Set payment status to "refunded" if order is refunded and payment wasn't already refunded
-  if (status === "refunded" && currentOrder.paymentStatus !== "refunded") {
-    updates.paymentStatus = "refunded";
+    if (status === "refunded" && currentOrder.paymentStatus !== "refunded") {
+      updates.paymentStatus = "refunded";
+    }
   }
 
   const [updatedOrder] = await db
@@ -358,35 +363,6 @@ async function handleBulkStatusNotifications(
 }
 
 /**
- * Helper to build update fields for bulk order updates
- */
-function getBulkUpdateFields(
-  orderStatus?: OrderStatus,
-  paymentStatus?: PaymentStatus
-) {
-  const updates: { orderStatus?: OrderStatus; paymentStatus?: PaymentStatus } =
-    {};
-
-  if (orderStatus) {
-    updates.orderStatus = orderStatus;
-    // Auto-update payment status based on order status if not explicitly provided
-    if (!paymentStatus) {
-      if (orderStatus === "completed") {
-        updates.paymentStatus = "paid";
-      } else if (orderStatus === "refunded") {
-        updates.paymentStatus = "refunded";
-      }
-    }
-  }
-
-  if (paymentStatus) {
-    updates.paymentStatus = paymentStatus;
-  }
-
-  return updates;
-}
-
-/**
  * Bulk update order status and/or payment status for multiple orders (admin)
  * Sends email notifications for order status changes
  */
@@ -406,9 +382,39 @@ export async function bulkUpdateOrdersAction(data: {
   }
 
   try {
-    const updates = getBulkUpdateFields(orderStatus, paymentStatus);
+    const updates: {
+      orderStatus?: OrderStatus;
+      paymentStatus?: PaymentStatus;
+    } = {};
+    if (orderStatus) {
+      updates.orderStatus = orderStatus;
+    }
+    if (paymentStatus) {
+      updates.paymentStatus = paymentStatus;
+    }
 
     await db.update(orders).set(updates).where(inArray(orders.id, orderIds));
+
+    // Auto-sync payment status for completed/refunded when not set
+    // explicitly. Invoice-method orders are excluded: they settle via
+    // the B2B invoice flow, and auto-marking them "paid" would hide
+    // them from invoice generation.
+    if (orderStatus && !paymentStatus) {
+      const autoPaymentStatusMap: Partial<Record<OrderStatus, PaymentStatus>> =
+        { completed: "paid", refunded: "refunded" };
+      const autoPaymentStatus = autoPaymentStatusMap[orderStatus];
+      if (autoPaymentStatus) {
+        await db
+          .update(orders)
+          .set({ paymentStatus: autoPaymentStatus })
+          .where(
+            and(
+              inArray(orders.id, orderIds),
+              ne(orders.paymentMethod, "invoice")
+            )
+          );
+      }
+    }
 
     if (orderStatus) {
       await handleBulkStatusNotifications(orderIds, orderStatus, admin);
@@ -536,10 +542,14 @@ export async function updateOrderPickupAction(
       };
     }
 
+    // Category pickup-date restrictions apply to customer reschedules;
+    // staff overrides (adminUpdateOrderPickupAction) skip them.
+    const restrictedDates = await getOrderPickupRestrictions(orderId);
     const validation = await validatePickupDetails(
       storeId,
       pickupDate,
-      pickupTime
+      pickupTime,
+      restrictedDates
     );
     if (!validation.valid) {
       return validation.result;

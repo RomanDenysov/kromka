@@ -1,4 +1,4 @@
-import { isBefore, isSameDay, startOfToday } from "date-fns";
+import { parseISO } from "date-fns";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
@@ -8,7 +8,12 @@ import {
   products,
   stores,
 } from "@/db/schema";
-import type { Address, PaymentMethod, ProductSnapshot } from "@/db/types";
+import type {
+  Address,
+  PaymentMethod,
+  ProductSnapshot,
+  StoreSchedule,
+} from "@/db/types";
 import {
   clearB2bCart,
   clearCart,
@@ -16,6 +21,13 @@ import {
   getCart,
 } from "@/features/cart/cookies";
 import { userInfoSchema } from "@/features/checkout/schema";
+import {
+  filterTimeSlots,
+  generateAllTimeSlots,
+  getRestrictedPickupDates,
+  getTimeRangeForDate,
+  isValidPickupDate,
+} from "@/features/checkout/utils";
 import { getResolverContext } from "@/features/recipes/api/queries";
 import { resolveRecipeCost } from "@/features/recipes/lib/cost-resolver";
 import { sendEmail } from "@/lib/email";
@@ -53,26 +65,79 @@ export function validateGuestInfo(info: GuestCustomerInfo): StepResult<void> {
   return succeed(undefined);
 }
 
-export function validatePickupDate(dateStr: string): StepResult<void> {
-  const pickupDate = new Date(dateStr);
-  const today = startOfToday();
+/**
+ * Server-side authority for the pickup slot. Mirrors what the client
+ * date picker enforces: not past/today, daily cutoff for tomorrow,
+ * max 30 days ahead, store open that day, category date restrictions,
+ * and a valid time slot within the store's opening hours.
+ */
+export function validatePickupSlot({
+  pickupDate,
+  pickupTime,
+  schedule,
+  restrictedDates,
+}: {
+  pickupDate: string;
+  pickupTime: string;
+  restrictedDates: Set<string> | null;
+  schedule: StoreSchedule | null;
+}): StepResult<void> {
+  const date = parseISO(pickupDate);
   if (
-    Number.isNaN(pickupDate.getTime()) ||
-    isBefore(pickupDate, today) ||
-    isSameDay(pickupDate, today)
+    Number.isNaN(date.getTime()) ||
+    !isValidPickupDate(date, schedule, restrictedDates)
   ) {
     return fail("Neplatný dátum vyzdvihnutia", "BAD_REQUEST");
   }
+
+  const timeRange = getTimeRangeForDate(date, schedule);
+  if (!timeRange) {
+    return fail("Predajňa je v tento deň zatvorená", "BAD_REQUEST");
+  }
+
+  const validSlots = filterTimeSlots(generateAllTimeSlots(), timeRange);
+  if (!validSlots.includes(pickupTime)) {
+    return fail("Neplatný čas vyzdvihnutia", "BAD_REQUEST");
+  }
+
   return succeed(undefined);
 }
 
 /**
+ * Category pickup-date restrictions for an existing order's items.
+ * Used when the customer reschedules pickup.
+ */
+export async function getOrderPickupRestrictions(
+  orderId: string
+): Promise<Set<string> | null> {
+  const items = await db.query.orderItems.findMany({
+    where: eq(orderItems.orderId, orderId),
+    columns: {},
+    with: {
+      product: {
+        columns: {},
+        with: { category: { columns: { pickupDates: true } } },
+      },
+    },
+  });
+
+  return getRestrictedPickupDates(
+    items.map((item) => ({ category: item.product?.category }))
+  );
+}
+
+/**
  * Build order items from cart with optional tier pricing.
+ * Also returns category pickup-date restrictions for the cart so the
+ * caller can validate the pickup slot server-side.
  */
 export async function buildOrderItems(
   cartItems: Awaited<ReturnType<typeof getCart>>,
   priceTierId: string | null
-): Promise<OrderItemData[]> {
+): Promise<{
+  items: OrderItemData[];
+  restrictedPickupDates: Set<string> | null;
+}> {
   const productIds = cartItems.map((item) => item.productId);
   const productData = await db.query.products.findMany({
     where: and(
@@ -81,7 +146,9 @@ export async function buildOrderItems(
       eq(products.status, "active")
     ),
     with: {
-      category: { columns: { isActive: true, name: true } },
+      category: {
+        columns: { isActive: true, name: true, pickupDates: true },
+      },
     },
   });
 
@@ -114,7 +181,7 @@ export async function buildOrderItems(
 
   const productCosts = await computeProductCosts(activeProducts);
 
-  return cartItems.flatMap((item) => {
+  const items = cartItems.flatMap((item) => {
     const product = activeProducts.find((p) => p.id === item.productId);
     if (!product) {
       return [];
@@ -139,6 +206,11 @@ export async function buildOrderItems(
       },
     ];
   });
+
+  return {
+    items,
+    restrictedPickupDates: getRestrictedPickupDates(activeProducts),
+  };
 }
 
 /**
@@ -183,21 +255,22 @@ async function computeProductCosts(
 }
 
 /**
- * Validate that store exists.
+ * Validate that an active store exists; returns it with the opening
+ * hours needed for pickup-slot validation.
  */
 export async function validateStoreExists(
   storeId: string
-): Promise<StepResult<void>> {
-  const storeExists = await db.query.stores.findFirst({
+): Promise<StepResult<{ id: string; openingHours: StoreSchedule | null }>> {
+  const store = await db.query.stores.findFirst({
     where: and(eq(stores.id, storeId), eq(stores.isActive, true)),
-    columns: { id: true },
+    columns: { id: true, openingHours: true },
   });
 
-  if (!storeExists) {
+  if (!store) {
     return fail("Vybraná predajňa neexistuje", "STORE_NOT_FOUND");
   }
 
-  return succeed(undefined);
+  return succeed(store);
 }
 
 /**

@@ -20,7 +20,7 @@ import {
   persistOrder,
   validateCart,
   validateGuestInfo,
-  validatePickupDate,
+  validatePickupSlot,
   validateStoreExists,
 } from "./internal";
 
@@ -56,16 +56,25 @@ export async function createB2COrder(data: {
         "ORDERS_DISABLED"
       );
 
-      unwrap(await validateGuestInfo(data.customerInfo));
-      unwrap(await validateStoreExists(data.storeId));
-      unwrap(await validatePickupDate(data.pickupDate));
+      unwrap(validateGuestInfo(data.customerInfo));
+      const store = unwrap(await validateStoreExists(data.storeId));
 
       const cartItems = unwrap(await validateCart());
-      const orderItemsData = await buildOrderItems(cartItems, null);
+      const { items: orderItemsData, restrictedPickupDates } =
+        await buildOrderItems(cartItems, null);
       guard(
         orderItemsData.length > 0,
         "Žiadne platné produkty v košíku",
         "INVALID_PRODUCTS"
+      );
+
+      unwrap(
+        validatePickupSlot({
+          pickupDate: data.pickupDate,
+          pickupTime: data.pickupTime,
+          schedule: store.openingHours,
+          restrictedDates: restrictedPickupDates,
+        })
       );
 
       const totalCents = orderItemsData.reduce(
