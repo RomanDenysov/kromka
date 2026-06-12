@@ -120,6 +120,9 @@ export async function copyProductAction({ productId }: { productId: string }) {
     return { success: false, error: "NOT_FOUND" };
   }
 
+  // Copy everything except identity (slug), lifecycle (inactive until
+  // reviewed) and recipeId — recipes are modeled 1:1 with products, so
+  // the copy must get its own recipe link.
   const newProductData = {
     name: referenceProduct.name,
     slug: draftSlug(referenceProduct.name),
@@ -129,6 +132,13 @@ export async function copyProductAction({ productId }: { productId: string }) {
     status: referenceProduct.status,
     categoryId: referenceProduct.category?.id ?? null,
     imageId: referenceProduct.imageId,
+    priceCents: referenceProduct.priceCents,
+    weightValue: referenceProduct.weightValue,
+    weightUnit: referenceProduct.weightUnit,
+    allergenCodes: referenceProduct.allergenCodes,
+    showInB2c: referenceProduct.showInB2c,
+    showInB2b: referenceProduct.showInB2b,
+    nutritionOverride: referenceProduct.nutritionOverride,
   };
 
   let newProductId: string;
@@ -181,6 +191,10 @@ export async function toggleIsActiveProductAction({ id }: { id: string }) {
     .set({ isActive: not(products.isActive) })
     .where(eq(products.id, id))
     .returning({ id: products.id, slug: products.slug });
+
+  if (!updatedProduct) {
+    return { id: null };
+  }
 
   // Invalidate public cache
   updateTag("products");
