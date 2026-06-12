@@ -272,6 +272,20 @@ export async function submitCommentAction({
     return { success: false, error: "INVALID_DATA" };
   }
 
+  // Replies must point to an existing comment on the same post
+  if (parentId) {
+    const parent = await db.query.postComments.findFirst({
+      where: and(
+        eq(postComments.id, parentId),
+        eq(postComments.postId, postId)
+      ),
+      columns: { id: true },
+    });
+    if (!parent) {
+      return { success: false, error: "INVALID_PARENT" };
+    }
+  }
+
   await db.insert(postComments).values({
     postId,
     userId: user.id,
