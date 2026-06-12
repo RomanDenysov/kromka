@@ -4,13 +4,13 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
+  ArchiveIcon,
   CheckIcon,
   CircleIcon,
   CopyIcon,
   ImageIcon,
   MoreHorizontalIcon,
   PencilIcon,
-  Trash2Icon,
   XIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -332,15 +332,16 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
             <AlertDialog key={`delete-${row.original.id}`}>
               <DropdownMenuItem asChild asDialogTrigger variant="destructive">
                 <AlertDialogTrigger className="w-full">
-                  <Trash2Icon />
-                  Vymazať
+                  <ArchiveIcon />
+                  Archivovať
                 </AlertDialogTrigger>
               </DropdownMenuItem>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Odstrániť produkt</AlertDialogTitle>
+                  <AlertDialogTitle>Archivovať produkt</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Opravdu chcete odstrániť produkt? Táto akcia je nevratná.
+                    Produkt bude archivovaný a skrytý z e-shopu. História
+                    objednávok a štatistiky zostanú zachované.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -350,7 +351,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
                     size="sm"
                     variant="destructive"
                   >
-                    Odstrániť
+                    Archivovať
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

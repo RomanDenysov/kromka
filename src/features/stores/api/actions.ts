@@ -121,21 +121,26 @@ export async function toggleIsActiveStoresAction({ ids }: { ids: string[] }) {
   };
 }
 
+/**
+ * Soft delete only. Stores carry order-history attribution — "delete"
+ * deactivates, never removes rows.
+ */
 export async function deleteStoresAction({ ids }: { ids: string[] }) {
   await requireAdmin();
 
-  const deletedStores = await db
-    .delete(stores)
+  const deactivatedStores = await db
+    .update(stores)
+    .set({ isActive: false })
     .where(inArray(stores.id, ids))
     .returning({ id: stores.id, slug: stores.slug });
 
   updateTag("stores");
-  for (const store of deletedStores) {
+  for (const store of deactivatedStores) {
     updateTag(`store-${store.slug}`);
   }
 
   return {
     success: true,
-    ids: deletedStores.map((store) => store.id),
+    ids: deactivatedStores.map((store) => store.id),
   };
 }

@@ -6,12 +6,13 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { prices, products } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
-import { logActivity } from "@/features/activity-log/api/log";
+import { logActivity, logActivityBatch } from "@/features/activity-log/api/log";
 import {
   type UpdateProductSchema,
   updateProductSchema,
 } from "@/features/products/schema";
 import { requireAdmin } from "@/lib/auth/guards";
+import { createId } from "@/lib/ids";
 import { log } from "@/lib/logger";
 
 export async function updateProductAction({
@@ -191,22 +192,44 @@ export async function toggleIsActiveProductAction({ id }: { id: string }) {
   return { id: updatedProduct.id };
 }
 
+/**
+ * Soft delete only. Products are ERP records (orders, costing, reports
+ * reference them) — "delete" archives and deactivates, never removes rows.
+ */
 export async function deleteProductsAction({ ids }: { ids: string[] }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
-  const deletedProducts = await db
-    .delete(products)
+  const archivedProducts = await db
+    .update(products)
+    .set({ status: "archived", isActive: false })
     .where(inArray(products.id, ids))
-    .returning({ id: products.id, slug: products.slug });
+    .returning({
+      id: products.id,
+      slug: products.slug,
+      name: products.name,
+    });
 
   // Invalidate public cache
   updateTag("products");
   updateTag("categories");
-  for (const product of deletedProducts) {
+  for (const product of archivedProducts) {
     if (product.slug) {
       updateTag(`product-${product.slug}`);
     }
   }
 
+  const batchId = createId();
+  logActivityBatch(
+    archivedProducts.map((product) => ({
+      action: "product.archived" as const,
+      entityType: "product" as const,
+      entityId: product.id,
+      actor: { id: admin.id, type: "staff" as const, label: admin.name },
+      summary: `Produkt archivovaný · ${product.name}`,
+      metadata: { batchId, context: product.name },
+    }))
+  );
+
   refresh();
+  return { archivedCount: archivedProducts.length };
 }

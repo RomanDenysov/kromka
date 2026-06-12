@@ -2,11 +2,11 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import {
+  ArchiveIcon,
   CheckIcon,
   CopyIcon,
   MoreHorizontalIcon,
   PencilIcon,
-  Trash2Icon,
   XIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -184,15 +184,17 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
             <AlertDialog key={`delete-${row.original.id}`}>
               <DropdownMenuItem asChild asDialogTrigger variant="destructive">
                 <AlertDialogTrigger className="w-full">
-                  <Trash2Icon />
-                  Vymazať
+                  <ArchiveIcon />
+                  Deaktivovať
                 </AlertDialogTrigger>
               </DropdownMenuItem>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Odstrániť obchod</AlertDialogTitle>
+                  <AlertDialogTitle>Deaktivovať obchod</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Opravdu chcete odstrániť obchod? Táto akcia je nevratná.
+                    Obchod bude deaktivovaný a skrytý z e-shopu. História
+                    objednávok zostane zachovaná a obchod môžete kedykoľvek
+                    znova aktivovať.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -202,7 +204,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
                     size="sm"
                     variant="destructive"
                   >
-                    Odstrániť
+                    Deaktivovať
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
