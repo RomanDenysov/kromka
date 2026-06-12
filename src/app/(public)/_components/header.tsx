@@ -17,6 +17,7 @@ import { MobileNavigation } from "@/components/mobile-nav";
 import { Container } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { UserButton } from "@/components/user-button";
+import { featureFlags } from "@/config/features";
 import { cn } from "@/lib/utils";
 import { DesktopNav } from "./desktop-nav";
 import { HOME_HERO_DOM_ID } from "./home-hero-constants";
@@ -64,6 +65,10 @@ export function Header({ className, cartSlot }: Props) {
     positionShell = "sticky border-b bg-background";
   } else if (isPastHomeHero) {
     positionShell = "fixed border-b bg-background text-foreground shadow-xs";
+  } else if (featureFlags.typographicHero) {
+    // Light typographic hero — dark header text, no overlay treatment.
+    positionShell =
+      "fixed border-b-0 border-transparent bg-transparent text-foreground";
   } else {
     positionShell =
       "fixed border-b-0 border-transparent bg-transparent text-shadow-2xs text-white drop-shadow-lg";
