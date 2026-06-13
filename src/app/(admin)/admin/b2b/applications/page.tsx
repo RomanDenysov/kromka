@@ -18,7 +18,6 @@ export default function B2BApplicationsPage({
       <AdminHeader
         breadcrumbs={[
           { label: "B2B", href: "/admin/b2b" },
-          { label: "B2B", href: "/admin/b2b" as Route },
           { label: "Žiadosti", href: "/admin/b2b/applications" as Route },
         ]}
       />

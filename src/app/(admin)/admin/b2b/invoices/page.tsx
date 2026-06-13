@@ -83,7 +83,6 @@ export default function B2BInvoicesPage() {
       <AdminHeader
         breadcrumbs={[
           { label: "B2B", href: "/admin/b2b" },
-          { label: "B2B", href: "/admin/b2b" as Route },
           { label: "Faktúry", href: "/admin/b2b/invoices" as Route },
         ]}
       />

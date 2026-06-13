@@ -15,7 +15,6 @@ export default function BlogTagsPage() {
       <AdminHeader
         breadcrumbs={[
           { label: "Blog", href: "/admin/blog" },
-          { label: "Blog", href: "/admin/blog/posts" },
           { label: "Štítky" },
         ]}
       />

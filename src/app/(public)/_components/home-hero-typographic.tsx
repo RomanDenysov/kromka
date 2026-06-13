@@ -161,10 +161,12 @@ function WallRow({
 }
 
 function FloatingPhoto({
+  loadPriority,
   photo,
   reduceMotion,
   scrollYProgress,
 }: {
+  loadPriority?: boolean;
   photo: PhotoConfig;
   reduceMotion: boolean;
   scrollYProgress: MotionValue<number>;
@@ -267,7 +269,7 @@ function FloatingPhoto({
               alt={photo.alt}
               className="h-auto w-full drop-shadow-[0_30px_45px_rgba(25,22,19,0.3)]"
               height={photo.height}
-              priority
+              priority={loadPriority}
               sizes="(min-width: 768px) 32vw, 50vw"
               src={photo.src}
               width={photo.width}
@@ -324,9 +326,10 @@ export function HomeHeroTypographic({ className }: { className?: string }) {
       {/* Soft cream fade behind the fixed header so nav stays readable over the type. */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#f3eee2] via-[#f3eee2]/70 to-transparent" />
 
-      {PHOTOS.map((photo) => (
+      {PHOTOS.map((photo, index) => (
         <FloatingPhoto
           key={photo.src}
+          loadPriority={index === 0}
           photo={photo}
           reduceMotion={reduceMotion}
           scrollYProgress={scrollYProgress}

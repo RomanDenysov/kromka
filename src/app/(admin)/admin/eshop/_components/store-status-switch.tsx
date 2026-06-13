@@ -2,6 +2,7 @@
 
 import { LoaderIcon } from "lucide-react";
 import { useOptimistic, useTransition } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
@@ -15,8 +16,14 @@ export function StoreStatusSwitch({ store }: { store: AdminStore }) {
 
   const updateStoreStatus = () =>
     startTransition(async () => {
-      setOptimisticState(!optimisticState);
-      await updateStoreStatusAction(store.id);
+      const previousState = optimisticState;
+      setOptimisticState(!previousState);
+      try {
+        await updateStoreStatusAction(store.id);
+      } catch {
+        setOptimisticState(previousState);
+        toast.error("Nepodarilo sa zmeniť stav predajne");
+      }
     });
 
   return (

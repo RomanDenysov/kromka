@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-06-12",
+  "lastUpdated": "2026-06-13",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -594,7 +594,7 @@
         },
         {
           "name": "deleteStoresAction",
-          "description": "Admin: soft delete only - deactivates stores (isActive false), never removes rows; order-history attribution preserved"
+          "description": "Admin: soft delete only - deactivates stores (isActive false), never removes rows; logs store.deactivated batch"
         }
       ],
       "queries": [
@@ -994,6 +994,7 @@
         "order.cancelled (user cancelOrderAction)",
         "product.created (createDraftProductAction, copyProductAction)",
         "product.updated / product.archived (updateProductAction)",
+        "store.deactivated (deleteStoresAction)",
         "b2b_application.submitted (submitB2bApplication)",
         "b2b_application.approved (approveB2bApplication)",
         "b2b_application.rejected (rejectB2bApplication)"

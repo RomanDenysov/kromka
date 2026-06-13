@@ -105,6 +105,7 @@ export const ACTIVITY_ACTIONS = [
   "product.created",
   "product.updated",
   "product.archived",
+  "store.deactivated",
   "b2b_application.submitted",
   "b2b_application.approved",
   "b2b_application.rejected",

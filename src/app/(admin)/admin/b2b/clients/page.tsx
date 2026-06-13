@@ -16,7 +16,6 @@ export default function B2BClientsPage() {
       <AdminHeader
         breadcrumbs={[
           { label: "B2B", href: "/admin/b2b" },
-          { label: "B2B", href: "/admin/b2b" as Route },
           { label: "Klienti", href: "/admin/b2b/clients" as Route },
         ]}
       />

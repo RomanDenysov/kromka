@@ -46,6 +46,26 @@ const nextConfig: NextConfig = {
       },
       // Admin reorganization by domain (2026-06)
       {
+        source: "/admin/orders/:path*",
+        destination: "/admin/eshop/orders/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/products/:path*",
+        destination: "/admin/eshop/products/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/categories/:path*",
+        destination: "/admin/eshop/categories/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/stores/:path*",
+        destination: "/admin/eshop/stores/:path*",
+        permanent: false,
+      },
+      {
         source: "/admin/carts/:path*",
         destination: "/admin/eshop/carts/:path*",
         permanent: false,
