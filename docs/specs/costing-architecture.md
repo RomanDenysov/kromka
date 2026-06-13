@@ -265,7 +265,7 @@ Three areas where 1 day of prototyping pays for itself before the actual spec bu
 |---|---|---|
 | Resolver pure function | Confidence in cycle/depth/missing-data behaviour, reusable test fixture | TypeScript file with tests covering all error paths, before the rest of Phase C touches it |
 | `useOptimistic` + dnd-kit + autosave (Phase C items table) | Validate the spreadsheet feel is achievable; uncover ordering bugs before they spread | Tiny throwaway page with 3 rows, drag reorder, debounced autosave |
-| `<IngredientForm variant="page" \| "sheet">` (Phase B → Phase C bridge) | Lock the dual-mode contract so Phase C can be built in parallel with Phase B | Storybook-ish or `/admin/ingredients/_demo` page exercising both modes |
+| `<IngredientForm variant="page" \| "sheet">` (Phase B → Phase C bridge) | Lock the dual-mode contract so Phase C can be built in parallel with Phase B | Storybook-ish or `/admin/production/ingredients/_demo` page exercising both modes |
 
 ---
 
@@ -310,7 +310,7 @@ UI shows "Možno máte na mysli: Hladká múka T650, Polohrubá múka — klik p
 
 ### Periodic cleanup tool
 
-`/admin/ingredients/duplicates` — admin page listing pairs above the similarity threshold for review. Read-only diagnostic; no automated merge. Useful for catching diacritic typos and slightly different supplier names for the same thing.
+`/admin/production/ingredients/duplicates` — admin page listing pairs above the similarity threshold for review. Read-only diagnostic; no automated merge. Useful for catching diacritic typos and slightly different supplier names for the same thing.
 
 ### Why not pgvector
 

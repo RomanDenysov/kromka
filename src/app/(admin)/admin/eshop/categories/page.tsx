@@ -34,7 +34,7 @@ export default function CategoriesPage({
     <>
       <AdminHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
+          { label: "E-shop", href: "/admin/eshop" },
           { label: "Kategórie", href: "/admin/eshop/categories" },
         ]}
       />

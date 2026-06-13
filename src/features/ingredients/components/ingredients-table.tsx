@@ -56,7 +56,7 @@ export function IngredientsTable({ ingredients, allergens }: Props) {
                 <td className="px-3 py-2">
                   <Link
                     className="font-medium hover:underline"
-                    href={`/admin/ingredients/${i.id}` as never}
+                    href={`/admin/production/ingredients/${i.id}`}
                   >
                     {i.name}
                   </Link>

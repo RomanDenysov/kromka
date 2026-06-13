@@ -342,7 +342,7 @@ export async function createDraftIngredientAction() {
   }
 
   invalidateIngredients(created.id);
-  redirect(`/admin/ingredients/${created.id}`);
+  redirect(`/admin/production/ingredients/${created.id}`);
 }
 
 /**

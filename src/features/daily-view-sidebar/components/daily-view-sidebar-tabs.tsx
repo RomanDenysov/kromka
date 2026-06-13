@@ -78,7 +78,7 @@ export function DailyViewSidebarTabs({
             buttonVariants({ variant: "ghost", size: "xs" }),
             "w-full shrink-0"
           )}
-          href={`/admin/activity?date=${date}`}
+          href={`/admin/system/activity?date=${date}`}
         >
           Všetky
           <ChevronRightIcon />

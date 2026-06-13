@@ -82,7 +82,7 @@ export async function createRecipeAction({
   }
 
   invalidate(created.id, productId ?? undefined);
-  redirect(`/admin/recipes/${created.id}`);
+  redirect(`/admin/production/recipes/${created.id}`);
 }
 
 export async function updateRecipeHeaderAction({
@@ -204,7 +204,7 @@ export async function duplicateRecipeAction({ id }: { id: string }) {
   }
 
   invalidate(copy.id);
-  redirect(`/admin/recipes/${copy.id}`);
+  redirect(`/admin/production/recipes/${copy.id}`);
 }
 
 export async function publishRecipeAction({

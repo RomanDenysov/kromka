@@ -26,7 +26,7 @@ export default function AdminOrderPage({ params }: Props) {
     <>
       <AdminHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
+          { label: "E-shop", href: "/admin/eshop" },
           { label: "Objednávky", href: "/admin/eshop/orders" },
           { label: "Detail objednávky" },
         ]}

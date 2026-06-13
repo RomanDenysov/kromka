@@ -35,7 +35,7 @@ export default function B2BApplicationDetailPage({ params }: Props) {
     <>
       <AdminHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" as Route },
+          { label: "B2B", href: "/admin/b2b" },
           { label: "B2B", href: "/admin/b2b" as Route },
           { label: "Žiadosti", href: "/admin/b2b/applications" as Route },
           { label: "Detail žiadosti" },

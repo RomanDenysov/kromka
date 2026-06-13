@@ -116,7 +116,7 @@ export function getActivityHref(
     case "organization":
       return `/admin/b2b/clients/${entityId}` as Route;
     case "user":
-      return `/admin/users/${entityId}` as Route;
+      return `/admin/system/users/${entityId}` as Route;
     default:
       return null;
   }

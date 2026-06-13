@@ -187,7 +187,7 @@ export function IngredientPicker({
               <CommandItem asChild>
                 <Link
                   className="cursor-pointer"
-                  href={"/admin/ingredients" as never}
+                  href={"/admin/production/ingredients" as never}
                   target="_blank"
                 >
                   + Vytvoriť novú surovinu (nová karta)

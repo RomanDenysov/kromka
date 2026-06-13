@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-06-08",
+  "lastUpdated": "2026-06-12",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -29,7 +29,10 @@
           "name": "removeFromCart",
           "description": "Remove single item from B2C cart"
         },
-        { "name": "clearCart", "description": "Clear entire B2C cart" },
+        {
+          "name": "clearCart",
+          "description": "Clear entire B2C cart"
+        },
         {
           "name": "addItemsToCart",
           "description": "Bulk add for 'repeat order' feature"
@@ -50,7 +53,10 @@
           "name": "clearB2bCartAction",
           "description": "Clear entire B2B cart"
         },
-        { "name": "addItemsToB2bCart", "description": "Bulk add to B2B cart" }
+        {
+          "name": "addItemsToB2bCart",
+          "description": "Bulk add to B2B cart"
+        }
       ],
       "queries": [
         {
@@ -71,7 +77,10 @@
           "name": "cartItemSchema",
           "validates": "{ productId: string, qty: number (1-999) }"
         },
-        { "name": "cartSchema", "validates": "Array of cart items" }
+        {
+          "name": "cartSchema",
+          "validates": "Array of cart items"
+        }
       ],
       "components": [
         "CartDrawer - Slide-in drawer with analytics tracking",
@@ -259,19 +268,28 @@
           "name": "getOrderById",
           "description": "Single order with full relations"
         },
-        { "name": "getOrdersByIds", "description": "Batch query by IDs" },
+        {
+          "name": "getOrdersByIds",
+          "description": "Batch query by IDs"
+        },
         {
           "name": "getOrderByStatus",
           "description": "All orders with given status"
         },
-        { "name": "getOrderByStore", "description": "All orders for a store" },
+        {
+          "name": "getOrderByStore",
+          "description": "All orders for a store"
+        },
         {
           "name": "getNewOrdersCount",
           "description": "Count of 'new' status orders"
         }
       ],
       "schemas": [
-        { "name": "cancelOrderSchema", "validates": "{ orderId, reason? }" },
+        {
+          "name": "cancelOrderSchema",
+          "validates": "{ orderId, reason? }"
+        },
         {
           "name": "updateOrderPickupSchema",
           "validates": "{ orderId, storeId, pickupDate, pickupTime }"
@@ -342,7 +360,7 @@
         },
         {
           "name": "deleteProductsAction",
-          "description": "Admin: soft-delete products"
+          "description": "Admin: soft delete only - archives products (status archived + isActive false), never removes rows; logs product.archived batch"
         }
       ],
       "queries": [
@@ -566,14 +584,17 @@
           "name": "updateStoreAction",
           "description": "Admin: update store fields, validate slug uniqueness"
         },
-        { "name": "copyStoreAction", "description": "Admin: duplicate store" },
+        {
+          "name": "copyStoreAction",
+          "description": "Admin: duplicate store"
+        },
         {
           "name": "toggleIsActiveStoresAction",
           "description": "Admin: toggle active on multiple stores"
         },
         {
           "name": "deleteStoresAction",
-          "description": "Admin: delete multiple stores"
+          "description": "Admin: soft delete only - deactivates stores (isActive false), never removes rows; order-history attribution preserved"
         }
       ],
       "queries": [
@@ -634,7 +655,10 @@
           "name": "unpublishPostAction",
           "description": "Admin: revert to draft"
         },
-        { "name": "deletePostAction", "description": "Admin: delete post" },
+        {
+          "name": "deletePostAction",
+          "description": "Admin: delete post"
+        },
         {
           "name": "togglePostLikeAction",
           "description": "Auth user: toggle like with optimistic UI"
@@ -651,9 +675,18 @@
           "name": "rejectCommentAction",
           "description": "Admin: delete comment (decrement count if published)"
         },
-        { "name": "createTagAction", "description": "Admin: create tag" },
-        { "name": "updateTagAction", "description": "Admin: update tag" },
-        { "name": "deleteTagAction", "description": "Admin: delete tag" }
+        {
+          "name": "createTagAction",
+          "description": "Admin: create tag"
+        },
+        {
+          "name": "updateTagAction",
+          "description": "Admin: update tag"
+        },
+        {
+          "name": "deleteTagAction",
+          "description": "Admin: delete tag"
+        }
       ],
       "queries": [
         {
@@ -702,7 +735,10 @@
           "name": "commentSchema",
           "validates": "{ postId, content (1-2000 chars), parentId? }"
         },
-        { "name": "tagSchema", "validates": "{ name, slug }" }
+        {
+          "name": "tagSchema",
+          "validates": "{ name, slug }"
+        }
       ],
       "hooks": ["useLike() - Like state with optimistic UI, auth redirect"],
       "components": [
@@ -846,7 +882,10 @@
       ],
       "dependencies": ["email (lib)"],
       "routes": ["/pomoc (support page)"],
-      "tables": { "reads": [], "writes": [] },
+      "tables": {
+        "reads": [],
+        "writes": []
+      },
       "cacheTags": []
     },
     {
@@ -876,7 +915,7 @@
         }
       ],
       "dependencies": ["vercel/blob", "sharp"],
-      "routes": ["/admin/media (media library page)"],
+      "routes": ["/admin/system/media (media library page)"],
       "tables": {
         "reads": ["productImages", "stores", "categories", "posts"],
         "writes": ["media"]
@@ -910,14 +949,17 @@
         "/e-shop (e-shop banner)",
         "Cart drawer (LastOrderCard)"
       ],
-      "tables": { "reads": [], "writes": [] },
+      "tables": {
+        "reads": [],
+        "writes": []
+      },
       "cacheTags": []
     },
     {
       "name": "activity-log",
       "path": "src/features/activity-log",
       "critical": false,
-      "description": "Cross-entity activity feed (audit + operational stream). Unified polymorphic log capturing staff actions and business events across orders, products, B2B, etc. Surfaced in the admin dashboard 'Aktivita' panel and a full /admin/activity page. Complements per-order orderStatusEvents (the order timeline) - this is the horizontal 'what happened across the shop' stream.",
+      "description": "Cross-entity activity feed (audit + operational stream). Unified polymorphic log capturing staff actions and business events across orders, products, B2B, etc. Surfaced in the daily-view context rail 'Aktivita' tab and a full /admin/system/activity page. Complements per-order orderStatusEvents (the order timeline) - this is the horizontal 'what happened across the shop' stream.",
       "businessLogic": [
         "Single polymorphic activity_log table: entityId is a soft reference (no FK) across entity types",
         "logActivity() is fire-and-forget via after() - a failed audit write is logged, never thrown, never fails the business action",
@@ -963,29 +1005,25 @@
         "Wire payment.received once a payment webhook exists (no handler today)"
       ],
       "routes": [
-        "/admin (Aktivita panel)",
-        "/admin/activity (full feed + filters)"
+        "@dailyView (Aktivita tab)",
+        "/admin/system/activity (full feed + filters)"
       ],
-      "tables": { "reads": ["activity_log"], "writes": ["activity_log"] },
+      "tables": {
+        "reads": ["activity_log"],
+        "writes": ["activity_log"]
+      },
       "cacheTags": ["activity"]
     },
     {
       "name": "admin-dashboard",
       "path": "src/features/admin-dashboard",
       "critical": false,
-      "description": "Business intelligence metrics for admin: revenue trends, order stats, top products, operational health. All queries cached with 'minutes' or 'hours' lifetime.",
+      "description": "Shared admin data queries (former dashboard feature; the /admin dashboard page was removed). Provides pickup-date order/product queries for the daily-view context rail, badge counts for the admin sidebar, recent orders and active carts. All queries cached with 'minutes' or 'hours' lifetime.",
       "businessLogic": [
-        "Revenue only counts paid orders",
         "Excludes cancelled orders from all stats",
-        "Full date range generation via SQL generate_series (no gaps in charts)",
-        "Timezone-safe date handling for Slovakia",
-        "Parallel query execution for dashboard metrics"
+        "Timezone-safe date handling for Slovakia"
       ],
       "queries": [
-        {
-          "name": "getDashboardMetrics",
-          "description": "All top-card metrics in one call (6 parallel queries)"
-        },
         {
           "name": "getOrdersByPickupDate",
           "description": "Orders for specific date with filters"
@@ -998,46 +1036,33 @@
           "name": "getMonthlyOrderStats",
           "description": "Daily stats for entire month"
         },
-        { "name": "getOrdersCount", "description": "Count of 'new' orders" },
         {
-          "name": "getOrderStatusDistribution",
-          "description": "Breakdown by status"
-        },
-        {
-          "name": "getRevenueHistory",
-          "description": "Revenue per day for last N days"
-        },
-        {
-          "name": "getRevenueAndOrdersHistory",
-          "description": "Revenue (paid/expected) + order count per day"
-        },
-        {
-          "name": "getTopProducts",
-          "description": "Top 5 products by quantity sold"
+          "name": "getOrdersCount",
+          "description": "Count of 'new' orders"
         },
         {
           "name": "getRecentOrders",
           "description": "Last orders in active statuses"
         },
-        { "name": "getActiveCarts", "description": "All active carts" }
+        {
+          "name": "getActiveCarts",
+          "description": "All active carts"
+        },
+        {
+          "name": "getCartsCount",
+          "description": "Count of active carts (sidebar badge)"
+        }
       ],
       "dependencies": [],
       "routes": [
-        "/admin (main dashboard)",
-        "/admin (dashboard calendar, recent tabs)"
+        "/admin/eshop/carts (active carts list)",
+        "@dailyView parallel route (context rail data)"
       ],
       "tables": {
-        "reads": [
-          "orders",
-          "orderItems",
-          "products",
-          "stores",
-          "organizations",
-          "carts"
-        ],
+        "reads": ["orders", "orderItems", "products", "carts"],
         "writes": []
       },
-      "cacheTags": ["orders", "products", "stores", "carts"]
+      "cacheTags": ["orders", "products", "carts"]
     },
     {
       "name": "daily-view-sidebar",
@@ -1062,7 +1087,7 @@
         "SidebarOrdersList"
       ],
       "dependencies": ["admin-dashboard", "activity-log"],
-      "routes": ["/admin", "/admin/eshop"],
+      "routes": ["/admin/* (@dailyView parallel route, all admin pages)"],
       "tables": {
         "reads": ["orders", "orderItems", "products", "activity_log"],
         "writes": []
@@ -1244,7 +1269,7 @@
         },
         {
           "name": "deletePriceTierAction",
-          "description": "Admin: delete tier"
+          "description": "Admin: delete tier; blocked while any organization uses it (FK would silently null org pricing)"
         },
         {
           "name": "setPriceAction",
@@ -1322,7 +1347,7 @@
         "SettingsConfigurationsClient - Toggle switches for feature flags"
       ],
       "dependencies": ["auth (lib)"],
-      "routes": ["/admin/settings/configurations"],
+      "routes": ["/admin/system/settings/configurations"],
       "tables": {
         "reads": [],
         "writes": ["siteSettings"]
@@ -1346,7 +1371,10 @@
       ],
       "components": ["UsersTable - Admin list with TanStack React Table"],
       "dependencies": [],
-      "routes": ["/admin/users (list)", "/admin/users/[id] (detail)"],
+      "routes": [
+        "/admin/system/users (list)",
+        "/admin/system/users/[id] (detail)"
+      ],
       "tables": {
         "reads": [
           "users",
@@ -1373,7 +1401,10 @@
       "components": [],
       "dependencies": [],
       "routes": [],
-      "tables": { "reads": [], "writes": [] },
+      "tables": {
+        "reads": [],
+        "writes": []
+      },
       "cacheTags": []
     }
   ],
@@ -1595,23 +1626,29 @@
     },
     "admin": {
       "path": "src/app/(admin)/admin",
-      "description": "Admin dashboard: orders, products, categories, stores, blog, B2B, users, settings",
+      "description": "Admin panel organized by domain: E-shop, Blog, B2B, Výroba (production), Reporty (reports), Systém (system). /admin redirects to /admin/eshop.",
       "keyRoutes": [
-        "/admin - Dashboard with metrics",
-        "/admin/orders - Order management",
-        "/admin/products - Product CRUD",
-        "/admin/categories - Category CRUD",
-        "/admin/stores - Store CRUD",
+        "/admin - redirects to /admin/eshop",
+        "/admin/eshop - E-shop hub (stores grid)",
+        "/admin/eshop/orders - Order management",
+        "/admin/eshop/products - Product CRUD",
+        "/admin/eshop/categories - Category CRUD",
+        "/admin/eshop/stores - Store CRUD",
+        "/admin/eshop/carts - Active carts",
         "/admin/blog/posts - Blog post management",
         "/admin/blog/tags - Tag management",
         "/admin/blog/comments - Comment moderation",
-        "/admin/media - Media library",
-        "/admin/users - User list",
         "/admin/b2b/applications - B2B applications",
         "/admin/b2b/clients - B2B organizations",
         "/admin/b2b/invoices - Invoice management",
         "/admin/b2b/price-tiers - Pricing tiers",
-        "/admin/settings - Site configuration"
+        "/admin/production/recipes - Recipes (incl. allergen drift)",
+        "/admin/production/ingredients - Ingredients (incl. duplicates)",
+        "/admin/reports - Reports hub (profitability)",
+        "/admin/system/users - User list",
+        "/admin/system/media - Media library",
+        "/admin/system/activity - Activity feed",
+        "/admin/system/settings - Site configuration"
       ]
     },
     "b2b": {
@@ -1925,6 +1962,7 @@
     "components": [
       "header - Main site header with nav, cart, user button",
       "home-hero - Static homepage hero (image and copy in code)",
+      "home-hero-typographic - Poster-style hero: kinetic wall of repeated KROMKA wordmarks (Icons.kromka) with floating bread cutouts from public/assets, parallax and reduced-motion support; enabled via featureFlags.typographicHero (header switches to dark text over it)",
       "brand-story-section - Brand tagline with link to /o-nas",
       "registration-banner - Auth-gated signup promotion for logged-out users",
       "homepage-stores-content - Store locations section with map",

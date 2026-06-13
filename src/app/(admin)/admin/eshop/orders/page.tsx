@@ -14,7 +14,7 @@ export default function B2COrdersPage() {
     <>
       <AdminHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
+          { label: "E-shop", href: "/admin/eshop" },
           { label: "Objednávky", href: "/admin/eshop/orders" },
         ]}
       />

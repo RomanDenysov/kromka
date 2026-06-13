@@ -6,19 +6,16 @@ import { StoresGrid, StoresGridSkeleton } from "./_components/stores-grid";
 export default function EshopPage() {
   return (
     <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Prehľad", href: "/admin" },
-          { label: "E-shop", href: "/admin/eshop" },
-        ]}
-      >
+      <AdminHeader breadcrumbs={[{ label: "E-shop", href: "/admin/eshop" }]}>
         <Suspense fallback={null}>
           <DashboardDateChipLoader />
         </Suspense>
       </AdminHeader>
-      <Suspense fallback={<StoresGridSkeleton />}>
-        <StoresGrid />
-      </Suspense>
+      <div className="p-2">
+        <Suspense fallback={<StoresGridSkeleton />}>
+          <StoresGrid />
+        </Suspense>
+      </div>
     </>
   );
 }

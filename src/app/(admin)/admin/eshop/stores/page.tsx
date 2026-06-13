@@ -34,7 +34,7 @@ export default function StoresPage({
     <>
       <AdminHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
+          { label: "E-shop", href: "/admin/eshop" },
           { label: "Obchody" },
         ]}
       />

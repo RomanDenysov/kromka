@@ -163,7 +163,7 @@ export function ProductRecipeCard({
 
       <Link
         className="block font-medium hover:underline"
-        href={`/admin/recipes/${linkedRecipe.id}` as never}
+        href={`/admin/production/recipes/${linkedRecipe.id}`}
       >
         {linkedRecipe.name}
       </Link>
@@ -185,7 +185,7 @@ export function ProductRecipeCard({
 
       <div className="flex items-center gap-2">
         <Button asChild size="sm" variant="outline">
-          <Link href={`/admin/recipes/${linkedRecipe.id}` as never}>
+          <Link href={`/admin/production/recipes/${linkedRecipe.id}`}>
             <ExternalLinkIcon className="mr-1 size-3.5" />
             Otvoriť
           </Link>

@@ -421,7 +421,7 @@ function CustomerCard({
             {isAuthorized && (
               <Link
                 className="text-primary text-xs hover:underline"
-                href={`/admin/users/${customer.id}`}
+                href={`/admin/system/users/${customer.id}`}
               >
                 Zobraziť profil
               </Link>

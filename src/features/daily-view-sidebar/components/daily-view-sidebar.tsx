@@ -1,7 +1,6 @@
 import { format, getMonth, getYear } from "date-fns";
 import { PlusIcon } from "lucide-react";
 import type { SearchParams } from "nuqs/server";
-import { loadDashboardSearchParams } from "@/app/(admin)/admin/(dashboard)/dashboard-search-params";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { getRecentActivity } from "@/features/activity-log/api/queries";
@@ -11,6 +10,7 @@ import {
   getProductsAggregateByPickupDate,
 } from "@/features/admin-dashboard/api/queries";
 import { getContextRailOpen } from "@/features/daily-view-sidebar/cookies";
+import { loadDashboardSearchParams } from "@/features/daily-view-sidebar/search-params";
 import { ContextRailShell } from "./context-rail-shell";
 import { DailyViewSidebarTabs } from "./daily-view-sidebar-tabs";
 import { DashboardCalendar } from "./dashboard-calendar";

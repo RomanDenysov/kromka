@@ -25,12 +25,7 @@ export default function ReportsLandingPage() {
   // uncached read, which Next.js 16 cacheComponents disallows.
   return (
     <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
-          { label: "Reporty" },
-        ]}
-      />
+      <AdminHeader breadcrumbs={[{ label: "Reporty" }]} />
       <section className="@container/page space-y-6 p-4">
         <div className="grid gap-3 sm:grid-cols-2">
           {REPORT_LINKS.map((r) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryStates } from "nuqs";
-import { dashboardSearchParams } from "@/app/(admin)/admin/(dashboard)/dashboard-search-params";
+import { dashboardSearchParams } from "@/features/daily-view-sidebar/search-params";
 
 export const useDashboardParams = () =>
   useQueryStates(dashboardSearchParams, {
