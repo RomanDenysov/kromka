@@ -136,16 +136,38 @@ export async function generateInvoiceForCompany(
       .update(orders)
       .set({ invoiceId: invoice.id })
       .where(and(inArray(orders.id, orderIds), isNull(orders.invoiceId)))
-      .returning({ id: orders.id });
+      .returning({ id: orders.id, totalCents: orders.totalCents });
+
+    // A concurrent generation may have claimed some orders between the
+    // select and the update. Nothing claimed: drop the empty invoice.
+    // Partially claimed: recompute the total from the linked orders so
+    // the invoice never bills orders it doesn't own.
+    if (updatedOrders.length === 0) {
+      await db.delete(invoices).where(eq(invoices.id, invoice.id));
+      return {
+        success: false,
+        error: "Objednávky už boli fakturované inou faktúrou",
+      };
+    }
 
     if (updatedOrders.length !== orderIds.length) {
+      const actualTotalCents = updatedOrders.reduce(
+        (sum, order) => sum + order.totalCents,
+        0
+      );
+      await db
+        .update(invoices)
+        .set({ totalCents: actualTotalCents })
+        .where(eq(invoices.id, invoice.id));
+
       log.invoices.warn(
         {
           expected: orderIds.length,
           actual: updatedOrders.length,
           invoiceId: invoice.id,
+          recomputedTotalCents: actualTotalCents,
         },
-        "Some orders were already claimed by another invoice"
+        "Some orders were already claimed by another invoice; total recomputed"
       );
     }
 

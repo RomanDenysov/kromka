@@ -50,7 +50,7 @@ export function DuplicateSuggestion({ name, fetcher }: Props) {
         <span key={m.id}>
           <Link
             className="underline hover:text-amber-700"
-            href={`/admin/ingredients/${m.id}` as never}
+            href={`/admin/production/ingredients/${m.id}`}
           >
             {m.name}
           </Link>

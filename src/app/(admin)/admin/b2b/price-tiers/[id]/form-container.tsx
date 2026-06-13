@@ -36,7 +36,7 @@ export function PriceTierFormContainer({ tier, products }: Props) {
       toast.success("Cenová skupina bola vymazaná");
       router.push("/admin/b2b/price-tiers");
     } else {
-      toast.error("Nepodarilo sa vymazať cenovú skupinu");
+      toast.error(result.error);
     }
   };
 

@@ -43,8 +43,7 @@ export default function BlogCommentsPage() {
     <>
       <AdminHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
-          { label: "Blog", href: "/admin/blog/posts" },
+          { label: "Blog", href: "/admin/blog" },
           { label: "Komentáre" },
         ]}
       />

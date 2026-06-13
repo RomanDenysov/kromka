@@ -6,7 +6,9 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { stores } from "@/db/schema";
 import { draftSlug } from "@/db/utils";
+import { logActivityBatch } from "@/features/activity-log/api/log";
 import { requireAdmin } from "@/lib/auth/guards";
+import { createId } from "@/lib/ids";
 import type { StoreSchema } from "@/lib/stores/types";
 
 export async function createDraftStoreAction() {
@@ -121,21 +123,38 @@ export async function toggleIsActiveStoresAction({ ids }: { ids: string[] }) {
   };
 }
 
+/**
+ * Soft delete only. Stores carry order-history attribution — "delete"
+ * deactivates, never removes rows.
+ */
 export async function deleteStoresAction({ ids }: { ids: string[] }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
 
-  const deletedStores = await db
-    .delete(stores)
+  const deactivatedStores = await db
+    .update(stores)
+    .set({ isActive: false })
     .where(inArray(stores.id, ids))
-    .returning({ id: stores.id, slug: stores.slug });
+    .returning({ id: stores.id, slug: stores.slug, name: stores.name });
 
   updateTag("stores");
-  for (const store of deletedStores) {
+  for (const store of deactivatedStores) {
     updateTag(`store-${store.slug}`);
   }
 
+  const batchId = createId();
+  logActivityBatch(
+    deactivatedStores.map((store) => ({
+      action: "store.deactivated" as const,
+      entityType: "store" as const,
+      entityId: store.id,
+      actor: { id: admin.id, type: "staff" as const, label: admin.name },
+      summary: `Predajňa deaktivovaná · ${store.name}`,
+      metadata: { batchId, context: store.name },
+    }))
+  );
+
   return {
     success: true,
-    ids: deletedStores.map((store) => store.id),
+    ids: deactivatedStores.map((store) => store.id),
   };
 }

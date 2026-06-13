@@ -8,7 +8,6 @@ import {
   startOfToday,
 } from "date-fns";
 import type { StoreSchedule, TimeRange } from "@/db/types";
-import type { DetailedCartItem } from "@/features/cart/api/queries";
 
 const ORDER_CUTOFF_HOUR = 12;
 const DATE_KEY_FORMAT = "yyyy-MM-dd";
@@ -170,7 +169,9 @@ export function filterTimeSlots(
  * Returns Set of allowed date strings (yyyy-MM-dd) if restrictions exist.
  */
 export function getRestrictedPickupDates(
-  cartItems: DetailedCartItem[]
+  cartItems: Array<{
+    category?: { pickupDates: string[] | null } | null;
+  }>
 ): Set<string> | null {
   const restrictedSets: Set<string>[] = [];
 

@@ -27,7 +27,7 @@ export default function CategoryPage({ params }: Props) {
     <>
       <AdminHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
+          { label: "E-shop", href: "/admin/eshop" },
           { label: "Kategórie", href: "/admin/eshop/categories" },
           { label: "Upraviť kategóriu" },
         ]}

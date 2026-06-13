@@ -12,7 +12,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import { ArchiveIcon, PlusIcon } from "lucide-react";
 import { useCallback, useMemo, useState, useTransition } from "react";
 import {
   AlertDialog,
@@ -154,16 +154,17 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
                   size="xs"
                   variant="destructive"
                 >
-                  <Trash2Icon />
-                  Vymazať {Object.keys(rowSelection).length} produktov
+                  <ArchiveIcon />
+                  Archivovať {Object.keys(rowSelection).length} produktov
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Odstrániť produkty</AlertDialogTitle>
+                  <AlertDialogTitle>Archivovať produkty</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Opravdu chcete odstrániť {Object.keys(rowSelection).length}{" "}
-                    produktov? Táto akcia je nevratná.
+                    Opravdu chcete archivovať {Object.keys(rowSelection).length}{" "}
+                    produktov? Produkty budú skryté z e-shopu, história
+                    objednávok zostane zachovaná.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -173,7 +174,7 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
                     size="xs"
                     variant="destructive"
                   >
-                    Vymazať
+                    Archivovať
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

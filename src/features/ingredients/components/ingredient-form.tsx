@@ -100,7 +100,7 @@ export function IngredientForm({
           toast.success("Surovina vytvorená");
           onSaved?.(res.ingredient);
           if (variant === "page") {
-            router.push(`/admin/ingredients/${res.ingredient.id}` as never);
+            router.push(`/admin/production/ingredients/${res.ingredient.id}`);
           }
         } else {
           toast.error(res.error);
@@ -129,7 +129,7 @@ export function IngredientForm({
       const res = await deleteIngredientAction({ id: initial.id });
       if (res.success) {
         toast.success("Surovina odstránená");
-        router.push("/admin/ingredients");
+        router.push("/admin/production/ingredients");
       } else {
         toast.error(res.error);
       }

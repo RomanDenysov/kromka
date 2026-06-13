@@ -39,7 +39,7 @@ export default function PlaygroundTypographyPage() {
     <>
       <AdminHeader
         breadcrumbs={[
-          { href: "/admin", label: "Dashboard" },
+          { label: "Playground", href: "/admin/playground" },
           { href: "/admin/playground" as Route, label: "Playground" },
           { label: "Typografia" },
         ]}

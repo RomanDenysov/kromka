@@ -44,6 +44,62 @@ const nextConfig: NextConfig = {
         destination: "/kontakt",
         permanent: true,
       },
+      // Admin reorganization by domain (2026-06)
+      {
+        source: "/admin/orders/:path*",
+        destination: "/admin/eshop/orders/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/products/:path*",
+        destination: "/admin/eshop/products/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/categories/:path*",
+        destination: "/admin/eshop/categories/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/stores/:path*",
+        destination: "/admin/eshop/stores/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/carts/:path*",
+        destination: "/admin/eshop/carts/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/recipes/:path*",
+        destination: "/admin/production/recipes/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/ingredients/:path*",
+        destination: "/admin/production/ingredients/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/users/:path*",
+        destination: "/admin/system/users/:path*",
+        permanent: false,
+      },
+      {
+        source: "/admin/media",
+        destination: "/admin/system/media",
+        permanent: false,
+      },
+      {
+        source: "/admin/activity",
+        destination: "/admin/system/activity",
+        permanent: false,
+      },
+      {
+        source: "/admin/settings/:path*",
+        destination: "/admin/system/settings/:path*",
+        permanent: false,
+      },
     ];
   },
   async headers() {

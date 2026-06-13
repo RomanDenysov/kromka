@@ -46,7 +46,7 @@ export default function ProductsPage({
     <>
       <AdminHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
+          { label: "E-shop", href: "/admin/eshop" },
           { label: "Produkty", href: "/admin/eshop/products" },
         ]}
       />

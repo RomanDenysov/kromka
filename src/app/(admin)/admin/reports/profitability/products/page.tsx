@@ -112,7 +112,7 @@ export default function ProductProfitabilityPage({ searchParams }: Props) {
     <>
       <AdminHeader
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
+          { label: "Reporty", href: "/admin/reports" },
           { label: "Reporty", href: "/admin/reports" },
           { label: "Ziskovosť produktov" },
         ]}

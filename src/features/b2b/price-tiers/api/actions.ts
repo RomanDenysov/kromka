@@ -4,7 +4,7 @@ import { and, eq, notInArray, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { prices, priceTiers } from "@/db/schema";
+import { organizations, prices, priceTiers } from "@/db/schema";
 import type {
   BulkPricesSchema,
   PriceSchema,
@@ -62,6 +62,20 @@ export async function deletePriceTierAction({
   await requireAdmin();
 
   try {
+    // Deleting a tier would silently unlink it from organizations
+    // (FK is set null) and drop their B2B pricing — block instead.
+    const orgsUsingTier = await db.query.organizations.findMany({
+      where: eq(organizations.priceTierId, id),
+      columns: { id: true },
+    });
+
+    if (orgsUsingTier.length > 0) {
+      return {
+        success: false,
+        error: `Cenovú skupinu používa ${orgsUsingTier.length} ${orgsUsingTier.length === 1 ? "organizácia" : "organizácie/í"}. Najprv im priraďte inú skupinu.`,
+      };
+    }
+
     await db.delete(priceTiers).where(eq(priceTiers.id, id));
     updateTag("price-tiers");
     return { success: true };

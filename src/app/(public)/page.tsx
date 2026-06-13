@@ -13,6 +13,7 @@ import { createMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/utils";
 import { BrandStorySection } from "./_components/brand-story-section";
 import { HomeHero } from "./_components/home-hero";
+import { HomeHeroTypographic } from "./_components/home-hero-typographic";
 import { HomepageBlogSkeleton } from "./_components/homepage-blog-skeleton";
 import { HomepagePecivoProducts } from "./_components/homepage-pecivo-products";
 import {
@@ -35,7 +36,7 @@ export default async function Home() {
   const lastOrderPromise = getLastOrderWithItemsAction();
   return (
     <>
-      <HomeHero />
+      {featureFlags.typographicHero ? <HomeHeroTypographic /> : <HomeHero />}
       <Container className="my-12 space-y-12 md:my-16 md:space-y-16 xl:my-20 xl:space-y-20">
         <div className="space-y-4">
           {featureFlags.registrationBanner && (

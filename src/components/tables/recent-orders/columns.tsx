@@ -97,7 +97,7 @@ export const columns: ColumnDef<RecentOrder>[] = [
           ) : (
             <Link
               className="flex items-center gap-1 font-medium hover:underline"
-              href={`/admin/users/${row.original.createdBy?.id}`}
+              href={`/admin/system/users/${row.original.createdBy?.id}`}
             >
               {name} <VerifiedIcon className="size-3 text-green-500" />
             </Link>

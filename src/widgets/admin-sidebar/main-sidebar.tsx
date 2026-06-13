@@ -1,20 +1,26 @@
 "use client";
 
 import {
+  ActivityIcon,
   BriefcaseIcon,
+  ChartColumnIcon,
+  ChefHatIcon,
   ClipboardListIcon,
+  FactoryIcon,
   FileTextIcon,
   FlaskConicalIcon,
   ImagesIcon,
-  LayoutDashboardIcon,
   MessageSquareIcon,
   NewspaperIcon,
   Package2Icon,
   SettingsIcon,
+  ShoppingCartIcon,
   StoreIcon,
   TagsIcon,
+  TrendingUpIcon,
   UsersIcon,
   WalletIcon,
+  WheatIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -45,20 +51,6 @@ import {
 
 const NAV_MAIN: NavItem[] = [
   {
-    href: "/admin",
-    label: "Prehľad",
-    icon: LayoutDashboardIcon,
-    exact: true,
-    items: [
-      {
-        href: "/admin",
-        label: "Prehľad",
-        icon: LayoutDashboardIcon,
-        exact: true,
-      },
-    ],
-  },
-  {
     href: "/admin/eshop",
     label: "E-shop",
     icon: StoreIcon,
@@ -71,6 +63,12 @@ const NAV_MAIN: NavItem[] = [
         label: "Objednávky",
         icon: ClipboardListIcon,
         badgeKey: "newOrders",
+      },
+      {
+        href: "/admin/eshop/carts",
+        label: "Košíky",
+        icon: ShoppingCartIcon,
+        badgeKey: "activeCarts",
       },
     ],
   },
@@ -109,17 +107,67 @@ const NAV_MAIN: NavItem[] = [
       { href: "/admin/b2b/invoices", label: "Faktúry", icon: FileTextIcon },
     ],
   },
+  {
+    href: "/admin/production",
+    label: "Výroba",
+    icon: FactoryIcon,
+    items: [
+      {
+        href: "/admin/production/recipes",
+        label: "Recepty",
+        icon: ChefHatIcon,
+      },
+      {
+        href: "/admin/production/ingredients",
+        label: "Suroviny",
+        icon: WheatIcon,
+      },
+    ],
+  },
+  {
+    href: "/admin/reports",
+    label: "Reporty",
+    icon: ChartColumnIcon,
+    items: [
+      {
+        href: "/admin/reports/profitability/products",
+        label: "Ziskovosť produktov",
+        icon: TrendingUpIcon,
+      },
+      {
+        href: "/admin/reports/profitability/stores",
+        label: "Ziskovosť predajní",
+        icon: TrendingUpIcon,
+      },
+    ],
+  },
 ];
 
 const NAV_BOTTOM: NavItem[] = [
-  { href: "/admin/users", label: "Používatelia", icon: UsersIcon },
-  { href: "/admin/media", label: "Médiá", icon: ImagesIcon },
+  {
+    href: "/admin/system",
+    label: "Systém",
+    icon: SettingsIcon,
+    items: [
+      { href: "/admin/system/users", label: "Používatelia", icon: UsersIcon },
+      { href: "/admin/system/media", label: "Médiá", icon: ImagesIcon },
+      {
+        href: "/admin/system/activity",
+        label: "Aktivita",
+        icon: ActivityIcon,
+      },
+      {
+        href: "/admin/system/settings",
+        label: "Nastavenia",
+        icon: SettingsIcon,
+      },
+    ],
+  },
   {
     href: "/admin/playground",
     label: "Playground",
     icon: FlaskConicalIcon,
   },
-  { href: "/admin/settings", label: "Nastavenia", icon: SettingsIcon },
 ];
 
 function SidebarLogo() {
@@ -343,17 +391,12 @@ export function AppSidebarSkeleton(props: ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SkeletonGroup count={1} id="main" showIcon />
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SkeletonGroup count={4} id="eshop" showIcon />
+            <SkeletonGroup count={5} id="main" showIcon />
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
-            <SkeletonGroup count={3} id="bottom" showIcon />
+            <SkeletonGroup count={2} id="bottom" showIcon />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
