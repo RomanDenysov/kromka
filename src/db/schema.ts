@@ -394,7 +394,8 @@ export const promoCodes = pgTable(
       .notNull(),
   },
   (table) => [
-    index("idx_promo_codes_code").on(table.code),
+    // `code` is already unique() — the unique constraint creates its own
+    // index, so a separate index here was redundant.
     check("promo_codes_value_non_negative", sql`${table.value} >= 0`),
     check(
       "promo_codes_min_order_cents_non_negative",
@@ -496,7 +497,10 @@ export const cartItems = pgTable(
 
     quantity: integer("quantity").notNull().default(1),
   },
-  (table) => [primaryKey({ columns: [table.cartId, table.productId] })]
+  (table) => [
+    primaryKey({ columns: [table.cartId, table.productId] }),
+    check("cart_items_quantity_positive", sql`${table.quantity} > 0`),
+  ]
 );
 
 export const cartsRelations = relations(carts, ({ one, many }) => ({
@@ -561,7 +565,7 @@ export const invoices = pgTable(
     index("idx_invoices_due_date").on(table.dueDate),
     index("idx_invoices_issued_at").on(table.issuedAt),
     index("idx_invoices_paid_at").on(table.paidAt),
-    index("idx_invoices_invoice_number").on(table.invoiceNumber),
+    // invoiceNumber is already unique() — its constraint creates the index.
     check("invoices_total_cents_non_negative", sql`${table.totalCents} >= 0`),
   ]
 );
@@ -631,7 +635,7 @@ export const orders = pgTable(
       .notNull(),
   },
   (table) => [
-    index("idx_orders_order_number").on(table.orderNumber),
+    // orderNumber is already unique() — its constraint creates the index.
     index("idx_created_by_store_id").on(table.createdBy, table.storeId),
     index("idx_order_status").on(table.orderStatus),
     index("idx_payment_status").on(table.paymentStatus),
@@ -674,10 +678,14 @@ export const orderItems = pgTable(
       .references(() => orders.id, {
         onDelete: "cascade",
       }),
+    // restrict: productId is NOT NULL and part of the composite PK, so
+    // "set null" was a no-op the DB could never apply. Products are never
+    // hard-deleted (soft delete only); restrict makes that a loud failure
+    // instead of corrupting order history.
     productId: text("product_id")
       .notNull()
       .references(() => products.id, {
-        onDelete: "set null",
+        onDelete: "restrict",
       }),
     productSnapshot: jsonb("product_snapshot").$type<ProductSnapshot>(),
     quantity: integer("quantity").notNull().default(1),
@@ -1112,9 +1120,12 @@ export const posts = pgTable(
     excerpt: text("excerpt"), // short description for preview
     content: jsonb("content").$type<JSONContent>(), // TipTap like in products
 
+    // restrict: deleting a user must not silently destroy their published
+    // posts. Users are soft-deleted (banned), never removed; if a hard
+    // delete is ever attempted, this blocks it instead of cascading.
     authorId: text("author_id")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => users.id, { onDelete: "restrict" }),
 
     coverImageId: text("cover_image_id").references(() => media.id, {
       onDelete: "set null",
@@ -1310,6 +1321,10 @@ export const reviews = pgTable(
     index("idx_reviews_product_id").on(table.productId),
     index("idx_reviews_user_id").on(table.userId),
     unique("reviews_user_product_unique").on(table.userId, table.productId),
+    check(
+      "reviews_rating_range",
+      sql`${table.rating} >= 1 AND ${table.rating} <= 5`
+    ),
   ]
 );
 
