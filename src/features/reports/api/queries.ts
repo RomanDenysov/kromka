@@ -46,10 +46,18 @@ export interface ProductProfitabilityRow {
 
 export interface ProfitabilitySummary {
   costCents: number | null;
+  /** Relative % change in cost vs the previous period. */
+  costDeltaPct: number | null;
   marginCents: number | null;
+  /** Relative % change in margin (€) vs the previous period. */
+  marginDeltaPct: number | null;
   marginPct: number | null;
+  /** Margin % change vs the previous period, in percentage points. */
+  marginPctDeltaPp: number | null;
   orderCount: number;
   revenueCents: number;
+  /** Relative % change in revenue vs the previous period. */
+  revenueDeltaPct: number | null;
   untrackedShare: number;
 }
 
@@ -57,17 +65,19 @@ interface FilterOpts {
   storeIds?: string[];
 }
 
-/**
- * Total revenue / cost / margin for the period. Used by the dashboard
- * widget and the summary KPI strip on every report.
- */
-export async function getProfitabilitySummary(
-  period: Period,
-  opts: FilterOpts = {}
-): Promise<ProfitabilitySummary> {
-  cacheLife("hours");
-  cacheTag("reports", "reports-summary", "orders");
+interface ProfitAggregate {
+  costCents: number | null;
+  orderCount: number;
+  revenueCents: number;
+  untrackedCount: number;
+}
 
+/** Raw revenue/cost aggregate for a single [from, to] window. */
+async function aggregateProfit(
+  from: Date,
+  to: Date,
+  filter: SQL
+): Promise<ProfitAggregate> {
   const rows = await db.execute(sql`
     SELECT
       COALESCE(SUM(oi.price * oi.quantity), 0)::int AS revenue_cents,
@@ -76,10 +86,10 @@ export async function getProfitabilitySummary(
       COUNT(DISTINCT o.id) FILTER (WHERE oi.unit_cost_cents IS NULL)::int AS untracked_count
     FROM orders o
     JOIN order_items oi ON oi.order_id = o.id
-    WHERE o.created_at >= ${period.from}
-      AND o.created_at <= ${period.to}
+    WHERE o.created_at >= ${from}
+      AND o.created_at <= ${to}
       AND o.order_status IN (${STATUS_LIST})
-      ${storeFilter(opts.storeIds)}
+      ${filter}
   `);
 
   const row = rows.rows[0] as
@@ -90,34 +100,107 @@ export async function getProfitabilitySummary(
         untracked_count: number;
       }
     | undefined;
-  if (!row) {
-    return {
-      revenueCents: 0,
-      costCents: null,
-      marginCents: null,
-      marginPct: null,
-      orderCount: 0,
-      untrackedShare: 0,
-    };
-  }
-
-  const marginCents =
-    row.cost_cents === null ? null : row.revenue_cents - row.cost_cents;
-  const marginPct =
-    marginCents === null || row.revenue_cents === 0
-      ? null
-      : (marginCents / row.revenue_cents) * 100;
-  const untrackedShare =
-    row.order_count > 0 ? row.untracked_count / row.order_count : 0;
 
   return {
-    revenueCents: row.revenue_cents,
-    costCents: row.cost_cents,
+    revenueCents: row?.revenue_cents ?? 0,
+    costCents: row?.cost_cents ?? null,
+    orderCount: row?.order_count ?? 0,
+    untrackedCount: row?.untracked_count ?? 0,
+  };
+}
+
+/** Signed relative change as a percent. Null when no comparable base. */
+function relDeltaPct(
+  current: number | null,
+  previous: number | null
+): number | null {
+  if (current === null || previous === null || previous === 0) {
+    return null;
+  }
+  return ((current - previous) / Math.abs(previous)) * 100;
+}
+
+function deriveMargin(agg: ProfitAggregate): {
+  marginCents: number | null;
+  marginPct: number | null;
+} {
+  const marginCents =
+    agg.costCents === null ? null : agg.revenueCents - agg.costCents;
+  const marginPct =
+    marginCents === null || agg.revenueCents === 0
+      ? null
+      : (marginCents / agg.revenueCents) * 100;
+  return { marginCents, marginPct };
+}
+
+/** Assemble a summary (with period-over-period deltas) from two windows. */
+function buildSummary(
+  current: ProfitAggregate,
+  previous: ProfitAggregate
+): ProfitabilitySummary {
+  const { marginCents, marginPct } = deriveMargin(current);
+  const { marginCents: prevMarginCents, marginPct: prevMarginPct } =
+    deriveMargin(previous);
+
+  const untrackedShare =
+    current.orderCount > 0 ? current.untrackedCount / current.orderCount : 0;
+
+  return {
+    revenueCents: current.revenueCents,
+    costCents: current.costCents,
     marginCents,
     marginPct,
-    orderCount: row.order_count,
+    orderCount: current.orderCount,
     untrackedShare,
+    revenueDeltaPct: relDeltaPct(current.revenueCents, previous.revenueCents),
+    costDeltaPct: relDeltaPct(current.costCents, previous.costCents),
+    marginDeltaPct: relDeltaPct(marginCents, prevMarginCents),
+    marginPctDeltaPp:
+      marginPct === null || prevMarginPct === null
+        ? null
+        : marginPct - prevMarginPct,
   };
+}
+
+/**
+ * Total revenue / cost / margin for the period, with period-over-period
+ * deltas. Powers the KPI strip on the reports and the per-store detail page
+ * (pass `storeIds: [id]`).
+ */
+export async function getProfitabilitySummary(
+  period: Period,
+  opts: FilterOpts = {}
+): Promise<ProfitabilitySummary> {
+  cacheLife("hours");
+  cacheTag("reports", "reports-summary", "orders");
+
+  const filter = storeFilter(opts.storeIds);
+  const [current, previous] = await Promise.all([
+    aggregateProfit(period.from, period.to, filter),
+    aggregateProfit(period.previousFrom, period.previousTo, filter),
+  ]);
+
+  return buildSummary(current, previous);
+}
+
+/**
+ * Same shape as {@link getProfitabilitySummary} but scoped to one product.
+ * Powers the KPI strip on the product detail page.
+ */
+export async function getProductProfitabilitySummary(
+  period: Period,
+  productId: string
+): Promise<ProfitabilitySummary> {
+  cacheLife("hours");
+  cacheTag("reports", "reports-summary", "orders");
+
+  const filter = sql`AND oi.product_id = ${productId}`;
+  const [current, previous] = await Promise.all([
+    aggregateProfit(period.from, period.to, filter),
+    aggregateProfit(period.previousFrom, period.previousTo, filter),
+  ]);
+
+  return buildSummary(current, previous);
 }
 
 export async function getStoreProfitability(

@@ -19,6 +19,12 @@ import {
 } from "@/features/recipes/api/queries";
 import { ProductRecipeCard } from "@/features/recipes/components/product-recipe-card";
 import { resolveRecipeCost } from "@/features/recipes/lib/cost-resolver";
+import { getProductProfitabilitySummary } from "@/features/reports/api/queries";
+import {
+  ProfitabilityKpis,
+  ProfitabilityKpisSkeleton,
+} from "@/features/reports/components/profitability-kpis";
+import { resolvePeriod } from "@/features/reports/lib/period";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { FormContainer } from "./form-container";
 
@@ -144,6 +150,22 @@ async function loadRecipeCard(_productId: string, recipeId: string | null) {
       .map((r) => ({ id: r.id, name: r.name })),
   };
 }
+async function ProductProfitabilityStrip({ params }: Props) {
+  const { id } = await params;
+  const summary = await getProductProfitabilitySummary(
+    resolvePeriod("30d"),
+    decodeURIComponent(id)
+  );
+  return (
+    <div className="space-y-2">
+      <p className="font-medium text-muted-foreground text-xs">
+        Ziskovosť · posledných 30 dní
+      </p>
+      <ProfitabilityKpis summary={summary} />
+    </div>
+  );
+}
+
 export default function B2CProductPage({ params }: Props) {
   return (
     <>
@@ -155,7 +177,10 @@ export default function B2CProductPage({ params }: Props) {
         ]}
       />
 
-      <section className="@container/page h-full flex-1 p-4">
+      <section className="@container/page h-full flex-1 space-y-6 p-4">
+        <Suspense fallback={<ProfitabilityKpisSkeleton />}>
+          <ProductProfitabilityStrip params={params} />
+        </Suspense>
         <Suspense fallback={<FormSkeleton />}>
           <ProductFormLoader params={params} />
         </Suspense>

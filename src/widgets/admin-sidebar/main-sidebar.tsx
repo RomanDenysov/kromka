@@ -130,12 +130,12 @@ const NAV_MAIN: NavItem[] = [
     icon: ChartColumnIcon,
     items: [
       {
-        href: "/admin/reports/profitability/products",
+        href: "/admin/reports/products",
         label: "Ziskovosť produktov",
         icon: TrendingUpIcon,
       },
       {
-        href: "/admin/reports/profitability/stores",
+        href: "/admin/reports/stores",
         label: "Ziskovosť predajní",
         icon: TrendingUpIcon,
       },
@@ -177,15 +177,14 @@ function SidebarLogo() {
         <SidebarMenuItem className="flex flex-row items-center gap-1 group-data-[state=collapsed]:flex-col">
           <SidebarMenuButton
             asChild
-            className="[slot=sidebar-menu-button]:p-1.5!"
-            size="sm"
-            tooltip="Vrátiť sa na hlavnú stránku"
+            className="transition-colors duration-300 md:h-8 md:p-0 [slot=sidebar-menu-button]:p-1.5!"
+            size="lg"
           >
-            <Link href="#">
+            <Link
+              className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
+              href="#"
+            >
               <Icons.logo className="size-4!" />
-              <span className="font-semibold text-base tracking-tighter group-data-[state=collapsed]:hidden">
-                KROMKA
-              </span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -248,7 +247,15 @@ function NavMenuItem({
 
   return (
     <SidebarMenuItem className={showBadge === "rail" ? "relative" : undefined}>
-      <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+      <SidebarMenuButton
+        asChild
+        className="px-2.5 md:px-2"
+        isActive={isActive}
+        tooltip={{
+          children: item.label,
+          hidden: false,
+        }}
+      >
         <Link href={item.href}>
           {Icon && <Icon />}
           <span>{item.label}</span>
@@ -261,11 +268,18 @@ function NavMenuItem({
   );
 }
 
+const SHOW_SECONDARY_SIDEBAR_ICONS = false;
+
+type MainSidebarProps = ComponentProps<typeof Sidebar> & {
+  badges: AdminSidebarBadges;
+  showIcons?: boolean;
+};
+
 export default function MainSidebar({
   badges,
-}: {
-  badges: AdminSidebarBadges;
-}) {
+  showIcons = SHOW_SECONDARY_SIDEBAR_ICONS,
+  ...props
+}: MainSidebarProps) {
   const pathname = usePathname();
   const segment = useMemo(
     () => findActiveNavItem(pathname, ALL_NAV_ITEMS),
@@ -277,6 +291,7 @@ export default function MainSidebar({
       className="overflow-hidden *:data-[sidebar=sidebar]:flex-row"
       collapsible="icon"
       variant="floating"
+      {...props}
     >
       <Sidebar
         className="w-[calc(var(--sidebar-width-icon)+1px)]! rounded-l-lg border-r"
@@ -344,7 +359,7 @@ export default function MainSidebar({
                         tooltip={item.label}
                       >
                         <Link href={item.href}>
-                          {Icon && <Icon />}
+                          {Icon && showIcons && <Icon />}
                           <span>{item.label}</span>
                         </Link>
                       </SidebarMenuButton>

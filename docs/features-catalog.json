@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-06-13",
+  "lastUpdated": "2026-06-14",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -1645,7 +1645,9 @@
         "/admin/b2b/price-tiers - Pricing tiers",
         "/admin/production/recipes - Recipes (incl. allergen drift)",
         "/admin/production/ingredients - Ingredients (incl. duplicates)",
-        "/admin/reports - Reports hub (profitability)",
+        "/admin/reports - Redirects to /admin/reports/products",
+        "/admin/reports/products - Product profitability (KPI strip + ranked table)",
+        "/admin/reports/stores - Store profitability (KPI strip + ranked table)",
         "/admin/system/users - User list",
         "/admin/system/media - Media library",
         "/admin/system/activity - Activity feed",
