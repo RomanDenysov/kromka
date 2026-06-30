@@ -63,6 +63,9 @@ const getAllActiveManagerStores = cache(async (): Promise<ManagerStore[]> => {
 
 export const getAssignedManagerStores = cache(
   async (userId: string): Promise<ManagerStore[]> => {
+    "use cache";
+    cacheLife("max");
+    cacheTag("stores");
     const result = await db
       .select(managerStoreSelect)
       .from(stores)
