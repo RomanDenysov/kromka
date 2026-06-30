@@ -23,12 +23,12 @@ import type { StoreOption } from "@/features/checkout/hooks/use-checkout-form";
 import {
   getFirstAvailableDateWithRestrictions,
   getFirstAvailableTime,
-  getTimeRangeForDate,
 } from "@/features/checkout/utils";
 import { updateOrderPickupAction } from "@/features/orders/api/actions";
 import type { Store } from "@/features/stores/api/queries";
 import { useGeolocation } from "@/hooks/use-geolocation";
 import { buildFullAddress, sortStoresByDistance } from "@/lib/geo-utils";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 
 interface UpdatePickupDialogProps {
   currentPickupDate: string | null;

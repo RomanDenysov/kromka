@@ -17,7 +17,6 @@ import { logActivity, logActivityBatch } from "@/features/activity-log/api/log";
 import {
   filterTimeSlots,
   generateAllTimeSlots,
-  getTimeRangeForDate,
   isValidPickupDate,
 } from "@/features/checkout/utils";
 import { getOrderPickupRestrictions } from "@/features/orders/actions/internal";
@@ -30,6 +29,7 @@ import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { sendEmail } from "@/lib/email";
 import { createId } from "@/lib/ids";
 import { log } from "@/lib/logger";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
 
 /**

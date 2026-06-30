@@ -10,12 +10,10 @@ import { DistanceBadge } from "@/components/ui/distance-badge";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { TimeRange } from "@/db/types";
-import {
-  getTimeRangeForDate,
-  parseTimeToMinutes,
-} from "@/features/checkout/utils";
+import { parseTimeToMinutes } from "@/features/checkout/utils";
 import type { Store } from "@/features/stores/api/queries";
 import { formatStreetCity } from "@/lib/geo-utils";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 import { cn } from "@/lib/utils";
 
 type StoreWithDistance = Store & { distance: number | null };

@@ -188,14 +188,10 @@ module.exports = {
       name: "core-stays-pure",
       comment:
         "Shared core (src/db, src/lib) must not depend on app/feature/widget code - " +
-        "dependencies point inward. Type-only imports are allowed (no runtime coupling). " +
-        "Known exception: src/lib/working-time-formatter.ts imports a value from " +
-        "features/checkout. TODO: relocate getTimeRangeForDate to a neutral store-schedule " +
-        "util, then drop the pathNot exception below.",
+        "dependencies point inward. Type-only imports are allowed (no runtime coupling).",
       severity: "error",
       from: {
         path: "^src/(db|lib)/",
-        pathNot: "^src/lib/working-time-formatter[.]ts$",
       },
       to: {
         path: "^src/(features|app|widgets)/",

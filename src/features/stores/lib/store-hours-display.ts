@@ -1,10 +1,8 @@
 import { startOfToday } from "date-fns";
 import type { TimeRange } from "@/db/types";
-import {
-  getTimeRangeForDate,
-  parseTimeToMinutes,
-} from "@/features/checkout/utils";
+import { parseTimeToMinutes } from "@/features/checkout/utils";
 import type { Store } from "@/features/stores/api/queries";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 
 export function getTodaySchedule(
   openingHours: Store["openingHours"]

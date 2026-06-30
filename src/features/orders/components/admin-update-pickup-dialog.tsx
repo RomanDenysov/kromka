@@ -32,11 +32,11 @@ import type { StoreOption } from "@/features/checkout/hooks/use-checkout-form";
 import {
   getFirstAvailableDateWithRestrictions,
   getFirstAvailableTime,
-  getTimeRangeForDate,
 } from "@/features/checkout/utils";
 import { adminUpdateOrderPickupAction } from "@/features/orders/api/actions";
 import type { Store } from "@/features/stores/api/queries";
 import { buildFullAddress } from "@/lib/geo-utils";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 
 interface AdminUpdatePickupDialogProps {
   currentPickupDate: string | null;
