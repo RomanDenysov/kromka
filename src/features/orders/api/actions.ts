@@ -24,6 +24,7 @@ import {
   cancelOrderSchema,
   updateOrderPickupSchema,
 } from "@/features/orders/schema";
+import { canManageStore } from "@/features/store-manager/api/queries";
 import { requireAdmin, requireAuth, requireStaff } from "@/lib/auth/guards";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { sendEmail } from "@/lib/email";
@@ -615,6 +616,18 @@ export async function adminUpdateOrderPickupAction(
       return {
         success: false,
         error: "Túto objednávku už nie je možné upraviť",
+      };
+    }
+
+    const [canManageCurrentStore, canManageTargetStore] = await Promise.all([
+      canManageStore(staff, order.storeId),
+      canManageStore(staff, storeId),
+    ]);
+
+    if (!(canManageCurrentStore && canManageTargetStore)) {
+      return {
+        success: false,
+        error: "Nemáte oprávnenie upravovať túto predajňu",
       };
     }
 

@@ -5,6 +5,8 @@ import {
   AlertCircleIcon,
   BarChart3Icon,
   CalendarPlusIcon,
+  CheckIcon,
+  ChevronsUpDownIcon,
   ClockIcon,
   ExternalLinkIcon,
   Package2Icon,
@@ -17,6 +19,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ComponentProps, ReactNode } from "react";
 import { Icons } from "@/components/icons";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -40,6 +48,12 @@ interface NavItem {
   tooltip?: string;
 }
 
+interface StoreSidebarStore {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 function createDailyNav(
   slug: string,
   pickupCount: number,
@@ -48,12 +62,9 @@ function createDailyNav(
   return [
     {
       href: `${STORE_MANAGER_BASE_PATH}/${slug}/vyzdvihnutia` as Route,
-      label: "Objednavky na vyzdvihnutie",
+      label: "Objednavky",
       icon: PackageCheckIcon,
-      tooltip:
-        pickupCount > 0
-          ? `Objednavky na vyzdvihnutie (${pickupCount})`
-          : undefined,
+      tooltip: pickupCount > 0 ? "Objednavky" : undefined,
       badge:
         pickupCount > 0 ? (
           <SidebarMenuBadge>{pickupCount}</SidebarMenuBadge>
@@ -61,7 +72,7 @@ function createDailyNav(
     },
     {
       href: `${STORE_MANAGER_BASE_PATH}/${slug}/sken` as Route,
-      label: "QR sken vyzdvihnutia",
+      label: "QR sken",
       icon: QrCodeIcon,
     },
     {
@@ -102,32 +113,72 @@ function createManagementNav(slug: string): NavItem[] {
   ];
 }
 
-function SidebarLogo({
+function SidebarStoreSelector({
   storeName,
+  stores,
+  storeSlug,
   storeType,
 }: {
   storeName: string;
+  stores: readonly StoreSidebarStore[];
+  storeSlug: string;
   storeType?: string;
 }) {
   return (
     <SidebarHeader>
       <SidebarMenu>
-        <SidebarMenuItem className="flex flex-row items-center gap-1 group-data-[state=collapsed]:flex-col">
-          <SidebarMenuButton asChild size="sm" tooltip={storeName}>
-            <Link href={STORE_MANAGER_BASE_PATH as Route}>
-              <Icons.logo className="size-4!" />
-              <div className="flex flex-col group-data-[state=collapsed]:hidden">
-                <span className="font-semibold text-sm leading-tight">
-                  {storeName}
-                </span>
-                {storeType && (
-                  <span className="text-muted-foreground text-xs">
-                    {storeType}
+        <SidebarMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuButton size="lg" tooltip={storeName}>
+                <Icons.logo className="size-4!" />
+                <div className="flex flex-col group-data-[state=collapsed]:hidden">
+                  <span className="line-clamp-1 text-ellipsis font-medium text-xs leading-tight">
+                    {storeName}
                   </span>
-                )}
-              </div>
-            </Link>
-          </SidebarMenuButton>
+                  {storeType && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {storeType}
+                    </span>
+                  )}
+                </div>
+                <ChevronsUpDownIcon className="ml-auto size-4" />
+              </SidebarMenuButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-64">
+              {stores.length > 0 ? (
+                stores.map((store) => {
+                  const isCurrentStore = store.slug === storeSlug;
+
+                  return (
+                    <DropdownMenuItem asChild key={store.id}>
+                      <Link
+                        aria-current={isCurrentStore ? "page" : undefined}
+                        href={
+                          `${STORE_MANAGER_BASE_PATH}/${store.slug}` as Route
+                        }
+                      >
+                        <Icons.logo className="size-4!" />
+                        <span className="line-clamp-1 flex-1">
+                          {store.name}
+                        </span>
+                        {isCurrentStore && (
+                          <CheckIcon className="size-4 text-muted-foreground" />
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })
+              ) : (
+                <DropdownMenuItem asChild>
+                  <Link href={STORE_MANAGER_BASE_PATH as Route}>
+                    <Icons.logo className="size-4!" />
+                    <span>Vybrat predajnu</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarHeader>
@@ -155,6 +206,7 @@ function NavMenuItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
 
 type StoreSidebarProps = ComponentProps<typeof Sidebar> & {
   pickupCount?: number;
+  stores?: readonly StoreSidebarStore[];
   storeName: string;
   storeSlug: string;
   storeType?: string;
@@ -163,6 +215,7 @@ type StoreSidebarProps = ComponentProps<typeof Sidebar> & {
 
 export default function StoreSidebar({
   storeName,
+  stores = [],
   storeSlug,
   storeType,
   pickupCount = 0,
@@ -177,7 +230,12 @@ export default function StoreSidebar({
 
   return (
     <Sidebar {...props}>
-      <SidebarLogo storeName={storeName} storeType={storeType} />
+      <SidebarStoreSelector
+        storeName={storeName}
+        storeSlug={storeSlug}
+        stores={stores}
+        storeType={storeType}
+      />
 
       <SidebarContent>
         <SidebarGroup>

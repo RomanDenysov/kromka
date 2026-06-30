@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { type CSSProperties, type ReactNode, Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
+  getManagerStores,
   getStoreBySlug,
   getStorePendingPickupsCount,
 } from "@/features/store-manager/api/queries";
@@ -20,8 +21,11 @@ async function StoreManagerSidebarLoader({
 }: {
   params: Promise<{ storeSlug: string }>;
 }) {
-  const [, { storeSlug }] = await Promise.all([requireStaff(), params]);
-  const store = await getStoreBySlug(storeSlug);
+  const [staff, { storeSlug }] = await Promise.all([requireStaff(), params]);
+  const [store, managerStores] = await Promise.all([
+    getStoreBySlug(staff, storeSlug),
+    getManagerStores(staff),
+  ]);
 
   if (!store) {
     notFound();
@@ -35,6 +39,7 @@ async function StoreManagerSidebarLoader({
       pickupCount={pickupCount}
       storeName={store.name}
       storeSlug={store.slug}
+      stores={managerStores}
       storeType="Vlastna predajna"
       tomorrowOrderAlert={false}
     />

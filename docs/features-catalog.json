@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-06-14",
+  "lastUpdated": "2026-06-30",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -1396,17 +1396,42 @@
       "name": "store-manager",
       "path": "src/features/store-manager",
       "critical": false,
-      "description": "Placeholder module for Phase 4 ERP roadmap. Store manager dashboard for per-store order management. Directory exists but not yet implemented.",
+      "description": "Store manager dashboard foundation for per-store order management. Managers are scoped to assigned stores through store_manager_assignments; admins can access all active stores.",
       "actions": [],
-      "queries": [],
-      "components": [],
-      "dependencies": [],
-      "routes": [],
+      "queries": [
+        {
+          "name": "getManagerStores",
+          "description": "Return active stores visible to the current staff user: all stores for admins, assigned stores for managers"
+        },
+        {
+          "name": "getStoreBySlug",
+          "description": "Resolve an active store by slug with manager assignment enforcement"
+        },
+        {
+          "name": "canManageStore",
+          "description": "Shared store access check for manager-facing server actions"
+        },
+        {
+          "name": "getStorePendingPickupsCount",
+          "description": "Count pending pickup orders for a store"
+        }
+      ],
+      "components": ["store-manager-sidebar/store-sidebar"],
+      "dependencies": ["auth", "orders", "stores"],
+      "routes": [
+        "/manager/predajna (assigned store picker)",
+        "/manager/predajna/[storeSlug] (store-scoped dashboard shell)"
+      ],
       "tables": {
-        "reads": [],
+        "reads": ["stores", "store_manager_assignments", "orders"],
         "writes": []
       },
-      "cacheTags": []
+      "cacheTags": [
+        "stores",
+        "store-{slug}",
+        "orders",
+        "store-pending-{storeId}"
+      ]
     }
   ],
   "sharedInfrastructure": [

@@ -33,6 +33,7 @@ import {
   type ProductSnapshot,
   type ProductStatus,
   type PromoType,
+  type StoreManagerAssignmentRole,
   type StoreSchedule,
   type UserRole,
   type WeightUnit,
@@ -213,6 +214,12 @@ export const usersRelations = relations(users, ({ many }) => ({
   favorites: many(favorites),
   postLikes: many(postLikes),
   promoCodeUsages: many(promoCodeUsages),
+  storeManagerAssignments: many(storeManagerAssignments, {
+    relationName: "storeManagerUser",
+  }),
+  storeManagerAssignmentsCreated: many(storeManagerAssignments, {
+    relationName: "storeManagerAssignmentCreator",
+  }),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -1092,13 +1099,58 @@ export const stores = pgTable("stores", {
     .notNull(),
 });
 
+export const storeManagerAssignments = pgTable(
+  "store_manager_assignments",
+  {
+    storeId: text("store_id")
+      .notNull()
+      .references(() => stores.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: text("role")
+      .$type<StoreManagerAssignmentRole>()
+      .default("manager")
+      .notNull(),
+    createdBy: text("created_by").references(() => users.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.storeId, table.userId] }),
+    index("idx_store_manager_assignments_user_id").on(table.userId),
+  ]
+);
+
 export const storesRelations = relations(stores, ({ many, one }) => ({
   image: one(media, {
     fields: [stores.imageId],
     references: [media.id],
   }),
   orders: many(orders),
+  managerAssignments: many(storeManagerAssignments),
 }));
+
+export const storeManagerAssignmentsRelations = relations(
+  storeManagerAssignments,
+  ({ one }) => ({
+    store: one(stores, {
+      fields: [storeManagerAssignments.storeId],
+      references: [stores.id],
+    }),
+    user: one(users, {
+      fields: [storeManagerAssignments.userId],
+      references: [users.id],
+      relationName: "storeManagerUser",
+    }),
+    creator: one(users, {
+      fields: [storeManagerAssignments.createdBy],
+      references: [users.id],
+      relationName: "storeManagerAssignmentCreator",
+    }),
+  })
+);
 
 // #endregion Stores
 
