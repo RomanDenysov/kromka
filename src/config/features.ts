@@ -6,7 +6,7 @@
 export const featureFlags = {
   registrationBanner: false,
   /** Poster-style homepage hero (KROMKA type wall) instead of the photo hero. */
-  typographicHero: true,
+  typographicHero: false,
   eshop: true,
   b2b: true,
   partnership: true,
