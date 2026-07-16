@@ -7,11 +7,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { DistanceBadge } from "@/components/ui/distance-badge";
 import type { TimeRange } from "@/db/types";
-import {
-  getTimeRangeForDate,
-  parseTimeToMinutes,
-} from "@/features/checkout/utils";
+import { parseTimeToMinutes } from "@/features/checkout/utils";
 import type { Store } from "@/features/stores/api/queries";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 import { cn } from "@/lib/utils";
 
 interface StoreCardProps {

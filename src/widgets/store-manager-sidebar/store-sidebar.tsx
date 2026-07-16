@@ -1,246 +1,32 @@
-"use client";
-
-import type { LucideIcon } from "lucide-react";
-import {
-  AlertCircleIcon,
-  BarChart3Icon,
-  CalendarPlusIcon,
-  ClockIcon,
-  ExternalLinkIcon,
-  Package2Icon,
-  PackageCheckIcon,
-  QrCodeIcon,
-  Trash2Icon,
-} from "lucide-react";
-import type { Route } from "next";
+import { ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import type { ComponentProps, ReactNode } from "react";
-import { Icons } from "@/components/icons";
+import { notFound } from "next/navigation";
+import type { ComponentProps } from "react";
+import { Suspense } from "react";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
-import { STORE_MANAGER_BASE_PATH } from "@/features/store-manager/paths";
+import {
+  getManagerStores,
+  getStoreBySlug,
+  getStorePendingPickupsCount,
+} from "@/features/store-manager/api/queries";
+import { requireStaff } from "@/lib/auth/guards";
+import { StoreSidebarNav } from "@/widgets/store-manager-sidebar/store-sidebar-nav";
+import {
+  StoreSelector,
+  type StoreSelectorStore,
+} from "@/widgets/store-manager-sidebar/store-sidebar-selector";
 
-interface NavItem {
-  badge?: ReactNode;
-  href: Route;
-  icon: LucideIcon;
-  label: string;
-  tooltip?: string;
-}
-
-function createDailyNav(
-  slug: string,
-  pickupCount: number,
-  hasAlert: boolean
-): NavItem[] {
-  return [
-    {
-      href: `${STORE_MANAGER_BASE_PATH}/${slug}/vyzdvihnutia` as Route,
-      label: "Objednavky na vyzdvihnutie",
-      icon: PackageCheckIcon,
-      tooltip:
-        pickupCount > 0
-          ? `Objednavky na vyzdvihnutie (${pickupCount})`
-          : undefined,
-      badge:
-        pickupCount > 0 ? (
-          <SidebarMenuBadge>{pickupCount}</SidebarMenuBadge>
-        ) : null,
-    },
-    {
-      href: `${STORE_MANAGER_BASE_PATH}/${slug}/sken` as Route,
-      label: "QR sken vyzdvihnutia",
-      icon: QrCodeIcon,
-    },
-    {
-      href: `${STORE_MANAGER_BASE_PATH}/${slug}/objednavka-na-zajtra` as Route,
-      label: "Objednavka na zajtra",
-      icon: CalendarPlusIcon,
-      badge: hasAlert ? (
-        <SidebarMenuBadge>
-          <AlertCircleIcon className="size-3.5 text-destructive" />
-        </SidebarMenuBadge>
-      ) : null,
-    },
-  ];
-}
-
-function createManagementNav(slug: string): NavItem[] {
-  return [
-    {
-      href: `${STORE_MANAGER_BASE_PATH}/${slug}/prehlad` as Route,
-      label: "Prehlad predajne",
-      icon: BarChart3Icon,
-    },
-    {
-      href: `${STORE_MANAGER_BASE_PATH}/${slug}/produkty` as Route,
-      label: "Produkty",
-      icon: Package2Icon,
-    },
-    {
-      href: `${STORE_MANAGER_BASE_PATH}/${slug}/odpad` as Route,
-      label: "Odpad / straty",
-      icon: Trash2Icon,
-    },
-    {
-      href: `${STORE_MANAGER_BASE_PATH}/${slug}/otvaracie-hodiny` as Route,
-      label: "Otvaracie hodiny",
-      icon: ClockIcon,
-    },
-  ];
-}
-
-function SidebarLogo({
-  storeName,
-  storeType,
-}: {
-  storeName: string;
-  storeType?: string;
-}) {
-  return (
-    <SidebarHeader>
-      <SidebarMenu>
-        <SidebarMenuItem className="flex flex-row items-center gap-1 group-data-[state=collapsed]:flex-col">
-          <SidebarMenuButton asChild size="sm" tooltip={storeName}>
-            <Link href={STORE_MANAGER_BASE_PATH as Route}>
-              <Icons.logo className="size-4!" />
-              <div className="flex flex-col group-data-[state=collapsed]:hidden">
-                <span className="font-semibold text-sm leading-tight">
-                  {storeName}
-                </span>
-                {storeType && (
-                  <span className="text-muted-foreground text-xs">
-                    {storeType}
-                  </span>
-                )}
-              </div>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarHeader>
-  );
-}
-
-function NavMenuItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
-  const Icon = item.icon;
-  return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        asChild
-        isActive={isActive}
-        tooltip={item.tooltip ?? item.label}
-      >
-        <Link href={item.href}>
-          <Icon />
-          <span>{item.label}</span>
-        </Link>
-      </SidebarMenuButton>
-      {item.badge}
-    </SidebarMenuItem>
-  );
-}
-
-type StoreSidebarProps = ComponentProps<typeof Sidebar> & {
-  pickupCount?: number;
-  storeName: string;
-  storeSlug: string;
-  storeType?: string;
-  tomorrowOrderAlert?: boolean;
-};
-
-export default function StoreSidebar({
-  storeName,
-  storeSlug,
-  storeType,
-  pickupCount = 0,
-  tomorrowOrderAlert = false,
-  ...props
-}: StoreSidebarProps) {
-  const pathname = usePathname();
-  const isActive = (href: string) => pathname.startsWith(href);
-
-  const dailyNav = createDailyNav(storeSlug, pickupCount, tomorrowOrderAlert);
-  const managementNav = createManagementNav(storeSlug);
-
-  return (
-    <Sidebar {...props}>
-      <SidebarLogo storeName={storeName} storeType={storeType} />
-
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Denne</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {dailyNav.map((item) => (
-                <NavMenuItem
-                  isActive={isActive(item.href)}
-                  item={item}
-                  key={item.href}
-                />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Sprava</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {managementNav.map((item) => (
-                <NavMenuItem
-                  isActive={isActive(item.href)}
-                  item={item}
-                  key={item.href}
-                />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Zobrazit e-shop">
-                  <Link href="/" target="_blank">
-                    <ExternalLinkIcon />
-                    <span>Zobrazit e-shop</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
-  );
-}
-
-function SkeletonGroup({ keys }: { keys: readonly string[] }) {
-  return (
-    <SidebarMenu>
-      {keys.map((key) => (
-        <SidebarMenuItem key={key}>
-          <SidebarMenuSkeleton showIcon />
-        </SidebarMenuItem>
-      ))}
-    </SidebarMenu>
-  );
-}
-
+const STORE_TYPE_LABEL = "Vlastna predajna";
 const DAILY_SKELETON_KEYS = ["daily-1", "daily-2", "daily-3"] as const;
 const MANAGEMENT_SKELETON_KEYS = [
   "mgmt-1",
@@ -249,27 +35,151 @@ const MANAGEMENT_SKELETON_KEYS = [
   "mgmt-4",
 ] as const;
 
+type StoreSidebarProps = ComponentProps<typeof Sidebar> & {
+  params: Promise<{ storeSlug: string }>;
+};
+
+/**
+ * Store manager sidebar shell.
+ *
+ * Composed of isolated async server loaders, each in its own Suspense
+ * boundary, that feed serializable props to client presentational pieces.
+ * The shell paints from cache instantly and only the truly store-specific
+ * bits (current store header, pickup-count badge) stream in. The store
+ * picker list is user-scoped and `"use cache"`-d, so it does not refetch on
+ * store changes.
+ */
+export default function StoreSidebar({
+  params,
+  ...sidebarProps
+}: StoreSidebarProps) {
+  return (
+    <Sidebar {...sidebarProps}>
+      <Suspense fallback={<StoreSidebarHeaderSkeleton />}>
+        <StoreSidebarSelectorLoader params={params} />
+      </Suspense>
+
+      <SidebarContent>
+        <Suspense fallback={<StoreSidebarNavSkeleton />}>
+          <StoreSidebarNavLoader params={params} />
+        </Suspense>
+
+        <StoreSidebarFooter />
+      </SidebarContent>
+    </Sidebar>
+  );
+}
+
+async function StoreSidebarSelectorLoader({
+  params,
+}: {
+  params: Promise<{ storeSlug: string }>;
+}) {
+  const [staff, { storeSlug }] = await Promise.all([requireStaff(), params]);
+  const [store, managerStores] = await Promise.all([
+    getStoreBySlug(staff, storeSlug),
+    getManagerStores(staff),
+  ]);
+
+  if (!store) {
+    notFound();
+  }
+
+  return (
+    <StoreSelector
+      storeName={store.name}
+      storeSlug={store.slug}
+      stores={managerStores as readonly StoreSelectorStore[]}
+      storeType={STORE_TYPE_LABEL}
+    />
+  );
+}
+
+async function StoreSidebarNavLoader({
+  params,
+}: {
+  params: Promise<{ storeSlug: string }>;
+}) {
+  const [staff, { storeSlug }] = await Promise.all([requireStaff(), params]);
+  const store = await getStoreBySlug(staff, storeSlug);
+
+  // Selector loader already calls notFound() for a missing store; render
+  // nothing here to avoid a double 404 and skip fetching the pickup count.
+  if (!store) {
+    return null;
+  }
+
+  const pickupCount = await getStorePendingPickupsCount(store.id);
+
+  return <StoreSidebarNav pickupCount={pickupCount} storeSlug={store.slug} />;
+}
+
+function StoreSidebarFooter() {
+  return (
+    <SidebarGroup className="mt-auto">
+      <SidebarGroupContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Zobrazit e-shop">
+              <Link href="/" target="_blank">
+                <ExternalLinkIcon />
+                <span>Zobrazit e-shop</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+function StoreSidebarHeaderSkeleton() {
+  return (
+    <SidebarHeader>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuSkeleton showIcon />
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarHeader>
+  );
+}
+
+function StoreSidebarNavSkeleton() {
+  return (
+    <>
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {DAILY_SKELETON_KEYS.map((key) => (
+              <SidebarMenuItem key={key}>
+                <SidebarMenuSkeleton showIcon />
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {MANAGEMENT_SKELETON_KEYS.map((key) => (
+              <SidebarMenuItem key={key}>
+                <SidebarMenuSkeleton showIcon />
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </>
+  );
+}
+
 export function StoreSidebarSkeleton(props: ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuSkeleton showIcon />
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
+      <StoreSidebarHeaderSkeleton />
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SkeletonGroup keys={DAILY_SKELETON_KEYS} />
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SkeletonGroup keys={MANAGEMENT_SKELETON_KEYS} />
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <StoreSidebarNavSkeleton />
       </SidebarContent>
     </Sidebar>
   );

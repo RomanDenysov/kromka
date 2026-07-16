@@ -1,32 +1,51 @@
-import { and, count, eq, inArray } from "drizzle-orm";
+import { and, asc, count, eq, inArray } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
-import { orders, stores } from "@/db/schema";
+import { orders, storeManagerAssignments, stores } from "@/db/schema";
+import type { UserRole } from "@/db/types";
+
+interface StaffUser {
+  id: string;
+  role: UserRole;
+}
+
+export interface ManagerStore {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+const managerStoreSelect = {
+  id: stores.id,
+  name: stores.name,
+  slug: stores.slug,
+};
 
 /**
  * Resolve a store by slug for the manager UI.
- * TODO(phase-4): production blocker — currently any staff user can open
- * any store by slug. When `store_profiles` lands, gate by the caller's
- * store assignments (return null + trigger notFound for unauthorized).
+ * Admins can open any active store; managers are limited to assignments.
  */
-export const getStoreBySlug = cache(async (slug: string) => {
+const getActiveStoreBySlug = cache(async (slug: string) => {
   "use cache";
   cacheLife("max");
   cacheTag("stores", `store-${slug}`);
   const result = await db.query.stores.findFirst({
     where: and(eq(stores.slug, slug), eq(stores.isActive, true)),
+    columns: {
+      id: true,
+      name: true,
+      slug: true,
+    },
   });
   return result;
 });
 
 /**
  * Stores listed in the manager picker.
- * TODO(phase-4): production blocker — currently returns ALL active stores
- * to every staff user. When `store_profiles` lands, filter by the caller's
- * assignments. Until then, do NOT enable `manager` role in production.
+ * Admins see every active store; managers see only assigned active stores.
  */
-export const getManagerStores = cache(async () => {
+const getAllActiveManagerStores = cache(async (): Promise<ManagerStore[]> => {
   "use cache";
   cacheLife("max");
   cacheTag("stores");
@@ -41,6 +60,95 @@ export const getManagerStores = cache(async () => {
   });
   return result;
 });
+
+export const getAssignedManagerStores = cache(
+  async (userId: string): Promise<ManagerStore[]> => {
+    "use cache";
+    cacheLife("max");
+    cacheTag("stores");
+    const result = await db
+      .select(managerStoreSelect)
+      .from(stores)
+      .innerJoin(
+        storeManagerAssignments,
+        eq(storeManagerAssignments.storeId, stores.id)
+      )
+      .where(
+        and(
+          eq(storeManagerAssignments.userId, userId),
+          eq(stores.isActive, true)
+        )
+      )
+      .orderBy(asc(stores.name));
+
+    return result;
+  }
+);
+
+export const getManagerStores = cache((user: StaffUser) => {
+  if (user.role === "admin") {
+    return getAllActiveManagerStores();
+  }
+
+  return getAssignedManagerStores(user.id);
+});
+
+export const getStoreBySlug = cache(
+  async (user: StaffUser, slug: string): Promise<ManagerStore | null> => {
+    if (user.role === "admin") {
+      return (await getActiveStoreBySlug(slug)) ?? null;
+    }
+
+    const result = await db
+      .select(managerStoreSelect)
+      .from(stores)
+      .innerJoin(
+        storeManagerAssignments,
+        eq(storeManagerAssignments.storeId, stores.id)
+      )
+      .where(
+        and(
+          eq(storeManagerAssignments.userId, user.id),
+          eq(stores.slug, slug),
+          eq(stores.isActive, true)
+        )
+      )
+      .limit(1);
+
+    return result[0] ?? null;
+  }
+);
+
+export async function canManageStore(
+  user: StaffUser,
+  storeId: string | null | undefined
+): Promise<boolean> {
+  if (!storeId) {
+    return false;
+  }
+
+  if (user.role === "admin") {
+    return true;
+  }
+
+  const managedStore = await db
+    .select({ id: stores.id })
+    .from(stores)
+    .innerJoin(
+      storeManagerAssignments,
+      eq(storeManagerAssignments.storeId, stores.id)
+    )
+    .where(
+      and(
+        eq(stores.id, storeId),
+        eq(stores.isActive, true),
+        eq(storeManagerAssignments.userId, user.id)
+      )
+    )
+    .limit(1);
+
+  return managedStore.length > 0;
+}
 
 export const getStorePendingPickupsCount = cache(async (storeId: string) => {
   "use cache";
@@ -58,5 +166,3 @@ export const getStorePendingPickupsCount = cache(async (storeId: string) => {
 
   return result[0]?.count ?? 0;
 });
-
-export type ManagerStore = Awaited<ReturnType<typeof getManagerStores>>[number];

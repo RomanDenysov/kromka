@@ -15,7 +15,6 @@ import {
 import {
   getFirstAvailableDateWithRestrictions,
   getFirstAvailableTime,
-  getTimeRangeForDate,
   isBeforeDailyCutoff,
 } from "@/features/checkout/utils";
 import { createB2COrder } from "@/features/orders/actions/create-b2c-order";
@@ -23,6 +22,7 @@ import type { GuestCustomerInfo } from "@/features/orders/actions/internal";
 import type { Store } from "@/features/stores/api/queries";
 import type { User } from "@/lib/auth/session";
 import { buildFullAddress } from "@/lib/geo-utils";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 import type { LastOrderPrefill } from "../api/queries";
 
 export interface StoreOption {

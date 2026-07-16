@@ -23,8 +23,8 @@ import type { StoreSchedule } from "@/db/types";
 import {
   isBeforeDailyCutoff,
   isDateAllowedByCart,
-  isStoreClosed,
 } from "@/features/checkout/utils";
+import { isStoreClosed } from "@/lib/stores/schedule";
 
 interface OrderPickupDatePickerProps {
   onDateSelect: (date: Date) => void;

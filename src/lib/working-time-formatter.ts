@@ -1,6 +1,6 @@
 import { startOfToday } from "date-fns";
 import type { DaySchedule, StoreSchedule, TimeRange } from "@/db/types";
-import { getTimeRangeForDate } from "@/features/checkout/utils";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 
 const WEEKDAY_KEYS = [
   "monday",

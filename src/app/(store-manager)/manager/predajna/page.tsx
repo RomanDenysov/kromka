@@ -9,7 +9,8 @@ import { STORE_MANAGER_BASE_PATH } from "@/features/store-manager/paths";
 import { requireStaff } from "@/lib/auth/guards";
 
 async function StorePickerContent() {
-  const [, stores] = await Promise.all([requireStaff(), getManagerStores()]);
+  const staff = await requireStaff();
+  const stores = await getManagerStores(staff);
 
   if (stores.length === 0) {
     return (
@@ -23,8 +24,9 @@ async function StorePickerContent() {
     );
   }
 
-  if (stores.length === 1) {
-    redirect(`${STORE_MANAGER_BASE_PATH}/${stores[0].slug}` as Route);
+  const onlyStore = stores[0];
+  if (stores.length === 1 && onlyStore) {
+    redirect(`${STORE_MANAGER_BASE_PATH}/${onlyStore.slug}` as Route);
   }
 
   return (

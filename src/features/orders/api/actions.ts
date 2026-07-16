@@ -17,7 +17,6 @@ import { logActivity, logActivityBatch } from "@/features/activity-log/api/log";
 import {
   filterTimeSlots,
   generateAllTimeSlots,
-  getTimeRangeForDate,
   isValidPickupDate,
 } from "@/features/checkout/utils";
 import { getOrderPickupRestrictions } from "@/features/orders/actions/internal";
@@ -25,11 +24,13 @@ import {
   cancelOrderSchema,
   updateOrderPickupSchema,
 } from "@/features/orders/schema";
+import { canManageStore } from "@/features/store-manager/api/queries";
 import { requireAdmin, requireAuth, requireStaff } from "@/lib/auth/guards";
 import { ORDER_STATUS_LABELS } from "@/lib/constants";
 import { sendEmail } from "@/lib/email";
 import { createId } from "@/lib/ids";
 import { log } from "@/lib/logger";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 import { getOrderById, getOrdersByIds, type Order } from "./queries";
 
 /**
@@ -615,6 +616,18 @@ export async function adminUpdateOrderPickupAction(
       return {
         success: false,
         error: "Túto objednávku už nie je možné upraviť",
+      };
+    }
+
+    const [canManageCurrentStore, canManageTargetStore] = await Promise.all([
+      canManageStore(staff, order.storeId),
+      canManageStore(staff, storeId),
+    ]);
+
+    if (!(canManageCurrentStore && canManageTargetStore)) {
+      return {
+        success: false,
+        error: "Nemáte oprávnenie upravovať túto predajňu",
       };
     }
 

@@ -25,7 +25,6 @@ import {
   filterTimeSlots,
   generateAllTimeSlots,
   getRestrictedPickupDates,
-  getTimeRangeForDate,
   isValidPickupDate,
 } from "@/features/checkout/utils";
 import { getResolverContext } from "@/features/recipes/api/queries";
@@ -35,6 +34,7 @@ import { createOrderNumber, createPrefixedId } from "@/lib/ids";
 import { log } from "@/lib/logger";
 import { fail, guard, type StepResult, succeed } from "@/lib/pipeline";
 import { getEffectivePrices } from "@/lib/pricing";
+import { getTimeRangeForDate } from "@/lib/stores/schedule";
 import { getOrderById } from "../api/queries";
 
 export interface OrderItemData {

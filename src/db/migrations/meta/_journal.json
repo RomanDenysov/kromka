@@ -113,6 +113,13 @@
       "when": 1781439230138,
       "tag": "0015_luxuriant_vermin",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1782817477721,
+      "tag": "0016_add_store_manager_assignments",
+      "breakpoints": true
     }
   ]
 }

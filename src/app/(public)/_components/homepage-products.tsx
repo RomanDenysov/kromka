@@ -3,7 +3,7 @@ import { HomepageCtaLink } from "@/components/analytics/homepage-cta-tracked";
 import { ProductScrollRow } from "@/components/shared/product-scroll-row";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getHomepageProducts } from "@/features/products/api/queries";
+import { getHomepageProducts } from "@/features/homepage/api/queries";
 import { ProductCardSkeleton } from "@/features/products/components/product-card";
 import { cn } from "@/lib/utils";
 

@@ -4,6 +4,10 @@
 export const USER_ROLES = ["admin", "manager", "user"] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
+export const STORE_MANAGER_ASSIGNMENT_ROLES = ["manager"] as const;
+export type StoreManagerAssignmentRole =
+  (typeof STORE_MANAGER_ASSIGNMENT_ROLES)[number];
+
 export const ORDER_STATUSES = [
   "new",
   "in_progress",
