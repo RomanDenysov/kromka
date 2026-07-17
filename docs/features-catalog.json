@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-06-30",
+  "lastUpdated": "2026-07-17",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -1321,6 +1321,83 @@
       "cacheTags": ["price-tiers"]
     },
     {
+      "name": "homepage",
+      "path": "src/features/homepage",
+      "critical": false,
+      "description": "Structured homepage section builder. Admins can enable/reorder predefined blocks and configure product carousels sourced from category, manual product lists, or 30-day B2C bestsellers.",
+      "businessLogic": [
+        "homepage_sections stores predefined singleton blocks and dynamic carousel instances with sortOrder",
+        "homepage_carousel_products stores ordered manual carousel product picks",
+        "Public layout resolves enabled sections in sortOrder and respects featureFlags as hard gates",
+        "Carousel sources: category (catalog sortOrder), manual_products (explicit order), best_sellers (PROFIT_ORDER_STATUSES, B2C-visible only)",
+        "Category carousel CTA defaults to /e-shop?category={slug}; other sources default to /e-shop",
+        "Seeded migration mirrors legacy homepage order: hero, registration/reorder, bestsellers, brand story, stores, pecivo category, loyalty, game, blog, B2B CTA"
+      ],
+      "actions": [
+        {
+          "name": "createCarouselSectionAction",
+          "description": "Admin: create a new product carousel section"
+        },
+        {
+          "name": "updateCarouselSectionAction",
+          "description": "Admin: update carousel title, CTA, source, and manual products"
+        },
+        {
+          "name": "deleteCarouselSectionAction",
+          "description": "Admin: delete a carousel section"
+        },
+        {
+          "name": "duplicateCarouselSectionAction",
+          "description": "Admin: duplicate an existing carousel section"
+        },
+        {
+          "name": "toggleHomepageSectionAction",
+          "description": "Admin: enable or disable any homepage section"
+        },
+        {
+          "name": "reorderHomepageSectionsAction",
+          "description": "Admin: reorder the full homepage layout"
+        }
+      ],
+      "queries": [
+        {
+          "name": "getHomepageLayout",
+          "description": "Cached public homepage layout with resolved carousel products"
+        },
+        {
+          "name": "getAdminHomepageSections",
+          "description": "Uncached admin list with carousel previews"
+        }
+      ],
+      "schemas": [
+        "createCarouselSectionSchema",
+        "updateCarouselSectionSchema",
+        "reorderSectionsSchema"
+      ],
+      "components": [
+        "HomepageLayoutRenderer - public section renderer with exhaustive block switch",
+        "HomepageBuilderClient - admin section list and carousel editor"
+      ],
+      "dependencies": [
+        "products",
+        "categories",
+        "reports (PROFIT_ORDER_STATUSES)"
+      ],
+      "routes": ["/ (public homepage)", "/admin/eshop/homepage"],
+      "tables": {
+        "reads": [
+          "homepage_sections",
+          "homepage_carousel_products",
+          "products",
+          "categories",
+          "orders",
+          "orderItems"
+        ],
+        "writes": ["homepage_sections", "homepage_carousel_products"]
+      },
+      "cacheTags": ["homepage-layout"]
+    },
+    {
       "name": "site-config",
       "path": "src/features/site-config",
       "critical": false,
@@ -1702,7 +1779,7 @@
       "buy-again-banner": ["checkout", "cart"],
       "products": ["favorites", "categories"],
       "categories": ["products"],
-      "favorites": ["products"],
+      "homepage": ["products", "categories"],
       "b2b/clients": ["b2b/price-tiers"],
       "b2b/applications": [],
       "b2b/invoices": [],

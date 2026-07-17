@@ -19,6 +19,7 @@ export type HomepageCtaSection =
   | "registration"
   | "homepage_top_products"
   | "homepage_pecivo"
+  | "homepage_carousel"
   | "homepage_stores_map"
   | "homepage_stores_pitch"
   | "homepage_brand_story";
@@ -37,6 +38,8 @@ export type HomepageCtaId =
   | "read_full_story";
 
 export interface HomepageCtaClickPayload {
+  carousel_id?: string;
+  carousel_source?: "category" | "manual_products" | "best_sellers";
   cta: HomepageCtaId;
   href: string;
   section: HomepageCtaSection;

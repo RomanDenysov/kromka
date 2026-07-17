@@ -15,6 +15,8 @@ type TrackedLinkBase = Omit<ComponentProps<typeof Link>, "href" | "onClick"> & {
   cta: HomepageCtaId;
   variant?: HomepageCtaClickPayload["variant"];
   store_slug?: string;
+  carousel_id?: string;
+  carousel_source?: HomepageCtaClickPayload["carousel_source"];
 };
 
 function hrefToString(href: ComponentProps<typeof Link>["href"]): string {
@@ -35,6 +37,8 @@ export function HomepageCtaLink({
   href,
   variant,
   store_slug,
+  carousel_id,
+  carousel_source,
   ...linkProps
 }: TrackedLinkBase) {
   const handleClick = () => {
@@ -44,6 +48,8 @@ export function HomepageCtaLink({
       href: hrefToString(href),
       ...(variant === undefined ? {} : { variant }),
       ...(store_slug === undefined ? {} : { store_slug }),
+      ...(carousel_id === undefined ? {} : { carousel_id }),
+      ...(carousel_source === undefined ? {} : { carousel_source }),
     });
   };
 
