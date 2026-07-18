@@ -1434,6 +1434,143 @@ export const siteSettings = pgTable("site_settings", {
 
 // #endregion Site settings
 
+// #region Homepage sections
+
+export const HOMEPAGE_BLOCK_TYPES = [
+  "hero",
+  "registration_reorder",
+  "brand_story",
+  "stores",
+  "loyalty",
+  "game",
+  "blog",
+  "b2b_cta",
+  "carousel",
+] as const;
+export type HomepageBlockType = (typeof HOMEPAGE_BLOCK_TYPES)[number];
+
+export const HOMEPAGE_CAROUSEL_SOURCE_TYPES = [
+  "category",
+  "manual_products",
+  "best_sellers",
+] as const;
+export type HomepageCarouselSourceType =
+  (typeof HOMEPAGE_CAROUSEL_SOURCE_TYPES)[number];
+
+/** Stable keys for singleton predefined homepage blocks (seeded once). */
+export const HOMEPAGE_PREDEFINED_KEYS = [
+  "hero",
+  "registration_reorder",
+  "brand_story",
+  "stores",
+  "loyalty",
+  "game",
+  "blog",
+  "b2b_cta",
+] as const;
+export type HomepagePredefinedKey = (typeof HOMEPAGE_PREDEFINED_KEYS)[number];
+
+export const homepageSections = pgTable(
+  "homepage_sections",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => createPrefixedId("hsec")),
+    /** Null for dynamic carousel instances; unique for predefined singleton blocks. */
+    sectionKey: text("section_key"),
+    blockType: text("block_type").$type<HomepageBlockType>().notNull(),
+    isEnabled: boolean("is_enabled").default(true).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    title: text("title"),
+    ctaLabel: text("cta_label"),
+    ctaHref: text("cta_href"),
+    sourceType: text("source_type").$type<HomepageCarouselSourceType>(),
+    categoryId: text("category_id").references(() => categories.id, {
+      onDelete: "set null",
+    }),
+    itemLimit: integer("item_limit").default(8).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (t) => [
+    unique("homepage_sections_section_key_unique").on(t.sectionKey),
+    index("idx_homepage_sections_sort").on(t.sortOrder),
+    index("idx_homepage_sections_block_type").on(t.blockType),
+    check(
+      "homepage_sections_carousel_source",
+      sql`(
+        ${t.blockType} <> 'carousel'
+        OR (
+          ${t.sourceType} IS NOT NULL
+          AND (
+            (${t.sourceType} = 'category' AND ${t.categoryId} IS NOT NULL)
+            OR (${t.sourceType} IN ('manual_products', 'best_sellers'))
+          )
+        )
+      )`
+    ),
+    check(
+      "homepage_sections_predefined_key",
+      sql`(
+        ${t.blockType} = 'carousel'
+        OR ${t.sectionKey} IS NOT NULL
+      )`
+    ),
+    check(
+      "homepage_sections_item_limit_positive",
+      sql`${t.itemLimit} > 0 AND ${t.itemLimit} <= 24`
+    ),
+  ]
+);
+
+export const homepageCarouselProducts = pgTable(
+  "homepage_carousel_products",
+  {
+    sectionId: text("section_id")
+      .notNull()
+      .references(() => homepageSections.id, { onDelete: "cascade" }),
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.sectionId, t.productId] }),
+    index("idx_homepage_carousel_products_section").on(t.sectionId),
+  ]
+);
+
+export const homepageSectionsRelations = relations(
+  homepageSections,
+  ({ one, many }) => ({
+    category: one(categories, {
+      fields: [homepageSections.categoryId],
+      references: [categories.id],
+    }),
+    carouselProducts: many(homepageCarouselProducts),
+  })
+);
+
+export const homepageCarouselProductsRelations = relations(
+  homepageCarouselProducts,
+  ({ one }) => ({
+    section: one(homepageSections, {
+      fields: [homepageCarouselProducts.sectionId],
+      references: [homepageSections.id],
+    }),
+    product: one(products, {
+      fields: [homepageCarouselProducts.productId],
+      references: [products.id],
+    }),
+  })
+);
+
+// #endregion Homepage sections
+
 // #region Hero banners
 
 export const heroBanners = pgTable(

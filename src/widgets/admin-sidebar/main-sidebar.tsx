@@ -10,6 +10,7 @@ import {
   FileTextIcon,
   FlaskConicalIcon,
   ImagesIcon,
+  LayoutTemplateIcon,
   MessageSquareIcon,
   NewspaperIcon,
   Package2Icon,
@@ -22,6 +23,7 @@ import {
   WalletIcon,
   WheatIcon,
 } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ComponentProps, useMemo } from "react";
@@ -58,6 +60,11 @@ const NAV_MAIN: NavItem[] = [
       { href: "/admin/eshop/stores", label: "Predajne", icon: StoreIcon },
       { href: "/admin/eshop/categories", label: "Kategórie", icon: TagsIcon },
       { href: "/admin/eshop/products", label: "Produkty", icon: Package2Icon },
+      {
+        href: "/admin/eshop/homepage" as Route,
+        label: "Domovská stránka",
+        icon: LayoutTemplateIcon,
+      },
       {
         href: "/admin/eshop/orders",
         label: "Objednávky",
