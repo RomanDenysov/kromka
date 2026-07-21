@@ -15,43 +15,58 @@ export interface NavItem<T extends string = string> {
   label: string;
 }
 
-export const isActiveRoute = (
+export function isActiveRoute(
   pathname: string,
   href: string,
   exact?: boolean
-): boolean => (exact ? pathname === href : pathname.startsWith(href));
+): boolean {
+  return exact ? pathname === href : pathname.startsWith(href);
+}
 
 /** Longest matching href wins when multiple nav items match the pathname. */
-export const findActiveNavItem = (
+export function findActiveNavItem(
   pathname: string,
   items: NavItem[]
-): NavItem | null =>
-  items
-    .filter((item) => isActiveRoute(pathname, item.href, item.exact))
-    .sort((a, b) => b.href.length - a.href.length)[0] ?? null;
+): NavItem | null {
+  let best: NavItem | null = null;
+
+  for (const item of items) {
+    if (!isActiveRoute(pathname, item.href, item.exact)) {
+      continue;
+    }
+    if (!best || item.href.length > best.href.length) {
+      best = item;
+    }
+  }
+
+  return best;
+}
 
 const MAX_BADGE_COUNT = 99;
 
-export const formatBadgeCount = (count: number): string | null => {
+export function formatBadgeCount(count: number): string | null {
   if (count <= 0) {
     return null;
   }
 
   return count > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : String(count);
-};
+}
 
-export const getNavItemBadgeCount = (
+export function getNavItemBadgeCount(
   item: NavItem,
   badges: AdminSidebarBadges
-): number => {
+): number {
   if (item.badgeKey) {
     return badges[item.badgeKey];
   }
 
-  return (
-    item.items?.reduce(
-      (sum, subItem) => sum + getNavItemBadgeCount(subItem, badges),
-      0
-    ) ?? 0
-  );
-};
+  if (!item.items?.length) {
+    return 0;
+  }
+
+  let sum = 0;
+  for (const subItem of item.items) {
+    sum += getNavItemBadgeCount(subItem, badges);
+  }
+  return sum;
+}

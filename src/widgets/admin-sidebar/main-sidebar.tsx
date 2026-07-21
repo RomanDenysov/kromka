@@ -3,7 +3,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { type ComponentProps, useMemo } from "react";
+import type { ComponentProps } from "react";
 import { Icons } from "@/components/icons";
 import {
   Sidebar,
@@ -17,8 +17,9 @@ import {
   SidebarMenuSkeleton,
 } from "@/components/ui/sidebar";
 import {
-  getAllDomainNavItems,
-  getDomainNavItems,
+  allDomainNavItems,
+  domainNavBottom,
+  domainNavMain,
 } from "@/features/admin-shell/nav";
 import type { AdminSidebarBadges } from "@/features/admin-sidebar/badge-types";
 import { cn } from "@/lib/utils";
@@ -105,19 +106,36 @@ function NavMenuItem({
   );
 }
 
+function DomainNavMenu({
+  activeHref,
+  badges,
+  items,
+}: {
+  activeHref: string | undefined;
+  badges: AdminSidebarBadges;
+  items: NavItem[];
+}) {
+  return (
+    <>
+      {items.map((item) => (
+        <NavMenuItem
+          badges={badges}
+          isActive={activeHref === item.href}
+          item={item}
+          key={item.href}
+        />
+      ))}
+    </>
+  );
+}
+
 type MainSidebarProps = ComponentProps<typeof Sidebar> & {
   badges: AdminSidebarBadges;
 };
 
 export default function MainSidebar({ badges, ...props }: MainSidebarProps) {
   const pathname = usePathname();
-  const navMain = useMemo(() => getDomainNavItems("main"), []);
-  const navBottom = useMemo(() => getDomainNavItems("bottom"), []);
-  const allNav = useMemo(() => getAllDomainNavItems(), []);
-  const segment = useMemo(
-    () => findActiveNavItem(pathname, allNav),
-    [pathname, allNav]
-  );
+  const activeHref = findActiveNavItem(pathname, allDomainNavItems)?.href;
 
   return (
     <Sidebar collapsible="icon" variant="floating" {...props}>
@@ -126,27 +144,21 @@ export default function MainSidebar({ badges, ...props }: MainSidebarProps) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {navMain.map((item) => (
-              <NavMenuItem
-                badges={badges}
-                isActive={segment?.href === item.href}
-                item={item}
-                key={item.href}
-              />
-            ))}
+            <DomainNavMenu
+              activeHref={activeHref}
+              badges={badges}
+              items={domainNavMain}
+            />
           </SidebarMenu>
         </SidebarGroup>
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
-              {navBottom.map((item) => (
-                <NavMenuItem
-                  badges={badges}
-                  isActive={segment?.href === item.href}
-                  item={item}
-                  key={item.href}
-                />
-              ))}
+              <DomainNavMenu
+                activeHref={activeHref}
+                badges={badges}
+                items={domainNavBottom}
+              />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

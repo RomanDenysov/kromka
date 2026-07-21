@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import {
   findActiveNavItem,
   formatBadgeCount,
-  type NavItem,
 } from "@/widgets/admin-sidebar/sidebar-utils";
 import { getSectionTabs } from "../config.shared";
 
@@ -31,19 +30,20 @@ export function AdminSectionTabs({
     return null;
   }
 
-  const navItems: NavItem[] = tabs.map((tab) => ({
-    href: tab.href as Route,
-    label: tab.label,
-    badgeKey: tab.badgeKey,
-  }));
-
-  const active = findActiveNavItem(pathname, navItems);
+  const activeHref = findActiveNavItem(
+    pathname,
+    tabs.map((tab) => ({
+      href: tab.href as Route,
+      label: tab.label,
+      badgeKey: tab.badgeKey,
+    }))
+  )?.href;
 
   return (
     <nav className={cn("border-b px-4", className)}>
       <ul className="scrollbar-hide flex justify-start gap-1 overflow-x-auto py-2">
         {tabs.map((tab) => {
-          const isActive = active?.href === tab.href;
+          const isActive = activeHref === tab.href;
           const badgeCount = tab.badgeKey && badges ? badges[tab.badgeKey] : 0;
           const badgeLabel = formatBadgeCount(badgeCount);
 

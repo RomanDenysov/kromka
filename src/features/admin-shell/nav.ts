@@ -1,13 +1,24 @@
 import type { Route } from "next";
-import type { AdminSidebarBadgeKey } from "@/features/admin-sidebar/badge-types";
+import type { AdminSidebarBadges } from "@/features/admin-sidebar/badge-types";
 import type { NavItem } from "@/widgets/admin-sidebar/sidebar-utils";
-import { getDomainHref, getSectionHref, listDomains } from "./config.shared";
+import {
+  getDomain,
+  getDomainHref,
+  getSectionHref,
+  listDomains,
+} from "./config.shared";
 import { getAdminIcon } from "./icon-map";
 
-export function getDomainNavItems(placement: "main" | "bottom"): NavItem[] {
-  return listDomains({ placement }).map((domain) => {
-    const sections = Object.values(domain.sections);
-    const items: NavItem[] | undefined =
+function buildDomainNavItem(
+  domain: ReturnType<typeof listDomains>[number]
+): NavItem {
+  const sections = Object.values(domain.sections);
+
+  return {
+    href: getDomainHref(domain.slug) as Route,
+    label: domain.label,
+    icon: getAdminIcon(domain.icon),
+    items:
       sections.length > 0
         ? sections.map((section) => ({
             href: getSectionHref(domain.slug, section.slug) as Route,
@@ -15,34 +26,36 @@ export function getDomainNavItems(placement: "main" | "bottom"): NavItem[] {
             icon: section.icon ? getAdminIcon(section.icon) : undefined,
             badgeKey: section.badgeKey,
           }))
-        : undefined;
-
-    return {
-      href: getDomainHref(domain.slug) as Route,
-      label: domain.label,
-      icon: getAdminIcon(domain.icon),
-      items,
-    };
-  });
+        : undefined,
+  };
 }
 
+export function getDomainNavItems(placement: "main" | "bottom"): NavItem[] {
+  return listDomains({ placement }).map(buildDomainNavItem);
+}
+
+export const domainNavMain = getDomainNavItems("main");
+export const domainNavBottom = getDomainNavItems("bottom");
+export const allDomainNavItems = [...domainNavMain, ...domainNavBottom];
+
 export function getAllDomainNavItems(): NavItem[] {
-  return [...getDomainNavItems("main"), ...getDomainNavItems("bottom")];
+  return allDomainNavItems;
 }
 
 export function getDomainBadgeCount(
   domainSlug: string,
-  badges: Record<AdminSidebarBadgeKey, number>
+  badges: AdminSidebarBadges
 ): number {
-  const domain = listDomains().find((d) => d.slug === domainSlug);
+  const domain = getDomain(domainSlug);
   if (!domain) {
     return 0;
   }
 
-  return Object.values(domain.sections).reduce((sum, section) => {
-    if (!section.badgeKey) {
-      return sum;
+  let sum = 0;
+  for (const section of Object.values(domain.sections)) {
+    if (section.badgeKey) {
+      sum += badges[section.badgeKey];
     }
-    return sum + badges[section.badgeKey];
-  }, 0);
+  }
+  return sum;
 }
