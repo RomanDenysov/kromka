@@ -23,9 +23,53 @@ export type AdminIconId =
   | "wallet"
   | "wheat";
 
+export type ActionId = string;
+
+export interface FilterDef {
+  key: string;
+  label: string;
+  options: readonly string[] | "dynamic";
+}
+
+export interface ColumnDef {
+  align?: "left" | "right";
+  key: string;
+  label: string;
+  render?: "text" | "status" | "number" | "date" | "money" | "icon";
+  sortable?: boolean;
+}
+
+export interface TableViewConfig {
+  bulkActions?: ActionId[];
+  columns: ColumnDef[];
+  rowActions: ActionId[];
+  view: "table";
+}
+
+export interface CardViewConfig {
+  badge?: string;
+  image?: string;
+  title: string;
+}
+
+export interface GridViewConfig {
+  card: CardViewConfig;
+  rowActions: ActionId[];
+  view: "grid";
+}
+
+export type SectionViewConfig = TableViewConfig | GridViewConfig;
+
 export interface SectionConfig {
   badgeKey?: AdminSidebarBadgeKey;
+  defaultView?: "table" | "grid";
+  detail?: boolean;
+  entity?: string;
+  filters?: FilterDef[];
   label: string;
+  primaryAction?: ActionId;
+  search?: { fields: string[]; placeholder: string };
+  views?: SectionViewConfig[];
 }
 
 export interface DomainConfig {
@@ -37,6 +81,11 @@ export interface DomainConfig {
 
 export type AdminConfig = Record<string, DomainConfig>;
 
+export type SectionQueryFn = (
+  params: Record<string, unknown>
+) => Promise<unknown[]>;
+
 export interface AdminServerBindings {
   counters: Record<AdminSidebarBadgeKey, () => Promise<number>>;
+  queries: Record<string, SectionQueryFn>;
 }

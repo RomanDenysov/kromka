@@ -6,7 +6,39 @@ export const adminConfig = {
     icon: "store",
     placement: "main",
     sections: {
-      stores: { label: "Predajne" },
+      stores: {
+        label: "Predajne",
+        entity: "store",
+        defaultView: "table",
+        views: [
+          {
+            view: "table",
+            columns: [
+              { key: "name", label: "Názov", sortable: true },
+              { key: "isActive", label: "Stav", render: "status" },
+            ],
+            rowActions: ["store.toggleActive", "store.edit", "store.delete"],
+          },
+          {
+            view: "grid",
+            card: { title: "name", badge: "isActive" },
+            rowActions: ["store.toggleActive", "store.edit"],
+          },
+        ],
+        search: {
+          placeholder: "Hľadať predajne...",
+          fields: ["name"],
+        },
+        filters: [
+          {
+            key: "isActive",
+            label: "Stav",
+            options: ["all", "true", "false"],
+          },
+        ],
+        primaryAction: "store.create",
+        detail: true,
+      },
       categories: { label: "Kategórie" },
       products: { label: "Produkty" },
       homepage: { label: "Domovská stránka" },

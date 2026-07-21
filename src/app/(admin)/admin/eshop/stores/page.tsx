@@ -1,16 +1,20 @@
 import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
 import { EditStoreSheet } from "@/components/sheets/edit-store-sheet";
-import { StoresTable } from "@/components/tables/stores/table";
-import {
-  getAdminStoreById,
-  getAdminStores,
-} from "@/features/stores/api/queries";
+import { renderSection } from "@/features/admin-shell/render-section";
+import { getAdminStoreById } from "@/features/stores/api/queries";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
-async function StoresLoader() {
-  const stores = await getAdminStores();
-  return <StoresTable stores={stores} />;
+async function StoresSection({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  return await renderSection({
+    domain: "eshop",
+    section: "stores",
+    searchParams,
+  });
 }
 
 async function StoreSheetLoader({
@@ -31,11 +35,16 @@ export default function StoresPage({
 }: PageProps<"/admin/eshop/stores">) {
   return (
     <>
-      <section className="h-full flex-1">
-        <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-          <StoresLoader />
-        </Suspense>
-      </section>
+      <Suspense
+        fallback={
+          <div className="space-y-3 p-3">
+            <div className="h-8" />
+            <DataTableSkeleton columnCount={5} rowCount={5} />
+          </div>
+        }
+      >
+        <StoresSection searchParams={searchParams} />
+      </Suspense>
       <Suspense fallback={null}>
         <StoreSheetLoader searchParams={searchParams} />
       </Suspense>

@@ -6,9 +6,9 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
+import { toggleIsActiveStoresAction } from "@/features/stores/api/actions";
 import type { AdminStore } from "@/features/stores/api/queries";
 import { cn } from "@/lib/utils";
-import { updateStoreStatusAction } from "./actions";
 
 export function StoreStatusSwitch({ store }: { store: AdminStore }) {
   const [isPending, startTransition] = useTransition();
@@ -19,7 +19,7 @@ export function StoreStatusSwitch({ store }: { store: AdminStore }) {
       const previousState = optimisticState;
       setOptimisticState(!previousState);
       try {
-        await updateStoreStatusAction(store.id);
+        await toggleIsActiveStoresAction({ ids: [store.id] });
       } catch {
         setOptimisticState(previousState);
         toast.error("Nepodarilo sa zmeniť stav predajne");

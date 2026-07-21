@@ -9,6 +9,7 @@ import {
   getOrdersCount,
 } from "@/features/admin-dashboard/api/queries";
 import type { AdminSidebarBadges } from "@/features/admin-sidebar/badge-types";
+import { getAdminStores } from "@/features/stores/api/queries";
 import type { AdminServerBindings } from "./types";
 
 async function getPendingCommentsCount(): Promise<number> {
@@ -35,7 +36,7 @@ async function getPendingApplicationsCount(): Promise<number> {
     .then((res) => res[0]?.count ?? 0);
 }
 
-/** Counter bindings keyed by section `badgeKey` values in adminConfig. */
+/** Server bindings: badge counters + section list queries. */
 export const serverBindings = {
   counters: {
     newOrders: getOrdersCount,
@@ -43,9 +44,12 @@ export const serverBindings = {
     pendingComments: getPendingCommentsCount,
     pendingApplications: getPendingApplicationsCount,
   },
+  queries: {
+    "eshop.stores": async (_params) => getAdminStores(),
+  },
 } satisfies AdminServerBindings;
 
-/** Resolve all configured badge counters. Invalidated via orders, comments, b2b-applications, carts tags. */
+/** Resolve all configured badge counters. */
 export async function resolveAdminBadges(): Promise<AdminSidebarBadges> {
   const [newOrders, activeCarts, pendingComments, pendingApplications] =
     await Promise.all([
