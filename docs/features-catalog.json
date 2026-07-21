@@ -1095,8 +1095,7 @@
         }
       ],
       "components": [
-        "admin-domain-layout - Domain header + section tabs wrapper",
-        "admin-icon-rail - Server icon rail with resolved counter counts"
+        "admin-domain-layout - Domain header + section tabs wrapper"
       ],
       "dependencies": [],
       "routes": [

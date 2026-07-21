@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { type CSSProperties, Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AdminIconRail } from "@/features/admin-shell/components/admin-icon-rail";
-import { AppSidebarSkeleton } from "@/widgets/admin-sidebar/main-sidebar";
+import { getNavBadgeCountsByHref } from "@/features/admin-shell/config.server";
+import MainSidebar, {
+  AppSidebarSkeleton,
+} from "@/widgets/admin-sidebar/main-sidebar";
 
 export const metadata: Metadata = {
   title: {
@@ -12,6 +14,11 @@ export const metadata: Metadata = {
   description:
     "Admin panel Pekárne Kromka. Zobrazí sa iba pre administrátorov.",
 };
+
+async function IconRail() {
+  const counts = await getNavBadgeCountsByHref();
+  return <MainSidebar counts={counts} />;
+}
 
 export default function AdminLayout({
   children,
@@ -27,7 +34,7 @@ export default function AdminLayout({
       }
     >
       <Suspense fallback={<AppSidebarSkeleton collapsible="icon" />}>
-        <AdminIconRail />
+        <IconRail />
       </Suspense>
 
       <SidebarInset>{children}</SidebarInset>
