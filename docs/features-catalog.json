@@ -1073,14 +1073,19 @@
       "businessLogic": [
         "adminConfig is the single source of truth for domain/section nav (labels, icons, badge keys, placement)",
         "Icon rail shows domains; section tabs render via SecondaryNav in domain layouts",
-        "Badge keys map to AdminSidebarBadges; aggregation stays in sidebar utils"
+        "Badge counters live in config.server serverBindings; resolveAdminBadges() feeds rail + tabs"
       ],
       "actions": [],
-      "queries": [],
+      "queries": [
+        {
+          "name": "resolveAdminBadges",
+          "description": "Runs serverBindings.counters for all badge keys"
+        }
+      ],
       "components": [
         "admin-domain-layout - Domain header + section tabs wrapper"
       ],
-      "dependencies": ["admin-sidebar"],
+      "dependencies": [],
       "routes": [
         "/admin/eshop/*",
         "/admin/blog/*",
@@ -1090,10 +1095,10 @@
         "/admin/system/*"
       ],
       "tables": {
-        "reads": [],
+        "reads": ["orders", "carts", "postComments", "b2bApplications"],
         "writes": []
       },
-      "cacheTags": []
+      "cacheTags": ["orders", "carts", "comments", "b2b-applications"]
     },
     {
       "name": "daily-view-sidebar",

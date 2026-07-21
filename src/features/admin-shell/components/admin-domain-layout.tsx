@@ -1,12 +1,12 @@
 import type { Route } from "next";
 import { type ReactNode, Suspense } from "react";
 import { SecondaryNav } from "@/components/secondary-nav";
+import { resolveAdminBadges } from "@/features/admin-shell/config.server";
 import {
   getDomain,
   getDomainHref,
   getSectionTabs,
 } from "@/features/admin-shell/config.shared";
-import { getAdminSidebarBadges } from "@/features/admin-sidebar/api/queries";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 interface AdminDomainLayoutProps {
@@ -15,7 +15,7 @@ interface AdminDomainLayoutProps {
 }
 
 async function DomainSectionTabs({ domainSlug }: { domainSlug: string }) {
-  const badges = await getAdminSidebarBadges();
+  const badges = await resolveAdminBadges();
   const items = getSectionTabs(domainSlug).map((tab) => ({
     href: tab.href as Route,
     label: tab.label,

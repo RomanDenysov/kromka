@@ -1,8 +1,8 @@
-import { getAdminSidebarBadges } from "@/features/admin-sidebar/api/queries";
+import { resolveAdminBadges } from "@/features/admin-shell/config.server";
 import MainSidebar from "@/widgets/admin-sidebar/main-sidebar";
 
 export async function AdminSidebar() {
-  const badges = await getAdminSidebarBadges();
+  const badges = await resolveAdminBadges();
 
   return <MainSidebar badges={badges} />;
 }

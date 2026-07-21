@@ -9,11 +9,7 @@ import {
   getOrdersCount,
 } from "@/features/admin-dashboard/api/queries";
 import type { AdminSidebarBadges } from "@/features/admin-sidebar/badge-types";
-
-export type {
-  AdminSidebarBadgeKey,
-  AdminSidebarBadges,
-} from "@/features/admin-sidebar/badge-types";
+import type { AdminServerBindings } from "./types";
 
 async function getPendingCommentsCount(): Promise<number> {
   "use cache";
@@ -39,20 +35,30 @@ async function getPendingApplicationsCount(): Promise<number> {
     .then((res) => res[0]?.count ?? 0);
 }
 
-/** Counts for admin sidebar badges. Invalidated via orders, comments, b2b-applications, carts tags. */
-export async function getAdminSidebarBadges(): Promise<AdminSidebarBadges> {
-  const [newOrders, pendingComments, pendingApplications, activeCarts] =
+/** Counter bindings keyed by section `badgeKey` values in adminConfig. */
+export const serverBindings = {
+  counters: {
+    newOrders: getOrdersCount,
+    activeCarts: getCartsCount,
+    pendingComments: getPendingCommentsCount,
+    pendingApplications: getPendingApplicationsCount,
+  },
+} satisfies AdminServerBindings;
+
+/** Resolve all configured badge counters. Invalidated via orders, comments, b2b-applications, carts tags. */
+export async function resolveAdminBadges(): Promise<AdminSidebarBadges> {
+  const [newOrders, activeCarts, pendingComments, pendingApplications] =
     await Promise.all([
-      getOrdersCount(),
-      getPendingCommentsCount(),
-      getPendingApplicationsCount(),
-      getCartsCount(),
+      serverBindings.counters.newOrders(),
+      serverBindings.counters.activeCarts(),
+      serverBindings.counters.pendingComments(),
+      serverBindings.counters.pendingApplications(),
     ]);
 
   return {
     newOrders,
+    activeCarts,
     pendingComments,
     pendingApplications,
-    activeCarts,
   };
 }

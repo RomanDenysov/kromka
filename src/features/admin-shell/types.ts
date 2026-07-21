@@ -36,3 +36,7 @@ export interface DomainConfig {
 }
 
 export type AdminConfig = Record<string, DomainConfig>;
+
+export interface AdminServerBindings {
+  counters: Record<AdminSidebarBadgeKey, () => Promise<number>>;
+}
