@@ -21,12 +21,10 @@ import {
   domainNavBottom,
   domainNavMain,
 } from "@/features/admin-shell/nav";
-import type { AdminSidebarBadges } from "@/features/admin-sidebar/badge-types";
 import { cn } from "@/lib/utils";
 import {
   findActiveNavItem,
   formatBadgeCount,
-  getNavItemBadgeCount,
   type NavItem,
 } from "./sidebar-utils";
 
@@ -74,16 +72,15 @@ function NavBadge({ count, isActive }: { count: number; isActive?: boolean }) {
 }
 
 function NavMenuItem({
-  badges,
+  count,
   item,
   isActive,
 }: {
-  badges: AdminSidebarBadges;
+  count: number;
   item: NavItem;
   isActive: boolean;
 }) {
   const Icon = item.icon;
-  const badgeCount = getNavItemBadgeCount(item, badges);
 
   return (
     <SidebarMenuItem className="relative">
@@ -101,25 +98,25 @@ function NavMenuItem({
           <span>{item.label}</span>
         </Link>
       </SidebarMenuButton>
-      <NavBadge count={badgeCount} isActive={isActive} />
+      <NavBadge count={count} isActive={isActive} />
     </SidebarMenuItem>
   );
 }
 
 function DomainNavMenu({
   activeHref,
-  badges,
+  counts,
   items,
 }: {
   activeHref: string | undefined;
-  badges: AdminSidebarBadges;
+  counts: Record<string, number>;
   items: NavItem[];
 }) {
   return (
     <>
       {items.map((item) => (
         <NavMenuItem
-          badges={badges}
+          count={counts[item.href] ?? 0}
           isActive={activeHref === item.href}
           item={item}
           key={item.href}
@@ -130,10 +127,11 @@ function DomainNavMenu({
 }
 
 type MainSidebarProps = ComponentProps<typeof Sidebar> & {
-  badges: AdminSidebarBadges;
+  /** href → count, resolved from adminConfig badgeKeys + serverBindings.counters */
+  counts: Record<string, number>;
 };
 
-export default function MainSidebar({ badges, ...props }: MainSidebarProps) {
+export default function MainSidebar({ counts, ...props }: MainSidebarProps) {
   const pathname = usePathname();
   const activeHref = findActiveNavItem(pathname, allDomainNavItems)?.href;
 
@@ -146,7 +144,7 @@ export default function MainSidebar({ badges, ...props }: MainSidebarProps) {
           <SidebarMenu>
             <DomainNavMenu
               activeHref={activeHref}
-              badges={badges}
+              counts={counts}
               items={domainNavMain}
             />
           </SidebarMenu>
@@ -156,7 +154,7 @@ export default function MainSidebar({ badges, ...props }: MainSidebarProps) {
             <SidebarMenu>
               <DomainNavMenu
                 activeHref={activeHref}
-                badges={badges}
+                counts={counts}
                 items={domainNavBottom}
               />
             </SidebarMenu>

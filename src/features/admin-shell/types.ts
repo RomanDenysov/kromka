@@ -1,5 +1,3 @@
-import type { AdminSidebarBadgeKey } from "@/features/admin-sidebar/badge-types";
-
 export type AdminIconId =
   | "activity"
   | "briefcase"
@@ -22,6 +20,13 @@ export type AdminIconId =
   | "users"
   | "wallet"
   | "wheat";
+
+/** Keys of serverBindings.counters — referenced from section.badgeKey in adminConfig. */
+export type CounterKey =
+  | "activeCarts"
+  | "newOrders"
+  | "pendingApplications"
+  | "pendingComments";
 
 export type ActionId = string;
 
@@ -61,7 +66,7 @@ export interface GridViewConfig {
 export type SectionViewConfig = TableViewConfig | GridViewConfig;
 
 export interface SectionConfig {
-  badgeKey?: AdminSidebarBadgeKey;
+  badgeKey?: CounterKey;
   defaultView?: "table" | "grid";
   detail?: boolean;
   entity?: string;
@@ -86,6 +91,6 @@ export type SectionQueryFn = (
 ) => Promise<unknown[]>;
 
 export interface AdminServerBindings {
-  counters: Record<AdminSidebarBadgeKey, () => Promise<number>>;
+  counters: Record<CounterKey, () => Promise<number>>;
   queries: Record<string, SectionQueryFn>;
 }

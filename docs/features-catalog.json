@@ -1073,14 +1073,21 @@
       "businessLogic": [
         "adminConfig is the single source of truth for domain/section nav (labels, icons, badge keys, placement)",
         "Icon rail shows domains; section tabs render via SecondaryNav in domain layouts",
-        "Badge counters live in config.server serverBindings; resolveAdminBadges() feeds rail + tabs",
-        "List sections use renderSection + nuqs (view/table|grid) with serverBindings.queries"
+        "Badge counts resolve from adminConfig.badgeKey → serverBindings.counters (no separate badges bag)"
       ],
       "actions": [],
       "queries": [
         {
-          "name": "resolveAdminBadges",
-          "description": "Runs serverBindings.counters for all badge keys"
+          "name": "resolveCounters",
+          "description": "Runs serverBindings.counters for keys used in adminConfig"
+        },
+        {
+          "name": "getNavBadgeCountsByHref",
+          "description": "href→count map for icon rail domains/sections"
+        },
+        {
+          "name": "getSectionTabsWithCounts",
+          "description": "Section tabs with counter values applied"
         },
         {
           "name": "renderSection",
@@ -1088,7 +1095,8 @@
         }
       ],
       "components": [
-        "admin-domain-layout - Domain header + section tabs wrapper"
+        "admin-domain-layout - Domain header + section tabs wrapper",
+        "admin-icon-rail - Server icon rail with resolved counter counts"
       ],
       "dependencies": [],
       "routes": [

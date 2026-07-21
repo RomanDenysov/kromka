@@ -1,6 +1,7 @@
 import "server-only";
 
 import { count, eq } from "drizzle-orm";
+import type { Route } from "next";
 import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/db";
 import { b2bApplications, postComments } from "@/db/schema";
@@ -8,9 +9,10 @@ import {
   getCartsCount,
   getOrdersCount,
 } from "@/features/admin-dashboard/api/queries";
-import type { AdminSidebarBadges } from "@/features/admin-sidebar/badge-types";
 import { getAdminStores } from "@/features/stores/api/queries";
-import type { AdminServerBindings } from "./types";
+import { adminConfig, getSectionTabs } from "./config.shared";
+import { allDomainNavItems } from "./nav";
+import type { AdminServerBindings, CounterKey } from "./types";
 
 async function getPendingCommentsCount(): Promise<number> {
   "use cache";
@@ -36,7 +38,7 @@ async function getPendingApplicationsCount(): Promise<number> {
     .then((res) => res[0]?.count ?? 0);
 }
 
-/** Server bindings: badge counters + section list queries. */
+/** Counter + list-query bindings for adminConfig. */
 export const serverBindings = {
   counters: {
     newOrders: getOrdersCount,
@@ -49,20 +51,58 @@ export const serverBindings = {
   },
 } satisfies AdminServerBindings;
 
-/** Resolve all configured badge counters. */
-export async function resolveAdminBadges(): Promise<AdminSidebarBadges> {
-  const [newOrders, activeCarts, pendingComments, pendingApplications] =
-    await Promise.all([
-      serverBindings.counters.newOrders(),
-      serverBindings.counters.activeCarts(),
-      serverBindings.counters.pendingComments(),
-      serverBindings.counters.pendingApplications(),
-    ]);
+function collectConfiguredCounterKeys(): CounterKey[] {
+  const keys = new Set<CounterKey>();
+  for (const domain of Object.values(adminConfig)) {
+    for (const section of Object.values(domain.sections)) {
+      if (section.badgeKey) {
+        keys.add(section.badgeKey);
+      }
+    }
+  }
+  return [...keys];
+}
 
-  return {
-    newOrders,
-    activeCarts,
-    pendingComments,
-    pendingApplications,
-  };
+/** Resolve only counters referenced by adminConfig sections. */
+export async function resolveCounters(): Promise<Record<CounterKey, number>> {
+  const keys = collectConfiguredCounterKeys();
+  const entries = await Promise.all(
+    keys.map(
+      async (key) => [key, await serverBindings.counters[key]()] as const
+    )
+  );
+  return Object.fromEntries(entries) as Record<CounterKey, number>;
+}
+
+/**
+ * href → count for icon rail domains (sum of section counters) and sections.
+ * Serializable — safe to pass into the client sidebar.
+ */
+export async function getNavBadgeCountsByHref(): Promise<
+  Record<string, number>
+> {
+  const counters = await resolveCounters();
+  const counts: Record<string, number> = {};
+
+  for (const item of allDomainNavItems) {
+    let domainSum = 0;
+    for (const sub of item.items ?? []) {
+      const n = sub.badgeKey ? (counters[sub.badgeKey] ?? 0) : 0;
+      counts[sub.href] = n;
+      domainSum += n;
+    }
+    counts[item.href] = domainSum;
+  }
+
+  return counts;
+}
+
+/** Section tabs with counter values already applied from serverBindings. */
+export async function getSectionTabsWithCounts(domainSlug: string) {
+  const counters = await resolveCounters();
+  return getSectionTabs(domainSlug).map((tab) => ({
+    href: tab.href as Route,
+    label: tab.label,
+    badge: tab.badgeKey ? counters[tab.badgeKey] : undefined,
+  }));
 }

@@ -1,12 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import type { Route } from "next";
-import type {
-  AdminSidebarBadgeKey,
-  AdminSidebarBadges,
-} from "@/features/admin-sidebar/badge-types";
+import type { CounterKey } from "@/features/admin-shell/types";
 
 export interface NavItem<T extends string = string> {
-  badgeKey?: AdminSidebarBadgeKey;
+  badgeKey?: CounterKey;
   exact?: boolean;
   href: Route<T>;
   icon?: LucideIcon;
@@ -50,23 +47,4 @@ export function formatBadgeCount(count: number): string | null {
   }
 
   return count > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : String(count);
-}
-
-export function getNavItemBadgeCount(
-  item: NavItem,
-  badges: AdminSidebarBadges
-): number {
-  if (item.badgeKey) {
-    return badges[item.badgeKey];
-  }
-
-  if (!item.items?.length) {
-    return 0;
-  }
-
-  let sum = 0;
-  for (const subItem of item.items) {
-    sum += getNavItemBadgeCount(subItem, badges);
-  }
-  return sum;
 }

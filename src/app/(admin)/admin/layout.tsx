@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { type CSSProperties, Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AdminSidebar } from "@/widgets/admin-sidebar/admin-sidebar";
+import { AdminIconRail } from "@/features/admin-shell/components/admin-icon-rail";
 import { AppSidebarSkeleton } from "@/widgets/admin-sidebar/main-sidebar";
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export default function AdminLayout({
       }
     >
       <Suspense fallback={<AppSidebarSkeleton collapsible="icon" />}>
-        <AdminSidebar />
+        <AdminIconRail />
       </Suspense>
 
       <SidebarInset>{children}</SidebarInset>
