@@ -3,173 +3,78 @@ import type { AdminConfig, DomainConfig, SectionConfig } from "./types";
 export const adminConfig = {
   eshop: {
     label: "E-shop",
-    slug: "eshop",
     icon: "store",
     placement: "main",
-    panel: "eshop.panel",
     sections: {
-      stores: {
-        label: "Predajne",
-        slug: "stores",
-        icon: "store",
-      },
-      categories: {
-        label: "Kategórie",
-        slug: "categories",
-        icon: "tags",
-      },
-      products: {
-        label: "Produkty",
-        slug: "products",
-        icon: "package",
-      },
-      homepage: {
-        label: "Domovská stránka",
-        slug: "homepage",
-        icon: "layout-template",
-      },
-      orders: {
-        label: "Objednávky",
-        slug: "orders",
-        icon: "clipboard-list",
-        badgeKey: "newOrders",
-      },
-      carts: {
-        label: "Košíky",
-        slug: "carts",
-        icon: "shopping-cart",
-        badgeKey: "activeCarts",
-      },
+      stores: { label: "Predajne" },
+      categories: { label: "Kategórie" },
+      products: { label: "Produkty" },
+      homepage: { label: "Domovská stránka" },
+      orders: { label: "Objednávky", badgeKey: "newOrders" },
+      carts: { label: "Košíky", badgeKey: "activeCarts" },
     },
   },
   blog: {
     label: "Blog",
-    slug: "blog",
     icon: "newspaper",
     placement: "main",
     sections: {
-      posts: {
-        label: "Články",
-        slug: "posts",
-        icon: "newspaper",
-      },
-      tags: {
-        label: "Štítky",
-        slug: "tags",
-        icon: "tags",
-      },
-      comments: {
-        label: "Komentáre",
-        slug: "comments",
-        icon: "message-square",
-        badgeKey: "pendingComments",
-      },
+      posts: { label: "Články" },
+      tags: { label: "Štítky" },
+      comments: { label: "Komentáre", badgeKey: "pendingComments" },
     },
   },
   b2b: {
     label: "B2B",
-    slug: "b2b",
     icon: "briefcase",
     placement: "main",
     sections: {
-      applications: {
-        label: "Žiadosti",
-        slug: "applications",
-        icon: "file-text",
-        badgeKey: "pendingApplications",
-      },
-      clients: {
-        label: "Klienti",
-        slug: "clients",
-        icon: "briefcase",
-      },
-      "price-tiers": {
-        label: "Cenové skupiny",
-        slug: "price-tiers",
-        icon: "wallet",
-      },
-      invoices: {
-        label: "Faktúry",
-        slug: "invoices",
-        icon: "file-text",
-      },
+      applications: { label: "Žiadosti", badgeKey: "pendingApplications" },
+      clients: { label: "Klienti" },
+      "price-tiers": { label: "Cenové skupiny" },
+      invoices: { label: "Faktúry" },
     },
   },
   production: {
     label: "Výroba",
-    slug: "production",
     icon: "factory",
     placement: "main",
     sections: {
-      recipes: {
-        label: "Recepty",
-        slug: "recipes",
-        icon: "chef-hat",
-      },
-      ingredients: {
-        label: "Suroviny",
-        slug: "ingredients",
-        icon: "wheat",
-      },
+      recipes: { label: "Recepty" },
+      ingredients: { label: "Suroviny" },
     },
   },
   reports: {
     label: "Reporty",
-    slug: "reports",
     icon: "chart-column",
     placement: "main",
     sections: {
-      products: {
-        label: "Ziskovosť produktov",
-        slug: "products",
-        icon: "trending-up",
-      },
-      stores: {
-        label: "Ziskovosť predajní",
-        slug: "stores",
-        icon: "trending-up",
-      },
+      products: { label: "Ziskovosť produktov" },
+      stores: { label: "Ziskovosť predajní" },
     },
   },
   system: {
     label: "Systém",
-    slug: "system",
     icon: "settings",
     placement: "bottom",
     sections: {
-      users: {
-        label: "Používatelia",
-        slug: "users",
-        icon: "users",
-      },
-      media: {
-        label: "Médiá",
-        slug: "media",
-        icon: "images",
-      },
-      activity: {
-        label: "Aktivita",
-        slug: "activity",
-        icon: "activity",
-      },
-      settings: {
-        label: "Nastavenia",
-        slug: "settings",
-        icon: "settings",
-      },
+      users: { label: "Používatelia" },
+      media: { label: "Médiá" },
+      activity: { label: "Aktivita" },
+      settings: { label: "Nastavenia" },
     },
   },
   playground: {
     label: "Playground",
-    slug: "playground",
     icon: "flask-conical",
     placement: "bottom",
     sections: {},
   },
 } as const satisfies AdminConfig;
 
-export type AdminConfigData = typeof adminConfig;
-export type AdminDomainSlug = keyof AdminConfigData;
+export type AdminDomainSlug = keyof typeof adminConfig;
+
+export type DomainWithSlug = DomainConfig & { slug: string };
 
 export function getDomainHref(slug: string): `/admin/${string}` {
   return `/admin/${slug}`;
@@ -182,22 +87,21 @@ export function getSectionHref(
   return `/admin/${domainSlug}/${sectionSlug}`;
 }
 
-export function getDomain(slug: string): DomainConfig | undefined {
-  return adminConfig[slug as AdminDomainSlug];
-}
-
-export function getDomainSections(slug: string): SectionConfig[] {
-  const domain = getDomain(slug);
+export function getDomain(slug: string): DomainWithSlug | undefined {
+  const domain = adminConfig[slug as AdminDomainSlug];
   if (!domain) {
-    return [];
+    return;
   }
-  return Object.values(domain.sections);
+  return { ...domain, slug };
 }
 
 export function listDomains(options?: {
   placement?: DomainConfig["placement"];
-}): DomainConfig[] {
-  const domains = Object.values(adminConfig);
+}): DomainWithSlug[] {
+  const domains = Object.entries(adminConfig).map(([slug, domain]) => ({
+    ...domain,
+    slug,
+  }));
   if (!options?.placement) {
     return domains;
   }
@@ -216,8 +120,8 @@ export function getSectionTabs(domainSlug: string): SectionTab[] {
     return [];
   }
 
-  return getDomainSections(domainSlug).map((section) => ({
-    href: getSectionHref(domain.slug, section.slug),
+  return Object.entries(domain.sections).map(([sectionSlug, section]) => ({
+    href: getSectionHref(domain.slug, sectionSlug),
     label: section.label,
     badgeKey: section.badgeKey,
   }));

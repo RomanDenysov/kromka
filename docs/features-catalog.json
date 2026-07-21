@@ -1071,16 +1071,14 @@
       "critical": false,
       "description": "Config-driven admin navigation shell. Shared adminConfig defines domains and sections; icon rail and domain section tabs are derived from it. List table/grid rendering is deferred.",
       "businessLogic": [
-        "adminConfig is the single source of truth for domain/section nav (labels, slugs, icons, badge keys, placement)",
-        "Icon rail shows domains; section tabs render in domain layouts",
-        "Badge keys map to AdminSidebarBadges; aggregation stays in sidebar utils",
-        "Forward-looking SectionListConfig (views/filters/search) reserved for table/grid PR"
+        "adminConfig is the single source of truth for domain/section nav (labels, icons, badge keys, placement)",
+        "Icon rail shows domains; section tabs render via SecondaryNav in domain layouts",
+        "Badge keys map to AdminSidebarBadges; aggregation stays in sidebar utils"
       ],
       "actions": [],
       "queries": [],
       "components": [
-        "admin-domain-layout - Domain header + section tabs wrapper",
-        "admin-section-tabs (use client) - Horizontal section tabs from config"
+        "admin-domain-layout - Domain header + section tabs wrapper"
       ],
       "dependencies": ["admin-sidebar"],
       "routes": [

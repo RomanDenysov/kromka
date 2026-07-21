@@ -14,7 +14,6 @@ import {
   NewspaperIcon,
   Package2Icon,
   SettingsIcon,
-  ShoppingBagIcon,
   ShoppingCartIcon,
   StoreIcon,
   TagsIcon,
@@ -40,7 +39,6 @@ export const adminIconMap: Record<AdminIconId, LucideIcon> = {
   newspaper: NewspaperIcon,
   package: Package2Icon,
   settings: SettingsIcon,
-  "shopping-bag": ShoppingBagIcon,
   "shopping-cart": ShoppingCartIcon,
   store: StoreIcon,
   tags: TagsIcon,
@@ -49,7 +47,3 @@ export const adminIconMap: Record<AdminIconId, LucideIcon> = {
   wallet: WalletIcon,
   wheat: WheatIcon,
 };
-
-export function getAdminIcon(id: AdminIconId): LucideIcon {
-  return adminIconMap[id];
-}
