@@ -8,7 +8,6 @@ import {
 } from "@/features/reports/components/profitability-kpis";
 import { resolvePeriod } from "@/features/reports/lib/period";
 import { getAdminStoreById } from "@/features/stores/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { StoreFormContainer } from "./_components/store-form-container";
 
 interface Props {
@@ -44,26 +43,17 @@ async function StoreProfitabilityStrip({ params }: Props) {
 
 export default function StorePage({ params }: Props) {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "E-shop", href: "/admin/eshop" },
-          { label: "Obchody", href: "/admin/eshop/stores" },
-          { label: "Upraviť obchod" },
-        ]}
-      />
-      <section className="@container/page h-full flex-1 space-y-6 p-4">
-        <Suspense fallback={<ProfitabilityKpisSkeleton />}>
-          <StoreProfitabilityStrip params={params} />
-        </Suspense>
-        <Suspense
-          fallback={
-            <FormSkeleton className="w-full @md/page:max-w-md shrink-0 p-4" />
-          }
-        >
-          <StoreLoader params={params} />
-        </Suspense>
-      </section>
-    </>
+    <section className="@container/page h-full flex-1 space-y-6 p-4">
+      <Suspense fallback={<ProfitabilityKpisSkeleton />}>
+        <StoreProfitabilityStrip params={params} />
+      </Suspense>
+      <Suspense
+        fallback={
+          <FormSkeleton className="w-full @md/page:max-w-md shrink-0 p-4" />
+        }
+      >
+        <StoreLoader params={params} />
+      </Suspense>
+    </section>
   );
 }

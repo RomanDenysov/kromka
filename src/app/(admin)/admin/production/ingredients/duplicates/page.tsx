@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getIngredientDuplicates } from "@/features/ingredients/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 async function DuplicatesContent() {
   const pairs = await getIngredientDuplicates(0.7);
@@ -78,28 +77,19 @@ async function DuplicatesContent() {
 export default function IngredientDuplicatesPage() {
   // Middleware guards /admin/*; server actions handle mutations.
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Výroba", href: "/admin/production" },
-          { label: "Suroviny", href: "/admin/production/ingredients" },
-          { label: "Duplicity" },
-        ]}
-      />
-      <section className="@container/page space-y-4 p-4">
-        <div>
-          <h2 className="font-semibold text-xl tracking-tight">
-            Možné duplicity
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Páry surovín s vysokou podobnosťou názvu. Diagnostický nástroj —
-            zlúčenie sa robí ručne (otvorte detail a porovnajte).
-          </p>
-        </div>
-        <Suspense fallback={<Skeleton className="h-64" />}>
-          <DuplicatesContent />
-        </Suspense>
-      </section>
-    </>
+    <section className="@container/page space-y-4 p-4">
+      <div>
+        <h2 className="font-semibold text-xl tracking-tight">
+          Možné duplicity
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Páry surovín s vysokou podobnosťou názvu. Diagnostický nástroj —
+          zlúčenie sa robí ručne (otvorte detail a porovnajte).
+        </p>
+      </div>
+      <Suspense fallback={<Skeleton className="h-64" />}>
+        <DuplicatesContent />
+      </Suspense>
+    </section>
   );
 }

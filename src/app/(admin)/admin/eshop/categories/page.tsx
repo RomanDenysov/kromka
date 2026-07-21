@@ -6,7 +6,6 @@ import {
   getAdminCategories,
   getAdminCategoryById,
 } from "@/features/categories/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
 async function CategoriesLoader() {
@@ -32,12 +31,6 @@ export default function CategoriesPage({
 }: PageProps<"/admin/eshop/categories">) {
   return (
     <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "E-shop", href: "/admin/eshop" },
-          { label: "Kategórie", href: "/admin/eshop/categories" },
-        ]}
-      />
       <section className="h-full flex-1">
         <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
           <CategoriesLoader />

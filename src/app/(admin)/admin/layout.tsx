@@ -21,7 +21,7 @@ export default function AdminLayout({
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 64)",
+          "--sidebar-width": "calc(var(--spacing) * 12)",
           "--header-height": "calc(var(--spacing) * 12)",
         } as CSSProperties
       }

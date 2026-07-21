@@ -6,7 +6,6 @@ import {
   getAdminStoreById,
   getAdminStores,
 } from "@/features/stores/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
 async function StoresLoader() {
@@ -32,13 +31,6 @@ export default function StoresPage({
 }: PageProps<"/admin/eshop/stores">) {
   return (
     <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "E-shop", href: "/admin/eshop" },
-          { label: "Obchody" },
-        ]}
-      />
-
       <section className="h-full flex-1">
         <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
           <StoresLoader />

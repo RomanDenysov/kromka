@@ -1,8 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import type { Route } from "next";
-import type { AdminSidebarBadges } from "@/features/admin-sidebar/api/queries";
-
-export type AdminSidebarBadgeKey = keyof AdminSidebarBadges;
+import type {
+  AdminSidebarBadgeKey,
+  AdminSidebarBadges,
+} from "@/features/admin-sidebar/badge-types";
 
 export interface NavItem<T extends string = string> {
   badgeKey?: AdminSidebarBadgeKey;

@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getUserById } from "@/features/user-management/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { UserDetailContent } from "./_components/user-detail-content";
 
 interface Props {
@@ -29,20 +28,11 @@ async function UserLoader({ params }: Props) {
 
 export default function AdminUserPage({ params }: Props) {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Systém", href: "/admin/system" },
-          { label: "Používatelia", href: "/admin/system/users" },
-          { label: "Detail používateľa" },
-        ]}
-      />
-      <section className="@container/page h-full flex-1 p-4">
-        <Suspense fallback={<UserDetailSkeleton />}>
-          <UserLoader params={params} />
-        </Suspense>
-      </section>
-    </>
+    <section className="@container/page h-full flex-1 p-4">
+      <Suspense fallback={<UserDetailSkeleton />}>
+        <UserLoader params={params} />
+      </Suspense>
+    </section>
   );
 }
 

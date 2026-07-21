@@ -2,7 +2,6 @@ import Image from "next/image";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getMedia } from "@/features/media-library/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 async function MediaLoader() {
   const media = await getMedia();
@@ -24,27 +23,19 @@ async function MediaLoader() {
 
 export default function MediaPage() {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Systém", href: "/admin/system" },
-          { label: "Médiá", href: "/admin/system/media" },
-        ]}
-      />
-      <section className="grid h-full flex-1 grid-cols-2 gap-4 p-4 md:grid-cols-4 xl:grid-cols-6">
-        <Suspense
-          fallback={
-            <>
-              <Skeleton className="aspect-square size-full" />
-              <Skeleton className="aspect-square size-full" />
-              <Skeleton className="aspect-square size-full" />
-              <Skeleton className="aspect-square size-full" />
-            </>
-          }
-        >
-          <MediaLoader />
-        </Suspense>
-      </section>
-    </>
+    <section className="grid h-full flex-1 grid-cols-2 gap-4 p-4 md:grid-cols-4 xl:grid-cols-6">
+      <Suspense
+        fallback={
+          <>
+            <Skeleton className="aspect-square size-full" />
+            <Skeleton className="aspect-square size-full" />
+            <Skeleton className="aspect-square size-full" />
+            <Skeleton className="aspect-square size-full" />
+          </>
+        }
+      >
+        <MediaLoader />
+      </Suspense>
+    </section>
   );
 }

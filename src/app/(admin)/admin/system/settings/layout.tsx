@@ -1,4 +1,3 @@
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { TabNav } from "./tab-nav";
 
 export default function SettingsLayout({
@@ -6,9 +5,6 @@ export default function SettingsLayout({
 }: LayoutProps<"/admin/system/settings">) {
   return (
     <>
-      <AdminHeader
-        breadcrumbs={[{ label: "Nastavenia", href: "/admin/system/settings" }]}
-      />
       <TabNav />
       <section className="h-full flex-1 p-4">{children}</section>
     </>

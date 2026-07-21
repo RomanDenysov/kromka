@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createRecipeAction } from "@/features/recipes/api/actions";
 import { getRecipes } from "@/features/recipes/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
 async function RecipesLoader() {
@@ -72,30 +71,22 @@ async function RecipesLoader() {
 export default function RecipesPage() {
   // Middleware guards /admin/*; server actions handle mutations.
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Výroba", href: "/admin/production" },
-          { label: "Recepty" },
-        ]}
-      />
-      <section className="@container/page space-y-4 p-4">
-        <div className="flex items-center justify-end gap-2">
-          <Button asChild size="sm" variant="outline">
-            <a href="/admin/production/recipes/drift">Rozdiely alergénov</a>
+    <section className="@container/page space-y-4 p-4">
+      <div className="flex items-center justify-end gap-2">
+        <Button asChild size="sm" variant="outline">
+          <a href="/admin/production/recipes/drift">Rozdiely alergénov</a>
+        </Button>
+        <form action={createSubRecipe}>
+          <Button size="sm" type="submit">
+            + Nový subrecept
           </Button>
-          <form action={createSubRecipe}>
-            <Button size="sm" type="submit">
-              + Nový subrecept
-            </Button>
-          </form>
-        </div>
+        </form>
+      </div>
 
-        <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={6} />}>
-          <RecipesLoader />
-        </Suspense>
-      </section>
-    </>
+      <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={6} />}>
+        <RecipesLoader />
+      </Suspense>
+    </section>
   );
 }
 

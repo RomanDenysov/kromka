@@ -13,7 +13,6 @@ import {
   marginColor,
 } from "@/features/reports/lib/format";
 import { resolvePeriod } from "@/features/reports/lib/period";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 interface Props {
   searchParams: Promise<{ period?: string; minQty?: string }>;
@@ -104,30 +103,20 @@ async function ExportButton({ searchParams }: Props) {
 export default function ProductProfitabilityPage({ searchParams }: Props) {
   // Middleware guards /admin/*; the CSV export route enforces requireReportsView.
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Reporty", href: "/admin/reports" },
-          { label: "Ziskovosť produktov" },
-        ]}
-      />
-      <section className="@container/page space-y-4 p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Suspense fallback={<div className="h-9 w-48" />}>
-            <PeriodPicker basePath="/admin/reports/products" />
-          </Suspense>
-          <Suspense fallback={null}>
-            <ExportButton searchParams={searchParams} />
-          </Suspense>
-        </div>
-        <Suspense
-          fallback={
-            <div className="h-64 animate-pulse rounded-lg bg-muted/40" />
-          }
-        >
-          <ProductReport searchParams={searchParams} />
+    <section className="@container/page space-y-4 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Suspense fallback={<div className="h-9 w-48" />}>
+          <PeriodPicker basePath="/admin/reports/products" />
         </Suspense>
-      </section>
-    </>
+        <Suspense fallback={null}>
+          <ExportButton searchParams={searchParams} />
+        </Suspense>
+      </div>
+      <Suspense
+        fallback={<div className="h-64 animate-pulse rounded-lg bg-muted/40" />}
+      >
+        <ProductReport searchParams={searchParams} />
+      </Suspense>
+    </section>
   );
 }

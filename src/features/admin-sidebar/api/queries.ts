@@ -8,13 +8,12 @@ import {
   getCartsCount,
   getOrdersCount,
 } from "@/features/admin-dashboard/api/queries";
+import type { AdminSidebarBadges } from "@/features/admin-sidebar/badge-types";
 
-export interface AdminSidebarBadges {
-  activeCarts: number;
-  newOrders: number;
-  pendingApplications: number;
-  pendingComments: number;
-}
+export type {
+  AdminSidebarBadgeKey,
+  AdminSidebarBadges,
+} from "@/features/admin-sidebar/badge-types";
 
 async function getPendingCommentsCount(): Promise<number> {
   "use cache";

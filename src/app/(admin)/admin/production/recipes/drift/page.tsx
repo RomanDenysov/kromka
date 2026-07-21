@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getAllergens } from "@/features/allergens/api/queries";
 import { ALLERGEN_ICONS } from "@/features/allergens/lib/icons";
 import { getAllergenDrift } from "@/features/products/api/allergen-drift";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 interface Props {
   searchParams: Promise<{ offset?: string; limit?: string }>;
@@ -148,29 +147,20 @@ async function DriftContent({ searchParams }: Props) {
 export default function AllergenDriftPage({ searchParams }: Props) {
   // Middleware guards /admin/*; server actions handle mutations.
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Výroba", href: "/admin/production" },
-          { label: "Recepty", href: "/admin/production/recipes" },
-          { label: "Rozdiely alergénov" },
-        ]}
-      />
-      <section className="@container/page space-y-4 p-4">
-        <div>
-          <h2 className="font-semibold text-xl tracking-tight">
-            Rozdiely alergénov
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Produkty s receptom, kde sa ručne označené alergény nezhodujú s
-            alergénmi odvodenými zo surovín. Diagnostický nástroj.
-          </p>
-        </div>
-        <Suspense fallback={<Skeleton className="h-64" />}>
-          <DriftContent searchParams={searchParams} />
-        </Suspense>
-      </section>
-    </>
+    <section className="@container/page space-y-4 p-4">
+      <div>
+        <h2 className="font-semibold text-xl tracking-tight">
+          Rozdiely alergénov
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Produkty s receptom, kde sa ručne označené alergény nezhodujú s
+          alergénmi odvodenými zo surovín. Diagnostický nástroj.
+        </p>
+      </div>
+      <Suspense fallback={<Skeleton className="h-64" />}>
+        <DriftContent searchParams={searchParams} />
+      </Suspense>
+    </section>
   );
 }
 

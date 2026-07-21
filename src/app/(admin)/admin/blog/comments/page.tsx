@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getPendingComments } from "@/features/posts/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { CommentsQueue } from "./_components/comments-queue";
 
 function CommentsQueueSkeleton() {
@@ -40,18 +39,10 @@ async function CommentsLoader() {
 
 export default function BlogCommentsPage() {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Blog", href: "/admin/blog" },
-          { label: "Komentáre" },
-        ]}
-      />
-      <section className="h-full flex-1 p-4">
-        <Suspense fallback={<CommentsQueueSkeleton />}>
-          <CommentsLoader />
-        </Suspense>
-      </section>
-    </>
+    <section className="h-full flex-1 p-4">
+      <Suspense fallback={<CommentsQueueSkeleton />}>
+        <CommentsLoader />
+      </Suspense>
+    </section>
   );
 }
