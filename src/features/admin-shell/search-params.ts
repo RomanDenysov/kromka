@@ -6,21 +6,27 @@ import {
 } from "nuqs/server";
 import type { FilterDef, SectionConfig } from "./types";
 
+const VIEW_OPTIONS = ["table", "grid"] as const;
+const DIR_OPTIONS = ["asc", "desc"] as const;
+
 /**
  * Builds nuqs parsers from a section's list config (view, search, sort, filters, page).
+ * Reuse the returned object in both createLoader (server) and useQueryStates (client).
+ * @see https://nuqs.dev/docs/server-side
  */
 export function buildParsers(cfg: SectionConfig) {
   const views = cfg.views ?? [];
   const defaultView = cfg.defaultView ?? views[0]?.view ?? "table";
+  const allowedViews =
+    views.length > 0
+      ? (views.map((v) => v.view) as (typeof VIEW_OPTIONS)[number][])
+      : [...VIEW_OPTIONS];
+
   const sortable = views.flatMap((v) =>
     v.view === "table"
       ? v.columns.filter((c) => c.sortable).map((c) => c.key)
       : []
   );
-
-  const viewLiterals = (
-    views.length > 0 ? views.map((v) => v.view) : ["table", "grid"]
-  ) as Array<"table" | "grid">;
 
   const filterParsers = Object.fromEntries(
     (cfg.filters ?? []).flatMap((f: FilterDef) => {
@@ -40,18 +46,27 @@ export function buildParsers(cfg: SectionConfig) {
   );
 
   return {
-    view: parseAsStringLiteral(viewLiterals).withDefault(defaultView),
+    view: parseAsStringLiteral(VIEW_OPTIONS)
+      .withDefault(
+        allowedViews.includes(defaultView) ? defaultView : VIEW_OPTIONS[0]
+      )
+      .withOptions({ clearOnDefault: false }),
     q: parseAsString.withDefault(""),
     sort:
       sortable.length > 0
-        ? parseAsStringLiteral(sortable).withDefault(sortable[0] ?? "")
+        ? parseAsStringLiteral(sortable as [string, ...string[]]).withDefault(
+            sortable[0] ?? ""
+          )
         : parseAsString.withDefault(""),
-    dir: parseAsStringLiteral(["asc", "desc"] as const).withDefault("asc"),
+    dir: parseAsStringLiteral(DIR_OPTIONS).withDefault("asc"),
     page: parseAsInteger.withDefault(1),
     ...filterParsers,
   };
 }
 
+export type SectionSearchParams = ReturnType<typeof buildParsers>;
+
+/** One-off server parse — same shape as useQueryStates. */
 export function createSectionParamsLoader(cfg: SectionConfig) {
   return createLoader(buildParsers(cfg));
 }

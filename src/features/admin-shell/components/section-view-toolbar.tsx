@@ -2,6 +2,7 @@
 
 import { LayoutGridIcon, ListIcon } from "lucide-react";
 import { useQueryStates } from "nuqs";
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { buildParsers } from "../search-params";
@@ -17,7 +18,8 @@ export function SectionViewToolbar({
   className,
 }: SectionViewToolbarProps) {
   const views = section.views ?? [];
-  const parsers = buildParsers(section);
+  // Stable parser identity for useQueryStates (don't rebuild every render).
+  const parsers = useMemo(() => buildParsers(section), [section]);
   const [params, setParams] = useQueryStates(parsers, { shallow: false });
 
   if (views.length < 2) {
