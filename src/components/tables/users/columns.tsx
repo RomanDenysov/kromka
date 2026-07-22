@@ -8,6 +8,7 @@ import {
   MoreHorizontalIcon,
   SquareArrowOutUpRightIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,6 @@ import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 // biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
 type UserTableMeta = {
   onLock: (id: string) => void;
-  onOpen: (id: string) => void;
 };
 
 export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
@@ -159,27 +159,27 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
     cell: ({ row, table }) => {
       const meta = table.options.meta as UserTableMeta;
       return (
-        <div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild className="relative">
-              <Button size="icon-xs" variant="ghost">
-                <MoreHorizontalIcon />
-              </Button>
-            </DropdownMenuTrigger>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild className="relative">
+            <Button size="icon-xs" variant="ghost">
+              <MoreHorizontalIcon />
+            </Button>
+          </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => meta?.onOpen(row.original.id)}>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/system/users/${row.original.id}`}>
                 <SquareArrowOutUpRightIcon />
                 Otvoriť
-              </DropdownMenuItem>
+              </Link>
+            </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => meta?.onLock(row.original.id)}>
-                <LockIcon />
-                Blokovať
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+            <DropdownMenuItem onClick={() => meta?.onLock(row.original.id)}>
+              <LockIcon />
+              Blokovať
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },

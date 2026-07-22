@@ -40,10 +40,9 @@ import { formatPrice } from "@/lib/utils";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 // biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
-export type ProductTableMeta = {
+type ProductTableMeta = {
   onCopy: (id: string) => void;
   onDelete: (id: string) => void;
-  onOpen: (id: string) => void;
   onToggleActive: (id: string) => void;
 };
 
@@ -113,17 +112,14 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
     accessorKey: "name",
     enableSorting: true,
     enableGlobalFilter: true,
-    cell: ({ row }) => {
-      const product = row.original;
-      return (
-        <Link
-          className={buttonVariants({ variant: "link", size: "xs" })}
-          href={`/admin/eshop/products?productId=${product.id}`}
-        >
-          {product.name}
-        </Link>
-      );
-    },
+    cell: ({ row }) => (
+      <Link
+        className={buttonVariants({ variant: "link", size: "xs" })}
+        href={`/admin/eshop/products/${row.original.id}`}
+      >
+        {row.original.name}
+      </Link>
+    ),
   },
   {
     header: ({ column, table }) => (

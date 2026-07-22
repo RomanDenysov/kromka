@@ -119,10 +119,6 @@ export async function getMonthlyOrderStats(year: number, month: number) {
 }
 
 export async function getOrdersCount(): Promise<number> {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag("orders");
-
   return await db
     .select({ count: count() })
     .from(orders)
@@ -131,10 +127,6 @@ export async function getOrdersCount(): Promise<number> {
 }
 
 export async function getCartsCount(): Promise<number> {
-  "use cache";
-  cacheLife("minutes");
-  cacheTag("carts");
-
   return await db
     .select({ count: count() })
     .from(carts)

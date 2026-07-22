@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, gte, lte, type SQL } from "drizzle-orm";
+import { and, count, desc, eq, gte, lte, type SQL } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
@@ -52,6 +52,15 @@ export const getB2bApplications = cache(
     });
   }
 );
+
+/** Count of pending B2B applications for admin nav badges. */
+export async function getPendingApplicationsCount(): Promise<number> {
+  return await db
+    .select({ count: count() })
+    .from(b2bApplications)
+    .where(eq(b2bApplications.status, "pending"))
+    .then((res) => res[0]?.count ?? 0);
+}
 
 export const getB2bApplicationById = cache(async (id: string) => {
   "use cache";

@@ -21,7 +21,7 @@ export type AdminIconId =
   | "wallet"
   | "wheat";
 
-/** Keys of serverBindings.counters — referenced from section.badgeKey in adminConfig. */
+/** Keys of feature count queries — referenced from section.badgeKey in adminConfig. */
 export type CounterKey =
   | "activeCarts"
   | "newOrders"
@@ -89,8 +89,3 @@ export type AdminConfig = Record<string, DomainConfig>;
 export type SectionQueryFn = (
   params: Record<string, unknown>
 ) => Promise<unknown[]>;
-
-export interface AdminServerBindings {
-  counters: Record<CounterKey, () => Promise<number>>;
-  queries: Record<string, SectionQueryFn>;
-}

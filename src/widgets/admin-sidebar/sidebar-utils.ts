@@ -12,6 +12,20 @@ export interface NavItem<T extends string = string> {
   label: string;
 }
 
+export function collectNavItemBadgeKeys(item: NavItem): CounterKey[] {
+  if (item.badgeKey) {
+    return [item.badgeKey];
+  }
+
+  const keys: CounterKey[] = [];
+  for (const sub of item.items ?? []) {
+    if (sub.badgeKey) {
+      keys.push(sub.badgeKey);
+    }
+  }
+  return keys;
+}
+
 export function isActiveRoute(
   pathname: string,
   href: string,

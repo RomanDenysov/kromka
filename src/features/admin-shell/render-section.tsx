@@ -1,13 +1,16 @@
 import type { SearchParams } from "nuqs/server";
 import { StoresTable } from "@/components/tables/stores/table";
-import type { AdminStore } from "@/features/stores/api/queries";
+import { type AdminStore, getAdminStores } from "@/features/stores/api/queries";
 import { StoresGrid } from "@/features/stores/components/stores-grid";
 import { log } from "@/lib/logger";
 import { SectionViewToolbar } from "./components/section-view-toolbar";
-import { serverBindings } from "./config.server";
 import { type AdminDomainSlug, getDomain } from "./config.shared";
 import { createSectionParamsLoader } from "./search-params";
-import type { SectionConfig } from "./types";
+import type { SectionConfig, SectionQueryFn } from "./types";
+
+const sectionQueries: Record<string, SectionQueryFn> = {
+  "eshop.stores": async (_params) => getAdminStores(),
+};
 
 interface RenderSectionArgs {
   domain: AdminDomainSlug;
@@ -41,8 +44,7 @@ export async function renderSection({
   const loadParams = createSectionParamsLoader(cfg);
   const params = await loadParams(searchParams);
   const queryKey = sectionQueryKey(domain, section);
-  const query =
-    serverBindings.queries[queryKey as keyof typeof serverBindings.queries];
+  const query = sectionQueries[queryKey];
   if (!query) {
     throw new Error(`No query binding for ${queryKey}`);
   }

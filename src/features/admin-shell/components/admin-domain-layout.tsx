@@ -1,19 +1,13 @@
 import type { Route } from "next";
 import type { ReactNode } from "react";
 import { Suspense } from "react";
-import { SecondaryNav } from "@/components/secondary-nav";
-import { getSectionTabsWithCounts } from "@/features/admin-shell/config.server";
 import { getDomain, getDomainHref } from "@/features/admin-shell/config.shared";
 import { AdminHeader } from "@/widgets/admin-header/admin-header";
+import { DomainSecondaryNav } from "./domain-secondary-nav";
 
 interface AdminDomainLayoutProps {
   children: ReactNode;
   domainSlug: string;
-}
-
-async function DomainSectionTabs({ domainSlug }: { domainSlug: string }) {
-  const items = await getSectionTabsWithCounts(domainSlug);
-  return <SecondaryNav items={items} />;
 }
 
 export function AdminDomainLayout({
@@ -36,7 +30,7 @@ export function AdminDomainLayout({
         ]}
       />
       <Suspense fallback={<div className="h-10 border-b" />}>
-        <DomainSectionTabs domainSlug={domainSlug} />
+        <DomainSecondaryNav domainSlug={domainSlug} />
       </Suspense>
       {children}
     </>

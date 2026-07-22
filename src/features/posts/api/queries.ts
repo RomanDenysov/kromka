@@ -5,7 +5,7 @@ import { and, count, eq, inArray, sql } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db";
-import { posts, postTags, postToTags } from "@/db/schema";
+import { postComments, posts, postTags, postToTags } from "@/db/schema";
 
 // Helper to transform post cover image
 function transformPost<T extends { coverImage: { url: string } | null }>(
@@ -421,6 +421,15 @@ export async function getAdminTags() {
     slug: tag.slug,
     postCount: tag.posts.length,
   }));
+}
+
+/** Count of unpublished comments for admin nav badges. */
+export async function getPendingCommentsCount(): Promise<number> {
+  return await db
+    .select({ count: count() })
+    .from(postComments)
+    .where(eq(postComments.isPublished, false))
+    .then((res) => res[0]?.count ?? 0);
 }
 
 /**

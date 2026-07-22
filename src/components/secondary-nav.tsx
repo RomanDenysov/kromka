@@ -3,15 +3,13 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  findActiveNavItem,
-  formatBadgeCount,
-} from "@/widgets/admin-sidebar/sidebar-utils";
+import { findActiveNavItem } from "@/widgets/admin-sidebar/sidebar-utils";
 
 export interface SecondaryNavItem {
-  badge?: number;
+  badge?: ReactNode;
   href: Route;
   label: string;
 }
@@ -30,33 +28,23 @@ export function SecondaryNav({ items, className }: Props) {
       <ul className="scrollbar-hide flex justify-start gap-1 overflow-x-auto py-2">
         {items.map((item) => {
           const isActive = activeHref === item.href;
-          const badgeLabel = formatBadgeCount(item.badge ?? 0);
 
           return (
             <li key={item.href}>
               <Link
                 className={cn(
                   buttonVariants({
-                    variant: isActive ? "secondary" : "ghost",
+                    variant: "link",
                     size: "xs",
                   }),
-                  "gap-1.5"
+                  "group/tab gap-1.5",
+                  isActive && "text-primary underline"
                 )}
+                data-active={isActive}
                 href={item.href}
               >
                 {item.label}
-                {badgeLabel ? (
-                  <span
-                    className={cn(
-                      "rounded-full px-1.5 font-medium text-[10px] tabular-nums",
-                      isActive
-                        ? "bg-primary/15 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {badgeLabel}
-                  </span>
-                ) : null}
+                {item.badge}
               </Link>
             </li>
           );

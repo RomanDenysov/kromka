@@ -17,12 +17,12 @@ export const adminConfig = {
               { key: "name", label: "Názov", sortable: true },
               { key: "isActive", label: "Stav", render: "status" },
             ],
-            rowActions: ["store.toggleActive", "store.edit", "store.delete"],
+            rowActions: ["store.toggleActive", "store.delete"],
           },
           {
             view: "grid",
             card: { title: "name", badge: "isActive" },
-            rowActions: ["store.toggleActive", "store.edit"],
+            rowActions: ["store.toggleActive"],
           },
         ],
         search: {

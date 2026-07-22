@@ -2013,14 +2013,6 @@
         "recent-orders"
       ]
     },
-    "sheets": {
-      "path": "src/components/sheets",
-      "description": "Slide-over modal forms for admin CRUD.",
-      "components": [
-        "edit-product-sheet - Product create/edit",
-        "edit-store-sheet - Store create/edit"
-      ]
-    },
     "filters": {
       "path": "src/components/filters",
       "description": "Shop filtering UI for e-shop catalog.",
