@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAllergens } from "@/features/allergens/api/queries";
 import { ALLERGEN_ICONS } from "@/features/allergens/lib/icons";
@@ -102,11 +102,15 @@ async function DriftContent({ searchParams }: Props) {
                     </div>
                   </td>
                   <td className="px-3 py-2 text-right">
-                    <Button asChild size="sm" variant="ghost">
-                      <Link href={`/admin/eshop/products/${row.productId}`}>
-                        Otvoriť
-                      </Link>
-                    </Button>
+                    <Link
+                      className={buttonVariants({
+                        size: "sm",
+                        variant: "ghost",
+                      })}
+                      href={`/admin/eshop/products/${row.productId}`}
+                    >
+                      Otvoriť
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -121,22 +125,20 @@ async function DriftContent({ searchParams }: Props) {
         </span>
         <div className="flex items-center gap-2">
           {offset > 0 && (
-            <Button asChild size="sm" variant="ghost">
-              <Link
-                href={`/admin/production/recipes/drift?offset=${Math.max(0, offset - limit)}&limit=${limit}`}
-              >
-                Predchádzajúca
-              </Link>
-            </Button>
+            <Link
+              className={buttonVariants({ size: "sm", variant: "ghost" })}
+              href={`/admin/production/recipes/drift?offset=${Math.max(0, offset - limit)}&limit=${limit}`}
+            >
+              Predchádzajúca
+            </Link>
           )}
           {drift.items.length === limit && (
-            <Button asChild size="sm" variant="ghost">
-              <Link
-                href={`/admin/production/recipes/drift?offset=${offset + limit}&limit=${limit}`}
-              >
-                Ďalšia
-              </Link>
-            </Button>
+            <Link
+              className={buttonVariants({ size: "sm", variant: "ghost" })}
+              href={`/admin/production/recipes/drift?offset=${offset + limit}&limit=${limit}`}
+            >
+              Ďalšia
+            </Link>
           )}
         </div>
       </div>

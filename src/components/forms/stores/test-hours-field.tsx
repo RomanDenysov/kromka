@@ -117,53 +117,56 @@ export function TestHoursField({ value, onChange }: Props) {
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <div className="w-full cursor-pointer space-y-3 overflow-x-auto rounded-md border p-2 transition-colors hover:bg-muted/50">
-          <div className="grid grid-cols-7 gap-1">
-            {regularHours.map((day) => (
-              <div
-                className={cn(
-                  "flex min-h-14 flex-col items-center justify-between rounded border p-1 text-center text-[10px] sm:text-xs",
-                  day.isOpen
-                    ? "border-primary/20 bg-primary/5"
-                    : "bg-muted/50 opacity-70"
-                )}
-                key={day.key}
-              >
-                <span className="font-medium">{day.label}</span>
-                {day.isOpen && typeof day.schedule !== "string" ? (
-                  <div className="flex flex-col text-muted-foreground leading-tight">
-                    <span>{day.schedule.start}</span>
-                    <span>{day.schedule.end}</span>
-                  </div>
-                ) : (
-                  <div className="flex h-full items-center justify-center">
-                    <XIcon className="size-4 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-          {value.exceptions && (
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(value.exceptions)
-                .sort((a, b) => a[0].localeCompare(b[0]))
-                .map(([date, schedule]) => (
-                  <Badge key={date} size="xs" variant="outline">
-                    {format(
-                      parse(date, "yyyy-MM-dd", new Date()),
-                      "EEEE - dd.MM.yyyy",
-                      { locale: sk }
-                    )}{" "}
-                    {schedule === "closed"
-                      ? "- Zatvorené"
-                      : `- ${schedule?.start} - ${schedule?.end}`}
-                  </Badge>
-                ))}
+      <DialogTrigger
+        render={
+          <div className="w-full cursor-pointer space-y-3 overflow-x-auto rounded-md border p-2 transition-colors hover:bg-muted/50" />
+        }
+      >
+        <div className="grid grid-cols-7 gap-1">
+          {regularHours.map((day) => (
+            <div
+              className={cn(
+                "flex min-h-14 flex-col items-center justify-between rounded border p-1 text-center text-[10px] sm:text-xs",
+                day.isOpen
+                  ? "border-primary/20 bg-primary/5"
+                  : "bg-muted/50 opacity-70"
+              )}
+              key={day.key}
+            >
+              <span className="font-medium">{day.label}</span>
+              {day.isOpen && typeof day.schedule !== "string" ? (
+                <div className="flex flex-col text-muted-foreground leading-tight">
+                  <span>{day.schedule.start}</span>
+                  <span>{day.schedule.end}</span>
+                </div>
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <XIcon className="size-4 text-muted-foreground" />
+                </div>
+              )}
             </div>
-          )}
+          ))}
         </div>
+        {value.exceptions && (
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(value.exceptions)
+              .sort((a, b) => a[0].localeCompare(b[0]))
+              .map(([date, schedule]) => (
+                <Badge key={date} size="xs" variant="outline">
+                  {format(
+                    parse(date, "yyyy-MM-dd", new Date()),
+                    "EEEE - dd.MM.yyyy",
+                    { locale: sk }
+                  )}{" "}
+                  {schedule === "closed"
+                    ? "- Zatvorené"
+                    : `- ${schedule?.start} - ${schedule?.end}`}
+                </Badge>
+              ))}
+          </div>
+        )}
       </DialogTrigger>
+
       <DialogContent className="max-w-xl space-y-5">
         <DialogHeader>
           <DialogTitle>Nastavenie otváracích hodín</DialogTitle>
@@ -272,9 +275,9 @@ function DayScheduleRow({
       orientation="horizontal"
     >
       {/* <Switch
-        checked={isOpen}
-        onCheckedChange={(checked) => onUpdate(checked ? hours : "closed")}
-      /> */}
+         checked={isOpen}
+         onCheckedChange={(checked) => onUpdate(checked ? hours : "closed")}
+        /> */}
       <Hint text={day.label}>
         <FieldLabel htmlFor={day.key}>{day.short}</FieldLabel>
       </Hint>
@@ -286,6 +289,7 @@ function DayScheduleRow({
               onChange={(value) => onUpdate({ ...hours, start: value })}
               value={hours.start}
             />
+
             <span> - </span>
             <TimeSelector
               disabled={!isOpen}
@@ -440,17 +444,20 @@ function ExceptionsEditor({ exceptions, onChange }: ExceptionsEditorProps) {
         </FieldGroup>
       )}
       <Popover onOpenChange={setIsAdding} open={isAdding}>
-        <PopoverTrigger asChild>
-          <Button
-            className="w-full"
-            onClick={() => setIsAdding(true)}
-            size="sm"
-            type="button"
-            variant="outline"
-          >
-            <PlusIcon /> Pridať výnimku
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button
+              className="w-full"
+              onClick={() => setIsAdding(true)}
+              size="sm"
+              type="button"
+              variant="outline"
+            />
+          }
+        >
+          <PlusIcon /> Pridať výnimku
         </PopoverTrigger>
+
         <PopoverContent
           align="start"
           className="w-auto p-0"
@@ -464,6 +471,7 @@ function ExceptionsEditor({ exceptions, onChange }: ExceptionsEditorProps) {
             selected={selectedDates}
             weekStartsOn={1}
           />
+
           <div className="flex items-center justify-between gap-2 px-3 pb-3">
             <span className="text-muted-foreground text-xs">
               {selectedDates.length > 0
@@ -508,26 +516,29 @@ function ToggleButton({
 }) {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          onClick={() => onUpdate(!isOpen)}
-          size="icon-xs"
-          type="button"
-          variant="ghost"
-        >
-          {isOpen ? (
-            <>
-              <XIcon />
-              <span className="sr-only">Zatvorené</span>
-            </>
-          ) : (
-            <>
-              <CheckIcon />
-              <span className="sr-only">Otvorené</span>
-            </>
-          )}
-        </Button>
+      <TooltipTrigger
+        render={
+          <Button
+            onClick={() => onUpdate(!isOpen)}
+            size="icon-xs"
+            type="button"
+            variant="ghost"
+          />
+        }
+      >
+        {isOpen ? (
+          <>
+            <XIcon />
+            <span className="sr-only">Zatvorené</span>
+          </>
+        ) : (
+          <>
+            <CheckIcon />
+            <span className="sr-only">Otvorené</span>
+          </>
+        )}
       </TooltipTrigger>
+
       <TooltipContent align="center" side="right" sideOffset={4}>
         {isOpen ? "Zatvoriť" : "Otvoriť"}
       </TooltipContent>

@@ -2,27 +2,94 @@
 
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
-import type { ComponentProps, ReactElement, ReactNode } from "react";
-import { type AsChildProps, resolveRender } from "@/lib/resolve-render";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  type ComponentProps,
+} from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-function Dialog({ ...props }: ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+type DialogLegacyDismissHandlers = {
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  onInteractOutside?: (event: Event) => void;
+};
+
+const DialogLegacyDismissContext = createContext<{
+  setHandlers: (handlers: DialogLegacyDismissHandlers) => void;
+} | null>(null);
+
+function Dialog({
+  onOpenChange,
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Root>) {
+  const legacyHandlersRef = useRef<DialogLegacyDismissHandlers>({});
+
+  const handleOpenChange = useCallback(
+    (
+      open: boolean,
+      eventDetails: DialogPrimitive.Root.ChangeEventDetails
+    ) => {
+      if (!open) {
+        if (
+          eventDetails.reason === "escape-key" &&
+          legacyHandlersRef.current.onEscapeKeyDown
+        ) {
+          const event = eventDetails.event;
+          legacyHandlersRef.current.onEscapeKeyDown(event);
+          if (event.defaultPrevented) {
+            eventDetails.cancel();
+            return;
+          }
+        }
+
+        if (
+          eventDetails.reason === "outside-press" &&
+          legacyHandlersRef.current.onInteractOutside
+        ) {
+          const event = eventDetails.event;
+          legacyHandlersRef.current.onInteractOutside(event);
+          if (event.defaultPrevented) {
+            eventDetails.cancel();
+            return;
+          }
+        }
+      }
+
+      onOpenChange?.(open, eventDetails);
+    },
+    [onOpenChange]
+  );
+
+  return (
+    <DialogLegacyDismissContext.Provider
+      value={{
+        setHandlers: (handlers) => {
+          legacyHandlersRef.current = handlers;
+        },
+      }}
+    >
+      <DialogPrimitive.Root
+        data-slot="dialog"
+        onOpenChange={handleOpenChange}
+        {...props}
+      />
+    </DialogLegacyDismissContext.Provider>
+  );
 }
 
 function DialogTrigger({
-  asChild,
   render,
   children,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Trigger> & AsChildProps) {
-  const resolvedRender = resolveRender(render, asChild, children);
-
+}: ComponentProps<typeof DialogPrimitive.Trigger>) {
   return (
     <DialogPrimitive.Trigger
       data-slot="dialog-trigger"
-      render={resolvedRender}
+      render={render}
       {...props}
     >
       {children}
@@ -37,17 +104,14 @@ function DialogPortal({
 }
 
 function DialogClose({
-  asChild,
   render,
   children,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Close> & AsChildProps) {
-  const resolvedRender = resolveRender(render, asChild, children);
-
+}: ComponentProps<typeof DialogPrimitive.Close>) {
   return (
     <DialogPrimitive.Close
       data-slot="dialog-close"
-      render={resolvedRender}
+      render={render}
       {...props}
     >
       {children}
@@ -77,16 +141,23 @@ function DialogContent({
   showCloseButton = true,
   onEscapeKeyDown,
   onInteractOutside,
-  onKeyDown,
-  onPointerDown,
   ...props
 }: ComponentProps<typeof DialogPrimitive.Popup> & {
   showCloseButton?: boolean;
-  /** @deprecated Base UI handles via `onOpenChange` on Dialog root */
+  /** @deprecated Prefer `onOpenChange` on `Dialog` with `eventDetails.cancel()` */
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
-  /** @deprecated Base UI handles via `onOpenChange` on Dialog root */
+  /** @deprecated Prefer `onOpenChange` on `Dialog` with `eventDetails.cancel()` */
   onInteractOutside?: (event: Event) => void;
 }) {
+  const legacyDismiss = useContext(DialogLegacyDismissContext);
+
+  useEffect(() => {
+    legacyDismiss?.setHandlers({ onEscapeKeyDown, onInteractOutside });
+    return () => {
+      legacyDismiss?.setHandlers({});
+    };
+  }, [legacyDismiss, onEscapeKeyDown, onInteractOutside]);
+
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -96,16 +167,6 @@ function DialogContent({
           className
         )}
         data-slot="dialog-content"
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            onEscapeKeyDown?.(event.nativeEvent);
-          }
-          onKeyDown?.(event);
-        }}
-        onPointerDown={(event) => {
-          onInteractOutside?.(event.nativeEvent);
-          onPointerDown?.(event);
-        }}
         {...props}
       >
         {children}

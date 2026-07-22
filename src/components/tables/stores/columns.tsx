@@ -45,13 +45,14 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
     header: ({ table }) => (
       <Checkbox
         aria-label="Select all"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={
+          table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
+
     cell: ({ row }) => (
       <Checkbox
         aria-label="Select row"
@@ -59,6 +60,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         onCheckedChange={(value) => row.toggleSelected(!!value)}
       />
     ),
+
     size: 32,
     enableSorting: false,
     enableHiding: false,
@@ -72,6 +74,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         title="Názov"
       />
     ),
+
     meta: {
       label: "Názov",
       variant: "text",
@@ -97,6 +100,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         title="Stav"
       />
     ),
+
     meta: {
       label: "Stav",
       variant: "multiSelect",
@@ -145,6 +149,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
         title="Objednávky"
       />
     ),
+
     meta: {
       label: "Objednávky",
       variant: "number",
@@ -164,29 +169,34 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
       const meta = table.options.meta as StoreTableMeta;
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon-xs" variant="ghost">
-              <MoreHorizontalIcon />
-            </Button>
+          <DropdownMenuTrigger
+            render={<Button size="icon-xs" variant="ghost" />}
+          >
+            <MoreHorizontalIcon />
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/eshop/stores/${row.original.id}`}>
-                <PencilIcon />
-                Upraviť
-              </Link>
+            <DropdownMenuItem
+              render={<Link href={`/admin/eshop/stores/${row.original.id}`} />}
+            >
+              <PencilIcon />
+              Upraviť
             </DropdownMenuItem>
+
             <DropdownMenuItem onClick={() => meta?.onCopy(row.original.id)}>
               <CopyIcon />
               Kopírovať
             </DropdownMenuItem>
             <AlertDialog key={`delete-${row.original.id}`}>
-              <DropdownMenuItem asChild asDialogTrigger variant="destructive">
-                <AlertDialogTrigger className="w-full">
-                  <ArchiveIcon />
-                  Deaktivovať
-                </AlertDialogTrigger>
+              <DropdownMenuItem
+                asDialogTrigger
+                render={<AlertDialogTrigger className="w-full" />}
+                variant="destructive"
+              >
+                <ArchiveIcon />
+                Deaktivovať
               </DropdownMenuItem>
+
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Deaktivovať obchod</AlertDialogTitle>

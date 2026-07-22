@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -184,12 +184,14 @@ export function ProductRecipeCard({
       )}
 
       <div className="flex items-center gap-2">
-        <Button asChild size="sm" variant="outline">
-          <Link href={`/admin/production/recipes/${linkedRecipe.id}`}>
-            <ExternalLinkIcon className="mr-1 size-3.5" />
-            Otvoriť
-          </Link>
-        </Button>
+        <Link
+          className={buttonVariants({ size: "sm", variant: "outline" })}
+          href={`/admin/production/recipes/${linkedRecipe.id}`}
+        >
+          <ExternalLinkIcon className="mr-1 size-3.5" />
+          Otvoriť
+        </Link>
+
         <Button
           disabled={pending}
           onClick={handleUnlink}

@@ -2,7 +2,6 @@
 
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 import type { ComponentProps } from "react";
-import { type AsChildProps, resolveRender } from "@/lib/resolve-render";
 
 import { cn } from "@/lib/utils";
 
@@ -11,17 +10,14 @@ function Popover({ ...props }: ComponentProps<typeof PopoverPrimitive.Root>) {
 }
 
 function PopoverTrigger({
-  asChild,
   render,
   children,
   ...props
-}: ComponentProps<typeof PopoverPrimitive.Trigger> & AsChildProps) {
-  const resolvedRender = resolveRender(render, asChild, children);
-
+}: ComponentProps<typeof PopoverPrimitive.Trigger>) {
   return (
     <PopoverPrimitive.Trigger
       data-slot="popover-trigger"
-      render={resolvedRender}
+      render={render}
       {...props}
     >
       {children}
@@ -37,17 +33,39 @@ function PopoverContent({
   sideOffset = 4,
   onCloseAutoFocus,
   onOpenAutoFocus,
+  initialFocus,
+  finalFocus,
   ...props
 }: ComponentProps<typeof PopoverPrimitive.Popup> &
   Pick<
     PopoverPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
   > & {
-    /** @deprecated Radix compat — no-op in Base UI */
+    /** @deprecated Use `finalFocus={false}` instead */
     onCloseAutoFocus?: (event: Event) => void;
-    /** @deprecated Radix compat — no-op in Base UI */
+    /** @deprecated Use `initialFocus={false}` instead */
     onOpenAutoFocus?: (event: Event) => void;
   }) {
+  const resolvedInitialFocus =
+    initialFocus ??
+    (onOpenAutoFocus
+      ? () => {
+          const event = new Event("focusin");
+          onOpenAutoFocus(event);
+          return event.defaultPrevented ? false : true;
+        }
+      : undefined);
+
+  const resolvedFinalFocus =
+    finalFocus ??
+    (onCloseAutoFocus
+      ? () => {
+          const event = new Event("focusout");
+          onCloseAutoFocus(event);
+          return event.defaultPrevented ? false : true;
+        }
+      : undefined);
+
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Positioner
@@ -63,6 +81,8 @@ function PopoverContent({
             className
           )}
           data-slot="popover-content"
+          finalFocus={resolvedFinalFocus}
+          initialFocus={resolvedInitialFocus}
           {...props}
         />
       </PopoverPrimitive.Positioner>

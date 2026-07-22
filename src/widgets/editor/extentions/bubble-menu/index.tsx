@@ -51,22 +51,25 @@ function LinkItem({ editor }: LinkItemProps) {
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          className="h-8 rounded-none border-0 border-border border-r last:rounded-r-full last:border-r-0"
-          onClick={() => {
-            const previousUrl = editor.getAttributes("link").href;
-            setUrl(previousUrl || "");
-            setOpen(true);
-          }}
-          size="sm"
-          type="button"
-          variant="ghost"
-        >
-          <Link2 className="size-4" />
-          <span className="sr-only">Link</span>
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            className="h-8 rounded-none border-0 border-border border-r last:rounded-r-full last:border-r-0"
+            onClick={() => {
+              const previousUrl = editor.getAttributes("link").href;
+              setUrl(previousUrl || "");
+              setOpen(true);
+            }}
+            size="sm"
+            type="button"
+            variant="ghost"
+          />
+        }
+      >
+        <Link2 className="size-4" />
+        <span className="sr-only">Link</span>
       </PopoverTrigger>
+
       <PopoverContent align="start" className="w-80">
         <div className="flex flex-col gap-2">
           <Input
@@ -81,6 +84,7 @@ function LinkItem({ editor }: LinkItemProps) {
             type="url"
             value={url}
           />
+
           <div className="flex gap-2">
             <Button onClick={handleSetLink} size="sm" type="button">
               Set Link

@@ -67,6 +67,7 @@ export const columns: ColumnDef<RecentOrder>[] = [
         title="Zákazník"
       />
     ),
+
     enableSorting: true,
     accessorFn: (row) =>
       row.customerInfo?.name ?? row.createdBy?.name ?? "Guest",
@@ -130,6 +131,7 @@ export const columns: ColumnDef<RecentOrder>[] = [
         title="Predajna"
       />
     ),
+
     cell: ({ row }) => row.original.store?.name ?? "-",
   },
   {
@@ -141,6 +143,7 @@ export const columns: ColumnDef<RecentOrder>[] = [
         title="Vyzdvihnúťie"
       />
     ),
+
     enableSorting: true,
     cell: ({ row }) => {
       const pickupDate = row.original.pickupDate;
@@ -166,6 +169,7 @@ export const columns: ColumnDef<RecentOrder>[] = [
         title="Dátum vytvorenia"
       />
     ),
+
     enableSorting: true,
     cell: ({ row }) => {
       const date = row.getValue("createdAt") as Date;
@@ -185,6 +189,7 @@ export const columns: ColumnDef<RecentOrder>[] = [
         title="Spolu (EUR)"
       />
     ),
+
     enableSorting: true,
     cell: ({ row }) => (
       <span className="font-medium font-mono text-xs tracking-tighter">
@@ -199,12 +204,13 @@ export const columns: ColumnDef<RecentOrder>[] = [
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="size-8 p-0" variant="ghost">
-              <span className="sr-only">Otvoriť menu</span>
-              <MoreHorizontalIcon className="size-4" />
-            </Button>
+          <DropdownMenuTrigger
+            render={<Button className="size-8 p-0" variant="ghost" />}
+          >
+            <span className="sr-only">Otvoriť menu</span>
+            <MoreHorizontalIcon className="size-4" />
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(order.id)}
@@ -213,11 +219,11 @@ export const columns: ColumnDef<RecentOrder>[] = [
               Kopírovať ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/eshop/orders/${order.id}`}>
-                <EyeIcon />
-                Zobraziť detaily
-              </Link>
+            <DropdownMenuItem
+              render={<Link href={`/admin/eshop/orders/${order.id}`} />}
+            >
+              <EyeIcon />
+              Zobraziť detaily
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -3,7 +3,6 @@
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import type { VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import { type AsChildProps, resolveRender } from "@/lib/resolve-render";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 
@@ -14,17 +13,14 @@ function AlertDialog({
 }
 
 function AlertDialogTrigger({
-  asChild,
   render,
   children,
   ...props
-}: ComponentProps<typeof AlertDialogPrimitive.Trigger> & AsChildProps) {
-  const resolvedRender = resolveRender(render, asChild, children);
-
+}: ComponentProps<typeof AlertDialogPrimitive.Trigger>) {
   return (
     <AlertDialogPrimitive.Trigger
       data-slot="alert-dialog-trigger"
-      render={resolvedRender}
+      render={render}
       {...props}
     >
       {children}
@@ -129,11 +125,18 @@ function AlertDialogAction({
   variant = "default",
   size = "default",
   ...props
-}: ComponentProps<typeof Button> & VariantProps<typeof buttonVariants>) {
+}: ComponentProps<typeof AlertDialogPrimitive.Close> &
+  VariantProps<typeof buttonVariants>) {
   return (
-    <Button
-      className={cn(buttonVariants({ variant, size }), className)}
+    <AlertDialogPrimitive.Close
       data-slot="alert-dialog-action"
+      render={
+        <Button
+          className={cn(buttonVariants({ variant, size }), className)}
+          size={size}
+          variant={variant}
+        />
+      }
       {...props}
     />
   );

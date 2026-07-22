@@ -65,27 +65,34 @@ export function EditableField<T extends FieldValues>({
                 <EditableInput className={cn("w-full", className)} />
               </EditableArea>
 
-              <EditableTrigger asChild>
-                <Button
-                  className="hidden group-hover:flex"
-                  size="icon-xs"
-                  type="button"
-                  variant="ghost"
-                >
-                  <EditIcon className="text-muted-foreground" />
-                </Button>
+              <EditableTrigger
+                render={
+                  <Button
+                    className="hidden group-hover:flex"
+                    size="icon-xs"
+                    type="button"
+                    variant="ghost"
+                  />
+                }
+              >
+                <EditIcon className="text-muted-foreground" />
               </EditableTrigger>
 
               <EditableToolbar className="gap-1">
-                <EditableSubmit asChild>
-                  <Button size="icon-xs" type="button" variant="outline">
-                    <CheckIcon />
-                  </Button>
+                <EditableSubmit
+                  render={
+                    <Button size="icon-xs" type="button" variant="outline" />
+                  }
+                >
+                  <CheckIcon />
                 </EditableSubmit>
-                <EditableCancel asChild>
-                  <Button size="icon-xs" type="button" variant="outline">
-                    <XIcon />
-                  </Button>
+
+                <EditableCancel
+                  render={
+                    <Button size="icon-xs" type="button" variant="outline" />
+                  }
+                >
+                  <XIcon />
                 </EditableCancel>
               </EditableToolbar>
             </Editable>

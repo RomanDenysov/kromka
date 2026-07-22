@@ -69,11 +69,10 @@ export function OverlaysSection() {
     >
       <div className="flex flex-wrap gap-2">
         <Dialog>
-          <DialogTrigger asChild>
-            <Button type="button" variant="outline">
-              Dialog
-            </Button>
+          <DialogTrigger render={<Button type="button" variant="outline" />}>
+            Dialog
           </DialogTrigger>
+
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Modálne okno</DialogTitle>
@@ -88,11 +87,10 @@ export function OverlaysSection() {
         </Dialog>
 
         <Sheet>
-          <SheetTrigger asChild>
-            <Button type="button" variant="outline">
-              Sheet
-            </Button>
+          <SheetTrigger render={<Button type="button" variant="outline" />}>
+            Sheet
           </SheetTrigger>
+
           <SheetContent>
             <SheetHeader>
               <SheetTitle>Bočný panel</SheetTitle>
@@ -123,11 +121,12 @@ export function OverlaysSection() {
         </Drawer>
 
         <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button type="button" variant="destructive">
-              Alert dialog
-            </Button>
+          <AlertDialogTrigger
+            render={<Button type="button" variant="destructive" />}
+          >
+            Alert dialog
           </AlertDialogTrigger>
+
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Naozaj zmazať?</AlertDialogTitle>
@@ -143,34 +142,33 @@ export function OverlaysSection() {
         </AlertDialog>
 
         <Popover>
-          <PopoverTrigger asChild>
-            <Button type="button" variant="outline">
-              Popover
-            </Button>
+          <PopoverTrigger render={<Button type="button" variant="outline" />}>
+            Popover
           </PopoverTrigger>
+
           <PopoverContent className="w-64">
             <p className="text-sm">Krátky obsah popoveru.</p>
           </PopoverContent>
         </Popover>
 
         <Tooltip>
-          <TooltipTrigger asChild>
-            <Button type="button" variant="outline">
-              Tooltip
-            </Button>
+          <TooltipTrigger render={<Button type="button" variant="outline" />}>
+            Tooltip
           </TooltipTrigger>
+
           <TooltipContent>
             <p>Nápoveda pri hoveri</p>
           </TooltipContent>
         </Tooltip>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" type="button" variant="outline">
-              <MoreHorizontalIcon />
-              <span className="sr-only">Menu</span>
-            </Button>
+          <DropdownMenuTrigger
+            render={<Button size="icon" type="button" variant="outline" />}
+          >
+            <MoreHorizontalIcon />
+            <span className="sr-only">Menu</span>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="start">
             <DropdownMenuLabel>Akcie</DropdownMenuLabel>
             <DropdownMenuSeparator />

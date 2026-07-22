@@ -92,11 +92,12 @@ export function TagSelector<T extends FieldValues>({
                 </Badge>
               ))}
               <Popover onOpenChange={setOpen} open={open}>
-                <PopoverTrigger asChild>
-                  <Button size="xs" type="button" variant="outline">
-                    Pridať štítok
-                  </Button>
+                <PopoverTrigger
+                  render={<Button size="xs" type="button" variant="outline" />}
+                >
+                  Pridať štítok
                 </PopoverTrigger>
+
                 <PopoverContent align="start" className="w-[200px] p-0">
                   <Command>
                     <CommandInput placeholder="Hľadať štítky..." />

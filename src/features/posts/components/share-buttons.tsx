@@ -4,7 +4,7 @@ import { CheckIcon, CopyIcon, Share2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Icons } from "@/components/icons";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -37,29 +37,26 @@ export function ShareButtons({ url, title, className }: Props) {
     <div className={cn("flex items-center gap-2", className)}>
       <span className="text-muted-foreground text-sm">Zdieľať:</span>
 
-      {/* Facebook */}
-      <Button
+      <a
         aria-label="Zdieľať na Facebooku"
-        asChild
-        size="icon-sm"
-        variant="outline"
+        className={buttonVariants({ size: "icon-sm", variant: "outline" })}
+        href={facebookUrl}
+        rel="noopener noreferrer"
+        target="_blank"
       >
-        <a href={facebookUrl} rel="noopener noreferrer" target="_blank">
-          <Icons.facebook className="size-4" />
-        </a>
-      </Button>
+        <Icons.facebook className="size-4" />
+      </a>
 
       {/* Twitter/X */}
-      <Button
+      <a
         aria-label="Zdieľať na Twitteri"
-        asChild
-        size="icon-sm"
-        variant="outline"
+        className={buttonVariants({ size: "icon-sm", variant: "outline" })}
+        href={twitterUrl}
+        rel="noopener noreferrer"
+        target="_blank"
       >
-        <a href={twitterUrl} rel="noopener noreferrer" target="_blank">
-          <Share2Icon className="size-4" />
-        </a>
-      </Button>
+        <Share2Icon className="size-4" />
+      </a>
 
       {/* Copy Link */}
       <Button

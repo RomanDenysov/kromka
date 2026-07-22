@@ -56,20 +56,23 @@ export function DataTableMultiSelectFilter<TData>({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button className="border-dashed" size="sm" variant="outline">
-          {title}
-          {filterValue.length > 0 && (
-            <Badge
-              className="ml-2 rounded-sm px-1 font-normal"
-              variant="secondary"
-            >
-              {filterValue.length}
-            </Badge>
-          )}
-          <ChevronDownIcon className="ml-2 h-4 w-4 opacity-50" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button className="border-dashed" size="sm" variant="outline" />
+        }
+      >
+        {title}
+        {filterValue.length > 0 && (
+          <Badge
+            className="ml-2 rounded-sm px-1 font-normal"
+            variant="secondary"
+          >
+            {filterValue.length}
+          </Badge>
+        )}
+        <ChevronDownIcon className="ml-2 h-4 w-4 opacity-50" />
       </PopoverTrigger>
+
       <PopoverContent align="start" className="w-[200px] p-0">
         <Command>
           <CommandInput placeholder={`Hľadať ${title.toLowerCase()}...`} />

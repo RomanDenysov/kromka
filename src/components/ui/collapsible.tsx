@@ -2,7 +2,6 @@
 
 import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible";
 import type { ComponentProps } from "react";
-import { type AsChildProps, resolveRender } from "@/lib/resolve-render";
 
 function Collapsible({
   ...props
@@ -11,17 +10,14 @@ function Collapsible({
 }
 
 function CollapsibleTrigger({
-  asChild,
   render,
   children,
   ...props
-}: ComponentProps<typeof CollapsiblePrimitive.Trigger> & AsChildProps) {
-  const resolvedRender = resolveRender(render, asChild, children);
-
+}: ComponentProps<typeof CollapsiblePrimitive.Trigger>) {
   return (
     <CollapsiblePrimitive.Trigger
       data-slot="collapsible-trigger"
-      render={resolvedRender}
+      render={render}
       {...props}
     >
       {children}

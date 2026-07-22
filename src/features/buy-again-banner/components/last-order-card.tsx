@@ -48,26 +48,22 @@ export function LastOrderCard({ items }: Props) {
   return (
     <Collapsible onOpenChange={setIsOpen} open={isOpen}>
       <div className="rounded-sm border border-muted-foreground/30 border-dashed bg-muted/40 p-3">
-        <CollapsibleTrigger asChild>
-          <div className="flex items-center justify-between gap-3">
-            {!isOpen && (
-              <Button
-                className="fade-in-0 animate-in duration-400"
-                id="repeat-order-icon-button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  repeatOrder(items, "cart_drawer");
-                }}
-                size="icon"
-                type="button"
-                variant="outline"
-              >
-                <ShoppingCartIcon className="size-5" />
-                <span className="sr-only">Zopakovať objednávku</span>
-              </Button>
-            )}
-            <div className="mr-auto flex flex-col gap-1">
+        <div className="flex items-center justify-between gap-3">
+          {!isOpen && (
+            <Button
+              className="fade-in-0 animate-in duration-400"
+              id="repeat-order-icon-button"
+              onClick={() => repeatOrder(items, "cart_drawer")}
+              size="icon"
+              type="button"
+              variant="outline"
+            >
+              <ShoppingCartIcon className="size-5" />
+              <span className="sr-only">Zopakovať objednávku</span>
+            </Button>
+          )}
+          <CollapsibleTrigger className="mr-auto flex flex-1 items-center justify-between gap-3 text-left">
+            <div className="flex flex-col gap-1">
               <h3 className="font-semibold text-sm">
                 Vaša posledná objednávka
               </h3>
@@ -78,12 +74,12 @@ export function LastOrderCard({ items }: Props) {
 
             <ChevronUpIcon
               className={cn(
-                "size-5 text-muted-foreground transition-transform duration-200",
+                "size-5 shrink-0 text-muted-foreground transition-transform duration-200",
                 isOpen && "rotate-180"
               )}
             />
-          </div>
-        </CollapsibleTrigger>
+          </CollapsibleTrigger>
+        </div>
 
         <CollapsibleContent className="fade-in-0 animate-in duration-400">
           <div className="mt-2 space-y-1">
@@ -96,6 +92,7 @@ export function LastOrderCard({ items }: Props) {
                   src={item.imageUrl ?? "/images/cooperation.jpg"}
                   width={48}
                 />
+
                 <div className="flex flex-1 flex-col justify-center">
                   <p className="line-clamp-1 font-medium text-sm">
                     {item.name}

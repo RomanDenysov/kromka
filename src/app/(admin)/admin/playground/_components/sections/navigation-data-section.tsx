@@ -107,13 +107,13 @@ export function NavigationDataSection() {
           </p>
           <Collapsible onOpenChange={setOpen} open={open}>
             <div className="flex items-center gap-2">
-              <CollapsibleTrigger asChild>
-                <Button size="sm" type="button" variant="ghost">
-                  <ChevronDownIcon
-                    className={`size-4 transition-transform ${open ? "rotate-180" : ""}`}
-                  />
-                  Rozbaliť sekciu
-                </Button>
+              <CollapsibleTrigger
+                render={<Button size="sm" type="button" variant="ghost" />}
+              >
+                <ChevronDownIcon
+                  className={`size-4 transition-transform ${open ? "rotate-180" : ""}`}
+                />
+                Rozbaliť sekciu
               </CollapsibleTrigger>
             </div>
             <CollapsibleContent className="mt-2 rounded-md border bg-muted/30 p-3 text-sm">

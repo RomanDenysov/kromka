@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { createRecipeAction } from "@/features/recipes/api/actions";
 import { getRecipes } from "@/features/recipes/api/queries";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
@@ -73,9 +73,13 @@ export default function RecipesPage() {
   return (
     <section className="@container/page space-y-4 p-4">
       <div className="flex items-center justify-end gap-2">
-        <Button asChild size="sm" variant="outline">
-          <a href="/admin/production/recipes/drift">Rozdiely alergénov</a>
-        </Button>
+        <a
+          className={buttonVariants({ size: "sm", variant: "outline" })}
+          href="/admin/production/recipes/drift"
+        >
+          Rozdiely alergénov
+        </a>
+
         <form action={createSubRecipe}>
           <Button size="sm" type="submit">
             + Nový subrecept

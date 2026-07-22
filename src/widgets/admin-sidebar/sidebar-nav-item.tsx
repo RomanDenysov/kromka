@@ -22,19 +22,18 @@ export function SidebarNavItem({ item, badge }: SidebarNavItemProps) {
   return (
     <SidebarMenuItem className="group/nav-item relative" data-active={isActive}>
       <SidebarMenuButton
-        asChild
         className="px-2.5 md:px-2"
         isActive={isActive}
+        render={<Link href={item.href as Route} />}
         tooltip={{
           children: item.label,
           hidden: false,
         }}
       >
-        <Link href={item.href as Route}>
-          {Icon ? <Icon /> : null}
-          <span>{item.label}</span>
-        </Link>
+        {Icon ? <Icon /> : null}
+        <span>{item.label}</span>
       </SidebarMenuButton>
+
       {badge}
     </SidebarMenuItem>
   );

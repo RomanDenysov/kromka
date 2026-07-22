@@ -2,7 +2,6 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ReactElement, ReactNode } from "react";
-import { resolveRender } from "@/lib/resolve-render";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
@@ -42,18 +41,13 @@ function ButtonGroup({
 
 function ButtonGroupText({
   className,
-  asChild = false,
   render,
   children,
   ...props
 }: useRender.ComponentProps<"div"> & {
-  /** @deprecated Use `render` instead */
-  asChild?: boolean;
   render?: ReactElement;
   children?: ReactNode;
 }) {
-  const resolvedRender = resolveRender(render, asChild, children);
-
   return useRender({
     defaultTagName: "div",
     props: mergeProps<"div">(
@@ -62,11 +56,11 @@ function ButtonGroupText({
           "flex items-center gap-2 rounded-md border bg-muted px-4 font-medium text-sm shadow-xs [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none",
           className
         ),
-        children: resolvedRender ? undefined : children,
+        children: render ? undefined : children,
       },
       props
     ),
-    render: resolvedRender,
+    render,
     state: {
       slot: "button-group-text",
     },

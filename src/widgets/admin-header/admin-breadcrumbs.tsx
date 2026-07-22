@@ -33,8 +33,11 @@ export const AdminBreadcrumbs = ({ breadcrumbs }: Props) => (
                   {item.label}
                 </BreadcrumbPage>
               ) : (
-                <BreadcrumbLink asChild className="font-medium">
-                  <Link href={item.href ?? "#"}>{item.label}</Link>
+                <BreadcrumbLink
+                  className="font-medium"
+                  render={<Link href={item.href ?? "#"} />}
+                >
+                  {item.label}
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>

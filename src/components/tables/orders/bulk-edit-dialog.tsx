@@ -159,11 +159,12 @@ export function BulkEditDialog({
         </div>
 
         <DialogFooter>
-          <DialogClose asChild>
-            <Button disabled={isPending} variant="outline">
-              Zrušiť
-            </Button>
+          <DialogClose
+            render={<Button disabled={isPending} variant="outline" />}
+          >
+            Zrušiť
           </DialogClose>
+
           <Button disabled={isPending} onClick={handleSubmit}>
             {isPending ? "Aktualizujem..." : "Potvrdiť"}
           </Button>

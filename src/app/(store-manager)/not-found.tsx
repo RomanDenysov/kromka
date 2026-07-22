@@ -2,7 +2,7 @@ import { StoreIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Empty,
   EmptyContent,
@@ -24,11 +24,12 @@ export default function NotFound() {
         </EmptyHeader>
         <EmptyContent>
           <StoreIcon className="h-12 w-12 text-muted-foreground" />
-          <Button asChild>
-            <Link href={STORE_MANAGER_BASE_PATH as Route}>
-              Vybrat inu predajnu
-            </Link>
-          </Button>
+          <Link
+            className={buttonVariants()}
+            href={STORE_MANAGER_BASE_PATH as Route}
+          >
+            Vybrat inu predajnu
+          </Link>
         </EmptyContent>
       </Empty>
     </div>

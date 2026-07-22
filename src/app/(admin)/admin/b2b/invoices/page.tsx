@@ -5,7 +5,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getInvoices } from "@/features/b2b/invoices/api/queries";
 import { formatPrice } from "@/lib/utils";
@@ -62,12 +62,13 @@ async function InvoicesLoader() {
                   </p>
                 )}
               </div>
-              <Button asChild size="sm" variant="outline">
-                <Link href={`/admin/b2b/invoices/${invoice.id}` as Route}>
-                  Detail
-                  <ArrowRightIcon className="ml-2 size-4" />
-                </Link>
-              </Button>
+              <Link
+                className={buttonVariants({ size: "sm", variant: "outline" })}
+                href={`/admin/b2b/invoices/${invoice.id}` as Route}
+              >
+                Detail
+                <ArrowRightIcon className="ml-2 size-4" />
+              </Link>
             </CardContent>
           </Card>
         );

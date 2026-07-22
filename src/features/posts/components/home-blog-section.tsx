@@ -1,7 +1,7 @@
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/shared/container";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { getLatestPosts } from "@/features/posts/api/queries";
 import { BlogCard } from "./blog-card";
 
@@ -29,12 +29,10 @@ export async function HomeBlogSection({ className }: Props) {
               Recepty, tipy a novinky zo sveta pekárenstva
             </p>
           </div>
-          <Button asChild variant="outline">
-            <Link href="/blog">
-              Všetky články
-              <ArrowRightIcon className="ml-2 size-4" />
-            </Link>
-          </Button>
+          <Link className={buttonVariants({ variant: "outline" })} href="/blog">
+            Všetky články
+            <ArrowRightIcon className="ml-2 size-4" />
+          </Link>
         </div>
 
         {/* Posts Grid */}

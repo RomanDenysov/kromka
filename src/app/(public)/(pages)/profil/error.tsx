@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export default function ProfileError({
   reset,
@@ -18,9 +18,9 @@ export default function ProfileError({
       </p>
       <div className="flex gap-3">
         <Button onClick={reset}>Skúsiť znova</Button>
-        <Button asChild variant="outline">
-          <Link href="/">Späť na hlavnú stránku</Link>
-        </Button>
+        <Link className={buttonVariants({ variant: "outline" })} href="/">
+          Späť na hlavnú stránku
+        </Link>
       </div>
     </div>
   );

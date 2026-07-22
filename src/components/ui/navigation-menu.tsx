@@ -2,7 +2,6 @@ import { NavigationMenu as NavigationMenuPrimitive } from "@base-ui/react/naviga
 import { cva, type VariantProps } from "class-variance-authority";
 import { ChevronDownIcon } from "lucide-react";
 import type { ComponentProps } from "react";
-import { type AsChildProps, resolveRender } from "@/lib/resolve-render";
 
 import { cn } from "@/lib/utils";
 
@@ -176,13 +175,10 @@ function NavigationMenuViewport({
 
 function NavigationMenuLink({
   className,
-  asChild,
   render,
   children,
   ...props
-}: ComponentProps<typeof NavigationMenuPrimitive.Link> & AsChildProps) {
-  const resolvedRender = resolveRender(render, asChild, children);
-
+}: ComponentProps<typeof NavigationMenuPrimitive.Link>) {
   return (
     <NavigationMenuPrimitive.Link
       className={cn(
@@ -190,7 +186,7 @@ function NavigationMenuLink({
         className
       )}
       data-slot="navigation-menu-link"
-      render={resolvedRender}
+      render={render}
       {...props}
     >
       {children}
@@ -205,7 +201,7 @@ function NavigationMenuIndicator({
   return (
     <NavigationMenuPrimitive.Icon
       className={cn(
-        "top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:animate-in data-[state=visible]:fade-in",
+        "top-full z-1 flex h-1.5 items-end justify-center overflow-hidden data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:animate-in data-[state=visible]:fade-in",
         className
       )}
       data-slot="navigation-menu-indicator"

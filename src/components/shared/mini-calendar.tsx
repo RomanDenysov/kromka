@@ -8,6 +8,7 @@ import {
   createContext,
   type HTMLAttributes,
   type MouseEventHandler,
+  type ReactElement,
   type ReactNode,
   useContext,
 } from "react";
@@ -128,12 +129,12 @@ export const MiniCalendar = ({
 export type MiniCalendarNavigationProps =
   ButtonHTMLAttributes<HTMLButtonElement> & {
     direction: "prev" | "next";
-    asChild?: boolean;
+    render?: ReactElement;
   };
 
 export const MiniCalendarNavigation = ({
   direction,
-  asChild = false,
+  render,
   children,
   onClick,
   ...props
@@ -146,20 +147,20 @@ export const MiniCalendarNavigation = ({
     onClick?.(event);
   };
 
-  if (asChild) {
+  if (render) {
     return (
-      <Slot.Root onClick={handleClick} {...props}>
-        {children}
-      </Slot.Root>
+      <Slot onClick={handleClick} {...props}>
+        {render}
+      </Slot>
     );
   }
 
   return (
     <Button
       onClick={handleClick}
-      size={asChild ? undefined : "icon"}
+      size="icon"
       type="button"
-      variant={asChild ? undefined : "ghost"}
+      variant="ghost"
       {...props}
     >
       {children ?? <Icon className="size-4" />}

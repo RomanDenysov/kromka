@@ -112,24 +112,26 @@ export function BuyAgainBannerClient({ items }: Props) {
           }}
           open={dialogOpen}
         >
-          <DialogTrigger asChild>
-            <div className="flex items-center rounded-lg transition-opacity hover:opacity-80">
-              {items.slice(0, 5).map((item) => (
-                <ProductImage
-                  alt={item.name}
-                  className="-mr-1 size-14 rounded-lg object-cover ring-1 ring-muted sm:size-16"
-                  height={64}
-                  key={item.productId}
-                  src={item.imageUrl ?? "/images/cooperation.jpg"}
-                  width={64}
-                />
-              ))}
-              {items.length > 5 && (
-                <span className="flex size-14 items-center justify-center rounded-xl bg-muted font-medium text-muted-foreground text-sm ring-2 ring-white sm:size-16">
-                  +{items.length - 5}
-                </span>
-              )}
-            </div>
+          <DialogTrigger
+            render={
+              <div className="flex items-center rounded-lg transition-opacity hover:opacity-80" />
+            }
+          >
+            {items.slice(0, 5).map((item) => (
+              <ProductImage
+                alt={item.name}
+                className="-mr-1 size-14 rounded-lg object-cover ring-1 ring-muted sm:size-16"
+                height={64}
+                key={item.productId}
+                src={item.imageUrl ?? "/images/cooperation.jpg"}
+                width={64}
+              />
+            ))}
+            {items.length > 5 && (
+              <span className="flex size-14 items-center justify-center rounded-xl bg-muted font-medium text-muted-foreground text-sm ring-2 ring-white sm:size-16">
+                +{items.length - 5}
+              </span>
+            )}
           </DialogTrigger>
 
           <DialogContent>
@@ -150,6 +152,7 @@ export function BuyAgainBannerClient({ items }: Props) {
                       src={item.imageUrl ?? "/images/cooperation.jpg"}
                       width={56}
                     />
+
                     <div className="flex flex-1 flex-col gap-0.5">
                       <p className="line-clamp-1 font-medium text-sm">
                         {item.name}

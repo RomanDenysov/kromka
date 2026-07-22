@@ -116,17 +116,20 @@ export function PickupDatesField<T extends FieldValues>({
             )}
 
             <Dialog>
-              <DialogTrigger asChild>
-                <Button
-                  className="mt-2 w-full"
-                  size="xs"
-                  type="button"
-                  variant="outline"
-                >
-                  <PlusIcon className="size-4" />
-                  {sortedDates.length > 0 ? "Upraviť dátumy" : "Pridať dátumy"}
-                </Button>
+              <DialogTrigger
+                render={
+                  <Button
+                    className="mt-2 w-full"
+                    size="xs"
+                    type="button"
+                    variant="outline"
+                  />
+                }
+              >
+                <PlusIcon className="size-4" />
+                {sortedDates.length > 0 ? "Upraviť dátumy" : "Pridať dátumy"}
               </DialogTrigger>
+
               <DialogContent className="sm:max-w-fit">
                 <DialogHeader>
                   <DialogTitle>Vyberte dátumy vyzdvihnutia</DialogTitle>

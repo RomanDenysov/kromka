@@ -43,18 +43,21 @@ export function DateRangeField<T extends FieldValues>({
           >
             {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
             <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  className="w-56 justify-between font-normal"
-                  type="button"
-                  variant="outline"
-                >
-                  {range?.from
-                    ? `${format(range.from, "dd.MM.yyyy")}${range.to && range.to !== range.from ? ` - ${format(range.to, "dd.MM.yyyy")}` : ""}`
-                    : "Vyberte obdobie"}
-                  <CalendarIcon className="size-4" />
-                </Button>
+              <PopoverTrigger
+                render={
+                  <Button
+                    className="w-56 justify-between font-normal"
+                    type="button"
+                    variant="outline"
+                  />
+                }
+              >
+                {range?.from
+                  ? `${format(range.from, "dd.MM.yyyy")}${range.to && range.to !== range.from ? ` - ${format(range.to, "dd.MM.yyyy")}` : ""}`
+                  : "Vyberte obdobie"}
+                <CalendarIcon className="size-4" />
               </PopoverTrigger>
+
               <PopoverContent
                 align="start"
                 className="w-auto overflow-hidden p-0"

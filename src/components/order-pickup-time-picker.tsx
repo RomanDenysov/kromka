@@ -37,22 +37,25 @@ export function OrderPickupTimePicker({
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          className="h-10 w-full justify-start gap-3 font-medium text-sm"
-          disabled={isDisabled}
-          id="time"
-          variant="outline"
-        >
-          <ClockIcon className="size-5 shrink-0 text-muted-foreground" />
-          {selectedTime ? (
-            <span className="truncate">{selectedTime}</span>
-          ) : (
-            <span className="truncate">--:--</span>
-          )}
-          <ChevronDownIcon className="ml-auto" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            className="h-10 w-full justify-start gap-3 font-medium text-sm"
+            disabled={isDisabled}
+            id="time"
+            variant="outline"
+          />
+        }
+      >
+        <ClockIcon className="size-5 shrink-0 text-muted-foreground" />
+        {selectedTime ? (
+          <span className="truncate">{selectedTime}</span>
+        ) : (
+          <span className="truncate">--:--</span>
+        )}
+        <ChevronDownIcon className="ml-auto" />
       </PopoverTrigger>
+
       <PopoverContent
         align="end"
         className="scrollbar-hide w-auto rounded-sm p-2"

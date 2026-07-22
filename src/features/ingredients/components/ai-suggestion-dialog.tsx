@@ -89,18 +89,21 @@ export function AiSuggestionDialog({
 
   return (
     <AlertDialog onOpenChange={handleOpenChange} open={open}>
-      <AlertDialogTrigger asChild>
-        <Button
-          disabled={disabled}
-          size="sm"
-          title={disabledReason}
-          type="button"
-          variant="outline"
-        >
-          <SparklesIcon className="mr-1.5 size-4" />
-          Vyplniť pomocou AI
-        </Button>
+      <AlertDialogTrigger
+        render={
+          <Button
+            disabled={disabled}
+            size="sm"
+            title={disabledReason}
+            type="button"
+            variant="outline"
+          />
+        }
+      >
+        <SparklesIcon className="mr-1.5 size-4" />
+        Vyplniť pomocou AI
       </AlertDialogTrigger>
+
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Návrh nutričných hodnôt</AlertDialogTitle>

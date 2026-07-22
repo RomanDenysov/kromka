@@ -1,6 +1,6 @@
 import { DownloadIcon } from "lucide-react";
 import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   getProductProfitability,
   getProfitabilitySummary,
@@ -91,12 +91,13 @@ async function ExportButton({ searchParams }: Props) {
   const params = await searchParams;
   const preset = params.period ?? "30d";
   return (
-    <Button asChild size="sm" variant="outline">
-      <a href={`/api/admin/reports/export?report=products&period=${preset}`}>
-        <DownloadIcon className="mr-1.5 size-4" />
-        Stiahnuť CSV
-      </a>
-    </Button>
+    <a
+      className={buttonVariants({ size: "sm", variant: "outline" })}
+      href={`/api/admin/reports/export?report=products&period=${preset}`}
+    >
+      <DownloadIcon className="mr-1.5 size-4" />
+      Stiahnuť CSV
+    </a>
   );
 }
 

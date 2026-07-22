@@ -76,19 +76,20 @@ export function OrderPickupDatePicker({
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          className="h-10 w-full justify-start gap-3 font-medium text-sm"
-          id="date"
-          variant="outline"
-        >
-          <Calendar1Icon className="size-5 shrink-0 text-muted-foreground" />
-          {selectedDate
-            ? format(selectedDate, "PP", { locale: sk })
-            : "--/--/--"}
-          <ChevronDownIcon className="ml-auto" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            className="h-10 w-full justify-start gap-3 font-medium text-sm"
+            id="date"
+            variant="outline"
+          />
+        }
+      >
+        <Calendar1Icon className="size-5 shrink-0 text-muted-foreground" />
+        {selectedDate ? format(selectedDate, "PP", { locale: sk }) : "--/--/--"}
+        <ChevronDownIcon className="ml-auto" />
       </PopoverTrigger>
+
       <PopoverContent align="start" className="w-auto overflow-hidden p-0">
         <Calendar
           captionLayout="label"

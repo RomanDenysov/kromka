@@ -37,13 +37,14 @@ export const columns: ColumnDef<AdminTag, TagTableMeta>[] = [
     header: ({ table }) => (
       <Checkbox
         aria-label="Vybrať všetky"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={
+          table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
+
     cell: ({ row }) => (
       <Checkbox
         aria-label="Vybrať riadok"
@@ -51,6 +52,7 @@ export const columns: ColumnDef<AdminTag, TagTableMeta>[] = [
         onCheckedChange={(value) => row.toggleSelected(!!value)}
       />
     ),
+
     size: 32,
     enableSorting: false,
     enableHiding: false,
@@ -63,6 +65,7 @@ export const columns: ColumnDef<AdminTag, TagTableMeta>[] = [
         title="Názov"
       />
     ),
+
     meta: {
       label: "Názov",
       variant: "text",
@@ -87,6 +90,7 @@ export const columns: ColumnDef<AdminTag, TagTableMeta>[] = [
         title="Slug"
       />
     ),
+
     meta: {
       label: "Slug",
       variant: "text",
@@ -108,6 +112,7 @@ export const columns: ColumnDef<AdminTag, TagTableMeta>[] = [
         title="Počet článkov"
       />
     ),
+
     meta: {
       label: "Počet článkov",
       variant: "number",
@@ -130,23 +135,27 @@ export const columns: ColumnDef<AdminTag, TagTableMeta>[] = [
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon-xs" variant="ghost">
-              <MoreHorizontalIcon />
-            </Button>
+          <DropdownMenuTrigger
+            render={<Button size="icon-xs" variant="ghost" />}
+          >
+            <MoreHorizontalIcon />
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => meta?.onEdit?.(tag)}>
               <PencilIcon />
               Upraviť
             </DropdownMenuItem>
             <AlertDialog key={`delete-${tag.id}`}>
-              <DropdownMenuItem asChild asDialogTrigger variant="destructive">
-                <AlertDialogTrigger className="w-full">
-                  <Trash2Icon />
-                  Vymazať
-                </AlertDialogTrigger>
+              <DropdownMenuItem
+                asDialogTrigger
+                render={<AlertDialogTrigger className="w-full" />}
+                variant="destructive"
+              >
+                <Trash2Icon />
+                Vymazať
               </DropdownMenuItem>
+
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Odstrániť štítok</AlertDialogTitle>

@@ -3,7 +3,6 @@
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 import type { ComponentProps } from "react";
-import { type AsChildProps, resolveRender } from "@/lib/resolve-render";
 
 import { cn } from "@/lib/utils";
 
@@ -22,17 +21,14 @@ function DropdownMenuPortal({
 }
 
 function DropdownMenuTrigger({
-  asChild,
   render,
   children,
   ...props
-}: ComponentProps<typeof MenuPrimitive.Trigger> & AsChildProps) {
-  const resolvedRender = resolveRender(render, asChild, children);
-
+}: ComponentProps<typeof MenuPrimitive.Trigger>) {
   return (
     <MenuPrimitive.Trigger
       data-slot="dropdown-menu-trigger"
-      render={resolvedRender}
+      render={render}
       {...props}
     >
       {children}
@@ -85,17 +81,14 @@ function DropdownMenuItem({
   inset,
   variant = "default",
   asDialogTrigger = false,
-  asChild,
   render,
   children,
   ...props
-}: ComponentProps<typeof MenuPrimitive.Item> & AsChildProps & {
+}: ComponentProps<typeof MenuPrimitive.Item> & {
   inset?: boolean;
   variant?: "default" | "destructive";
   asDialogTrigger?: boolean;
 }) {
-  const resolvedRender = resolveRender(render, asChild, children);
-
   return (
     <MenuPrimitive.Item
       className={cn(
@@ -106,7 +99,7 @@ function DropdownMenuItem({
       data-inset={inset}
       data-slot="dropdown-menu-item"
       data-variant={variant}
-      render={resolvedRender}
+      render={render}
       {...props}
     >
       {children}

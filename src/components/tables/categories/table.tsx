@@ -124,6 +124,7 @@ export function CategoriesTable({
             placeholder="Hľadať kategórie..."
             value={globalFilter}
           />
+
           <DataTableMultiSelectFilter
             columnId="isActive"
             options={isActiveOptions}
@@ -134,16 +135,19 @@ export function CategoriesTable({
         <div className="flex items-center justify-end gap-2">
           {Object.keys(rowSelection).length > 1 && (
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  disabled={Object.keys(rowSelection).length === 0}
-                  size="sm"
-                  variant="destructive"
-                >
-                  <Trash2Icon />
-                  Vymazať {Object.keys(rowSelection).length} kategórií
-                </Button>
+              <AlertDialogTrigger
+                render={
+                  <Button
+                    disabled={Object.keys(rowSelection).length === 0}
+                    size="sm"
+                    variant="destructive"
+                  />
+                }
+              >
+                <Trash2Icon />
+                Vymazať {Object.keys(rowSelection).length} kategórií
               </AlertDialogTrigger>
+
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Odstrániť kategórie</AlertDialogTitle>

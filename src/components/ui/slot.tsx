@@ -3,6 +3,7 @@
 import {
   Children,
   cloneElement,
+  createElement,
   isValidElement,
   type ReactElement,
   type ReactNode,
@@ -26,7 +27,20 @@ function Slot({ children, ...props }: SlotProps) {
   return cloneElement(child as ReactElement, props);
 }
 
+function withSlot<T extends keyof React.JSX.IntrinsicElements>(
+  render: ReactElement | undefined,
+  defaultTag: T,
+  props: Record<string, unknown>,
+  children?: ReactNode
+) {
+  if (render) {
+    return <Slot {...props}>{render}</Slot>;
+  }
+
+  return createElement(defaultTag, props, children);
+}
+
 const Root = Slot;
 Slot.Root = Slot;
 
-export { Root, Slot };
+export { Root, Slot, withSlot };

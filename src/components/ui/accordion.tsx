@@ -15,16 +15,30 @@ type AccordionRootProps = ComponentProps<typeof AccordionPrimitive.Root> & {
 
 function Accordion({
   type,
-  collapsible: _collapsible,
+  collapsible = true,
   multiple,
+  onValueChange,
   ...props
 }: AccordionRootProps) {
   const resolvedMultiple = multiple ?? type === "multiple";
+
+  const handleValueChange = (
+    value: AccordionPrimitive.Root.Value,
+    eventDetails: AccordionPrimitive.Root.ChangeEventDetails
+  ) => {
+    if (!resolvedMultiple && !collapsible && value.length === 0) {
+      eventDetails.cancel();
+      return;
+    }
+
+    onValueChange?.(value, eventDetails);
+  };
 
   return (
     <AccordionPrimitive.Root
       data-slot="accordion"
       multiple={resolvedMultiple}
+      onValueChange={handleValueChange}
       {...props}
     />
   );
