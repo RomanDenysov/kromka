@@ -1,6 +1,7 @@
-import { Slot } from "@radix-ui/react-slot";
+import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactElement, ReactNode } from "react";
+import { resolveRender } from "@/lib/resolve-render";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
@@ -47,9 +48,12 @@ const buttonVariants = cva(
   }
 );
 
-type ButtonProps = ComponentProps<"button"> &
+type ButtonProps = ButtonPrimitive.Props &
   VariantProps<typeof buttonVariants> & {
+    /** @deprecated Use `render` instead */
     asChild?: boolean;
+    render?: ReactElement;
+    children?: ReactNode;
   };
 
 function Button({
@@ -57,16 +61,21 @@ function Button({
   variant,
   size,
   asChild = false,
+  render,
+  children,
   ...props
 }: ButtonProps) {
-  const Comp = asChild ? Slot : "button";
+  const resolvedRender = resolveRender(render, asChild, children);
 
   return (
-    <Comp
+    <ButtonPrimitive
       className={cn(buttonVariants({ variant, size }), className)}
       data-slot="button"
+      render={resolvedRender}
       {...props}
-    />
+    >
+      {resolvedRender ? children : children}
+    </ButtonPrimitive>
   );
 }
 

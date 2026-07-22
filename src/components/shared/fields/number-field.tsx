@@ -1,7 +1,5 @@
 "use client";
 
-import { Slot } from "@radix-ui/react-slot";
-import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { MinusIcon, PlusIcon } from "lucide-react";
 import {
   type ComponentPropsWithoutRef,
@@ -11,6 +9,8 @@ import {
   useContext,
   useRef,
 } from "react";
+import { Slot } from "@/components/ui/slot";
+import { useControllableState } from "@/lib/use-controllable-state";
 import { cn } from "@/lib/utils";
 
 interface NumberFieldContextValue {

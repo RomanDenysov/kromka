@@ -1,9 +1,7 @@
 "use client";
 
-import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { addDays, format, isSameDay, isToday } from "date-fns";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { Slot } from "radix-ui";
 import {
   type ButtonHTMLAttributes,
   type ComponentProps,
@@ -14,6 +12,8 @@ import {
   useContext,
 } from "react";
 import { Button } from "@/components/ui/button";
+import { Slot } from "@/components/ui/slot";
+import { useControllableState } from "@/lib/use-controllable-state";
 import { cn } from "@/lib/utils";
 
 // Context for sharing state between components

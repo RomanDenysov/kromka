@@ -1,7 +1,7 @@
 "use client";
 
-// biome-ignore lint/performance/noNamespaceImport: This is a valid use case
-import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group";
+import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
+import { ToggleGroup as ToggleGroupPrimitive } from "@base-ui/react/toggle-group";
 import type { VariantProps } from "class-variance-authority";
 import {
   type ComponentProps,
@@ -22,19 +22,30 @@ const ToggleGroupContext = createContext<
   spacing: 0,
 });
 
+type ToggleGroupProps = Omit<
+  ComponentProps<typeof ToggleGroupPrimitive>,
+  "type"
+> &
+  VariantProps<typeof toggleVariants> & {
+    spacing?: number;
+    /** @deprecated Use `multiple` instead */
+    type?: "single" | "multiple";
+  };
+
 function ToggleGroup({
   className,
   variant,
   size,
   spacing = 0,
   children,
+  type,
+  multiple,
   ...props
-}: ComponentProps<typeof ToggleGroupPrimitive.Root> &
-  VariantProps<typeof toggleVariants> & {
-    spacing?: number;
-  }) {
+}: ToggleGroupProps) {
+  const resolvedMultiple = multiple ?? type === "multiple";
+
   return (
-    <ToggleGroupPrimitive.Root
+    <ToggleGroupPrimitive
       className={cn(
         "group/toggle-group flex w-fit items-center gap-[--spacing(var(--gap))] rounded-md data-[spacing=default]:data-[variant=outline]:shadow-xs",
         className
@@ -43,13 +54,14 @@ function ToggleGroup({
       data-slot="toggle-group"
       data-spacing={spacing}
       data-variant={variant}
+      multiple={resolvedMultiple}
       style={{ "--gap": spacing } as CSSProperties}
       {...props}
     >
       <ToggleGroupContext.Provider value={{ variant, size, spacing }}>
         {children}
       </ToggleGroupContext.Provider>
-    </ToggleGroupPrimitive.Root>
+    </ToggleGroupPrimitive>
   );
 }
 
@@ -59,12 +71,12 @@ function ToggleGroupItem({
   variant,
   size,
   ...props
-}: ComponentProps<typeof ToggleGroupPrimitive.Item> &
+}: ComponentProps<typeof TogglePrimitive> &
   VariantProps<typeof toggleVariants>) {
   const context = useContext(ToggleGroupContext);
 
   return (
-    <ToggleGroupPrimitive.Item
+    <TogglePrimitive
       className={cn(
         toggleVariants({
           variant: context.variant || variant,
@@ -81,7 +93,7 @@ function ToggleGroupItem({
       {...props}
     >
       {children}
-    </ToggleGroupPrimitive.Item>
+    </TogglePrimitive>
   );
 }
 

@@ -1,7 +1,6 @@
 "use client";
 
-// biome-ignore lint/performance/noNamespaceImport: needed to use the namespace import
-import * as ProgressPrimitive from "@radix-ui/react-progress";
+import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 import type { ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
@@ -18,13 +17,15 @@ function Progress({
         className
       )}
       data-slot="progress"
+      value={value}
       {...props}
     >
-      <ProgressPrimitive.Indicator
-        className="h-full w-full flex-1 bg-primary transition-transform duration-300 ease-out motion-reduce:duration-150"
-        data-slot="progress-indicator"
-        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-      />
+      <ProgressPrimitive.Track className="size-full">
+        <ProgressPrimitive.Indicator
+          className="h-full w-full flex-1 bg-primary transition-transform duration-300 ease-out motion-reduce:duration-150"
+          data-slot="progress-indicator"
+        />
+      </ProgressPrimitive.Track>
     </ProgressPrimitive.Root>
   );
 }

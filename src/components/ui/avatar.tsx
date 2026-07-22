@@ -1,7 +1,6 @@
 "use client";
 
-// biome-ignore lint/performance/noNamespaceImport: This is a valid use case
-import * as AvatarPrimitive from "@radix-ui/react-avatar";
+import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
@@ -36,8 +35,13 @@ function AvatarImage({
 
 function AvatarFallback({
   className,
+  delayMs,
+  delay,
   ...props
-}: ComponentProps<typeof AvatarPrimitive.Fallback>) {
+}: ComponentProps<typeof AvatarPrimitive.Fallback> & {
+  /** @deprecated Radix compat — use `delay` */
+  delayMs?: number;
+}) {
   return (
     <AvatarPrimitive.Fallback
       className={cn(
@@ -45,6 +49,7 @@ function AvatarFallback({
         className
       )}
       data-slot="avatar-fallback"
+      delay={delayMs ?? delay}
       {...props}
     />
   );

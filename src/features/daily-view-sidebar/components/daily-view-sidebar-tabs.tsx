@@ -34,13 +34,13 @@ export function DailyViewSidebarTabs({
     >
       <TabsList className="h-8 w-full shrink-0 rounded-none border-b bg-transparent p-0">
         <TabsTrigger
-          className="h-8 flex-1 rounded-none border-transparent border-b-2 px-2 text-xs data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+          className="h-8 flex-1 rounded-none border-transparent border-b-2 px-2 text-xs data-active:border-primary data-active:bg-transparent data-active:shadow-none"
           value="orders"
         >
           Objednávky ({orders.length})
         </TabsTrigger>
         <TabsTrigger
-          className="h-8 flex-1 rounded-none border-transparent border-b-2 px-2 text-xs data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+          className="h-8 flex-1 rounded-none border-transparent border-b-2 px-2 text-xs data-active:border-primary data-active:bg-transparent data-active:shadow-none"
           value="activity"
         >
           Aktivita ({activity.length})

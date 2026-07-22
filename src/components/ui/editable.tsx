@@ -1,6 +1,6 @@
 "use client";
 
-import { Slot } from "@radix-ui/react-slot";
+import { Slot } from "@/components/ui/slot";
 import {
   type ChangeEvent,
   type ComponentProps,

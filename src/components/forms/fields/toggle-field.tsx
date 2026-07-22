@@ -48,10 +48,10 @@ export function ToggleField<T extends FieldValues>({
                 pressed={value}
                 size="sm"
               >
-                <div className="items-center gap-0.5 group-data-[state=on]/toggle:flex group-data-[state=off]/toggle:hidden">
+                <div className="items-center gap-0.5 group-aria-pressed/toggle:hidden group-data-pressed/toggle:flex">
                   <CheckIcon /> Ano
                 </div>
-                <div className="items-center gap-0.5 group-data-[state=off]/toggle:flex group-data-[state=on]/toggle:hidden">
+                <div className="items-center gap-0.5 group-aria-pressed/toggle:flex group-data-pressed/toggle:hidden">
                   <XIcon />
                   Nie
                 </div>
