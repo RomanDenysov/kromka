@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export default function CheckoutError({
   reset,
@@ -18,9 +18,9 @@ export default function CheckoutError({
       </p>
       <div className="flex gap-3">
         <Button onClick={reset}>Skúsiť znova</Button>
-        <Button asChild variant="outline">
-          <Link href="/e-shop">Späť do obchodu</Link>
-        </Button>
+        <Link className={buttonVariants({ variant: "outline" })} href="/e-shop">
+          Späť do obchodu
+        </Link>
       </div>
     </div>
   );

@@ -89,17 +89,20 @@ export function DataTableDateRangeFilter({
   return (
     <ButtonGroup className="*:data-[hidden=true]:hidden [&:has(>[data-hidden=true]:last-child)>*:first-child]:rounded-r-md">
       <Popover>
-        <PopoverTrigger asChild>
-          <Button className="border-dashed" size="sm" variant="outline">
-            <CalendarIcon className="mr-1 h-4 w-4" />
-            {title}
-            {hasFilter && (
-              <Badge className="ml-2" size="xs" variant="secondary">
-                {getBadgeText()}
-              </Badge>
-            )}
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button className="border-dashed" size="sm" variant="outline" />
+          }
+        >
+          <CalendarIcon className="mr-1 h-4 w-4" />
+          {title}
+          {hasFilter && (
+            <Badge className="ml-2" size="xs" variant="secondary">
+              {getBadgeText()}
+            </Badge>
+          )}
         </PopoverTrigger>
+
         <PopoverContent align="start" className="w-auto p-0">
           <Calendar
             defaultMonth={dateRange?.from}
@@ -111,6 +114,7 @@ export function DataTableDateRangeFilter({
             timeZone="Europe/Bratislava"
             weekStartsOn={1}
           />
+
           <div className={hasFilter ? "border-t p-2" : "hidden"}>
             <Button
               className="w-full"

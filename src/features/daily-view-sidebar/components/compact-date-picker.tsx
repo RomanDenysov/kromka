@@ -38,17 +38,20 @@ export function CompactDatePicker({ dailyStats }: CompactDatePickerProps) {
       </Button>
 
       <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            className="h-7 min-w-0 flex-1 gap-1.5 px-2 font-medium text-xs"
-            variant="ghost"
-          >
-            <CalendarIcon className="size-3.5 shrink-0 text-muted-foreground" />
-            <span className="truncate capitalize">
-              {format(date, "EEE d. M.", { locale: sk })}
-            </span>
-          </Button>
+        <PopoverTrigger
+          render={
+            <Button
+              className="h-7 min-w-0 flex-1 gap-1.5 px-2 font-medium text-xs"
+              variant="ghost"
+            />
+          }
+        >
+          <CalendarIcon className="size-3.5 shrink-0 text-muted-foreground" />
+          <span className="truncate capitalize">
+            {format(date, "EEE d. M.", { locale: sk })}
+          </span>
         </PopoverTrigger>
+
         <PopoverContent align="center" className="w-auto p-0">
           <DashboardCalendar dailyStats={dailyStats} />
         </PopoverContent>

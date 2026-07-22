@@ -127,16 +127,19 @@ export function TagsTable({ tags }: { tags: AdminTag[] }) {
           <div className="flex items-center justify-end gap-2">
             {Object.keys(rowSelection).length > 1 && (
               <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    disabled={Object.keys(rowSelection).length === 0}
-                    size="xs"
-                    variant="destructive"
-                  >
-                    <Trash2Icon />
-                    Vymazať {Object.keys(rowSelection).length} štítkov
-                  </Button>
+                <AlertDialogTrigger
+                  render={
+                    <Button
+                      disabled={Object.keys(rowSelection).length === 0}
+                      size="xs"
+                      variant="destructive"
+                    />
+                  }
+                >
+                  <Trash2Icon />
+                  Vymazať {Object.keys(rowSelection).length} štítkov
                 </AlertDialogTrigger>
+
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Odstrániť štítky</AlertDialogTitle>

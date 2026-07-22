@@ -1,7 +1,7 @@
 "use client";
 
 import { ExternalLink, Navigation } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { getMapUrl } from "@/lib/geo-utils";
 
 interface StoreNavigationButtonProps {
@@ -34,11 +34,14 @@ export function StoreNavigationButton({
   }
 
   return (
-    <Button asChild variant="outline">
-      <a href={mapUrl} rel="noopener noreferrer" target="_blank">
-        <Navigation className="size-4" />
-        Navigovať
-      </a>
-    </Button>
+    <a
+      className={buttonVariants({ variant: "outline" })}
+      href={mapUrl}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <Navigation className="size-4" />
+      Navigovať
+    </a>
   );
 }

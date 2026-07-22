@@ -102,15 +102,18 @@ export function IngredientPicker({
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger asChild>
-        <button
-          className="flex items-center gap-2 rounded-md border border-dashed px-3 py-2 text-sm hover:bg-accent"
-          type="button"
-        >
-          <PlusIcon className="size-4" />
-          Pridať ingredienciu / subrecept
-        </button>
+      <DialogTrigger
+        render={
+          <button
+            className="flex items-center gap-2 rounded-md border border-dashed px-3 py-2 text-sm hover:bg-accent"
+            type="button"
+          />
+        }
+      >
+        <PlusIcon className="size-4" />
+        Pridať ingredienciu / subrecept
       </DialogTrigger>
+
       <DialogContent className="max-w-xl overflow-hidden p-0">
         <DialogHeader className="border-b px-4 py-3">
           <DialogTitle className="text-base">Vybrať položku</DialogTitle>

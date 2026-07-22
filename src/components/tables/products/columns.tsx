@@ -52,13 +52,14 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
     header: ({ table }) => (
       <Checkbox
         aria-label="Select all"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={
+          table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
+
     cell: ({ row }) => (
       <Checkbox
         aria-label="Select row"
@@ -66,6 +67,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         onCheckedChange={(value) => row.toggleSelected(!!value)}
       />
     ),
+
     size: 32,
     enableSorting: false,
     enableHiding: false,
@@ -105,6 +107,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Produkt"
       />
     ),
+
     meta: {
       label: "Produkt",
       variant: "text",
@@ -129,6 +132,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Status"
       />
     ),
+
     accessorKey: "status",
     enableSorting: true,
     meta: {
@@ -163,6 +167,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Stav"
       />
     ),
+
     accessorKey: "isActive",
     enableSorting: true,
     meta: {
@@ -212,6 +217,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Cena"
       />
     ),
+
     meta: {
       label: "Cena",
       variant: "number",
@@ -232,6 +238,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Kategórie"
       />
     ),
+
     meta: {
       label: "Kategórie",
       variant: "text",
@@ -256,6 +263,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Katalog"
       />
     ),
+
     meta: {
       label: "Katalog",
       variant: "multiSelect",
@@ -289,6 +297,7 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
         title="Vytvorené"
       />
     ),
+
     meta: {
       label: "Vytvorené",
       variant: "date",
@@ -309,29 +318,36 @@ export const columns: ColumnDef<AdminProduct, ProductTableMeta>[] = [
       const meta = table.options.meta as ProductTableMeta;
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon-xs" variant="ghost">
-              <MoreHorizontalIcon />
-            </Button>
+          <DropdownMenuTrigger
+            render={<Button size="icon-xs" variant="ghost" />}
+          >
+            <MoreHorizontalIcon />
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/eshop/products/${row.original.id}`}>
-                <PencilIcon />
-                Upraviť
-              </Link>
+            <DropdownMenuItem
+              render={
+                <Link href={`/admin/eshop/products/${row.original.id}`} />
+              }
+            >
+              <PencilIcon />
+              Upraviť
             </DropdownMenuItem>
+
             <DropdownMenuItem onClick={() => meta?.onCopy?.(row.original.id)}>
               <CopyIcon />
               Kopírovať
             </DropdownMenuItem>
             <AlertDialog key={`delete-${row.original.id}`}>
-              <DropdownMenuItem asChild asDialogTrigger variant="destructive">
-                <AlertDialogTrigger className="w-full">
-                  <ArchiveIcon />
-                  Archivovať
-                </AlertDialogTrigger>
+              <DropdownMenuItem
+                asDialogTrigger
+                render={<AlertDialogTrigger className="w-full" />}
+                variant="destructive"
+              >
+                <ArchiveIcon />
+                Archivovať
               </DropdownMenuItem>
+
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Archivovať produkt</AlertDialogTitle>

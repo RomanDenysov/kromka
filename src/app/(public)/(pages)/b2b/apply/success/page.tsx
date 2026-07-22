@@ -3,7 +3,7 @@ import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createMetadata } from "@/lib/metadata";
 import { getSiteUrl } from "@/lib/utils";
@@ -43,12 +43,13 @@ export default function B2BApplySuccessPage() {
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <Button asChild>
-                <Link href="/b2b">Späť na B2B</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/">Na hlavnú stránku</Link>
-              </Button>
+              <Link className={buttonVariants()} href="/b2b">
+                Späť na B2B
+              </Link>
+
+              <Link className={buttonVariants({ variant: "outline" })} href="/">
+                Na hlavnú stránku
+              </Link>
             </div>
           </CardContent>
         </Card>

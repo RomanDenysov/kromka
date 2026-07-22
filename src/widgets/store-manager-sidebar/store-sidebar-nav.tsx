@@ -98,15 +98,14 @@ function NavMenuItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
   return (
     <SidebarMenuItem>
       <SidebarMenuButton
-        asChild
         isActive={isActive}
+        render={<Link href={item.href} />}
         tooltip={item.tooltip ?? item.label}
       >
-        <Link href={item.href}>
-          <Icon />
-          <span>{item.label}</span>
-        </Link>
+        <Icon />
+        <span>{item.label}</span>
       </SidebarMenuButton>
+
       {item.badge}
     </SidebarMenuItem>
   );

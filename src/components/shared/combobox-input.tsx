@@ -28,22 +28,25 @@ export function ComboboxInput({ value, onChange, options }: Props) {
 
   return (
     <Popover modal onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          aria-expanded={open}
-          className={cn(
-            "w-full justify-between font-normal text-xs",
-            !value && "text-muted-foreground"
-          )}
-          role="combobox"
-          variant="outline"
-        >
-          {value
-            ? options.find((option) => option.value === value)?.label
-            : "Vyberte možnosť..."}
-          <ChevronsUpDownIcon className="opacity-50" />
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-expanded={open}
+            className={cn(
+              "w-full justify-between font-normal text-xs",
+              !value && "text-muted-foreground"
+            )}
+            role="combobox"
+            variant="outline"
+          />
+        }
+      >
+        {value
+          ? options.find((option) => option.value === value)?.label
+          : "Vyberte možnosť..."}
+        <ChevronsUpDownIcon className="opacity-50" />
       </PopoverTrigger>
+
       <PopoverContent
         className="w-(--radix-popover-trigger-width) p-0"
         onCloseAutoFocus={(e) => e.preventDefault()}

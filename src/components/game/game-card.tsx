@@ -74,6 +74,7 @@ function StartScreen({
         style={{ imageRendering: "pixelated" }}
         width={GAME_WIDTH}
       />
+
       <div className="absolute inset-x-0 bottom-8 flex justify-center">
         <Button className="gap-2" onClick={onStart} size="lg">
           <Play className="h-5 w-5" />
@@ -120,29 +121,33 @@ export function GameCard() {
 
   return (
     <Dialog onOpenChange={handleOpenChange} open={open}>
-      <DialogTrigger asChild>
-        <button
-          className="group relative aspect-[8/5] w-full max-w-2xl overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md"
-          type="button"
-        >
-          <Image
-            alt="Pekáreň Kromka - Hra"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            fill
-            sizes="(max-width: 768px) 100vw, 640px"
-            src={SPRITE_PATHS.game_start}
-            style={{ imageRendering: "pixelated" }}
+      <DialogTrigger
+        render={
+          <button
+            className="group relative aspect-[8/5] w-full max-w-2xl overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md"
+            type="button"
           />
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/30 transition-colors group-hover:bg-black/40">
-            <div className="flex size-14 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
-              <Play className="ml-1 size-7 text-amber-600" />
-            </div>
-            <span className="font-semibold text-sm text-white drop-shadow-md">
-              Zahraj si hru
-            </span>
+        }
+      >
+        <Image
+          alt="Pekáreň Kromka - Hra"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          fill
+          sizes="(max-width: 768px) 100vw, 640px"
+          src={SPRITE_PATHS.game_start}
+          style={{ imageRendering: "pixelated" }}
+        />
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/30 transition-colors group-hover:bg-black/40">
+          <div className="flex size-14 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
+            <Play className="ml-1 size-7 text-amber-600" />
           </div>
-        </button>
+          <span className="font-semibold text-sm text-white drop-shadow-md">
+            Zahraj si hru
+          </span>
+        </div>
       </DialogTrigger>
+
       <DialogContent
         className="aspect-[8/5] max-h-[90dvh] w-full max-w-[calc(100%-2rem)] overflow-hidden p-0 sm:max-w-5xl"
         onEscapeKeyDown={(e) => {

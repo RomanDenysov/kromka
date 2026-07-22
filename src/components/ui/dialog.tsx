@@ -1,19 +1,100 @@
 "use client";
 
-// biome-ignore lint/performance/noNamespaceImport: needed to use the namespace import
-import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
-import type { ComponentProps } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  type ComponentProps,
+} from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-function Dialog({ ...props }: ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+type DialogLegacyDismissHandlers = {
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  onInteractOutside?: (event: Event) => void;
+};
+
+const DialogLegacyDismissContext = createContext<{
+  setHandlers: (handlers: DialogLegacyDismissHandlers) => void;
+} | null>(null);
+
+function Dialog({
+  onOpenChange,
+  ...props
+}: ComponentProps<typeof DialogPrimitive.Root>) {
+  const legacyHandlersRef = useRef<DialogLegacyDismissHandlers>({});
+
+  const handleOpenChange = useCallback(
+    (
+      open: boolean,
+      eventDetails: DialogPrimitive.Root.ChangeEventDetails
+    ) => {
+      if (!open) {
+        if (
+          eventDetails.reason === "escape-key" &&
+          legacyHandlersRef.current.onEscapeKeyDown
+        ) {
+          const event = eventDetails.event;
+          legacyHandlersRef.current.onEscapeKeyDown(event);
+          if (event.defaultPrevented) {
+            eventDetails.cancel();
+            return;
+          }
+        }
+
+        if (
+          eventDetails.reason === "outside-press" &&
+          legacyHandlersRef.current.onInteractOutside
+        ) {
+          const event = eventDetails.event;
+          legacyHandlersRef.current.onInteractOutside(event);
+          if (event.defaultPrevented) {
+            eventDetails.cancel();
+            return;
+          }
+        }
+      }
+
+      onOpenChange?.(open, eventDetails);
+    },
+    [onOpenChange]
+  );
+
+  return (
+    <DialogLegacyDismissContext.Provider
+      value={{
+        setHandlers: (handlers) => {
+          legacyHandlersRef.current = handlers;
+        },
+      }}
+    >
+      <DialogPrimitive.Root
+        data-slot="dialog"
+        onOpenChange={handleOpenChange}
+        {...props}
+      />
+    </DialogLegacyDismissContext.Provider>
+  );
 }
 
 function DialogTrigger({
+  render,
+  children,
   ...props
 }: ComponentProps<typeof DialogPrimitive.Trigger>) {
-  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
+  return (
+    <DialogPrimitive.Trigger
+      data-slot="dialog-trigger"
+      render={render}
+      {...props}
+    >
+      {children}
+    </DialogPrimitive.Trigger>
+  );
 }
 
 function DialogPortal({
@@ -23,19 +104,29 @@ function DialogPortal({
 }
 
 function DialogClose({
+  render,
+  children,
   ...props
 }: ComponentProps<typeof DialogPrimitive.Close>) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+  return (
+    <DialogPrimitive.Close
+      data-slot="dialog-close"
+      render={render}
+      {...props}
+    >
+      {children}
+    </DialogPrimitive.Close>
+  );
 }
 
 function DialogOverlay({
   className,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Overlay>) {
+}: ComponentProps<typeof DialogPrimitive.Backdrop>) {
   return (
-    <DialogPrimitive.Overlay
+    <DialogPrimitive.Backdrop
       className={cn(
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=open]:animate-in",
+        "data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 z-50 bg-black/50 data-closed:animate-out data-open:animate-in",
         className
       )}
       data-slot="dialog-overlay"
@@ -48,16 +139,31 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  onEscapeKeyDown,
+  onInteractOutside,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Content> & {
+}: ComponentProps<typeof DialogPrimitive.Popup> & {
   showCloseButton?: boolean;
+  /** @deprecated Prefer `onOpenChange` on `Dialog` with `eventDetails.cancel()` */
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  /** @deprecated Prefer `onOpenChange` on `Dialog` with `eventDetails.cancel()` */
+  onInteractOutside?: (event: Event) => void;
 }) {
+  const legacyDismiss = useContext(DialogLegacyDismissContext);
+
+  useEffect(() => {
+    legacyDismiss?.setHandlers({ onEscapeKeyDown, onInteractOutside });
+    return () => {
+      legacyDismiss?.setHandlers({});
+    };
+  }, [legacyDismiss, onEscapeKeyDown, onInteractOutside]);
+
   return (
-    <DialogPortal data-slot="dialog-portal">
+    <DialogPortal>
       <DialogOverlay />
-      <DialogPrimitive.Content
+      <DialogPrimitive.Popup
         className={cn(
-          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=open]:animate-in sm:max-w-lg",
+          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 data-closed:animate-out data-open:animate-in sm:max-w-lg",
           className
         )}
         data-slot="dialog-content"
@@ -66,14 +172,20 @@ function DialogContent({
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close
-            className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0"
             data-slot="dialog-close"
+            render={
+              <Button
+                className="absolute top-4 right-4"
+                size="icon-sm"
+                variant="ghost"
+              />
+            }
           >
             <XIcon />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
-      </DialogPrimitive.Content>
+      </DialogPrimitive.Popup>
     </DialogPortal>
   );
 }

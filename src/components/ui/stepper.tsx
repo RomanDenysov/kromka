@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/style/noNestedTernary: Ignore this for now */
 "use client";
 
-import { Slot } from "@radix-ui/react-slot";
+import { Slot } from "@/components/ui/slot";
 import { Check } from "lucide-react";
 import {
   type ComponentProps,

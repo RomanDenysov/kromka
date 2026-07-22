@@ -2,7 +2,7 @@ import { ArrowRightIcon, PlusIcon } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createPriceTierAction } from "@/features/b2b/price-tiers/api/actions";
 import { getPriceTiers } from "@/features/b2b/price-tiers/api/queries";
@@ -20,12 +20,13 @@ async function PriceTiersLoader() {
             <p className="mb-4 text-muted-foreground text-sm">
               {tier.description ?? "Bez popisu"}
             </p>
-            <Button asChild size="sm" variant="outline">
-              <Link href={`/admin/b2b/price-tiers/${tier.id}` as Route}>
-                Upraviť
-                <ArrowRightIcon className="ml-2 size-4" />
-              </Link>
-            </Button>
+            <Link
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+              href={`/admin/b2b/price-tiers/${tier.id}` as Route}
+            >
+              Upraviť
+              <ArrowRightIcon className="ml-2 size-4" />
+            </Link>
           </CardContent>
         </Card>
       ))}

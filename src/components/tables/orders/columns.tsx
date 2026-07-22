@@ -45,13 +45,14 @@ export const columns: ColumnDef<Order>[] = [
     header: ({ table }) => (
       <Checkbox
         aria-label="Select all"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={
+          table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
+
     cell: ({ row }) => (
       <Checkbox
         aria-label="Select row"
@@ -59,6 +60,7 @@ export const columns: ColumnDef<Order>[] = [
         onCheckedChange={(value) => row.toggleSelected(!!value)}
       />
     ),
+
     size: 32,
   },
   {
@@ -71,6 +73,7 @@ export const columns: ColumnDef<Order>[] = [
         title="Objednávka"
       />
     ),
+
     meta: {
       label: "Číslo objednávky",
       variant: "text",
@@ -95,6 +98,7 @@ export const columns: ColumnDef<Order>[] = [
         title="Stav"
       />
     ),
+
     enableSorting: true,
     filterFn: (row, columnId, filterValue: string[]) => {
       if (!filterValue || filterValue.length === 0) {
@@ -128,6 +132,7 @@ export const columns: ColumnDef<Order>[] = [
         title="Zákazník"
       />
     ),
+
     meta: {
       label: "Zákazník",
       variant: "text",
@@ -159,6 +164,7 @@ export const columns: ColumnDef<Order>[] = [
         title="Predajňa"
       />
     ),
+
     enableSorting: true,
     accessorFn: (row) => row.store?.name ?? "",
     meta: {
@@ -178,6 +184,7 @@ export const columns: ColumnDef<Order>[] = [
         title="Spolu (EUR)"
       />
     ),
+
     enableSorting: true,
     accessorKey: "totalCents",
     meta: {
@@ -199,6 +206,7 @@ export const columns: ColumnDef<Order>[] = [
         title="Metóda platby"
       />
     ),
+
     enableSorting: true,
     accessorKey: "paymentMethod",
     filterFn: (row, columnId, filterValue: string[]) => {
@@ -234,6 +242,7 @@ export const columns: ColumnDef<Order>[] = [
         title="Stav platby"
       />
     ),
+
     enableSorting: true,
     accessorKey: "paymentStatus",
     filterFn: (row, columnId, filterValue: string[]) => {
@@ -268,6 +277,7 @@ export const columns: ColumnDef<Order>[] = [
         title="Vyzdvihnúťie"
       />
     ),
+
     enableSorting: true,
     accessorKey: "pickupDate",
     filterFn: (
@@ -317,6 +327,7 @@ export const columns: ColumnDef<Order>[] = [
         title="Aktualizované"
       />
     ),
+
     enableSorting: true,
     meta: {
       label: "Aktualizované",
@@ -360,61 +371,60 @@ export const columns: ColumnDef<Order>[] = [
         status === currentPaymentStatus;
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon-xs" variant="ghost">
-              <MoreHorizontalIcon />
-            </Button>
+          <DropdownMenuTrigger
+            render={<Button size="icon-xs" variant="ghost" />}
+          >
+            <MoreHorizontalIcon />
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/eshop/orders/${order.id}`}>
-                <SquareArrowOutUpRight />
-                Otvoriť
-              </Link>
+            <DropdownMenuItem
+              render={<Link href={`/admin/eshop/orders/${order.id}`} />}
+            >
+              <SquareArrowOutUpRight />
+              Otvoriť
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Stav objednávky</DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    {orderStatuses.map((status) => (
-                      <DropdownMenuCheckboxItem
-                        checked={isCurrentOrderStatus(status.value)}
-                        key={status.value}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            onStatusChange(order.id, status.value);
-                          }
-                        }}
-                      >
-                        {status.label}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
+
+            <DropdownMenuItem render={<DropdownMenuSub />}>
+              <DropdownMenuSubTrigger>Stav objednávky</DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  {orderStatuses.map((status) => (
+                    <DropdownMenuCheckboxItem
+                      checked={isCurrentOrderStatus(status.value)}
+                      key={status.value}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          onStatusChange(order.id, status.value);
+                        }
+                      }}
+                    >
+                      {status.label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Stav platby</DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
-                  <DropdownMenuSubContent>
-                    {paymentStatuses.map((status) => (
-                      <DropdownMenuCheckboxItem
-                        checked={isCurrentPaymentStatus(status.value)}
-                        key={status.value}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            onPaymentStatusChange(order.id, status.value);
-                          }
-                        }}
-                      >
-                        {status.label}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
+
+            <DropdownMenuItem render={<DropdownMenuSub />}>
+              <DropdownMenuSubTrigger>Stav platby</DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  {paymentStatuses.map((status) => (
+                    <DropdownMenuCheckboxItem
+                      checked={isCurrentPaymentStatus(status.value)}
+                      key={status.value}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          onPaymentStatusChange(order.id, status.value);
+                        }
+                      }}
+                    >
+                      {status.label}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

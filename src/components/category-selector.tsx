@@ -48,11 +48,12 @@ export function CategorySelector({ value, onChange, categories }: Props) {
         )}
       </div>
       <Popover>
-        <PopoverTrigger asChild>
-          <Button role="combobox" size="icon-sm" variant="ghost">
-            <PlusCircleIcon />
-          </Button>
+        <PopoverTrigger
+          render={<Button role="combobox" size="icon-sm" variant="ghost" />}
+        >
+          <PlusCircleIcon />
         </PopoverTrigger>
+
         <PopoverContent align="start" className="w-auto p-0" side="right">
           <Command className="w-full">
             <CommandInput placeholder="Vyberte kategórie..." />
@@ -79,6 +80,7 @@ export function CategorySelector({ value, onChange, categories }: Props) {
                           : "opacity-0"
                       )}
                     />
+
                     {category.name}
                   </CommandItem>
                 ))}

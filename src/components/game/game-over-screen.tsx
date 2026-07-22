@@ -3,7 +3,7 @@
 import { RotateCcw, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { GAME_HEIGHT, GAME_WIDTH } from "@/lib/game/constants";
 import type { GameSprites } from "@/lib/game/types";
 
@@ -78,17 +78,16 @@ export function GameOverScreen({
         style={{ imageRendering: "pixelated" }}
         width={GAME_WIDTH}
       />
+
       <div className="absolute inset-x-0 bottom-8 flex justify-center gap-3">
         <Button className="gap-2" onClick={onRestart} variant="default">
           <RotateCcw className="h-4 w-4" />
           Znova
         </Button>
-        <Button asChild className="gap-2" variant="outline">
-          <Link href="/e-shop">
-            <ShoppingCart className="h-4 w-4" />
-            E-shop
-          </Link>
-        </Button>
+        <Link className={buttonVariants({ variant: "outline" })} href="/e-shop">
+          <ShoppingCart className="h-4 w-4" />
+          E-shop
+        </Link>
       </div>
     </div>
   );

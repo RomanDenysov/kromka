@@ -1,8 +1,7 @@
 "use client";
 
-import { Slot } from "@radix-ui/react-slot";
-import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { MinusIcon, PlusIcon } from "lucide-react";
+import type { ReactElement } from "react";
 import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
@@ -11,6 +10,8 @@ import {
   useContext,
   useRef,
 } from "react";
+import { withSlot } from "@/components/ui/slot";
+import { useControllableState } from "@/lib/use-controllable-state";
 import { cn } from "@/lib/utils";
 
 interface NumberFieldContextValue {
@@ -215,50 +216,50 @@ const Input = forwardRef<
 Input.displayName = "NumberField.Input";
 
 type DecrementProps = ComponentPropsWithoutRef<"button"> & {
-  asChild?: boolean;
+  render?: ReactElement;
 };
 
 const Decrement = forwardRef<ComponentRef<"button">, DecrementProps>(
-  ({ asChild = false, className, children, ...props }, ref) => {
+  ({ render, className, children, ...props }, ref) => {
     const { decrement, disabled, value, min } = useNumberField();
-    const Comp = asChild ? Slot : "button";
 
-    return (
-      <Comp
-        className={className}
-        disabled={disabled || value <= min}
-        onClick={decrement}
-        ref={ref}
-        type={asChild ? undefined : "button"}
-        {...props}
-      >
-        {children ?? <MinusIcon className="size-4" />}
-      </Comp>
+    return withSlot(
+      render,
+      "button",
+      {
+        className,
+        disabled: disabled || value <= min,
+        onClick: decrement,
+        ref,
+        type: "button",
+        ...props,
+      },
+      children ?? <MinusIcon className="size-4" />
     );
   }
 );
 Decrement.displayName = "NumberField.Decrement";
 
 type IncrementProps = ComponentPropsWithoutRef<"button"> & {
-  asChild?: boolean;
+  render?: ReactElement;
 };
 
 const Increment = forwardRef<ComponentRef<"button">, IncrementProps>(
-  ({ asChild = false, className, children, ...props }, ref) => {
+  ({ render, className, children, ...props }, ref) => {
     const { increment, disabled, value, max } = useNumberField();
-    const Comp = asChild ? Slot : "button";
 
-    return (
-      <Comp
-        className={className}
-        disabled={disabled || value >= max}
-        onClick={increment}
-        ref={ref}
-        type={asChild ? undefined : "button"}
-        {...props}
-      >
-        {children ?? <PlusIcon className="size-4" />}
-      </Comp>
+    return withSlot(
+      render,
+      "button",
+      {
+        className,
+        disabled: disabled || value >= max,
+        onClick: increment,
+        ref,
+        type: "button",
+        ...props,
+      },
+      children ?? <PlusIcon className="size-4" />
     );
   }
 );

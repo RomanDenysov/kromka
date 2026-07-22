@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { getAllergens } from "@/features/allergens/api/queries";
 import { createDraftIngredientAction } from "@/features/ingredients/api/actions";
 import { getIngredients } from "@/features/ingredients/api/queries";
@@ -51,11 +51,13 @@ export default function IngredientsPage({ searchParams }: Props) {
           <IngredientsListFilters />
         </Suspense>
         <div className="flex items-center gap-2">
-          <Button asChild size="sm" variant="outline">
-            <Link href="/admin/production/ingredients/duplicates">
-              Duplicity
-            </Link>
-          </Button>
+          <Link
+            className={buttonVariants({ size: "sm", variant: "outline" })}
+            href="/admin/production/ingredients/duplicates"
+          >
+            Duplicity
+          </Link>
+
           <form action={createDraftIngredientAction}>
             <Button size="sm" type="submit">
               + Nová surovina

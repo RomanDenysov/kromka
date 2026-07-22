@@ -1,5 +1,7 @@
-import { Slot } from "@radix-ui/react-slot";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { ReactElement, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
@@ -39,22 +41,30 @@ function ButtonGroup({
 
 function ButtonGroupText({
   className,
-  asChild = false,
+  render,
+  children,
   ...props
-}: React.ComponentProps<"div"> & {
-  asChild?: boolean;
+}: useRender.ComponentProps<"div"> & {
+  render?: ReactElement;
+  children?: ReactNode;
 }) {
-  const Comp = asChild ? Slot : "div";
-
-  return (
-    <Comp
-      className={cn(
-        "flex items-center gap-2 rounded-md border bg-muted px-4 font-medium text-sm shadow-xs [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none",
-        className
-      )}
-      {...props}
-    />
-  );
+  return useRender({
+    defaultTagName: "div",
+    props: mergeProps<"div">(
+      {
+        className: cn(
+          "flex items-center gap-2 rounded-md border bg-muted px-4 font-medium text-sm shadow-xs [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none",
+          className
+        ),
+        children: render ? undefined : children,
+      },
+      props
+    ),
+    render,
+    state: {
+      slot: "button-group-text",
+    },
+  });
 }
 
 function ButtonGroupSeparator({

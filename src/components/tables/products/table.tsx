@@ -124,12 +124,14 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
             placeholder="Hľadať produkty, kategórie, status..."
             value={globalFilter}
           />
+
           <DataTableMultiSelectFilter
             columnId="status"
             options={statusOptions}
             table={table}
             title="Status"
           />
+
           <DataTableMultiSelectFilter
             columnId="isActive"
             options={isActiveOptions}
@@ -140,16 +142,19 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
         <div className="flex items-center justify-end gap-2">
           {Object.keys(rowSelection).length > 1 && (
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  disabled={Object.keys(rowSelection).length === 0}
-                  size="xs"
-                  variant="destructive"
-                >
-                  <ArchiveIcon />
-                  Archivovať {Object.keys(rowSelection).length} produktov
-                </Button>
+              <AlertDialogTrigger
+                render={
+                  <Button
+                    disabled={Object.keys(rowSelection).length === 0}
+                    size="xs"
+                    variant="destructive"
+                  />
+                }
+              >
+                <ArchiveIcon />
+                Archivovať {Object.keys(rowSelection).length} produktov
               </AlertDialogTrigger>
+
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Archivovať produkty</AlertDialogTitle>

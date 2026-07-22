@@ -36,13 +36,14 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
     header: ({ table }) => (
       <Checkbox
         aria-label="Select all"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={
+          table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
+
     cell: ({ row }) => (
       <Checkbox
         aria-label="Select row"
@@ -50,6 +51,7 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
         onCheckedChange={(value) => row.toggleSelected(!!value)}
       />
     ),
+
     size: 32,
   },
   {
@@ -62,6 +64,7 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
           className="rounded-md object-cover"
           src={row.original?.image ?? ""}
         />
+
         <AvatarFallback className="rounded-md" delayMs={300}>
           {getInitials(row.original?.name || row.original?.email)}
         </AvatarFallback>
@@ -77,6 +80,7 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
         title="Email"
       />
     ),
+
     accessorKey: "email",
     enableSorting: true,
     cell: ({ row }) => (
@@ -119,6 +123,7 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
         title="Pozícia"
       />
     ),
+
     enableSorting: true,
     accessorKey: "role",
     filterFn: (row, columnId, filterValue: string[]) => {
@@ -145,6 +150,7 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
         title="Registrovaný"
       />
     ),
+
     enableSorting: true,
     accessorKey: "createdAt",
     cell: ({ row }) => (
@@ -160,18 +166,19 @@ export const columns: ColumnDef<UserList[number], UserTableMeta>[] = [
       const meta = table.options.meta as UserTableMeta;
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild className="relative">
-            <Button size="icon-xs" variant="ghost">
-              <MoreHorizontalIcon />
-            </Button>
+          <DropdownMenuTrigger
+            className="relative"
+            render={<Button size="icon-xs" variant="ghost" />}
+          >
+            <MoreHorizontalIcon />
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/system/users/${row.original.id}`}>
-                <SquareArrowOutUpRightIcon />
-                Otvoriť
-              </Link>
+            <DropdownMenuItem
+              render={<Link href={`/admin/system/users/${row.original.id}`} />}
+            >
+              <SquareArrowOutUpRightIcon />
+              Otvoriť
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={() => meta?.onLock(row.original.id)}>

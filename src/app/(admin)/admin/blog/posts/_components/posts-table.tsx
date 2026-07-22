@@ -125,6 +125,7 @@ export function PostsTable({ posts }: { posts: AdminPost[] }) {
             placeholder="Hľadať články, autori, štítky..."
             value={globalFilter}
           />
+
           <DataTableMultiSelectFilter
             columnId="status"
             options={statusOptions}
@@ -135,16 +136,19 @@ export function PostsTable({ posts }: { posts: AdminPost[] }) {
         <div className="flex items-center justify-end gap-2">
           {Object.keys(rowSelection).length > 1 && (
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  disabled={Object.keys(rowSelection).length === 0}
-                  size="xs"
-                  variant="destructive"
-                >
-                  <Trash2Icon />
-                  Vymazať {Object.keys(rowSelection).length} článkov
-                </Button>
+              <AlertDialogTrigger
+                render={
+                  <Button
+                    disabled={Object.keys(rowSelection).length === 0}
+                    size="xs"
+                    variant="destructive"
+                  />
+                }
+              >
+                <Trash2Icon />
+                Vymazať {Object.keys(rowSelection).length} článkov
               </AlertDialogTrigger>
+
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Odstrániť články</AlertDialogTitle>

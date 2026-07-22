@@ -119,13 +119,17 @@ export function MediaInput({
           src={displayUrl}
           unoptimized
         />
+
         <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
           <Dialog onOpenChange={setPreviewOpen} open={previewOpen}>
-            <DialogTrigger asChild>
-              <Button className="size-8" size="icon" variant="secondary">
-                <ExpandIcon className="size-4" />
-              </Button>
+            <DialogTrigger
+              render={
+                <Button className="size-8" size="icon" variant="secondary" />
+              }
+            >
+              <ExpandIcon className="size-4" />
             </DialogTrigger>
+
             <DialogContent
               className="max-h-[90vh] max-w-fit overflow-hidden p-0 sm:max-w-fit"
               showCloseButton={false}
@@ -154,18 +158,18 @@ export function MediaInput({
             </DialogContent>
           </Dialog>
 
-          <Button asChild className="size-8" size="icon" variant="secondary">
-            <label>
+          <label className="cursor-pointer">
+            <Button className="size-8" size="icon" variant="secondary">
               <UploadIcon className="size-4" />
-              <input
-                accept="image/*"
-                className="hidden"
-                disabled={disabled || isUploading}
-                onChange={handleChange}
-                type="file"
-              />
-            </label>
-          </Button>
+            </Button>
+            <input
+              accept="image/*"
+              className="hidden"
+              disabled={disabled || isUploading}
+              onChange={handleChange}
+              type="file"
+            />
+          </label>
 
           <Button
             className="size-8"

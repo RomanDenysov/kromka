@@ -1,14 +1,13 @@
 "use client";
 
-// biome-ignore lint/performance/noNamespaceImport: This is a valid use case
-import * as TogglePrimitive from "@radix-ui/react-toggle";
+import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
 
 const toggleVariants = cva(
-  "inline-flex touch-manipulation items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-[color,box-shadow,transform,opacity] duration-200 ease-out motion-reduce:duration-0 hover:bg-muted hover:text-muted-foreground motion-safe:active:scale-95 motion-reduce:active:scale-100 active:opacity-90 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=on]:bg-muted data-[state=on]:text-foreground data-[state=on]:shadow-sm dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex touch-manipulation items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium text-sm outline-none transition-[color,box-shadow,transform,opacity] duration-200 ease-out motion-reduce:duration-0 hover:bg-muted hover:text-muted-foreground motion-safe:active:scale-95 motion-reduce:active:scale-100 active:opacity-90 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted aria-pressed:text-foreground aria-pressed:shadow-sm dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -35,10 +34,10 @@ function Toggle({
   variant,
   size,
   ...props
-}: ComponentProps<typeof TogglePrimitive.Root> &
+}: ComponentProps<typeof TogglePrimitive> &
   VariantProps<typeof toggleVariants>) {
   return (
-    <TogglePrimitive.Root
+    <TogglePrimitive
       className={cn(toggleVariants({ variant, size, className }))}
       data-slot="toggle"
       {...props}

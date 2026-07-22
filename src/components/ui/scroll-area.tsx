@@ -1,7 +1,6 @@
 "use client";
 
-// biome-ignore lint/performance/noNamespaceImport: Ignore this for now
-import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
+import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area";
 import type { ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
@@ -33,9 +32,9 @@ function ScrollBar({
   className,
   orientation = "vertical",
   ...props
-}: ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) {
+}: ComponentProps<typeof ScrollAreaPrimitive.Scrollbar>) {
   return (
-    <ScrollAreaPrimitive.ScrollAreaScrollbar
+    <ScrollAreaPrimitive.Scrollbar
       className={cn(
         "flex touch-none select-none p-px transition-colors",
         orientation === "vertical" &&
@@ -48,11 +47,11 @@ function ScrollBar({
       orientation={orientation}
       {...props}
     >
-      <ScrollAreaPrimitive.ScrollAreaThumb
+      <ScrollAreaPrimitive.Thumb
         className="relative flex-1 rounded-full bg-border"
         data-slot="scroll-area-thumb"
       />
-    </ScrollAreaPrimitive.ScrollAreaScrollbar>
+    </ScrollAreaPrimitive.Scrollbar>
   );
 }
 

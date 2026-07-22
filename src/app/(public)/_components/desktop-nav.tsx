@@ -13,46 +13,46 @@ export function DesktopNav() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuLink
-            asChild
             className={navigationMenuTriggerStyle({
               variant: "ghost",
               size: "sm",
             })}
+            render={<Link href="/o-nas" />}
           >
-            <Link href="/o-nas">O nás</Link>
+            O nás
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink
-            asChild
             className={navigationMenuTriggerStyle({
               variant: "ghost",
               size: "sm",
             })}
+            render={<Link href="/e-shop" />}
           >
-            <Link href="/e-shop">E-shop</Link>
+            E-shop
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink
-            asChild
             className={navigationMenuTriggerStyle({
               variant: "ghost",
               size: "sm",
             })}
+            render={<Link href="/predajne" />}
           >
-            <Link href="/predajne">Predajne</Link>
+            Predajne
           </NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink
-            asChild
             className={navigationMenuTriggerStyle({
               variant: "ghost",
               size: "sm",
             })}
+            render={<Link href="/b2b" />}
           >
-            <Link href="/b2b">B2B</Link>
+            B2B
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>

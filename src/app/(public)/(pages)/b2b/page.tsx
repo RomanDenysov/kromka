@@ -17,7 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { createMetadata } from "@/lib/metadata";
 import { getFAQSchema } from "@/lib/seo/json-ld";
@@ -102,12 +102,14 @@ const STEPS = [
 function ApplyCta() {
   return (
     <div className="flex flex-col items-center gap-2">
-      <Button asChild size="lg">
-        <Link href={"/b2b/apply" as Route}>
-          Požiadať o spoluprácu
-          <ArrowRight className="ml-2 size-4" />
-        </Link>
-      </Button>
+      <Link
+        className={buttonVariants({ size: "lg" })}
+        href={"/b2b/apply" as Route}
+      >
+        Požiadať o spoluprácu
+        <ArrowRight className="ml-2 size-4" />
+      </Link>
+
       <span className="text-muted-foreground text-sm">
         Bez záväzku · odpoveď do 2 pracovných dní
       </span>
@@ -161,6 +163,7 @@ export default function B2BPage() {
               className="mb-8"
               title="Prečo spolupracovať s nami?"
             />
+
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {BENEFITS.map((benefit) => {
                 const Icon = benefit.icon;
@@ -189,6 +192,7 @@ export default function B2BPage() {
               className="mb-8"
               title="Ako to funguje?"
             />
+
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
               {STEPS.map((step) => (
                 <div
@@ -217,6 +221,7 @@ export default function B2BPage() {
               className="mb-8"
               title="Časté otázky"
             />
+
             <Accordion collapsible type="single">
               {B2B_FAQ.map((faq) => (
                 <AccordionItem key={faq.question} value={faq.question}>
@@ -241,6 +246,7 @@ export default function B2BPage() {
               description="Vyplňte jednoduchý formulár a my sa vám ozveme do 2 pracovných dní."
               title="Pripravení začať?"
             />
+
             <ApplyCta />
           </div>
         </Container>

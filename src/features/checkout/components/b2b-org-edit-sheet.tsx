@@ -1,7 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTransition } from "react";
+import {
+  Children,
+  isValidElement,
+  type ReactElement,
+  useTransition,
+} from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -79,9 +84,14 @@ export function B2bOrgEditSheet({
     });
   };
 
+  const triggerChild = Children.only(children);
+  if (!isValidElement(triggerChild)) {
+    throw new Error("B2bOrgEditSheet expects a single React element child");
+  }
+
   return (
     <Sheet>
-      <SheetTrigger asChild>{children}</SheetTrigger>
+      <SheetTrigger render={triggerChild as ReactElement} />
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Upraviť údaje</SheetTitle>

@@ -35,19 +35,22 @@ export function DataTableViewOptions<TData>({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          aria-label="Toggle columns"
-          className="ml-auto hidden font-normal lg:flex"
-          disabled={disabled}
-          role="combobox"
-          size="sm"
-          variant="outline"
-        >
-          <Settings2Icon className="text-muted-foreground" />
-          Skryť/Zobraziť
-        </Button>
+      <PopoverTrigger
+        render={
+          <Button
+            aria-label="Toggle columns"
+            className="ml-auto hidden font-normal lg:flex"
+            disabled={disabled}
+            role="combobox"
+            size="sm"
+            variant="outline"
+          />
+        }
+      >
+        <Settings2Icon className="text-muted-foreground" />
+        Skryť/Zobraziť
       </PopoverTrigger>
+
       <PopoverContent className="w-44 p-0" {...props} align="end">
         <Command>
           <CommandInput placeholder="Hľadať stĺpce..." />

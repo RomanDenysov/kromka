@@ -149,19 +149,22 @@ function ExceptionsInner({ field, isInvalid, label }: ExceptionsInnerProps) {
             <Field orientation="horizontal">
               <FieldLabel className="w-20">Dátum</FieldLabel>
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    className="w-full justify-start font-normal"
-                    size="sm"
-                    type="button"
-                    variant="outline"
-                  >
-                    <CalendarIcon className="size-4" />
-                    {newDate
-                      ? format(newDate, "d. MMMM yyyy", { locale: sk })
-                      : "Vyberte dátum"}
-                  </Button>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      className="w-full justify-start font-normal"
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    />
+                  }
+                >
+                  <CalendarIcon className="size-4" />
+                  {newDate
+                    ? format(newDate, "d. MMMM yyyy", { locale: sk })
+                    : "Vyberte dátum"}
                 </PopoverTrigger>
+
                 <PopoverContent
                   align="start"
                   className="w-auto overflow-hidden p-0"

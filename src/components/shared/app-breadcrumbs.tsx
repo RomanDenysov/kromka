@@ -30,9 +30,7 @@ export function AppBreadcrumbs({ items }: Props) {
       </BackButton>
       <BreadcrumbList className="hidden font-medium md:flex">
         <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="/">Domov</Link>
-          </BreadcrumbLink>
+          <BreadcrumbLink render={<Link href="/" />}>Domov</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         {items.map((item, index) => {
@@ -46,8 +44,8 @@ export function AppBreadcrumbs({ items }: Props) {
                     {item.label}
                   </BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink asChild>
-                    <Link href={item.href}>{item.label}</Link>
+                  <BreadcrumbLink render={<Link href={item.href} />}>
+                    {item.label}
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>

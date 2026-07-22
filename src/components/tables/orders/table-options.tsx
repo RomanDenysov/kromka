@@ -13,12 +13,11 @@ export function OrdersTableOptions({ table }: { table: Table<Order> }) {
   return (
     <div className="flex items-center justify-end gap-2">
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="sm" variant="outline">
-            <Settings2Icon />
-            Nastavenia
-          </Button>
+        <DropdownMenuTrigger render={<Button size="sm" variant="outline" />}>
+          <Settings2Icon />
+          Nastavenia
         </DropdownMenuTrigger>
+
         <DropdownMenuContent align="end">
           {table
             .getAllColumns()

@@ -170,12 +170,11 @@ export function OrdersTableActions({
       />
 
       <Dialog onOpenChange={setOpen} open={open}>
-        <DialogTrigger asChild>
-          <Button size="sm" variant="outline">
-            <ArrowDownIcon />
-            Export
-          </Button>
+        <DialogTrigger render={<Button size="sm" variant="outline" />}>
+          <ArrowDownIcon />
+          Export
         </DialogTrigger>
+
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Export objednávok ({exportCount})</DialogTitle>
@@ -199,6 +198,7 @@ export function OrdersTableActions({
                     id={opt.value}
                     value={opt.value}
                   />
+
                   <Field>
                     <FieldContent>
                       <FieldTitle>{opt.label}</FieldTitle>
@@ -219,6 +219,7 @@ export function OrdersTableActions({
                     id={opt.id}
                     onCheckedChange={() => toggleSheet(opt.id)}
                   />
+
                   <FieldContent>
                     <FieldLabel htmlFor={opt.id}>{opt.label}</FieldLabel>
                     <FieldDescription>{opt.description}</FieldDescription>
@@ -229,9 +230,10 @@ export function OrdersTableActions({
           </div>
 
           <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Zrušiť</Button>
+            <DialogClose render={<Button variant="outline" />}>
+              Zrušiť
             </DialogClose>
+
             <Button onClick={handleExport}>Exportovať</Button>
           </DialogFooter>
         </DialogContent>

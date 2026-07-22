@@ -52,12 +52,12 @@ export const columns: ColumnDef<AdminPost, PostTableMeta>[] = [
       <Checkbox
         aria-label="Vybrať všetky"
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected()
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
       />
     ),
+
     cell: ({ row }) => (
       <Checkbox
         aria-label="Vybrať riadok"
@@ -65,6 +65,7 @@ export const columns: ColumnDef<AdminPost, PostTableMeta>[] = [
         onCheckedChange={(value) => row.toggleSelected(!!value)}
       />
     ),
+
     size: 32,
     enableSorting: false,
     enableHiding: false,
@@ -104,6 +105,7 @@ export const columns: ColumnDef<AdminPost, PostTableMeta>[] = [
         title="Názov"
       />
     ),
+
     meta: {
       label: "Názov",
       variant: "text",
@@ -136,6 +138,7 @@ export const columns: ColumnDef<AdminPost, PostTableMeta>[] = [
         title="Status"
       />
     ),
+
     accessorKey: "status",
     enableSorting: true,
     meta: {
@@ -208,6 +211,7 @@ export const columns: ColumnDef<AdminPost, PostTableMeta>[] = [
         title="Vytvorené"
       />
     ),
+
     meta: {
       label: "Vytvorené",
       variant: "date",
@@ -228,6 +232,7 @@ export const columns: ColumnDef<AdminPost, PostTableMeta>[] = [
         title="Publikované"
       />
     ),
+
     meta: {
       label: "Publikované",
       variant: "date",
@@ -256,24 +261,26 @@ export const columns: ColumnDef<AdminPost, PostTableMeta>[] = [
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon-xs" variant="ghost">
-              <MoreHorizontalIcon />
-            </Button>
+          <DropdownMenuTrigger
+            render={<Button size="icon-xs" variant="ghost" />}
+          >
+            <MoreHorizontalIcon />
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/admin/blog/posts/${post.id}`}>
-                <PencilIcon />
-                Upraviť
-              </Link>
+            <DropdownMenuItem
+              render={<Link href={`/admin/blog/posts/${post.id}`} />}
+            >
+              <PencilIcon />
+              Upraviť
             </DropdownMenuItem>
+
             {isPublished && post.slug && (
-              <DropdownMenuItem asChild>
-                <Link href={`/blog/${post.slug}`} target="_blank">
-                  <ExternalLinkIcon />
-                  Zobraziť na webe
-                </Link>
+              <DropdownMenuItem
+                render={<Link href={`/blog/${post.slug}`} target="_blank" />}
+              >
+                <ExternalLinkIcon />
+                Zobraziť na webe
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
@@ -290,12 +297,15 @@ export const columns: ColumnDef<AdminPost, PostTableMeta>[] = [
               </DropdownMenuItem>
             )}
             <AlertDialog key={`delete-${post.id}`}>
-              <DropdownMenuItem asChild asDialogTrigger variant="destructive">
-                <AlertDialogTrigger className="w-full">
-                  <Trash2Icon />
-                  Vymazať
-                </AlertDialogTrigger>
+              <DropdownMenuItem
+                asDialogTrigger
+                render={<AlertDialogTrigger className="w-full" />}
+                variant="destructive"
+              >
+                <Trash2Icon />
+                Vymazať
               </DropdownMenuItem>
+
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Odstrániť článok</AlertDialogTitle>

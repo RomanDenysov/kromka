@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 export default function B2bCheckoutError({
   reset,
@@ -18,9 +18,12 @@ export default function B2bCheckoutError({
       </p>
       <div className="flex gap-3">
         <Button onClick={reset}>Skúsiť znova</Button>
-        <Button asChild variant="outline">
-          <Link href="/b2b/shop">Späť do B2B obchodu</Link>
-        </Button>
+        <Link
+          className={buttonVariants({ variant: "outline" })}
+          href="/b2b/shop"
+        >
+          Späť do B2B obchodu
+        </Link>
       </div>
     </div>
   );

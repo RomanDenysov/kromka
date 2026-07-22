@@ -53,11 +53,10 @@ export function CancelOrderDialog({ orderId }: CancelOrderDialogProps) {
 
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
-      <AlertDialogTrigger asChild>
-        <Button size="sm" variant="destructive">
-          Zrušiť objednávku
-        </Button>
+      <AlertDialogTrigger render={<Button size="sm" variant="destructive" />}>
+        Zrušiť objednávku
       </AlertDialogTrigger>
+
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Zrušiť objednávku?</AlertDialogTitle>
@@ -73,6 +72,7 @@ export function CancelOrderDialog({ orderId }: CancelOrderDialogProps) {
           rows={3}
           value={reason}
         />
+
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Späť</AlertDialogCancel>
           <AlertDialogAction disabled={isPending} onClick={handleCancel}>

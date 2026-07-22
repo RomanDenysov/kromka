@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { AppBreadcrumbs } from "@/components/shared/app-breadcrumbs";
 import { PageWrapper } from "@/components/shared/container";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAllTags, getPublishedPosts } from "@/features/posts/api/queries";
 import {
@@ -73,20 +73,19 @@ async function BlogContent({ searchParams }: Props) {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
           {page > 1 && (
-            <Button asChild size="sm" variant="outline">
-              <Link
-                href={{
-                  pathname: "/blog",
-                  query: {
-                    ...(tag && { tag }),
-                    ...(search && { search }),
-                    page: page - 1,
-                  },
-                }}
-              >
-                Predchádzajúca
-              </Link>
-            </Button>
+            <Link
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+              href={{
+                pathname: "/blog",
+                query: {
+                  ...(tag && { tag }),
+                  ...(search && { search }),
+                  page: page - 1,
+                },
+              }}
+            >
+              Predchádzajúca
+            </Link>
           )}
 
           <span className="text-muted-foreground text-sm">
@@ -94,20 +93,19 @@ async function BlogContent({ searchParams }: Props) {
           </span>
 
           {page < totalPages && (
-            <Button asChild size="sm" variant="outline">
-              <Link
-                href={{
-                  pathname: "/blog",
-                  query: {
-                    ...(tag && { tag }),
-                    ...(search && { search }),
-                    page: page + 1,
-                  },
-                }}
-              >
-                Ďalšia
-              </Link>
-            </Button>
+            <Link
+              className={buttonVariants({ size: "sm", variant: "outline" })}
+              href={{
+                pathname: "/blog",
+                query: {
+                  ...(tag && { tag }),
+                  ...(search && { search }),
+                  page: page + 1,
+                },
+              }}
+            >
+              Ďalšia
+            </Link>
           )}
         </div>
       )}

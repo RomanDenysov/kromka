@@ -11,7 +11,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,44 +58,51 @@ export function UserButton() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label="Účet" asChild>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            aria-label="Účet"
+            className="rounded-md p-0"
+            size="icon-sm"
+            type="button"
+            variant="ghost"
+          />
+        }
+      >
         <Avatar className="relative size-8 rounded-md">
           <AvatarImage
             className="rounded-md object-cover"
             src={user.image ?? undefined}
           />
+
           <AvatarFallback className="rounded-md font-medium text-primary text-sm">
             {getInitials(user.name || user.email)}
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end" className="w-52">
-        <DropdownMenuItem asChild>
-          <Link href="/profil">
-            <UserIcon />
-            Profil
-          </Link>
+        <DropdownMenuItem render={<Link href="/profil" />}>
+          <UserIcon />
+          Profil
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/profil/nastavenia">
-            <SettingsIcon />
-            Nastavenia
-          </Link>
+
+        <DropdownMenuItem render={<Link href="/profil/nastavenia" />}>
+          <SettingsIcon />
+          Nastavenia
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/profil/objednavky">
-            <PackageIcon />
-            Objednavky
-          </Link>
+
+        <DropdownMenuItem render={<Link href="/profil/objednavky" />}>
+          <PackageIcon />
+          Objednavky
         </DropdownMenuItem>
+
         {user.role === "admin" && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/admin">
-                <Icons.logo className="size-4" />
-                Admin panel
-              </Link>
+            <DropdownMenuItem render={<Link href="/admin" />}>
+              <Icons.logo className="size-4" />
+              Admin panel
             </DropdownMenuItem>
           </>
         )}

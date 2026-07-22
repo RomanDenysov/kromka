@@ -111,21 +111,21 @@ export function InputsFieldsSection() {
               <EditablePreview />
               <EditableInput />
             </EditableArea>
-            <EditableTrigger asChild>
-              <Button size="sm" type="button" variant="outline">
-                Upraviť
-              </Button>
+            <EditableTrigger
+              render={<Button size="sm" type="button" variant="outline" />}
+            >
+              Upraviť
             </EditableTrigger>
+
             <EditableToolbar className="flex gap-1">
-              <EditableSubmit asChild>
-                <Button size="sm" type="button">
-                  OK
-                </Button>
+              <EditableSubmit render={<Button size="sm" type="button" />}>
+                OK
               </EditableSubmit>
-              <EditableCancel asChild>
-                <Button size="sm" type="button" variant="ghost">
-                  Zrušiť
-                </Button>
+
+              <EditableCancel
+                render={<Button size="sm" type="button" variant="ghost" />}
+              >
+                Zrušiť
               </EditableCancel>
             </EditableToolbar>
           </Editable>

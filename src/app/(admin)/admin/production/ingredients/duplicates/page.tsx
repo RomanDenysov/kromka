@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getIngredientDuplicates } from "@/features/ingredients/api/queries";
 
@@ -55,16 +55,19 @@ async function DuplicatesContent() {
                 </Badge>
               </td>
               <td className="px-3 py-2 text-right">
-                <Button asChild size="sm" variant="ghost">
-                  <Link href={`/admin/production/ingredients/${p.a_id}`}>
-                    Otvoriť A
-                  </Link>
-                </Button>
-                <Button asChild size="sm" variant="ghost">
-                  <Link href={`/admin/production/ingredients/${p.b_id}`}>
-                    Otvoriť B
-                  </Link>
-                </Button>
+                <Link
+                  className={buttonVariants({ size: "sm", variant: "ghost" })}
+                  href={`/admin/production/ingredients/${p.a_id}`}
+                >
+                  Otvoriť A
+                </Link>
+
+                <Link
+                  className={buttonVariants({ size: "sm", variant: "ghost" })}
+                  href={`/admin/production/ingredients/${p.b_id}`}
+                >
+                  Otvoriť B
+                </Link>
               </td>
             </tr>
           ))}

@@ -1,19 +1,20 @@
 "use client";
 
-import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { addDays, format, isSameDay, isToday } from "date-fns";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { Slot } from "radix-ui";
 import {
   type ButtonHTMLAttributes,
   type ComponentProps,
   createContext,
   type HTMLAttributes,
   type MouseEventHandler,
+  type ReactElement,
   type ReactNode,
   useContext,
 } from "react";
 import { Button } from "@/components/ui/button";
+import { Slot } from "@/components/ui/slot";
+import { useControllableState } from "@/lib/use-controllable-state";
 import { cn } from "@/lib/utils";
 
 // Context for sharing state between components
@@ -128,12 +129,12 @@ export const MiniCalendar = ({
 export type MiniCalendarNavigationProps =
   ButtonHTMLAttributes<HTMLButtonElement> & {
     direction: "prev" | "next";
-    asChild?: boolean;
+    render?: ReactElement;
   };
 
 export const MiniCalendarNavigation = ({
   direction,
-  asChild = false,
+  render,
   children,
   onClick,
   ...props
@@ -146,20 +147,20 @@ export const MiniCalendarNavigation = ({
     onClick?.(event);
   };
 
-  if (asChild) {
+  if (render) {
     return (
-      <Slot.Root onClick={handleClick} {...props}>
-        {children}
-      </Slot.Root>
+      <Slot onClick={handleClick} {...props}>
+        {render}
+      </Slot>
     );
   }
 
   return (
     <Button
       onClick={handleClick}
-      size={asChild ? undefined : "icon"}
+      size="icon"
       type="button"
-      variant={asChild ? undefined : "ghost"}
+      variant="ghost"
       {...props}
     >
       {children ?? <Icon className="size-4" />}

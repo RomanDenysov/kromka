@@ -22,16 +22,16 @@ function SidebarLogo() {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton
-            asChild
             className="transition-colors duration-300 md:h-8 md:p-0"
+            render={
+              <Link
+                className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
+                href="/admin/eshop"
+              />
+            }
             size="lg"
           >
-            <Link
-              className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"
-              href="/admin/eshop"
-            >
-              <Icons.logo className="size-4!" />
-            </Link>
+            <Icons.logo className="size-4!" />
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

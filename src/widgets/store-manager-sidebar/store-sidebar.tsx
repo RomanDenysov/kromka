@@ -120,11 +120,12 @@ function StoreSidebarFooter() {
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Zobrazit e-shop">
-              <Link href="/" target="_blank">
-                <ExternalLinkIcon />
-                <span>Zobrazit e-shop</span>
-              </Link>
+            <SidebarMenuButton
+              render={<Link href="/" target="_blank" />}
+              tooltip="Zobrazit e-shop"
+            >
+              <ExternalLinkIcon />
+              <span>Zobrazit e-shop</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

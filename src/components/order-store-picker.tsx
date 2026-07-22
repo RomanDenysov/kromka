@@ -57,46 +57,47 @@ export function OrderStorePicker({
 
   return (
     <Popover onOpenChange={setOpen} open={open}>
-      <PopoverTrigger asChild>
-        <Button
-          className="h-auto w-full justify-between rounded-sm bg-transparent px-3 py-2.5"
-          role="combobox"
-          variant="outline"
-        >
-          <div className="flex items-start gap-2.5 text-left">
-            <MapPinIcon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
-            {value ? (
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <div className="font-medium text-sm">
-                    {selectedStore?.name}
-                  </div>
-                  {hasValidDistance(selectedStore?.distance) && (
-                    <DistanceBadge
-                      className="shrink-0"
-                      distance={selectedStore.distance}
-                      variant="light"
-                    />
-                  )}
-                </div>
-                {selectedStore?.address && (
-                  <div className="mt-0.5 text-muted-foreground text-xs">
-                    {selectedStore?.address}
-                  </div>
-                )}
-                {selectedOpeningHours && (
-                  <div className="mt-0.5 text-muted-foreground text-xs">
-                    {selectedOpeningHours}
-                  </div>
+      <PopoverTrigger
+        render={
+          <Button
+            className="h-auto w-full justify-between rounded-sm bg-transparent px-3 py-2.5"
+            role="combobox"
+            variant="outline"
+          />
+        }
+      >
+        <div className="flex items-start gap-2.5 text-left">
+          <MapPinIcon className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+          {value ? (
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <div className="font-medium text-sm">{selectedStore?.name}</div>
+                {hasValidDistance(selectedStore?.distance) && (
+                  <DistanceBadge
+                    className="shrink-0"
+                    distance={selectedStore.distance}
+                    variant="light"
+                  />
                 )}
               </div>
-            ) : (
-              <span className="truncate">Vyberte predajňu</span>
-            )}
-          </div>
-          <ChevronsUpDown className="ml-auto opacity-50" />
-        </Button>
+              {selectedStore?.address && (
+                <div className="mt-0.5 text-muted-foreground text-xs">
+                  {selectedStore?.address}
+                </div>
+              )}
+              {selectedOpeningHours && (
+                <div className="mt-0.5 text-muted-foreground text-xs">
+                  {selectedOpeningHours}
+                </div>
+              )}
+            </div>
+          ) : (
+            <span className="truncate">Vyberte predajňu</span>
+          )}
+        </div>
+        <ChevronsUpDown className="ml-auto opacity-50" />
       </PopoverTrigger>
+
       <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
         <Command>
           <CommandInput className="h-9" placeholder="Hľadať predajňu..." />

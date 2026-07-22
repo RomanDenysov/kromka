@@ -46,11 +46,14 @@ export function PriceTierFormContainer({ tier, products }: Props) {
         {({ isPending }) => (
           <div className="flex items-center justify-between gap-2">
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button size="sm" type="button" variant="destructive">
-                  Vymazať
-                </Button>
+              <AlertDialogTrigger
+                render={
+                  <Button size="sm" type="button" variant="destructive" />
+                }
+              >
+                Vymazať
               </AlertDialogTrigger>
+
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Vymazať cenovú skupinu?</AlertDialogTitle>

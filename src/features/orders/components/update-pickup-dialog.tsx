@@ -158,11 +158,10 @@ export function UpdatePickupDialog({
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline">
-          Zmeniť vyzdvihnutie
-        </Button>
+      <DialogTrigger render={<Button size="sm" variant="outline" />}>
+        Zmeniť vyzdvihnutie
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Zmeniť vyzdvihnutie</DialogTitle>
@@ -184,6 +183,7 @@ export function UpdatePickupDialog({
               selectedDate={pickupDate}
               storeSchedule={storeSchedule}
             />
+
             <OrderPickupTimePicker
               disabled={!pickupDate}
               onTimeSelect={setPickupTime}
