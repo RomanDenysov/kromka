@@ -1,3 +1,5 @@
+import "server-only";
+
 import { asc, desc, eq } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";

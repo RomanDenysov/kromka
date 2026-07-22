@@ -1,7 +1,7 @@
 {
   "$schema": "docs/features-catalog.schema.md",
   "version": "1.1.0",
-  "lastUpdated": "2026-07-17",
+  "lastUpdated": "2026-07-21",
   "description": "Structured feature catalog for AI agent context. Describes each feature module, its business logic, API surface, UI components, utilities, dependencies, and usage locations.",
   "features": [
     {
@@ -1066,6 +1066,53 @@
       "cacheTags": ["orders", "products", "carts"]
     },
     {
+      "name": "admin-shell",
+      "path": "src/features/admin-shell",
+      "critical": false,
+      "description": "Config-driven admin navigation shell. Shared adminConfig defines domains and sections; icon rail and domain section tabs are derived from it. List table/grid rendering is deferred.",
+      "businessLogic": [
+        "adminConfig is the single source of truth for domain/section nav (labels, icons, badge keys, placement)",
+        "Icon rail shows domains; section tabs render via SecondaryNav in domain layouts",
+        "Badge counts resolve from adminConfig.badgeKey → serverBindings.counters (no separate badges bag)"
+      ],
+      "actions": [],
+      "queries": [
+        {
+          "name": "resolveCounters",
+          "description": "Runs serverBindings.counters for keys used in adminConfig"
+        },
+        {
+          "name": "getNavBadgeCountsByHref",
+          "description": "href→count map for icon rail domains/sections"
+        },
+        {
+          "name": "getSectionTabsWithCounts",
+          "description": "Section tabs with counter values applied"
+        },
+        {
+          "name": "renderSection",
+          "description": "Loads section params via nuqs, fetches rows, renders table or grid"
+        }
+      ],
+      "components": [
+        "admin-domain-layout - Domain header + section tabs wrapper"
+      ],
+      "dependencies": [],
+      "routes": [
+        "/admin/eshop/*",
+        "/admin/blog/*",
+        "/admin/b2b/*",
+        "/admin/production/*",
+        "/admin/reports/*",
+        "/admin/system/*"
+      ],
+      "tables": {
+        "reads": ["orders", "carts", "postComments", "b2bApplications"],
+        "writes": []
+      },
+      "cacheTags": ["orders", "carts", "comments", "b2b-applications"]
+    },
+    {
       "name": "daily-view-sidebar",
       "path": "src/features/daily-view-sidebar",
       "critical": false,
@@ -1966,14 +2013,6 @@
         "recent-orders"
       ]
     },
-    "sheets": {
-      "path": "src/components/sheets",
-      "description": "Slide-over modal forms for admin CRUD.",
-      "components": [
-        "edit-product-sheet - Product create/edit",
-        "edit-store-sheet - Store create/edit"
-      ]
-    },
     "filters": {
       "path": "src/components/filters",
       "description": "Shop filtering UI for e-shop catalog.",
@@ -2031,11 +2070,11 @@
         ]
       },
       "admin-layout": {
-        "description": "Admin chrome: header, breadcrumbs, sidebar.",
+        "description": "Admin chrome: header, breadcrumbs, config-driven icon rail sidebar.",
         "components": [
           "admin-header - Admin top bar",
           "admin-breadcrumbs - Admin breadcrumbs",
-          "app-sidebar (use client) - Admin left sidebar"
+          "main-sidebar (use client) - Icon-rail domains from adminConfig"
         ]
       }
     }

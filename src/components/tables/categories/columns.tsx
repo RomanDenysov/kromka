@@ -33,7 +33,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { AdminCategory } from "@/features/categories/api/queries";
-import { getAdminCategoriesLink } from "@/hooks/use-category-params";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 // biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
@@ -85,7 +84,7 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
       <div className="flex items-center gap-1.5">
         <Link
           className={buttonVariants({ variant: "link", size: "xs" })}
-          href={getAdminCategoriesLink({ categoryId: row.original.id })}
+          href={`/admin/eshop/categories/${row.original.id}`}
         >
           {row.original.name}
         </Link>
@@ -265,9 +264,7 @@ export const columns: ColumnDef<AdminCategory, CategoryTableMeta>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link
-                href={getAdminCategoriesLink({ categoryId: row.original.id })}
-              >
+              <Link href={`/admin/eshop/categories/${row.original.id}`}>
                 <PencilIcon />
                 Upraviť
               </Link>

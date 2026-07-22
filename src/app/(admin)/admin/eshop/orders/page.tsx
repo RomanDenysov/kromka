@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { OrdersTable } from "@/components/tables/orders/table";
 import { getAllOrders } from "@/features/orders/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
 async function OrdersLoader() {
@@ -11,18 +10,10 @@ async function OrdersLoader() {
 
 export default function B2COrdersPage() {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "E-shop", href: "/admin/eshop" },
-          { label: "Objednávky", href: "/admin/eshop/orders" },
-        ]}
-      />
-      <section className="h-full flex-1">
-        <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-          <OrdersLoader />
-        </Suspense>
-      </section>
-    </>
+    <section className="h-full flex-1">
+      <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
+        <OrdersLoader />
+      </Suspense>
+    </section>
   );
 }

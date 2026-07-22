@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { FormSkeleton } from "@/components/forms/form-skeleton";
 import { getAdminCategoryById } from "@/features/categories/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { CategoryFormContainer } from "./_components/category-form-container";
 
 interface Props {
@@ -24,23 +23,14 @@ async function CategoryLoader({ params }: Props) {
 
 export default function CategoryPage({ params }: Props) {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "E-shop", href: "/admin/eshop" },
-          { label: "Kategórie", href: "/admin/eshop/categories" },
-          { label: "Upraviť kategóriu" },
-        ]}
-      />
-      <section className="@container/page h-full flex-1 p-4">
-        <Suspense
-          fallback={
-            <FormSkeleton className="w-full @md/page:max-w-md shrink-0 p-4" />
-          }
-        >
-          <CategoryLoader params={params} />
-        </Suspense>
-      </section>
-    </>
+    <section className="@container/page h-full flex-1 p-4">
+      <Suspense
+        fallback={
+          <FormSkeleton className="w-full @md/page:max-w-md shrink-0 p-4" />
+        }
+      >
+        <CategoryLoader params={params} />
+      </Suspense>
+    </section>
   );
 }

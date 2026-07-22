@@ -25,7 +25,6 @@ import {
   ProfitabilityKpisSkeleton,
 } from "@/features/reports/components/profitability-kpis";
 import { resolvePeriod } from "@/features/reports/lib/period";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { FormContainer } from "./form-container";
 
 interface Props {
@@ -168,23 +167,13 @@ async function ProductProfitabilityStrip({ params }: Props) {
 
 export default function B2CProductPage({ params }: Props) {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "E-shop", href: "/admin/eshop" },
-          { label: "Produkty", href: "/admin/eshop/products" },
-          { label: "Upraviť produkt" },
-        ]}
-      />
-
-      <section className="@container/page h-full flex-1 space-y-6 p-4">
-        <Suspense fallback={<ProfitabilityKpisSkeleton />}>
-          <ProductProfitabilityStrip params={params} />
-        </Suspense>
-        <Suspense fallback={<FormSkeleton />}>
-          <ProductFormLoader params={params} />
-        </Suspense>
-      </section>
-    </>
+    <section className="@container/page h-full flex-1 space-y-6 p-4">
+      <Suspense fallback={<ProfitabilityKpisSkeleton />}>
+        <ProductProfitabilityStrip params={params} />
+      </Suspense>
+      <Suspense fallback={<FormSkeleton />}>
+        <ProductFormLoader params={params} />
+      </Suspense>
+    </section>
   );
 }

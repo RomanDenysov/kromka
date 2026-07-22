@@ -13,7 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArchiveIcon, PlusIcon } from "lucide-react";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +34,6 @@ import {
   toggleIsActiveProductAction,
 } from "@/features/products/api/actions";
 import type { AdminProduct } from "@/features/products/api/queries";
-import { useProductParams } from "@/hooks/use-product-params";
 import { DataTable } from "@/widgets/data-table/data-table";
 import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
 import { DataTableSearch } from "@/widgets/data-table/data-table-search";
@@ -51,10 +50,6 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
   });
   const [globalFilter, setGlobalFilter] = useState("");
   const [isPending, startTransition] = useTransition();
-
-  const { setParams } = useProductParams();
-
-  const processedProducts = useMemo(() => products ?? [], [products]);
 
   const table = useReactTable<AdminProduct>({
     onColumnFiltersChange: setColumnFilters,
@@ -85,16 +80,13 @@ export function ProductsTable({ products }: { products: AdminProduct[] }) {
       pagination,
       globalFilter,
     },
-    data: processedProducts,
+    data: products,
     getRowId: ({ id }) => id,
     columns,
     enableGlobalFilter: true,
     enableRowSelection: true,
     enableMultiSort: true,
     meta: {
-      onOpen: (id: string) => {
-        setParams({ productId: id });
-      },
       onToggleActive: async (id: string) => {
         await toggleIsActiveProductAction({ id });
       },

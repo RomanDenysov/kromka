@@ -8,7 +8,6 @@ import {
 } from "@/features/ingredients/api/queries";
 import { IngredientForm } from "@/features/ingredients/components/ingredient-form";
 import { PriceHistoryPanel } from "@/features/ingredients/components/price-history-panel";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -45,19 +44,10 @@ async function IngredientDetailLoader({ params }: Props) {
 export default function IngredientDetailPage({ params }: Props) {
   // Middleware guards /admin/*; server actions guard mutations.
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Výroba", href: "/admin/production" },
-          { label: "Suroviny", href: "/admin/production/ingredients" },
-          { label: "Detail" },
-        ]}
-      />
-      <section className="@container/page p-4">
-        <Suspense fallback={<FormSkeleton />}>
-          <IngredientDetailLoader params={params} />
-        </Suspense>
-      </section>
-    </>
+    <section className="@container/page p-4">
+      <Suspense fallback={<FormSkeleton />}>
+        <IngredientDetailLoader params={params} />
+      </Suspense>
+    </section>
   );
 }

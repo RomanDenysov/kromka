@@ -1,9 +1,7 @@
-import type { Route } from "next";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getActivityFeed } from "@/features/activity-log/api/queries";
 import { ActivityFeed } from "@/features/activity-log/components/activity-feed";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { ActivityFilters } from "./activity-filters";
 import { loadActivitySearchParams } from "./activity-search-params";
 
@@ -37,16 +35,8 @@ export default function AdminActivityPage({
   searchParams: SearchParams;
 }) {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Systém", href: "/admin/system" },
-          { label: "Aktivita", href: "/admin/system/activity" as Route },
-        ]}
-      />
-      <Suspense fallback={<Skeleton className="m-4 h-96" />}>
-        <ActivityPageContent searchParams={searchParams} />
-      </Suspense>
-    </>
+    <Suspense fallback={<Skeleton className="m-4 h-96" />}>
+      <ActivityPageContent searchParams={searchParams} />
+    </Suspense>
   );
 }

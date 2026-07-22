@@ -2,7 +2,6 @@ import { Suspense } from "react";
 import { FormSkeleton } from "@/components/forms/form-skeleton";
 import { getOrderById } from "@/features/orders/api/queries";
 import { getStores } from "@/features/stores/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 import { OrderDetail } from "./_components/order-detail";
 
 interface Props {
@@ -23,19 +22,10 @@ async function OrderLoader({ params }: Props) {
 
 export default function AdminOrderPage({ params }: Props) {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "E-shop", href: "/admin/eshop" },
-          { label: "Objednávky", href: "/admin/eshop/orders" },
-          { label: "Detail objednávky" },
-        ]}
-      />
-      <section className="@container/page h-full flex-1 p-4">
-        <Suspense fallback={<FormSkeleton />}>
-          <OrderLoader params={params} />
-        </Suspense>
-      </section>
-    </>
+    <section className="@container/page h-full flex-1 p-4">
+      <Suspense fallback={<FormSkeleton />}>
+        <OrderLoader params={params} />
+      </Suspense>
+    </section>
   );
 }

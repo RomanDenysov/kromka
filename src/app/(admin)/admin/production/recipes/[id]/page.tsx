@@ -10,7 +10,6 @@ import {
   getResolverContext,
 } from "@/features/recipes/api/queries";
 import { RecipeBuilder } from "@/features/recipes/components/recipe-builder";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -87,19 +86,10 @@ async function RecipeDetailLoader({ params }: Props) {
 export default function RecipeDetailPage({ params }: Props) {
   // Middleware guards /admin/*; server actions handle mutations.
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "Výroba", href: "/admin/production" },
-          { label: "Recepty", href: "/admin/production/recipes" },
-          { label: "Detail" },
-        ]}
-      />
-      <section className="@container/page p-4">
-        <Suspense fallback={<FormSkeleton />}>
-          <RecipeDetailLoader params={params} />
-        </Suspense>
-      </section>
-    </>
+    <section className="@container/page p-4">
+      <Suspense fallback={<FormSkeleton />}>
+        <RecipeDetailLoader params={params} />
+      </Suspense>
+    </section>
   );
 }

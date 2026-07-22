@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getInvoices } from "@/features/b2b/invoices/api/queries";
 import { formatPrice } from "@/lib/utils";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 const STATUS_LABELS: Record<
   string,
@@ -79,18 +78,10 @@ async function InvoicesLoader() {
 
 export default function B2BInvoicesPage() {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "B2B", href: "/admin/b2b" },
-          { label: "Faktúry", href: "/admin/b2b/invoices" as Route },
-        ]}
-      />
-      <section className="h-full flex-1 p-4">
-        <Suspense fallback={<div>Loading...</div>}>
-          <InvoicesLoader />
-        </Suspense>
-      </section>
-    </>
+    <section className="h-full flex-1 p-4">
+      <Suspense fallback={<div>Loading...</div>}>
+        <InvoicesLoader />
+      </Suspense>
+    </section>
   );
 }

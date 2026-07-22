@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import {
   type AdminBreadcrumbItem,
@@ -22,7 +21,7 @@ export function AdminHeader({ breadcrumbs, className, children }: Props) {
         )}
       >
         <div className="flex shrink-0 items-center gap-1 lg:gap-2">
-          <SidebarTrigger className="mr-2" />
+          {/* <SidebarTrigger className="mr-2" /> */}
           <AdminBreadcrumbs breadcrumbs={breadcrumbs} />
         </div>
         <div className="flex flex-1 items-center justify-end gap-2">

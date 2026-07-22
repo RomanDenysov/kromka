@@ -1,12 +1,6 @@
-import type { SearchParams } from "nuqs/server";
 import { Suspense } from "react";
-import { EditCategorySheet } from "@/app/(admin)/admin/eshop/categories/[id]/edit-category-sheet";
 import { CategoriesTable } from "@/components/tables/categories/table";
-import {
-  getAdminCategories,
-  getAdminCategoryById,
-} from "@/features/categories/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
+import { getAdminCategories } from "@/features/categories/api/queries";
 import { DataTableSkeleton } from "@/widgets/data-table/data-table-skeleton";
 
 async function CategoriesLoader() {
@@ -14,38 +8,12 @@ async function CategoriesLoader() {
   return <CategoriesTable categories={categories} />;
 }
 
-async function CategorySheetLoader({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const { categoryId } = await searchParams;
-  const category = await getAdminCategoryById(categoryId as string);
-  if (!category) {
-    return null;
-  }
-  return <EditCategorySheet category={category} />;
-}
-
-export default function CategoriesPage({
-  searchParams,
-}: PageProps<"/admin/eshop/categories">) {
+export default function CategoriesPage() {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "E-shop", href: "/admin/eshop" },
-          { label: "Kategórie", href: "/admin/eshop/categories" },
-        ]}
-      />
-      <section className="h-full flex-1">
-        <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
-          <CategoriesLoader />
-        </Suspense>
-      </section>
-      <Suspense fallback={null}>
-        <CategorySheetLoader searchParams={searchParams} />
+    <section className="h-full flex-1">
+      <Suspense fallback={<DataTableSkeleton columnCount={5} rowCount={5} />}>
+        <CategoriesLoader />
       </Suspense>
-    </>
+    </section>
   );
 }

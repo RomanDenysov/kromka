@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { type CSSProperties, Suspense } from "react";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { AdminSidebar } from "@/widgets/admin-sidebar/admin-sidebar";
-import { AppSidebarSkeleton } from "@/widgets/admin-sidebar/main-sidebar";
+import MainSidebar, {
+  MainSidebarSkeleton,
+} from "@/widgets/admin-sidebar/main-sidebar";
 
 export const metadata: Metadata = {
   title: {
@@ -21,13 +22,13 @@ export default function AdminLayout({
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 64)",
+          "--sidebar-width": "calc(var(--spacing) * 12)",
           "--header-height": "calc(var(--spacing) * 12)",
         } as CSSProperties
       }
     >
-      <Suspense fallback={<AppSidebarSkeleton collapsible="icon" />}>
-        <AdminSidebar />
+      <Suspense fallback={<MainSidebarSkeleton />}>
+        <MainSidebar />
       </Suspense>
 
       <SidebarInset>{children}</SidebarInset>

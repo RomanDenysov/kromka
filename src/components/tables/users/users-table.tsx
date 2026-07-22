@@ -9,7 +9,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -19,7 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { UserList } from "@/features/user-management/api/queries";
-import { useCustomerParams } from "@/hooks/use-customer-params";
 import { cn } from "@/lib/utils";
 import { DataTableMultiSelectFilter } from "@/widgets/data-table/data-table-multi-select-filter";
 import { DataTableSearch } from "@/widgets/data-table/data-table-search";
@@ -32,16 +31,12 @@ export function UsersTable({
   users: UserList;
   className?: string;
 }) {
-  const { setParams } = useCustomerParams();
-
-  const processedUsers = useMemo(() => users, [users]);
-
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
   const table = useReactTable<UserList[number]>({
-    data: processedUsers,
+    data: users,
     columns,
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
@@ -67,9 +62,6 @@ export function UsersTable({
       globalFilter,
     },
     meta: {
-      onOpen: (id: string) => {
-        setParams({ customerId: id });
-      },
       onLock: (_id: string) => {
         // TODO: implement user lock functionality
       },

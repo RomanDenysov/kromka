@@ -30,7 +30,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { AdminStore } from "@/features/stores/api/queries";
-import { getAdminStoresLink } from "@/hooks/use-store-params";
 import { TableColumnHeader } from "@/widgets/data-table/table-column-header";
 
 // biome-ignore lint/style/useConsistentTypeDefinitions: type alias needed for `as` assertion with generic TableMeta
@@ -83,7 +82,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
     cell: ({ row }) => (
       <Link
         className={buttonVariants({ variant: "link", size: "xs" })}
-        href={getAdminStoresLink({ storeId: row.original.id })}
+        href={`/admin/eshop/stores/${row.original.id}`}
       >
         {row.original.name}
       </Link>
@@ -172,7 +171,7 @@ export const columns: ColumnDef<AdminStore, StoreTableMeta>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={getAdminStoresLink({ storeId: row.original.id })}>
+              <Link href={`/admin/eshop/stores/${row.original.id}`}>
                 <PencilIcon />
                 Upraviť
               </Link>

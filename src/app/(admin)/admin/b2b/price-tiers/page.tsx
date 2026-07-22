@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createPriceTierAction } from "@/features/b2b/price-tiers/api/actions";
 import { getPriceTiers } from "@/features/b2b/price-tiers/api/queries";
-import { AdminHeader } from "@/widgets/admin-header/admin-header";
 
 async function PriceTiersLoader() {
   const tiers = await getPriceTiers();
@@ -36,28 +35,18 @@ async function PriceTiersLoader() {
 
 export default function B2BPriceTiersPage() {
   return (
-    <>
-      <AdminHeader
-        breadcrumbs={[
-          { label: "B2B", href: "/admin/b2b" },
-          {
-            label: "Cenové skupiny",
-            href: "/admin/b2b/price-tiers" as Route,
-          },
-        ]}
-      >
+    <section className="h-full flex-1 space-y-4 p-4">
+      <div className="flex justify-end">
         <form action={createPriceTierAction}>
           <Button size="sm" type="submit">
             <PlusIcon className="mr-2 size-4" />
             Vytvoriť novú skupinu
           </Button>
         </form>
-      </AdminHeader>
-      <section className="h-full flex-1 p-4">
-        <Suspense fallback={<div>Loading...</div>}>
-          <PriceTiersLoader />
-        </Suspense>
-      </section>
-    </>
+      </div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <PriceTiersLoader />
+      </Suspense>
+    </section>
   );
 }
